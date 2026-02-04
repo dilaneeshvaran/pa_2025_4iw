@@ -28,7 +28,16 @@ docker compose up -d
 
 This will start PostgreSQL
 
-### 3. Start the Development Server
+
+### 3. Run migrations and seeds
+
+```bash
+npx prisma generate
+npx prisma migrate deploy
+npm run seed:dev
+```
+
+### 4. Start the Development Server
 
 **Option A: Auto-reloading only (faster but no type checking)**
 
@@ -36,14 +45,7 @@ This will start PostgreSQL
 npm run dev
 ```
 
-**Option B: Build and run production mode (manual for production)**
-
-```bash
-npm run build
-npm start
-```
-
-### 4. Access the Application
+### 5. Access the Application
 
 - **App**: http://localhost:3000
 
@@ -87,6 +89,11 @@ Seed the database with initial data:
 
 ```bash
 npx prisma db seed
+```
+or
+
+```bash
+npm run seed:dev
 ```
 
 ### Reset Database
