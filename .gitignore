@@ -1,3 +1,6 @@
-dist
+TODO.md
 node_modules
+dist
 .env
+
+/src/generated/prisma
