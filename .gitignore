@@ -1,6 +1,47 @@
-TODO.md
-node_modules
-dist
-.env
+# Dependencies
+node_modules/
+**/node_modules/
 
-/src/generated/prisma
+# Build outputs
+dist/
+**/dist/
+.output
+.nuxt
+.nitro
+.cache
+
+# Environment files
+.env
+.env.*
+!.env.example
+
+# Logs
+logs/
+*.log
+
+# Database
+*.db
+*.sqlite
+
+# IDE
+.vscode/
+.idea/
+.fleet
+*.swp
+*.swo
+*~
+.DS_Store
+
+# OS
+Thumbs.db
+
+# Misc
+TODO.md
+uploads/
+
+# Prisma generated files
+**/src/generated/prisma
+
+# Testing
+coverage/
+.nyc_output/
