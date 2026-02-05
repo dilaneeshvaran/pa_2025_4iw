@@ -1,4 +1,4 @@
-# TSPark
+# MEDICOTE
 
 Medicote is where doctors and patients can connect, manage appointments, share medical records, and do video consultations.
 
@@ -27,7 +27,6 @@ docker compose up -d
 ```
 
 This will start PostgreSQL
-
 
 ### 3. Run migrations and seeds
 
@@ -90,6 +89,7 @@ Seed the database with initial data:
 ```bash
 npx prisma db seed
 ```
+
 or
 
 ```bash
