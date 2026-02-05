@@ -1,40 +1,32 @@
 {
-  "name": "medicote",
+  "name": "medicote-monorepo",
   "version": "1.0.0",
-  "description": "",
-  "main": "index.js",
+  "description": "Medicote - Medical appointment and consultation platform",
+  "private": true,
+  "workspaces": [
+    "backend",
+    "frontend",
+    "shared"
+  ],
   "scripts": {
-    "dev": "tsx watch src/index.ts",
-    "build": "tsc",
-    "start": "node dist/index.js",
-    "seed:dev": "tsx prisma/seed.dev.ts"
+    "dev": "npm run dev:backend & npm run dev:frontend",
+    "dev:backend": "npm run dev --workspace=backend",
+    "dev:frontend": "npm run dev --workspace=frontend",
+    "build": "npm run build:backend && npm run build:frontend",
+    "build:backend": "npm run build --workspace=backend",
+    "build:frontend": "npm run build --workspace=frontend",
+    "start": "npm run start:backend & npm run start:frontend",
+    "start:backend": "npm run start --workspace=backend",
+    "start:frontend": "npm run preview --workspace=frontend",
+    "install:all": "npm install",
+    "seed:dev": "npm run seed:dev --workspace=backend"
   },
-  "prisma": {
-    "seed": "tsx prisma/seed.dev.ts"
-  },
-  "keywords": [],
-  "author": "",
-  "license": "ISC",
-  "dependencies": {
-    "@prisma/adapter-pg": "^7.3.0",
-    "@prisma/client": "^7.3.0",
-    "bcrypt": "^6.0.0",
-    "dotenv": "^17.2.3",
-    "fastify": "^5.7.4",
-    "fastify-type-provider-zod": "^6.1.0",
-    "jsonwebtoken": "^9.0.3",
-    "nodemailer": "^8.0.0",
-    "pg": "^8.18.0",
-    "prisma": "^7.3.0",
-    "zod": "^4.3.6"
-  },
-  "devDependencies": {
-    "@types/bcrypt": "^6.0.0",
-    "@types/jsonwebtoken": "^9.0.10",
-    "@types/node": "^25.2.0",
-    "@types/nodemailer": "^7.0.9",
-    "@types/pg": "^8.16.0",
-    "tsx": "^4.21.0",
-    "typescript": "^5.9.3"
-  }
+  "keywords": [
+    "medicote",
+    "medical",
+    "appointments",
+    "telemedicine"
+  ],
+  "author": "Dilan EESHVARAN, AKA Kassi Joel Emmanuel, Sylvain ANTIN, Alix Sylvani",
+  "license": "ISC"
 }
