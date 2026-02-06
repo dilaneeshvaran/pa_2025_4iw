@@ -20,13 +20,11 @@ export interface AuthResponse {
 export interface CreateUserData {
   email: string
   password: string
-  role: UserRole
   firstName: string
   lastName: string
   phone: string
   dateOfBirth?: Date
   gender?: Gender
-  specialtyIds?: string[]
 }
 
 export interface PasswordResetData {

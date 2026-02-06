@@ -14,8 +14,6 @@ import {
 } from '../../utils/email'
 import { CreateUserData, AuthResponse, AuthTokens } from './auth.types'
 
-
-
 export class AuthService {
   async signup(data: CreateUserData): Promise<AuthResponse> {
     const existingUser = await prisma.user.findUnique({
@@ -28,52 +26,27 @@ export class AuthService {
 
     const hashedPassword = await hashPassword(data.password)
 
+    // Force PATIENT role for public signup
     const user = await prisma.user.create({
       data: {
         email: data.email,
         password: hashedPassword,
-        role: data.role,
+        role: UserRole.PATIENT, // Always PATIENT for public signup
         status: UserStatus.PENDING_VERIFICATION,
       },
     })
 
-    // create profile based on role
-    if (data.role === UserRole.PATIENT) {
-      await prisma.patient.create({
-        data: {
-          userId: user.id,
-          firstName: data.firstName,
-          lastName: data.lastName,
-          phone: data.phone,
-          dateOfBirth: data.dateOfBirth || new Date(),
-          gender: data.gender || 'PREFER_NOT_TO_SAY',
-        },
-      })
-    } else if (data.role === UserRole.PRACTITIONER) {
-      await prisma.practitioner.create({
-        data: {
-          userId: user.id,
-          firstName: data.firstName,
-          lastName: data.lastName,
-          phone: data.phone,
-          title: 'Dr.',
-          licenseNumber: `TEMP-${user.id}`,
-          address: '',
-          city: '',
-          baseConsultationFee: 0,
-        },
-      })
-
-      // link specialties if provided
-      if (data.specialtyIds && data.specialtyIds.length > 0) {
-        await prisma.practitionerSpecialty.createMany({
-          data: data.specialtyIds.map((specialtyId) => ({
-            practitionerId: user.id,
-            specialtyId,
-          })),
-        })
-      }
-    }
+    // Create patient profile
+    await prisma.patient.create({
+      data: {
+        userId: user.id,
+        firstName: data.firstName,
+        lastName: data.lastName,
+        phone: data.phone,
+        dateOfBirth: data.dateOfBirth || new Date(),
+        gender: data.gender || 'PREFER_NOT_TO_SAY',
+      },
+    })
 
     const verificationToken = generateToken()
     const expiresAt = new Date()
