@@ -4,7 +4,7 @@ import 'dotenv/config'
 const start = async () => {
   try {
     const address = await app.listen({
-      port: Number(process.env.BACKEND_PORT) || 3000,
+      port: Number(process.env.BACKEND_PORT) || 3001,
       host: process.env.BACKEND_HOST || '0.0.0.0',
     })
     console.log(
