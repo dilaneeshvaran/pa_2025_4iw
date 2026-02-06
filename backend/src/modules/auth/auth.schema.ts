@@ -12,15 +12,11 @@ export const signupSchema = z.object({
       /[^A-Za-z0-9]/,
       'Le mot de passe doit contenir au moins un caractère spécial',
     ),
-  role: z.enum(['PATIENT', 'PRACTITIONER'], {
-    message: 'Le rôle doit être PATIENT ou PRACTITIONER',
-  }),
   firstName: z.string().min(2, 'Le prénom doit contenir au moins 2 caractères'),
   lastName: z.string().min(2, 'Le nom doit contenir au moins 2 caractères'),
   phone: z.string().regex(/^\+?[0-9]{10,15}$/, 'Numéro de téléphone invalide'),
-  dateOfBirth: z.string().optional(), // patients
-  gender: z.enum(['MALE', 'FEMALE', 'OTHER', 'PREFER_NOT_TO_SAY']).optional(), // patients
-  specialtyIds: z.array(z.string()).optional(), // practitioners
+  dateOfBirth: z.string(), // Required for patients
+  gender: z.enum(['MALE', 'FEMALE', 'OTHER', 'PREFER_NOT_TO_SAY']), // Required for patients
 })
 
 export type SignupInput = z.infer<typeof signupSchema>

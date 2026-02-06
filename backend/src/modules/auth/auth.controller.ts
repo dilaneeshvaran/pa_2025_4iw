@@ -23,13 +23,11 @@ export class AuthController {
       const result = await authService.signup({
         email: data.email,
         password: data.password,
-        role: data.role,
         firstName: data.firstName,
         lastName: data.lastName,
         phone: data.phone,
         dateOfBirth: data.dateOfBirth ? new Date(data.dateOfBirth) : undefined,
         gender: data.gender,
-        specialtyIds: data.specialtyIds,
       })
 
       return reply.status(201).send({
