@@ -1,4 +1,5 @@
-import { PrismaClient, UserRole, UserStatus } from '@prisma/client'
+import { UserRole, UserStatus } from '@prisma/client'
+import prisma from '../../config/database'
 import { hashPassword, comparePassword } from '../../utils/bcrypt'
 import {
   generateAccessToken,
@@ -13,7 +14,7 @@ import {
 } from '../../utils/email'
 import { CreateUserData, AuthResponse, AuthTokens } from './auth.types'
 
-const prisma = new PrismaClient()
+
 
 export class AuthService {
   async signup(data: CreateUserData): Promise<AuthResponse> {
@@ -134,7 +135,7 @@ export class AuthService {
       // lock account after 5 failed attempts
       if (failedAttempts >= 5) {
         const lockedUntil = new Date()
-        lockedUntil.setMinutes(lockedUntil.getMinutes() + 15) // Lock for 15 minutes
+        lockedUntil.setMinutes(lockedUntil.getMinutes() + 15) // lock for 15 minutes
         updateData.lockedUntil = lockedUntil
       }
 
