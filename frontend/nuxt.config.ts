@@ -1,5 +1,3 @@
-import { fileURLToPath } from "url";
-
 // https://nuxt.com/docs/api/configuration/nuxt-config
 export default defineNuxtConfig({
   compatibilityDate: "2025-07-15",
@@ -11,18 +9,11 @@ export default defineNuxtConfig({
     "@pinia/nuxt",
     "@nuxtjs/google-fonts",
     "@vueuse/nuxt",
+    "@nuxt/icon",
+    "@nuxt/eslint",
   ],
 
   css: ["~/assets/css/main.css"],
-
-  vite: {
-    resolve: {
-      alias: {
-        "~": fileURLToPath(new URL("./", import.meta.url)),
-        "@": fileURLToPath(new URL("./", import.meta.url)),
-      },
-    },
-  },
 
   runtimeConfig: {
     public: {
@@ -30,6 +21,13 @@ export default defineNuxtConfig({
       stripePublicKey: process.env.FRONTEND_STRIPE_PUBLIC_KEY,
       googleClientId: process.env.FRONTEND_GOOGLE_CLIENT_ID,
     },
+  },
+
+  googleFonts: {
+    families: {
+      Inter: [300, 400, 500, 600, 700],
+    },
+    display: "swap",
   },
 
   app: {
