@@ -1,3 +1,5 @@
+import { fileURLToPath } from "url";
+
 // https://nuxt.com/docs/api/configuration/nuxt-config
 export default defineNuxtConfig({
   compatibilityDate: "2025-07-15",
@@ -9,10 +11,18 @@ export default defineNuxtConfig({
     "@pinia/nuxt",
     "@nuxtjs/google-fonts",
     "@vueuse/nuxt",
-    "nuxt-icon",
   ],
 
   css: ["~/assets/css/main.css"],
+
+  vite: {
+    resolve: {
+      alias: {
+        "~": fileURLToPath(new URL("./", import.meta.url)),
+        "@": fileURLToPath(new URL("./", import.meta.url)),
+      },
+    },
+  },
 
   runtimeConfig: {
     public: {
