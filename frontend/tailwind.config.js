@@ -6,6 +6,7 @@ module.exports = {
     "./pages/**/*.vue",
     "./plugins/**/*.{js,ts}",
     "./app.vue",
+    "./app/**/*.{js,vue,ts}",
   ],
   theme: {
     extend: {
