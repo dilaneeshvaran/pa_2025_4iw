@@ -9,13 +9,13 @@
     "shared"
   ],
   "scripts": {
-    "dev": "npm run dev:backend & npm run dev:frontend",
+    "dev": "concurrently \"npm run dev:backend\" \"npm run dev:frontend\"",
     "dev:backend": "npm run dev --workspace=backend",
     "dev:frontend": "npm run dev --workspace=frontend",
     "build": "npm run build:backend && npm run build:frontend",
     "build:backend": "npm run build --workspace=backend",
     "build:frontend": "npm run build --workspace=frontend",
-    "start": "npm run start:backend & npm run start:frontend",
+    "start": "concurrently \"npm run start:backend\" \"npm run start:frontend\"",
     "start:backend": "npm run start --workspace=backend",
     "start:frontend": "npm run preview --workspace=frontend",
     "install:all": "npm install",
@@ -28,5 +28,8 @@
     "telemedicine"
   ],
   "author": "Dilan EESHVARAN, AKA Kassi Joel Emmanuel, Sylvain ANTIN, Alix Sylvani",
-  "license": "ISC"
+  "license": "ISC",
+  "devDependencies": {
+    "concurrently": "^9.2.1"
+  }
 }
