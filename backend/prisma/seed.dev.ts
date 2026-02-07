@@ -421,7 +421,7 @@ async function main() {
     const user = await prisma.user.create({
       data: {
         email: data.email,
-        password: await hashPassword(getEnv('BACK_PRACTITIONER_PASSWORD')),
+        password: await hashPassword(getEnv('BACKEND_PRACTITIONER_PASSWORD')),
         role: 'PRACTITIONER',
         status: 'ACTIVE',
         emailVerified: new Date(),
