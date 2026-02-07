@@ -1,5 +1,7 @@
 <template>
-  <div class="flex min-h-[calc(100vh-4rem)] items-center justify-center px-4">
+  <div
+    class="flex min-h-[calc(100vh-4rem)] flex-col items-center justify-center px-4"
+  >
     <div class="mx-auto max-w-4xl space-y-8 text-center">
       <h1 class="text-5xl font-bold text-gray-900 md:text-6xl">
         Bienvenue sur <span class="text-blue-600">Medicote</span>
@@ -36,6 +38,27 @@
           Vous êtes connecté(e) en tant que {{ authStore.user?.email }}
         </div>
       </div>
+
+      <Card class="mt-8 p-6">
+        <div class="grid gap-4 md:grid-cols-3">
+          <Input
+            v-model="specialty"
+            :icon="Search"
+            placeholder="Spécialité, praticien..."
+            class-name="w-full"
+          />
+          <Input
+            v-model="location"
+            :icon="MapPin"
+            placeholder="Ville, quartier..."
+            class-name="w-full"
+          />
+          <Button @click="handleSearch" class="w-full">
+            <Search class="mr-2 h-5 w-5" />
+            Rechercher
+          </Button>
+        </div>
+      </Card>
 
       <!-- practitioner contact  -->
       <div class="pt-8">
@@ -84,9 +107,33 @@
 </template>
 
 <script setup lang="ts">
+import { ref } from "vue";
 import { useAuthStore } from "~/stores/auth";
+import { Search, MapPin } from "lucide-vue-next";
+import Card from "~/components/ui/Card.vue";
+import Input from "~/components/ui/Input.vue";
+import Button from "~/components/ui/Button.vue";
 
 const authStore = useAuthStore();
+const specialty = ref("");
+const location = ref("");
+
+const handleSearch = () => {
+  const query: Record<string, string> = {};
+
+  if (specialty.value) {
+    query.search = specialty.value;
+  }
+
+  if (location.value) {
+    query.city = location.value;
+  }
+
+  navigateTo({
+    path: "/search",
+    query,
+  });
+};
 
 onMounted(() => {
   authStore.initAuth();

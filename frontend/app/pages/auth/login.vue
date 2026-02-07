@@ -86,7 +86,7 @@
           <p class="text-sm text-gray-600">
             Vous n'avez pas de compte ?
             <NuxtLink
-              to="/auth/register"
+              :to="`/auth/register${route.query.redirect ? '?redirect=' + encodeURIComponent(route.query.redirect as string) : ''}`"
               class="font-medium text-blue-600 hover:text-blue-500"
             >
               Créer un compte
@@ -140,8 +140,9 @@ const handleLogin = async () => {
     // store auth data
     authStore.setAuth(response.user, response.tokens);
 
-    // redirect to dashboard/home
-    await router.push("/");
+    // redirect to the original page or dashboard/home
+    const redirectTo = (route.query.redirect as string) || "/";
+    await router.push(redirectTo);
   } catch (error: unknown) {
     console.error("Login error:", error);
     const err = error as { data?: { message?: string }; message?: string };
