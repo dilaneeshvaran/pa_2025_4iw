@@ -37,6 +37,17 @@
         </div>
       </div>
 
+      <!-- practitioner contact  -->
+      <div class="pt-8">
+        <NuxtLink
+          to="/contact/practitioner"
+          class="inline-flex items-center gap-2 rounded-md border-2 border-gray-300 bg-white px-6 py-3 text-base font-medium text-gray-700 transition-colors hover:border-blue-600 hover:bg-blue-50 hover:text-blue-600"
+        >
+          <span class="text-xl">⚕️</span>
+          <span>Vous êtes soignant ?</span>
+        </NuxtLink>
+      </div>
+
       <div class="grid grid-cols-1 gap-6 pt-12 md:grid-cols-3">
         <div class="rounded-lg bg-white p-6 shadow-sm">
           <div class="mb-3 text-4xl text-blue-600">📅</div>
