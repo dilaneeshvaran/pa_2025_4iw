@@ -184,7 +184,7 @@
           <p class="text-sm text-gray-600">
             Vous avez déjà un compte ?
             <NuxtLink
-              to="/auth/login"
+              :to="`/auth/login${route.query.redirect ? '?redirect=' + encodeURIComponent(route.query.redirect as string) : ''}`"
               class="font-medium text-blue-600 hover:text-blue-500"
             >
               Se connecter
@@ -207,6 +207,7 @@ definePageMeta({
 });
 
 const router = useRouter();
+const route = useRoute();
 const auth = useAuth();
 
 const formData = ref<{
@@ -262,9 +263,12 @@ const handleRegister = async () => {
     successMessage.value =
       "Inscription réussie ! Un email de vérification a été envoyé à votre adresse email.";
 
-    // redirect to login after 3 seconds
+    // redirect to login with original redirect url after 3 seconds
+    const redirectParam = route.query.redirect
+      ? `?redirect=${encodeURIComponent(route.query.redirect as string)}`
+      : "";
     setTimeout(() => {
-      router.push("/auth/login");
+      router.push(`/auth/login${redirectParam}`);
     }, 3000);
   } catch (error: unknown) {
     console.error("Registration error:", error);
