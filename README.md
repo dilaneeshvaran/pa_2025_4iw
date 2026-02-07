@@ -30,18 +30,7 @@ This will install dependencies for backend, frontend and shared.
 
 ### 2. Environment Setup
 
-Copy the `.env.example` file to `.env` and fill in your configuration:
-
-```bash
-cp .env.example .env
-```
-
-Edit `.env` with your actual values for:
-
-- Database credentials (BACKEND*POSTGRES*\*)
-- JWT secrets (BACKEND*JWT*\*)
-- SMTP settings (BACKEND*SMTP*\*)
-- API keys and other services
+Ask for the .env files for backend and frontend from your project lead.
 
 ### 3. Start the Database
 
