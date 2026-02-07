@@ -1,0 +1,674 @@
+<template>
+  <div class="min-h-screen bg-gray-50">
+    <header class="border-b border-gray-200 bg-white">
+      <div
+        class="mx-auto flex max-w-7xl items-center justify-between px-4 py-4 sm:px-6 lg:px-8"
+      >
+        <NuxtLink
+          to="/"
+          class="cursor-pointer text-2xl font-bold text-[var(--color-primary)]"
+        >
+          MediCôte
+        </NuxtLink>
+        <div class="flex items-center gap-4">
+          <Button variant="secondary" @click="navigateTo('/search')">
+            Retour
+          </Button>
+        </div>
+      </div>
+    </header>
+
+    <div class="mx-auto max-w-7xl px-4 py-8 sm:px-6 lg:px-8">
+      <!-- loading -->
+      <div v-if="loading" class="flex items-center justify-center py-12">
+        <div class="text-center">
+          <div
+            class="mx-auto h-12 w-12 animate-spin rounded-full border-4 border-gray-300 border-t-[var(--color-primary)]"
+          ></div>
+          <p class="mt-4 text-gray-600">Chargement...</p>
+        </div>
+      </div>
+
+      <!-- error State -->
+      <Card v-else-if="error" class="text-center">
+        <div class="py-8">
+          <IconAlertCircle class="mx-auto mb-4 h-12 w-12 text-red-500" />
+          <h3 class="mb-2 text-xl font-semibold text-gray-900">Erreur</h3>
+          <p class="text-gray-600">{{ error }}</p>
+          <Button class="mt-4" @click="navigateTo('/search')">
+            Retour à la recherche
+          </Button>
+        </div>
+      </Card>
+
+      <!-- doctor profile  -->
+      <template v-else-if="practitioner">
+        <Card class="mb-6">
+          <div class="flex flex-col gap-6 md:flex-row">
+            <!-- avatar -->
+            <div class="flex-shrink-0">
+              <div class="h-32 w-32 overflow-hidden rounded-full bg-gray-200">
+                <img
+                  v-if="practitioner.photo"
+                  :src="practitioner.photo"
+                  :alt="`${practitioner.title} ${practitioner.firstName} ${practitioner.lastName}`"
+                  class="h-full w-full object-cover"
+                />
+                <div
+                  v-else
+                  class="flex h-full w-full items-center justify-center bg-gradient-to-br from-blue-500 to-purple-500 text-3xl font-bold text-white"
+                >
+                  {{ practitioner.firstName?.charAt(0)
+                  }}{{ practitioner.lastName?.charAt(0) }}
+                </div>
+              </div>
+            </div>
+
+            <div class="flex-1">
+              <div
+                class="mb-3 flex flex-col items-start justify-between gap-4 md:flex-row md:items-start"
+              >
+                <div>
+                  <div class="mb-2 flex items-center gap-2">
+                    <h1 class="text-3xl font-bold">
+                      {{ practitioner.title }} {{ practitioner.firstName }}
+                      {{ practitioner.lastName }}
+                    </h1>
+                    <IconCheckCircle
+                      v-if="practitioner.licenseVerified"
+                      class="h-6 w-6 text-[var(--color-success)]"
+                    />
+                  </div>
+                  <p class="mb-2 text-xl text-gray-600">
+                    {{
+                      practitioner.specialties?.[0]?.name ||
+                      "Médecin généraliste"
+                    }}
+                  </p>
+                  <div class="flex flex-wrap items-center gap-4">
+                    <div class="flex items-center gap-1">
+                      <IconStar
+                        class="h-5 w-5 fill-yellow-400 text-yellow-400"
+                      />
+                      <span class="text-lg font-medium">{{
+                        practitioner.averageRating?.toFixed(1) || "N/A"
+                      }}</span>
+                      <span class="text-gray-600"
+                        >({{ practitioner.totalReviews }} avis)</span
+                      >
+                    </div>
+                    <div class="flex items-center gap-1 text-gray-600">
+                      <IconMapPin class="h-5 w-5" />
+                      {{ practitioner.city }}
+                    </div>
+                    <div
+                      v-if="practitioner.yearsOfExperience"
+                      class="flex items-center gap-1 text-gray-600"
+                    >
+                      <IconBriefcase class="h-5 w-5" />
+                      {{ practitioner.yearsOfExperience }} ans d'expérience
+                    </div>
+                  </div>
+                </div>
+                <Button @click="goToAvailability">
+                  Réserver une consultation
+                </Button>
+              </div>
+            </div>
+          </div>
+        </Card>
+
+        <!-- tabs -->
+        <div class="tabs-section mb-6">
+          <div class="flex gap-2 border-b border-gray-200">
+            <button
+              v-for="tab in tabs"
+              :key="tab.id"
+              @click="activeTab = tab.id"
+              :class="[
+                'px-6 py-3 font-medium transition-colors',
+                activeTab === tab.id
+                  ? 'border-b-2 border-[var(--color-primary)] text-[var(--color-primary)]'
+                  : 'text-gray-600 hover:text-gray-900',
+              ]"
+            >
+              {{ tab.label }}
+            </button>
+          </div>
+        </div>
+
+        <div v-show="activeTab === 'about'" class="grid gap-6 md:grid-cols-2">
+          <Card>
+            <h3 class="mb-4 text-xl font-semibold">Biographie</h3>
+            <p class="leading-relaxed text-gray-700">
+              {{ practitioner.bio || "Aucune biographie disponible." }}
+            </p>
+          </Card>
+
+          <!-- education/qualifications -->
+          <Card>
+            <div class="mb-4 flex items-center gap-2">
+              <IconGraduationCap class="h-5 w-5 text-[var(--color-primary)]" />
+              <h3 class="text-xl font-semibold">Formation</h3>
+            </div>
+            <ul v-if="practitioner.qualifications?.length" class="space-y-2">
+              <li
+                v-for="edu in practitioner.qualifications"
+                :key="edu.id"
+                class="flex items-start gap-2 text-gray-700"
+              >
+                <IconCheckCircle
+                  class="mt-0.5 h-5 w-5 flex-shrink-0 text-[var(--color-success)]"
+                />
+                <span>
+                  {{ edu.degree }} - {{ edu.institution }} ({{
+                    edu.yearObtained
+                  }})
+                </span>
+              </li>
+            </ul>
+            <p v-else class="text-gray-600">Aucune formation renseignée.</p>
+          </Card>
+
+          <!-- languages -->
+          <Card>
+            <div class="mb-4 flex items-center gap-2">
+              <IconGlobe class="h-5 w-5 text-[var(--color-primary)]" />
+              <h3 class="text-xl font-semibold">Langues parlées</h3>
+            </div>
+            <div
+              v-if="practitioner.languages?.length"
+              class="flex flex-wrap gap-2"
+            >
+              <Badge
+                v-for="(lang, index) in practitioner.languages"
+                :key="index"
+                variant="primary"
+              >
+                {{ lang }}
+              </Badge>
+            </div>
+            <div v-else class="flex flex-wrap gap-2">
+              <Badge variant="primary">Français</Badge>
+            </div>
+          </Card>
+
+          <!-- pricing -->
+          <Card>
+            <div class="mb-4 flex items-center gap-2">
+              <IconDollarSign class="h-5 w-5 text-[var(--color-primary)]" />
+              <h3 class="text-xl font-semibold">Tarifs</h3>
+            </div>
+            <div class="space-y-3">
+              <div class="flex items-center justify-between">
+                <span class="text-gray-700">Consultation au cabinet</span>
+                <span class="text-lg font-medium">
+                  {{ practitioner.baseConsultationFee.toLocaleString() }} FCFA
+                </span>
+              </div>
+              <div
+                v-if="
+                  practitioner.teleconsultationEnabled &&
+                  practitioner.teleconsultationFee
+                "
+                class="flex items-center justify-between"
+              >
+                <span class="text-gray-700">Téléconsultation</span>
+                <span class="text-lg font-medium">
+                  {{ practitioner.teleconsultationFee.toLocaleString() }} FCFA
+                </span>
+              </div>
+              <div class="flex items-center justify-between">
+                <span class="text-gray-700">Durée de consultation</span>
+                <span class="text-lg font-medium">
+                  {{ practitioner.consultationDuration }} min
+                </span>
+              </div>
+            </div>
+          </Card>
+
+          <!-- clinic photos -->
+          <Card v-if="practitioner.photos?.length" class="md:col-span-2">
+            <h3 class="mb-4 text-xl font-semibold">Photos du cabinet</h3>
+            <div class="grid grid-cols-2 gap-4 md:grid-cols-3">
+              <img
+                v-for="(photo, i) in practitioner.photos"
+                :key="i"
+                :src="photo"
+                :alt="`Cabinet ${i + 1}`"
+                class="h-48 w-full rounded-lg object-cover"
+              />
+            </div>
+          </Card>
+
+          <!-- other info -->
+          <Card class="md:col-span-2">
+            <h3 class="mb-4 text-xl font-semibold">
+              Informations complémentaires
+            </h3>
+            <div class="grid gap-4 md:grid-cols-3">
+              <div class="flex items-center gap-2">
+                <IconCheckCircle
+                  v-if="practitioner.acceptsInsurance"
+                  class="h-5 w-5 text-[var(--color-success)]"
+                />
+                <IconX v-else class="h-5 w-5 text-gray-400" />
+                <span class="text-gray-700">Assurance acceptée</span>
+              </div>
+              <div class="flex items-center gap-2">
+                <IconCheckCircle
+                  v-if="practitioner.acceptsNewPatients"
+                  class="h-5 w-5 text-[var(--color-success)]"
+                />
+                <IconX v-else class="h-5 w-5 text-gray-400" />
+                <span class="text-gray-700">Accepte nouveaux patients</span>
+              </div>
+              <div class="flex items-center gap-2">
+                <IconCheckCircle
+                  v-if="practitioner.teleconsultationEnabled"
+                  class="h-5 w-5 text-[var(--color-success)]"
+                />
+                <IconX v-else class="h-5 w-5 text-gray-400" />
+                <span class="text-gray-700">Téléconsultation disponible</span>
+              </div>
+            </div>
+          </Card>
+        </div>
+
+        <!-- availability tab -->
+        <div v-show="activeTab === 'availability'">
+          <Card>
+            <h3 class="mb-6 text-xl font-semibold">Créneaux disponibles</h3>
+
+            <!-- loading state -->
+            <div v-if="loadingSlots" class="flex justify-center py-8">
+              <div
+                class="h-8 w-8 animate-spin rounded-full border-4 border-gray-300 border-t-[var(--color-primary)]"
+              ></div>
+            </div>
+
+            <!-- slots content -->
+            <div v-else-if="availableSlots.length" class="space-y-6">
+              <div v-for="day in availableSlots" :key="day.date">
+                <div class="mb-3 flex items-center gap-2">
+                  <IconCalendar class="h-5 w-5 text-[var(--color-primary)]" />
+                  <h4 class="text-lg font-semibold">
+                    {{ formatDate(day.date) }}
+                  </h4>
+                </div>
+                <div class="grid grid-cols-4 gap-2 md:grid-cols-6">
+                  <Button
+                    v-for="slot in day.slots"
+                    :key="slot"
+                    variant="secondary"
+                    size="sm"
+                    @click="selectTimeSlot(day.date, slot)"
+                  >
+                    {{ slot }}
+                  </Button>
+                </div>
+              </div>
+            </div>
+
+            <!-- no slots -->
+            <div v-else class="py-8 text-center">
+              <IconCalendar class="mx-auto mb-4 h-12 w-12 text-gray-400" />
+              <p class="text-gray-600">
+                Aucun créneau disponible pour les prochains jours.
+              </p>
+              <p class="mt-2 text-sm text-gray-500">
+                Veuillez contacter directement le praticien pour plus
+                d'informations.
+              </p>
+            </div>
+          </Card>
+        </div>
+
+        <!-- reviews tab -->
+        <div v-show="activeTab === 'reviews'">
+          <div class="space-y-4">
+            <Card>
+              <div class="flex items-center gap-6">
+                <div class="text-center">
+                  <div
+                    class="mb-1 text-5xl font-bold text-[var(--color-primary)]"
+                  >
+                    {{ practitioner.averageRating?.toFixed(1) || "N/A" }}
+                  </div>
+                  <div class="mb-1 flex gap-0.5">
+                    <IconStar
+                      v-for="i in 5"
+                      :key="i"
+                      :class="[
+                        'h-5 w-5',
+                        i <= Math.floor(practitioner.averageRating || 0)
+                          ? 'fill-yellow-400 text-yellow-400'
+                          : 'text-gray-300',
+                      ]"
+                    />
+                  </div>
+                  <div class="text-sm text-gray-600">
+                    {{ practitioner.totalReviews }} avis
+                  </div>
+                </div>
+              </div>
+            </Card>
+
+            <!-- individual reviews -->
+            <Card v-for="review in reviews" :key="review.id">
+              <div class="flex items-start gap-4">
+                <div
+                  class="flex h-12 w-12 flex-shrink-0 items-center justify-center rounded-full bg-gradient-to-br from-blue-500 to-purple-500 font-medium text-white"
+                >
+                  {{ review.patientName.charAt(0) }}
+                </div>
+                <div class="flex-1">
+                  <div class="mb-2 flex items-center justify-between">
+                    <h4 class="text-lg font-semibold">
+                      {{ review.patientName }}
+                    </h4>
+                    <span class="text-sm text-gray-600">{{
+                      formatDate(review.date)
+                    }}</span>
+                  </div>
+                  <div class="mb-2 flex gap-0.5">
+                    <IconStar
+                      v-for="i in 5"
+                      :key="i"
+                      :class="[
+                        'h-4 w-4',
+                        i <= review.rating
+                          ? 'fill-yellow-400 text-yellow-400'
+                          : 'text-gray-300',
+                      ]"
+                    />
+                  </div>
+                  <p class="text-gray-700">{{ review.comment }}</p>
+                </div>
+              </div>
+            </Card>
+
+            <!-- no reviews -->
+            <Card v-if="!reviews.length">
+              <div class="py-8 text-center">
+                <IconStar class="mx-auto mb-4 h-12 w-12 text-gray-400" />
+                <p class="text-gray-600">Aucun avis pour le moment.</p>
+              </div>
+            </Card>
+          </div>
+        </div>
+
+        <div v-show="activeTab === 'location'">
+          <Card>
+            <h3 class="mb-4 text-xl font-semibold">Localisation</h3>
+            <div class="mb-4">
+              <div class="mb-2 flex items-start gap-2">
+                <IconMapPin class="mt-1 h-5 w-5 text-[var(--color-primary)]" />
+                <div>
+                  <p class="font-medium">
+                    {{ practitioner.clinicName || "Cabinet médical" }}
+                  </p>
+                  <p class="text-gray-700">{{ practitioner.address }}</p>
+                  <p class="text-gray-700">{{ practitioner.city }}</p>
+                </div>
+              </div>
+            </div>
+            <div
+              class="flex h-96 items-center justify-center rounded-lg bg-gray-200"
+            >
+              <div class="text-center text-gray-600">
+                <IconMapPin class="mx-auto mb-2 h-12 w-12" />
+                <p>{{ practitioner.city }}</p>
+                <p class="mt-2 text-sm">
+                  Carte interactive disponible prochainement
+                </p>
+              </div>
+            </div>
+          </Card>
+        </div>
+      </template>
+    </div>
+
+    <!-- booking modal -->
+    <BookingModal
+      :is-open="isBookingModalOpen"
+      :practitioner="practitioner"
+      @close="isBookingModalOpen = false"
+    />
+  </div>
+</template>
+
+<script setup lang="ts">
+import { ref, onMounted, computed, watch } from "vue";
+import { useRoute, navigateTo } from "#app";
+import { useAuthStore } from "~/stores/auth";
+import {
+  Star as IconStar,
+  MapPin as IconMapPin,
+  CheckCircle2 as IconCheckCircle,
+  GraduationCap as IconGraduationCap,
+  Globe as IconGlobe,
+  DollarSign as IconDollarSign,
+  Calendar as IconCalendar,
+  AlertCircle as IconAlertCircle,
+  X as IconX,
+  Briefcase as IconBriefcase,
+} from "lucide-vue-next";
+import Card from "~/components/ui/Card.vue";
+import Button from "~/components/ui/Button.vue";
+import Badge from "~/components/ui/Badge.vue";
+import BookingModal from "~/components/BookingModal.vue";
+
+interface PractitionerDetail {
+  id: string;
+  firstName: string;
+  lastName: string;
+  title: string;
+  phone: string;
+  bio: string | null;
+  clinicName: string | null;
+  address: string;
+  city: string;
+  latitude: number | null;
+  longitude: number | null;
+  baseConsultationFee: number;
+  teleconsultationFee: number | null;
+  teleconsultationEnabled: boolean;
+  averageRating: number | null;
+  totalReviews: number;
+  acceptsInsurance: boolean;
+  acceptsNewPatients: boolean;
+  licenseNumber: string;
+  licenseVerified: boolean;
+  yearsOfExperience: number | null;
+  consultationDuration: number;
+  specialties: Array<{
+    id: string;
+    name: string;
+    isPrimary: boolean;
+  }>;
+  qualifications: Array<{
+    id: string;
+    degree: string;
+    institution: string;
+    yearObtained: number;
+  }>;
+  languages: string[];
+  photos: string[];
+  photo?: string;
+  reviews?: Array<{
+    id: string;
+    rating: number;
+    comment: string;
+    createdAt: string;
+    patient?: {
+      firstName?: string;
+      lastName?: string;
+    };
+  }>;
+}
+
+interface AvailableSlot {
+  date: string;
+  slots: string[];
+}
+
+interface Review {
+  id: string;
+  patientName: string;
+  rating: number;
+  date: string;
+  comment: string;
+}
+
+interface ApiResponse<T> {
+  success: boolean;
+  data?: T;
+  message?: string;
+}
+
+const route = useRoute();
+const config = useRuntimeConfig();
+const authStore = useAuthStore();
+
+const practitionerId = computed(() => route.params.id as string);
+
+const practitioner = ref<PractitionerDetail | null>(null);
+const availableSlots = ref<AvailableSlot[]>([]);
+const reviews = ref<Review[]>([]);
+const loading = ref(true);
+const loadingSlots = ref(false);
+const error = ref<string | null>(null);
+const activeTab = ref<"about" | "availability" | "reviews" | "location">(
+  "about",
+);
+const isBookingModalOpen = ref(false);
+
+const tabs = [
+  { id: "about", label: "À propos" },
+  { id: "availability", label: "Disponibilités" },
+  { id: "reviews", label: "Avis" },
+  { id: "location", label: "Localisation" },
+];
+
+const fetchPractitioner = async () => {
+  try {
+    loading.value = true;
+    error.value = null;
+
+    const response = await $fetch<ApiResponse<PractitionerDetail>>(
+      `/practitioners/${practitionerId.value}`,
+      {
+        baseURL: config.public.apiBase,
+      },
+    );
+
+    if (response.success && response.data) {
+      practitioner.value = response.data;
+
+      // this is temporary until replace with real reviews
+      if (response.data.reviews) {
+        reviews.value = response.data.reviews.map((r) => ({
+          id: r.id,
+          patientName: `${r.patient?.firstName || "Patient"} ${r.patient?.lastName || "Anonyme"}`,
+          rating: r.rating,
+          date: r.createdAt,
+          comment: r.comment,
+        }));
+      }
+    } else {
+      error.value = "Impossible de charger les informations du praticien.";
+    }
+  } catch (err: unknown) {
+    console.error("Error fetching practitioner:", err);
+    error.value = err.message || "Une erreur est survenue lors du chargement.";
+  } finally {
+    loading.value = false;
+  }
+};
+
+const fetchAvailableSlots = async () => {
+  try {
+    loadingSlots.value = true;
+
+    const today = new Date();
+    const endDate = new Date();
+    endDate.setDate(today.getDate() + 7);
+
+    const response = await $fetch<ApiResponse<AvailableSlot[]>>(
+      `/practitioners/${practitionerId.value}/available-slots`,
+      {
+        baseURL: config.public.apiBase,
+        params: {
+          startDate: today.toISOString().split("T")[0],
+          endDate: endDate.toISOString().split("T")[0],
+          days: 7,
+        },
+      },
+    );
+
+    if (response.success && response.data) {
+      availableSlots.value = response.data;
+    }
+  } catch (err) {
+    console.error("Error fetching available slots:", err);
+  } finally {
+    loadingSlots.value = false;
+  }
+};
+
+const goToAvailability = () => {
+  activeTab.value = "availability";
+  if (!availableSlots.value.length && !loadingSlots.value) {
+    fetchAvailableSlots();
+  }
+  document
+    .querySelector(".tabs-section")
+    ?.scrollIntoView({ behavior: "smooth" });
+};
+
+const selectTimeSlot = (date: string, time: string) => {
+  if (!authStore.isAuthenticated) {
+    const returnUrl = `${route.fullPath}?bookDate=${date}&bookTime=${time}`;
+    navigateTo(`/auth/login?redirect=${encodeURIComponent(returnUrl)}`);
+    return;
+  }
+
+  // open booking modal with pre selected date and time
+  isBookingModalOpen.value = true;
+};
+
+const formatDate = (dateString: string) => {
+  const date = new Date(dateString);
+  return date.toLocaleDateString("fr-FR", {
+    weekday: "long",
+    day: "numeric",
+    month: "long",
+    year: "numeric",
+  });
+};
+
+// watch for tab changes
+watch(activeTab, (newTab) => {
+  if (newTab === "availability" && !availableSlots.value.length) {
+    fetchAvailableSlots();
+  }
+});
+
+onMounted(async () => {
+  // init auth state from localStorage
+  if (import.meta.client && !authStore.isAuthenticated) {
+    authStore.initAuth();
+  }
+
+  await fetchPractitioner();
+
+  if (route.query.bookDate && route.query.bookTime) {
+    if (authStore.isAuthenticated) {
+      isBookingModalOpen.value = true;
+    }
+  }
+});
+</script>
+
+<style scoped></style>
