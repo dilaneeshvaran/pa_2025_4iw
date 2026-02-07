@@ -17,7 +17,7 @@ export default defineNuxtConfig({
 
   runtimeConfig: {
     public: {
-      apiBase: process.env.FRONTEND_API_BASE_URL || "http://localhost:3000",
+      apiBase: process.env.FRONTEND_API_BASE_URL || "http://localhost:3001/api",
       stripePublicKey: process.env.FRONTEND_STRIPE_PUBLIC_KEY,
       googleClientId: process.env.FRONTEND_GOOGLE_CLIENT_ID,
     },

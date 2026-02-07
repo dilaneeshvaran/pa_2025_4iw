@@ -1,9 +1,17 @@
+import './env'
 import { PrismaClient } from '@prisma/client'
 import { PrismaPg } from '@prisma/adapter-pg'
 import { Pool } from 'pg'
 
+const connectionString = process.env.BACKEND_DATABASE_URL
+
+if (!connectionString) {
+  throw new Error('BACKEND_DATABASE_URL is not defined')
+}
+
 const pool = new Pool({
-  connectionString: process.env.BACKEND_DATABASE_URL,
+  connectionString,
+  ssl: false, // disable ssl for local development
 })
 
 const adapter = new PrismaPg(pool)
