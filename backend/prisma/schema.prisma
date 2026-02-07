@@ -160,6 +160,20 @@ enum ConversationType {
   PRACTITIONER_PRACTITIONER
 }
 
+enum ContactRequestType {
+  DEMO
+  INFO
+  SUPPORT
+}
+
+enum ContactRequestStatus {
+  PENDING
+  CONTACTED
+  APPROVED
+  REJECTED
+  CANCELLED
+}
+
 // ============================================================================
 // USER MANAGEMENT
 // ============================================================================
@@ -1286,5 +1300,44 @@ model VaccinationRecord {
   @@index([vaccineName])
   @@index([nextDoseDate])
   @@map("vaccination_records")
+}
+
+// ============================================================================
+// CONTACT REQUESTS (Practitioner signup requests)
+// ============================================================================
+
+model ContactRequest {
+  id              String               @id @default(cuid())
+  
+  // Request type
+  requestType     ContactRequestType
+  status          ContactRequestStatus @default(PENDING)
+  
+  // Personal information
+  firstName       String
+  lastName        String
+  email           String
+  phone           String
+  
+  // Professional information
+  postalCode      String
+  specialty       String
+  
+  // Admin notes
+  adminNotes      String?              @db.Text
+  processedBy     String?              // Staff/Admin user ID who processed it
+  processedAt     DateTime?
+  
+  // Created user (if approved)
+  createdUserId   String?              // ID of the user account created
+  
+  createdAt       DateTime             @default(now())
+  updatedAt       DateTime             @updatedAt
+  
+  @@index([email])
+  @@index([status])
+  @@index([requestType])
+  @@index([createdAt])
+  @@map("contact_requests")
 }
 
