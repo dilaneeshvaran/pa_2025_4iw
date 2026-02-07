@@ -1,5 +1,5 @@
+import './config/env'
 import app from './server'
-import 'dotenv/config'
 
 const start = async () => {
   try {
