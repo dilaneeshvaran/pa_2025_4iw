@@ -10,12 +10,31 @@
             MediCôte
           </NuxtLink>
           <div class="flex items-center gap-4">
-            <Button variant="secondary" @click="navigateTo('/auth/login')">
-              Connexion
-            </Button>
-            <Button @click="navigateTo('/auth/register')">
-              Créer un compte
-            </Button>
+            <!-- authenticated  -->
+            <template v-if="authStore.isAuthenticated">
+              <NuxtLink
+                :to="
+                  authStore.user?.role === 'PATIENT'
+                    ? '/patient/dashboard'
+                    : '/'
+                "
+                class="text-sm font-medium text-gray-700 hover:text-[var(--color-primary)]"
+              >
+                Mon tableau de bord
+              </NuxtLink>
+              <Button variant="outline" @click="handleLogout">
+                Déconnexion
+              </Button>
+            </template>
+            <!-- not authenticated -->
+            <template v-else>
+              <Button variant="secondary" @click="navigateTo('/auth/login')">
+                Connexion
+              </Button>
+              <Button @click="navigateTo('/auth/register')">
+                Créer un compte
+              </Button>
+            </template>
           </div>
         </div>
       </div>
@@ -329,6 +348,15 @@ import {
 import Card from "~/components/ui/Card.vue";
 import Button from "~/components/ui/Button.vue";
 import Badge from "~/components/ui/Badge.vue";
+import { useAuthStore } from "~/stores/auth";
+
+const authStore = useAuthStore();
+const router = useRouter();
+
+const handleLogout = () => {
+  authStore.logout();
+  router.push("/");
+};
 
 interface Specialty {
   id: string;
