@@ -1,4 +1,4 @@
-export default defineNuxtRouteMiddleware((_to, _from) => {
+export default defineNuxtRouteMiddleware((to, _from) => {
   const authStore = useAuthStore();
 
   // initialize auth state from local storage on client side
@@ -6,8 +6,11 @@ export default defineNuxtRouteMiddleware((_to, _from) => {
     authStore.initAuth();
   }
 
-  // if not authenticated, redirect to login
+  // if not authenticated, redirect to login with redirect path
   if (!authStore.isAuthenticated) {
-    return navigateTo("/auth/login");
+    return navigateTo({
+      path: "/auth/login",
+      query: { redirect: to.fullPath },
+    });
   }
 });

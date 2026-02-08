@@ -11,9 +11,15 @@ export interface User {
   emailVerified: boolean;
 }
 
-export interface AuthResponse {
+export interface AuthData {
   user: User;
   tokens: AuthTokens;
+}
+
+export interface AuthResponse {
+  success: boolean;
+  message: string;
+  data: AuthData;
 }
 
 export interface ApiError {
