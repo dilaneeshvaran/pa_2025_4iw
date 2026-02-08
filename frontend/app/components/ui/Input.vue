@@ -22,7 +22,7 @@
 </template>
 
 <script setup lang="ts">
-import { computed } from "vue";
+import { computed, type Component } from "vue";
 import { cn } from "~/utils/cn";
 
 interface Props {
@@ -30,7 +30,7 @@ interface Props {
   modelValue?: string | number;
   placeholder?: string;
   disabled?: boolean;
-  icon?: object;
+  icon?: Component;
   className?: string;
 }
 
