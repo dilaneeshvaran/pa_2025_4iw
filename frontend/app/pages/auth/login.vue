@@ -137,11 +137,16 @@ const handleLogin = async () => {
   try {
     const response = await auth.login(formData.value);
 
-    // store auth data
-    authStore.setAuth(response.user, response.tokens);
+    // store auth data - access data from the nested response structure
+    authStore.setAuth(response.data.user, response.data.tokens);
 
-    // redirect to the original page or dashboard/home
-    const redirectTo = (route.query.redirect as string) || "/";
+    // redirect to the appropriate dashboard based on user role
+    let redirectTo = route.query.redirect as string;
+    if (!redirectTo) {
+      // role based default redirects
+      redirectTo =
+        response.data.user.role === "PATIENT" ? "/patient/dashboard" : "/";
+    }
     await router.push(redirectTo);
   } catch (error: unknown) {
     console.error("Login error:", error);
