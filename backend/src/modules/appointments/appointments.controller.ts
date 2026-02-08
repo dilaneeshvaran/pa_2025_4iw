@@ -1,0 +1,127 @@
+import { FastifyRequest, FastifyReply } from 'fastify'
+import { appointmentsService } from './appointments.service'
+import type { GetPatientAppointmentsInput } from './appointments.schema'
+
+export class AppointmentsController {
+  async getPatientAppointments(
+    request: FastifyRequest<{ Querystring: GetPatientAppointmentsInput }>,
+    reply: FastifyReply,
+  ) {
+    try {
+      const user = request.user as { id: string; role: string }
+      const { status, limit, page } = request.query
+
+      // get patient id from user
+      const patient = await import('../../config/database').then((m) =>
+        m.default.patient.findUnique({
+          where: { userId: user.id },
+          select: { id: true },
+        }),
+      )
+
+      if (!patient) {
+        return reply.status(404).send({
+          success: false,
+          message: 'Patient profile not found',
+        })
+      }
+
+      const result = await appointmentsService.getPatientAppointments(
+        patient.id,
+        status,
+        limit,
+        page,
+      )
+
+      return reply.status(200).send({
+        success: true,
+        data: result.data,
+        pagination: {
+          total: result.total,
+          page: result.page,
+          limit: result.limit,
+          totalPages: result.totalPages,
+        },
+      })
+    } catch (error) {
+      request.log.error(error)
+      return reply.status(500).send({
+        success: false,
+        message: 'Failed to get appointments',
+      })
+    }
+  }
+
+  async getNextAppointment(request: FastifyRequest, reply: FastifyReply) {
+    try {
+      const user = request.user as { id: string; role: string }
+
+      const patient = await import('../../config/database').then((m) =>
+        m.default.patient.findUnique({
+          where: { userId: user.id },
+          select: { id: true },
+        }),
+      )
+
+      if (!patient) {
+        return reply.status(404).send({
+          success: false,
+          message: 'Patient profile not found',
+        })
+      }
+
+      const appointment = await appointmentsService.getNextAppointment(
+        patient.id,
+      )
+
+      return reply.status(200).send({
+        success: true,
+        data: appointment,
+      })
+    } catch (error) {
+      request.log.error(error)
+      return reply.status(500).send({
+        success: false,
+        message: 'Failed to get next appointment',
+      })
+    }
+  }
+
+  async getPastAppointments(request: FastifyRequest, reply: FastifyReply) {
+    try {
+      const user = request.user as { id: string; role: string }
+
+      const patient = await import('../../config/database').then((m) =>
+        m.default.patient.findUnique({
+          where: { userId: user.id },
+          select: { id: true },
+        }),
+      )
+
+      if (!patient) {
+        return reply.status(404).send({
+          success: false,
+          message: 'Patient profile not found',
+        })
+      }
+
+      const appointments = await appointmentsService.getPastAppointments(
+        patient.id,
+        5,
+      )
+
+      return reply.status(200).send({
+        success: true,
+        data: appointments,
+      })
+    } catch (error) {
+      request.log.error(error)
+      return reply.status(500).send({
+        success: false,
+        message: 'Failed to get past appointments',
+      })
+    }
+  }
+}
+
+export const appointmentsController = new AppointmentsController()
