@@ -53,11 +53,12 @@ app.setErrorHandler((error, request, reply) => {
     })
   }
 
-  const statusCode = error.statusCode ?? 500
+  const err = error as Error & { statusCode?: number }
+  const statusCode = err.statusCode ?? 500
   request.log.error(error)
   return reply.code(statusCode).send({
     success: false,
-    message: error.message || 'Erreur interne du serveur',
+    message: err.message || 'Erreur interne du serveur',
   })
 })
 
