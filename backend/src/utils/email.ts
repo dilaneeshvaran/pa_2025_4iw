@@ -156,3 +156,137 @@ export async function sendWelcomeEmail(
 
   await sendEmail(to, 'Bienvenue sur MediCôte', html)
 }
+
+interface AppointmentEmailData {
+  patientName: string
+  practitionerTitle: string
+  practitionerFirstName: string
+  practitionerLastName: string
+  practitionerSpecialty: string
+  appointmentDate: string
+  appointmentTime: string
+  consultationType: 'IN_PERSON' | 'TELECONSULTATION'
+  consultationFee: number
+  clinicAddress?: string
+  appointmentId: string
+}
+
+export async function sendAppointmentConfirmationEmail(
+  to: string,
+  data: AppointmentEmailData,
+): Promise<void> {
+  const isTelemedicine = data.consultationType === 'TELECONSULTATION'
+  const typeLabel = isTelemedicine
+    ? 'Téléconsultation'
+    : 'Consultation au cabinet'
+  const locationInfo = isTelemedicine
+    ? 'Vous recevrez un lien de connexion avant votre rendez-vous.'
+    : `Adresse : ${data.clinicAddress || 'À confirmer'}`
+
+  const html = `
+    <!DOCTYPE html>
+    <html>
+      <head>
+        <meta charset="utf-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1.0">
+        <title>Confirmation de rendez-vous</title>
+      </head>
+      <body style="font-family: Arial, sans-serif; line-height: 1.6; color: #333; max-width: 600px; margin: 0 auto; padding: 20px;">
+        <div style="background-color: #0066cc; color: white; padding: 20px; text-align: center; border-radius: 5px 5px 0 0;">
+          <h1 style="margin: 0;">MediCôte</h1>
+        </div>
+        <div style="background-color: #f9f9f9; padding: 30px; border-radius: 0 0 5px 5px;">
+          <h2 style="color: #0066cc; margin-top: 0;">Rendez-vous confirmé ✓</h2>
+          <p>Bonjour ${data.patientName},</p>
+          <p>Votre rendez-vous a été confirmé avec succès. Voici les détails :</p>
+          
+          <div style="background-color: white; border: 1px solid #e0e0e0; border-radius: 8px; padding: 20px; margin: 20px 0;">
+            <p style="margin: 8px 0;"><strong>Praticien :</strong> ${data.practitionerTitle} ${data.practitionerFirstName} ${data.practitionerLastName}</p>
+            <p style="margin: 8px 0;"><strong>Spécialité :</strong> ${data.practitionerSpecialty}</p>
+            <p style="margin: 8px 0;"><strong>Date :</strong> ${data.appointmentDate}</p>
+            <p style="margin: 8px 0;"><strong>Heure :</strong> ${data.appointmentTime}</p>
+            <p style="margin: 8px 0;"><strong>Type :</strong> ${typeLabel}</p>
+            <p style="margin: 8px 0;"><strong>Tarif :</strong> ${data.consultationFee.toLocaleString('fr-FR')} FCFA</p>
+            <p style="margin: 8px 0; color: #666;">${locationInfo}</p>
+          </div>
+
+          <div style="text-align: center; margin: 30px 0;">
+            <a href="${APP_URL}/patient/appointments" style="background-color: #0066cc; color: white; padding: 12px 30px; text-decoration: none; border-radius: 5px; display: inline-block; font-weight: bold;">Voir mes rendez-vous</a>
+          </div>
+          
+          <p style="color: #666; font-size: 14px; margin-top: 30px;">
+            Vous recevrez un rappel 24h et 1h avant votre rendez-vous.
+          </p>
+          <p style="color: #666; font-size: 14px;">
+            Pour annuler ou modifier votre rendez-vous, connectez-vous à votre espace patient.
+          </p>
+        </div>
+        <div style="text-align: center; margin-top: 20px; color: #999; font-size: 12px;">
+          <p>© ${new Date().getFullYear()} MediCôte. Tous droits réservés.</p>
+        </div>
+      </body>
+    </html>
+  `
+
+  await sendEmail(to, 'Confirmation de votre rendez-vous - MediCôte', html)
+}
+
+export async function sendAppointmentReminderEmail(
+  to: string,
+  data: AppointmentEmailData,
+  reminderType: '24h' | '1h',
+): Promise<void> {
+  const isTelemedicine = data.consultationType === 'TELECONSULTATION'
+  const typeLabel = isTelemedicine
+    ? 'Téléconsultation'
+    : 'Consultation au cabinet'
+  const reminderLabel =
+    reminderType === '24h' ? 'dans 24 heures' : 'dans 1 heure'
+  const locationInfo = isTelemedicine
+    ? 'Préparez-vous à rejoindre la téléconsultation depuis votre espace patient.'
+    : `Adresse : ${data.clinicAddress || 'À confirmer'}`
+
+  const html = `
+    <!DOCTYPE html>
+    <html>
+      <head>
+        <meta charset="utf-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1.0">
+        <title>Rappel de rendez-vous</title>
+      </head>
+      <body style="font-family: Arial, sans-serif; line-height: 1.6; color: #333; max-width: 600px; margin: 0 auto; padding: 20px;">
+        <div style="background-color: #0066cc; color: white; padding: 20px; text-align: center; border-radius: 5px 5px 0 0;">
+          <h1 style="margin: 0;">MediCôte</h1>
+        </div>
+        <div style="background-color: #f9f9f9; padding: 30px; border-radius: 0 0 5px 5px;">
+          <h2 style="color: #0066cc; margin-top: 0;">⏰ Rappel : Rendez-vous ${reminderLabel}</h2>
+          <p>Bonjour ${data.patientName},</p>
+          <p>Nous vous rappelons que vous avez un rendez-vous ${reminderLabel}.</p>
+          
+          <div style="background-color: white; border: 1px solid #e0e0e0; border-radius: 8px; padding: 20px; margin: 20px 0;">
+            <p style="margin: 8px 0;"><strong>Praticien :</strong> ${data.practitionerTitle} ${data.practitionerFirstName} ${data.practitionerLastName}</p>
+            <p style="margin: 8px 0;"><strong>Spécialité :</strong> ${data.practitionerSpecialty}</p>
+            <p style="margin: 8px 0;"><strong>Date :</strong> ${data.appointmentDate}</p>
+            <p style="margin: 8px 0;"><strong>Heure :</strong> ${data.appointmentTime}</p>
+            <p style="margin: 8px 0;"><strong>Type :</strong> ${typeLabel}</p>
+            <p style="margin: 8px 0; color: #666;">${locationInfo}</p>
+          </div>
+
+          <div style="text-align: center; margin: 30px 0;">
+            <a href="${APP_URL}/patient/appointments" style="background-color: #0066cc; color: white; padding: 12px 30px; text-decoration: none; border-radius: 5px; display: inline-block; font-weight: bold;">Voir mes rendez-vous</a>
+          </div>
+        </div>
+        <div style="text-align: center; margin-top: 20px; color: #999; font-size: 12px;">
+          <p>© ${new Date().getFullYear()} MediCôte. Tous droits réservés.</p>
+        </div>
+      </body>
+    </html>
+  `
+
+  const subject =
+    reminderType === '24h'
+      ? 'Rappel : Votre rendez-vous demain - MediCôte'
+      : 'Rappel : Votre rendez-vous dans 1 heure - MediCôte'
+
+  await sendEmail(to, subject, html)
+}
