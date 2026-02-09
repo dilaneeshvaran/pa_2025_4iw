@@ -60,14 +60,26 @@
         </div>
       </Card>
 
-      <!-- practitioner contact  -->
+      <!-- practitioner contact or dashboard button -->
       <div class="pt-8">
+        <!-- Not authenticated: show practitioner contact -->
         <NuxtLink
+          v-if="!authStore.isAuthenticated"
           to="/contact/practitioner"
           class="inline-flex items-center gap-2 rounded-md border-2 border-gray-300 bg-white px-6 py-3 text-base font-medium text-gray-700 transition-colors hover:border-blue-600 hover:bg-blue-50 hover:text-blue-600"
         >
           <span class="text-xl">⚕️</span>
           <span>Vous êtes soignant ?</span>
+        </NuxtLink>
+
+        <!-- authenticated ? then show dashboard button -->
+        <NuxtLink
+          v-else
+          :to="dashboardPath"
+          class="inline-flex items-center gap-2 rounded-md border-2 border-blue-600 bg-blue-600 px-6 py-3 text-base font-medium text-white transition-colors hover:bg-blue-700"
+        >
+          <span class="text-xl">📊</span>
+          <span>Accéder à mon tableau de bord</span>
         </NuxtLink>
       </div>
 
@@ -117,6 +129,20 @@ import Button from "~/components/ui/Button.vue";
 const authStore = useAuthStore();
 const specialty = ref("");
 const location = ref("");
+
+// compute dashboard path based on user role
+const dashboardPath = computed(() => {
+  switch (authStore.user?.role) {
+    case "PATIENT":
+      return "/patient/dashboard";
+    case "PRACTITIONER":
+      return "/practitioner/dashboard";
+    case "ADMIN":
+      return "/admin/dashboard";
+    default:
+      return "/patient/dashboard";
+  }
+});
 
 const handleSearch = () => {
   const query: Record<string, string> = {};
