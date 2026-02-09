@@ -17,7 +17,8 @@ export class AppointmentsService {
     limit = 10,
     page = 1,
   ): Promise<PatientAppointmentsResult> {
-    const now = new Date()
+    const today = new Date()
+    today.setHours(0, 0, 0, 0)
     const skip = (page - 1) * limit
 
     const where: any = {
@@ -25,16 +26,20 @@ export class AppointmentsService {
     }
 
     if (status === 'upcoming') {
-      where.appointmentDate = { gte: now }
+      // include today for upcoming, todo : we will filter by time later
+      where.appointmentDate = { gte: today }
       where.status = { in: ['PENDING', 'CONFIRMED'] as AppointmentStatus[] }
     } else if (status === 'past') {
       where.OR = [
-        { appointmentDate: { lt: now } },
+        { appointmentDate: { lt: today } },
         {
           status: {
             in: ['COMPLETED', 'CANCELLED', 'NO_SHOW'] as AppointmentStatus[],
           },
         },
+        // include todays past appointments if we could filter by time,
+        // but for pagination query we may just include all "today" in upcoming
+        // and let front sort/filter specific times if neeed.
       ]
     }
 
@@ -93,16 +98,21 @@ export class AppointmentsService {
     patientId: string,
   ): Promise<PatientAppointment | null> {
     const now = new Date()
+    const today = new Date()
+    today.setHours(0, 0, 0, 0)
 
-    const appointment = await prisma.appointment.findFirst({
+    // Fetch potential next appointments starting from today
+    // checking a reasonable number to find the first valid one
+    const appointments = await prisma.appointment.findMany({
       where: {
         patientId,
-        appointmentDate: { gte: now },
+        appointmentDate: { gte: today },
         status: { in: ['PENDING', 'CONFIRMED'] as AppointmentStatus[] },
       },
       orderBy: {
         appointmentDate: 'asc',
       },
+      take: 10, // Check first 10, usually enough
       include: {
         practitioner: {
           include: {
@@ -116,26 +126,39 @@ export class AppointmentsService {
       },
     })
 
-    if (!appointment) {
+    // Find first appointment that is in the future
+    const nextAppointment = appointments.find((apt) => {
+      const aptDate = new Date(apt.appointmentDate)
+      // specific check for today
+      if (aptDate.getTime() === today.getTime()) {
+        const [hours, minutes] = apt.startTime.split(':').map(Number)
+        const appointmentTime = new Date(today)
+        appointmentTime.setHours(hours, minutes, 0, 0)
+        return appointmentTime > now
+      }
+      return true // future date
+    })
+
+    if (!nextAppointment) {
       return null
     }
 
     return {
-      id: appointment.id,
-      appointmentDate: appointment.appointmentDate,
-      startTime: appointment.startTime,
-      endTime: appointment.endTime,
-      type: appointment.type,
-      status: appointment.status,
-      reason: appointment.reason,
-      consultationFee: Number(appointment.consultationFee),
+      id: nextAppointment.id,
+      appointmentDate: nextAppointment.appointmentDate,
+      startTime: nextAppointment.startTime,
+      endTime: nextAppointment.endTime,
+      type: nextAppointment.type,
+      status: nextAppointment.status,
+      reason: nextAppointment.reason,
+      consultationFee: Number(nextAppointment.consultationFee),
       practitioner: {
-        id: appointment.practitioner.id,
-        firstName: appointment.practitioner.firstName,
-        lastName: appointment.practitioner.lastName,
-        title: appointment.practitioner.title,
+        id: nextAppointment.practitioner.id,
+        firstName: nextAppointment.practitioner.firstName,
+        lastName: nextAppointment.practitioner.lastName,
+        title: nextAppointment.practitioner.title,
         specialty:
-          appointment.practitioner.specialties[0]?.specialty.name || null,
+          nextAppointment.practitioner.specialties[0]?.specialty.name || null,
         photo: null,
       },
     }
@@ -145,12 +168,23 @@ export class AppointmentsService {
     patientId: string,
     limit = 5,
   ): Promise<PatientAppointment[]> {
+    const today = new Date()
+    today.setHours(0, 0, 0, 0)
+    const now = new Date()
+
+    // Fetch slightly more to filter in memory
     const appointments = await prisma.appointment.findMany({
       where: {
         patientId,
-        status: 'COMPLETED' as AppointmentStatus,
+        OR: [
+          { status: 'COMPLETED' as AppointmentStatus },
+          { status: 'CANCELLED' as AppointmentStatus },
+          { status: 'NO_SHOW' as AppointmentStatus },
+          { appointmentDate: { lt: today } }, // Strictly past dates
+          { appointmentDate: today }, // Today needs time check
+        ],
       },
-      take: limit,
+      take: limit * 2, // Fetch more to filter
       orderBy: {
         appointmentDate: 'desc',
       },
@@ -167,7 +201,30 @@ export class AppointmentsService {
       },
     })
 
-    return appointments.map((apt) => ({
+    // Filter to ensure "Today" items are actually in the past
+    const filtered = appointments.filter((apt) => {
+      // If status is final, it's past
+      if (['COMPLETED', 'CANCELLED', 'NO_SHOW'].includes(apt.status)) {
+        return true
+      }
+
+      const aptDate = new Date(apt.appointmentDate)
+      if (aptDate < today) {
+        return true
+      }
+
+      if (aptDate.getTime() === today.getTime()) {
+        const [hours, minutes] = apt.startTime.split(':').map(Number)
+        const appointmentTime = new Date(today)
+        appointmentTime.setHours(hours, minutes, 0, 0)
+        return appointmentTime < now
+      }
+
+      return false
+    })
+
+    // Slice to limit
+    return filtered.slice(0, limit).map((apt) => ({
       id: apt.id,
       appointmentDate: apt.appointmentDate,
       startTime: apt.startTime,
