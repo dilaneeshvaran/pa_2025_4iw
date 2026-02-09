@@ -30,7 +30,7 @@ export const useAuthStore = defineStore("auth", {
       this.refreshToken = tokens.refreshToken;
       this.isAuthenticated = true;
 
-      // store tokens in localStorage
+      // store tokens in localstorage
       if (import.meta.client) {
         localStorage.setItem("accessToken", tokens.accessToken);
         localStorage.setItem("refreshToken", tokens.refreshToken);
@@ -44,7 +44,7 @@ export const useAuthStore = defineStore("auth", {
       this.refreshToken = null;
       this.isAuthenticated = false;
 
-      // remove tokens from localStorage
+      // remove tokens from localstorage
       if (import.meta.client) {
         localStorage.removeItem("accessToken");
         localStorage.removeItem("refreshToken");
@@ -53,7 +53,7 @@ export const useAuthStore = defineStore("auth", {
     },
 
     initAuth() {
-      // initialize auth state from localStorage
+      // initialize auth state from localstorage
       if (import.meta.client) {
         const accessToken = localStorage.getItem("accessToken");
         const refreshToken = localStorage.getItem("refreshToken");
