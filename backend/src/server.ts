@@ -9,6 +9,8 @@ import {
 } from 'fastify-type-provider-zod'
 import { routes } from './routes'
 import prisma from './config/database'
+import { redis } from './config/redis'
+import { startReminderWorker } from './utils/reminder-scheduler'
 
 const app = Fastify({
   logger: {
@@ -34,6 +36,15 @@ app.register(cors, {
 
 // register routes
 app.register(routes)
+
+// start reminder worker
+let reminderWorker: ReturnType<typeof startReminderWorker> | null = null
+try {
+  reminderWorker = startReminderWorker()
+  console.log('Reminder worker started')
+} catch (error) {
+  console.error('Failed to start reminder worker:', error)
+}
 
 // error handler for zod validation errors
 app.setErrorHandler((error, request, reply) => {
@@ -64,6 +75,10 @@ app.setErrorHandler((error, request, reply) => {
 
 // cleanup on server close
 app.addHook('onClose', async () => {
+  if (reminderWorker) {
+    await reminderWorker.close()
+  }
+  await redis.quit()
   await prisma.$disconnect()
 })
 
