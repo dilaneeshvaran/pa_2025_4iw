@@ -78,13 +78,11 @@ import {
   FileText,
   ClipboardList,
   MessageSquare,
-  FileCheck,
   Settings,
-  Clock,
-  Video,
   Heart,
   User,
   LogOut,
+  Search,
 } from "lucide-vue-next";
 import { useAuthStore } from "~/stores/auth";
 
@@ -97,23 +95,17 @@ const menuItems = [
     label: "Tableau de bord",
     icon: LayoutDashboard,
   },
-  { path: "/patient/appointments", label: "Rendez-vous", icon: Calendar },
-  { path: "/patient/billing", label: "Facturation", icon: CreditCard },
-  { path: "/patient/documents", label: "Documents", icon: FileText },
+  { path: "/search", label: "Rechercher un praticien", icon: Search },
+  { path: "/patient/appointments", label: "Mes rendez-vous", icon: Calendar },
   {
     path: "/patient/medical-record",
-    label: "Dossier médical",
+    label: "Mon dossier médical",
     icon: ClipboardList,
   },
+  { path: "/patient/documents", label: "Mes documents", icon: FileText },
   { path: "/patient/messages", label: "Messagerie", icon: MessageSquare },
-  {
-    path: "/patient/post-consultation",
-    label: "Post-consultation",
-    icon: FileCheck,
-  },
+  { path: "/patient/billing", label: "Factures & Paiements", icon: CreditCard },
   { path: "/patient/settings", label: "Paramètres", icon: Settings },
-  { path: "/patient/waiting", label: "Salle d'attente", icon: Clock },
-  { path: "/patient/video-call", label: "Appel vidéo", icon: Video },
 ];
 
 const isActive = (path: string) => {
