@@ -52,13 +52,5 @@ export default defineNuxtConfig({
 
   nitro: {
     compressPublicAssets: true,
-    devProxy: {
-      "/api": {
-        target:
-          process.env.FRONTEND_API_BASE_URL || "http://localhost:3001/api",
-        changeOrigin: true,
-        prependPath: true,
-      },
-    },
   },
 });
