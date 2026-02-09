@@ -1,5 +1,7 @@
 import { useAuthStore } from "~/stores/auth";
 
+// automatically adds auth headers, refreshes expired tokens
+// retries failed requests, and logs users out when auth is no longer valid.
 export const useAuthenticatedFetch = async <T>(
   request: string,
   opts?: any,
