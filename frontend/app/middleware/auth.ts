@@ -1,12 +1,17 @@
 export default defineNuxtRouteMiddleware((to, _from) => {
+  // we cant access localstorage on the server so skip auth check
+  if (import.meta.server) {
+    return;
+  }
+
   const authStore = useAuthStore();
 
-  // initialize auth state from local storage on client side
-  if (import.meta.client && !authStore.isAuthenticated) {
+  // init auth state from localstorage if not already done
+  if (!authStore.isAuthenticated) {
     authStore.initAuth();
   }
 
-  // if not authenticated, redirect to login with redirect path
+  // after initialization, if not authenticated, redirect to login
   if (!authStore.isAuthenticated) {
     return navigateTo({
       path: "/auth/login",
