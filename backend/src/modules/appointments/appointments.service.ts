@@ -1,9 +1,14 @@
 import prisma from '../../config/database'
-import { AppointmentStatus } from '@prisma/client'
+import { AppointmentStatus, AppointmentType } from '@prisma/client'
 import {
   PatientAppointmentsResult,
   PatientAppointment,
+  CreateAppointmentData,
+  AppointmentCreatedResult,
 } from './appointments.types'
+import { isSlotReserved, releaseSlotReservation } from '../../config/redis'
+import { sendAppointmentConfirmationEmail } from '../../utils/email'
+import { scheduleAppointmentReminders } from '../../utils/reminder-scheduler'
 
 export class AppointmentsService {
   async getPatientAppointments(
@@ -180,6 +185,176 @@ export class AppointmentsService {
         photo: null,
       },
     }))
+  }
+
+  async createAppointment(
+    data: CreateAppointmentData,
+  ): Promise<AppointmentCreatedResult> {
+    const practitioner = await prisma.practitioner.findUnique({
+      where: { id: data.practitionerId },
+      include: {
+        user: { select: { status: true } },
+        specialties: {
+          where: { isPrimary: true },
+          include: { specialty: true },
+          take: 1,
+        },
+      },
+    })
+
+    if (!practitioner) {
+      throw new Error('Praticien non trouvé')
+    }
+
+    if (!practitioner.acceptsNewPatients) {
+      throw new Error("Ce praticien n'accepte pas de nouveaux patients")
+    }
+
+    if (practitioner.user.status !== 'ACTIVE') {
+      throw new Error("Ce praticien n'est pas disponible")
+    }
+
+    const patient = await prisma.patient.findUnique({
+      where: { id: data.patientId },
+      include: {
+        user: { select: { email: true } },
+      },
+    })
+
+    if (!patient) {
+      throw new Error('Profil patient non trouvé')
+    }
+
+    // check patient penalty
+    if (patient.penaltyUntil && patient.penaltyUntil > new Date()) {
+      throw new Error(
+        "Vous ne pouvez pas prendre de rendez-vous en raison d'absences répétées",
+      )
+    }
+
+    const appointmentDate = new Date(data.appointmentDate)
+    appointmentDate.setHours(0, 0, 0, 0)
+
+    const now = new Date()
+    now.setHours(0, 0, 0, 0)
+
+    if (appointmentDate < now) {
+      throw new Error('La date du rendez-vous ne peut pas être dans le passé')
+    }
+
+    // check if slot is reserved by another user
+    const isReserved = await isSlotReserved(
+      data.practitionerId,
+      data.appointmentDate,
+      data.startTime,
+      data.patientId, // xclude current patient
+    )
+
+    if (isReserved) {
+      throw new Error("Ce créneau vient d'être réservé par un autre patient")
+    }
+
+    const existingAppointment = await prisma.appointment.findFirst({
+      where: {
+        practitionerId: data.practitionerId,
+        appointmentDate,
+        startTime: data.startTime,
+        status: { in: ['PENDING', 'CONFIRMED'] },
+      },
+    })
+
+    if (existingAppointment) {
+      throw new Error("Ce créneau n'est plus disponible")
+    }
+
+    const duration = practitioner.consultationDuration
+    const [hours, minutes] = data.startTime.split(':').map(Number)
+    const endMinutes = hours * 60 + minutes + duration
+    const endTime = `${Math.floor(endMinutes / 60)
+      .toString()
+      .padStart(2, '0')}:${(endMinutes % 60).toString().padStart(2, '0')}`
+
+    const consultationFee =
+      data.type === 'TELECONSULTATION' && practitioner.teleconsultationFee
+        ? practitioner.teleconsultationFee
+        : practitioner.baseConsultationFee
+
+    const appointment = await prisma.appointment.create({
+      data: {
+        patientId: data.patientId,
+        practitionerId: data.practitionerId,
+        appointmentDate,
+        startTime: data.startTime,
+        endTime,
+        duration,
+        type: data.type as AppointmentType,
+        status: 'CONFIRMED',
+        reason: data.reason || null,
+        consultationFee,
+      },
+    })
+
+    await releaseSlotReservation(
+      data.practitionerId,
+      data.appointmentDate,
+      data.startTime,
+    )
+
+    const formattedDate = appointmentDate.toLocaleDateString('fr-FR', {
+      weekday: 'long',
+      day: 'numeric',
+      month: 'long',
+      year: 'numeric',
+    })
+
+    try {
+      await sendAppointmentConfirmationEmail(patient.user.email, {
+        patientName: `${patient.firstName} ${patient.lastName}`,
+        practitionerTitle: practitioner.title,
+        practitionerFirstName: practitioner.firstName,
+        practitionerLastName: practitioner.lastName,
+        practitionerSpecialty:
+          practitioner.specialties[0]?.specialty.name || 'Médecine générale',
+        appointmentDate: formattedDate,
+        appointmentTime: data.startTime,
+        consultationType: data.type,
+        consultationFee: Number(consultationFee),
+        clinicAddress: practitioner.address,
+        appointmentId: appointment.id,
+      })
+    } catch (emailError) {
+      console.error('Failed to send confirmation email:', emailError)
+      // dont fail the appointment creation if email fails
+    }
+
+    try {
+      await scheduleAppointmentReminders(
+        appointment.id,
+        appointmentDate,
+        data.startTime,
+      )
+    } catch (reminderError) {
+      console.error('Failed to schedule reminders:', reminderError)
+      // dont fail the appointment creation if reminders fail
+    }
+
+    return {
+      id: appointment.id,
+      appointmentDate: appointment.appointmentDate,
+      startTime: appointment.startTime,
+      endTime: appointment.endTime,
+      type: appointment.type,
+      status: appointment.status,
+      reason: appointment.reason,
+      consultationFee: Number(appointment.consultationFee),
+      practitioner: {
+        id: practitioner.id,
+        firstName: practitioner.firstName,
+        lastName: practitioner.lastName,
+        title: practitioner.title,
+        specialty: practitioner.specialties[0]?.specialty.name || null,
+      },
+    }
   }
 }
 
