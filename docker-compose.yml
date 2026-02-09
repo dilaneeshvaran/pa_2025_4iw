@@ -14,10 +14,23 @@ services:
     networks:
       - pgnetwork
 
+  redis-db:
+    image: redis:7-alpine
+    container_name: redisdb
+    ports:
+      - "6379:6379"
+    volumes:
+      - redis-data:/data
+    restart: unless-stopped
+    networks:
+      - pgnetwork
+
 networks:
   pgnetwork:
     driver: bridge
 
 volumes:
   postgres-data:
+    driver: local
+  redis-data:
     driver: local
