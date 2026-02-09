@@ -27,6 +27,16 @@
 
           <template v-else>
             <div class="flex items-center space-x-4">
+              <NuxtLink
+                :to="
+                  authStore.user?.role === 'PATIENT'
+                    ? '/patient/dashboard'
+                    : '/practitioner/dashboard'
+                "
+                class="text-sm font-medium text-gray-700 transition-colors hover:text-blue-600"
+              >
+                Tableau de bord
+              </NuxtLink>
               <span class="text-sm text-gray-700">
                 Bonjour, {{ authStore.user?.email }}
               </span>
