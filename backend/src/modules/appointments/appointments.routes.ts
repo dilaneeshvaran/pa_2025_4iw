@@ -2,8 +2,134 @@ import { FastifyInstance, FastifyRequest, FastifyReply } from 'fastify'
 import { appointmentsService } from './appointments.service'
 import { authenticate } from '../../middleware/authenticate'
 import prisma from '../../config/database'
+import {
+  createAppointmentSchema,
+  reserveSlotSchema,
+} from './appointments.schema'
+import { reserveSlot, releaseSlotReservation } from '../../config/redis'
 
 export async function appointmentsRoutes(fastify: FastifyInstance) {
+  fastify.post(
+    '/',
+    { preHandler: [authenticate] },
+    async (request: FastifyRequest, reply: FastifyReply) => {
+      try {
+        const user = request.user as { id: string; role: string }
+        const body = createAppointmentSchema.parse(request.body)
+
+        const patient = await prisma.patient.findUnique({
+          where: { userId: user.id },
+          select: { id: true },
+        })
+
+        if (!patient) {
+          return reply.status(404).send({
+            success: false,
+            message: 'Patient profile not found',
+          })
+        }
+
+        const appointment = await appointmentsService.createAppointment({
+          ...body,
+          patientId: patient.id,
+        })
+
+        return reply.status(201).send({
+          success: true,
+          data: appointment,
+          message: 'Rendez-vous créé avec succès',
+        })
+      } catch (error) {
+        request.log.error(error)
+        const message =
+          error instanceof Error
+            ? error.message
+            : 'Erreur lors de la création du rendez-vous'
+        return reply.status(400).send({
+          success: false,
+          message,
+        })
+      }
+    },
+  )
+
+  // reserve a slot temporarily (10 minutes)
+  fastify.post(
+    '/reserve-slot',
+    { preHandler: [authenticate] },
+    async (request: FastifyRequest, reply: FastifyReply) => {
+      try {
+        const user = request.user as { id: string; role: string }
+        const body = reserveSlotSchema.parse(request.body)
+
+        const patient = await prisma.patient.findUnique({
+          where: { userId: user.id },
+          select: { id: true },
+        })
+
+        if (!patient) {
+          return reply.status(404).send({
+            success: false,
+            message: 'Patient profile not found',
+          })
+        }
+
+        const reserved = await reserveSlot(
+          body.practitionerId,
+          body.appointmentDate,
+          body.startTime,
+          patient.id,
+        )
+
+        if (!reserved) {
+          return reply.status(409).send({
+            success: false,
+            message: 'Ce créneau est déjà réservé par un autre patient',
+          })
+        }
+
+        return reply.status(200).send({
+          success: true,
+          message: 'Créneau réservé pour 10 minutes',
+        })
+      } catch (error) {
+        request.log.error(error)
+        return reply.status(400).send({
+          success: false,
+          message: 'Erreur lors de la réservation du créneau',
+        })
+      }
+    },
+  )
+
+  // release a slot reservation
+  fastify.delete(
+    '/reserve-slot',
+    { preHandler: [authenticate] },
+    async (request: FastifyRequest, reply: FastifyReply) => {
+      try {
+        const body = reserveSlotSchema.parse(request.body)
+
+        await releaseSlotReservation(
+          body.practitionerId,
+          body.appointmentDate,
+          body.startTime,
+        )
+
+        return reply.status(200).send({
+          success: true,
+          message: 'Réservation annulée',
+        })
+      } catch (error) {
+        request.log.error(error)
+        return reply.status(400).send({
+          success: false,
+          message: "Erreur lors de l'annulation de la réservation",
+        })
+      }
+    },
+  )
+
   fastify.get(
     '/patient',
     { preHandler: [authenticate] },
