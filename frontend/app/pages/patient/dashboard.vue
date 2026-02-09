@@ -306,15 +306,10 @@ const quickActions = [
 
 const fetchNextAppointment = async () => {
   try {
-    const response = await $fetch<{
+    const response = await useAuthenticatedFetch<{
       success: boolean;
       data: Appointment | null;
-    }>("/api/appointments/patient/next", {
-      baseURL: config.public.apiBase,
-      headers: {
-        Authorization: `Bearer ${authStore.accessToken}`,
-      },
-    });
+    }>("/appointments/patient/next");
     if (response.success) {
       nextAppointment.value = response.data;
     }
@@ -327,15 +322,10 @@ const fetchNextAppointment = async () => {
 
 const fetchPastAppointments = async () => {
   try {
-    const response = await $fetch<{ success: boolean; data: Appointment[] }>(
-      "/api/appointments/patient/past",
-      {
-        baseURL: config.public.apiBase,
-        headers: {
-          Authorization: `Bearer ${authStore.accessToken}`,
-        },
-      },
-    );
+    const response = await useAuthenticatedFetch<{
+      success: boolean;
+      data: Appointment[];
+    }>("/appointments/patient/past");
     if (response.success) {
       pastAppointments.value = response.data;
     }
@@ -348,15 +338,10 @@ const fetchPastAppointments = async () => {
 
 const fetchNotifications = async () => {
   try {
-    const response = await $fetch<{ success: boolean; data: Notification[] }>(
-      "/api/notifications?limit=5",
-      {
-        baseURL: config.public.apiBase,
-        headers: {
-          Authorization: `Bearer ${authStore.accessToken}`,
-        },
-      },
-    );
+    const response = await useAuthenticatedFetch<{
+      success: boolean;
+      data: Notification[];
+    }>("/notifications?limit=5");
     if (response.success) {
       notifications.value = response.data;
     }
@@ -435,8 +420,18 @@ const getStatusLabel = (status: string) => {
 };
 
 onMounted(() => {
-  fetchNextAppointment();
-  fetchPastAppointments();
-  fetchNotifications();
+  if (!authStore.isAuthenticated) {
+    authStore.initAuth();
+  }
+
+  if (authStore.accessToken) {
+    fetchNextAppointment();
+    fetchPastAppointments();
+    fetchNotifications();
+  } else {
+    loadingNext.value = false;
+    loadingPast.value = false;
+    loadingNotifications.value = false;
+  }
 });
 </script>
