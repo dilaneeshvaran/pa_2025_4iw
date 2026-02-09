@@ -350,6 +350,7 @@ import Button from "~/components/ui/Button.vue";
 import Badge from "~/components/ui/Badge.vue";
 import { useAuthStore } from "~/stores/auth";
 
+const config = useRuntimeConfig();
 const authStore = useAuthStore();
 const router = useRouter();
 
@@ -446,7 +447,9 @@ const searchPractitioners = async () => {
         limit: number;
         totalPages: number;
       };
-    }>(`/api/practitioners/search?${queryParams.toString()}`);
+    }>(`/practitioners/search?${queryParams.toString()}`, {
+      baseURL: config.public.apiBase,
+    });
 
     if (response.success) {
       practitioners.value = response.data;
@@ -467,7 +470,9 @@ const loadSpecialties = async () => {
     const response = await $fetch<{
       success: boolean;
       data: Specialty[];
-    }>("/api/practitioners/specialties");
+    }>("/practitioners/specialties", {
+      baseURL: config.public.apiBase,
+    });
     if (response.success) {
       specialties.value = response.data;
     }
@@ -489,6 +494,7 @@ const handleReserve = (practitioner: Practitioner) => {
 };
 
 onMounted(() => {
+  authStore.initAuth();
   loadSpecialties();
   searchPractitioners();
 });
