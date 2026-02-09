@@ -362,7 +362,7 @@ interface Practitioner {
   specialties?: { name: string }[];
   baseConsultationFee: number;
   teleconsultationEnabled?: boolean;
-  teleconsultationFee?: number;
+  teleconsultationFee?: number | null;
   address?: string;
 }
 
