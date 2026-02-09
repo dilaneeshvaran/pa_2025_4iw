@@ -278,7 +278,10 @@
         <!-- availability tab -->
         <div v-show="activeTab === 'availability'">
           <Card>
-            <h3 class="mb-6 text-xl font-semibold">Créneaux disponibles</h3>
+            <div class="mb-6 flex items-center justify-between">
+              <h3 class="text-xl font-semibold">Créneaux disponibles</h3>
+              <span class="text-sm text-gray-500">7 prochains jours</span>
+            </div>
 
             <!-- loading state -->
             <div v-if="loadingSlots" class="flex justify-center py-8">
@@ -288,24 +291,70 @@
             </div>
 
             <!-- slots content -->
-            <div v-else-if="availableSlots.length" class="space-y-6">
-              <div v-for="day in availableSlots" :key="day.date">
-                <div class="mb-3 flex items-center gap-2">
-                  <IconCalendar class="h-5 w-5 text-[var(--color-primary)]" />
-                  <h4 class="text-lg font-semibold">
-                    {{ formatDate(day.date) }}
-                  </h4>
+            <div v-else-if="filteredAvailableSlots.length" class="space-y-4">
+              <div
+                v-for="day in filteredAvailableSlots"
+                :key="day.date"
+                class="rounded-xl border border-gray-200 bg-gradient-to-r from-gray-50 to-white p-4 transition-shadow hover:shadow-md"
+              >
+                <div class="mb-4 flex items-center justify-between">
+                  <div class="flex items-center gap-3">
+                    <div
+                      class="flex h-12 w-12 flex-col items-center justify-center rounded-lg bg-[var(--color-primary)] text-white"
+                    >
+                      <span class="text-xs font-medium uppercase">{{
+                        formatDayShort(day.date)
+                      }}</span>
+                      <span class="text-lg font-bold">{{
+                        formatDayNumber(day.date)
+                      }}</span>
+                    </div>
+                    <div>
+                      <h4 class="font-semibold text-gray-900">
+                        {{ formatDateFull(day.date) }}
+                      </h4>
+                      <p class="text-sm text-gray-500">
+                        {{ day.slots.length }} créneau{{
+                          day.slots.length > 1 ? "x" : ""
+                        }}
+                        disponible{{ day.slots.length > 1 ? "s" : "" }}
+                      </p>
+                    </div>
+                  </div>
                 </div>
-                <div class="grid grid-cols-4 gap-2 md:grid-cols-6">
-                  <Button
-                    v-for="slot in day.slots"
-                    :key="slot"
-                    variant="secondary"
-                    size="sm"
-                    @click="selectTimeSlot(day.date, slot)"
-                  >
-                    {{ slot }}
-                  </Button>
+
+                <!-- morning slots -->
+                <div v-if="getMorningSlots(day.slots).length" class="mb-3">
+                  <p class="mb-2 text-xs font-medium uppercase text-gray-500">
+                    Matin
+                  </p>
+                  <div class="flex flex-wrap gap-2">
+                    <button
+                      v-for="slot in getMorningSlots(day.slots)"
+                      :key="slot"
+                      class="rounded-lg border border-gray-200 bg-white px-3 py-2 text-sm font-medium text-gray-700 transition-all hover:border-[var(--color-primary)] hover:bg-blue-50 hover:text-[var(--color-primary)]"
+                      @click="selectTimeSlot(day.date, slot)"
+                    >
+                      {{ slot }}
+                    </button>
+                  </div>
+                </div>
+
+                <!-- afternoon slots -->
+                <div v-if="getAfternoonSlots(day.slots).length">
+                  <p class="mb-2 text-xs font-medium uppercase text-gray-500">
+                    Après-midi
+                  </p>
+                  <div class="flex flex-wrap gap-2">
+                    <button
+                      v-for="slot in getAfternoonSlots(day.slots)"
+                      :key="slot"
+                      class="rounded-lg border border-gray-200 bg-white px-3 py-2 text-sm font-medium text-gray-700 transition-all hover:border-[var(--color-primary)] hover:bg-blue-50 hover:text-[var(--color-primary)]"
+                      @click="selectTimeSlot(day.date, slot)"
+                    >
+                      {{ slot }}
+                    </button>
+                  </div>
                 </div>
               </div>
             </div>
@@ -433,7 +482,9 @@
     <BookingModal
       :is-open="isBookingModalOpen"
       :practitioner="practitioner"
-      @close="isBookingModalOpen = false"
+      :preselected-date="preselectedDate"
+      :preselected-time="preselectedTime"
+      @close="closeBookingModal"
     />
   </div>
 </template>
@@ -543,8 +594,13 @@ const activeTab = ref<"about" | "availability" | "reviews" | "location">(
   "about",
 );
 const isBookingModalOpen = ref(false);
+const preselectedDate = ref<string | null>(null);
+const preselectedTime = ref<string | null>(null);
 
-const tabs = [
+const tabs: {
+  id: "about" | "availability" | "reviews" | "location";
+  label: string;
+}[] = [
   { id: "about", label: "À propos" },
   { id: "availability", label: "Disponibilités" },
   { id: "reviews", label: "Avis" },
@@ -579,7 +635,7 @@ const fetchPractitioner = async () => {
     } else {
       error.value = "Impossible de charger les informations du praticien.";
     }
-  } catch (err: unknown) {
+  } catch (err: any) {
     console.error("Error fetching practitioner:", err);
     error.value = err.message || "Une erreur est survenue lors du chargement.";
   } finally {
@@ -610,7 +666,7 @@ const fetchAvailableSlots = async () => {
     if (response.success && response.data) {
       availableSlots.value = response.data;
     }
-  } catch (err) {
+  } catch (err: any) {
     console.error("Error fetching available slots:", err);
   } finally {
     loadingSlots.value = false;
@@ -635,7 +691,76 @@ const selectTimeSlot = (date: string, time: string) => {
   }
 
   // open booking modal with pre selected date and time
+  preselectedDate.value = date;
+  preselectedTime.value = time;
   isBookingModalOpen.value = true;
+};
+
+const closeBookingModal = () => {
+  isBookingModalOpen.value = false;
+  preselectedDate.value = null;
+  preselectedTime.value = null;
+};
+
+// filter slots to exclude past dates and times
+const filteredAvailableSlots = computed(() => {
+  const now = new Date();
+  const todayStr = now.toISOString().split("T")[0] || "";
+  const currentHour = now.getHours();
+  const currentMinute = now.getMinutes();
+
+  return availableSlots.value
+    .filter((day) => day.date >= todayStr)
+    .map((day) => {
+      if (day.date === todayStr) {
+        // filter out past time slots for today
+        const futureSlots = day.slots.filter((slot) => {
+          const parts = slot.split(":");
+          const hour = parseInt(parts[0] || "0", 10);
+          const minute = parseInt(parts[1] || "0", 10);
+          return (
+            hour > currentHour ||
+            (hour === currentHour && minute > currentMinute)
+          );
+        });
+        return { ...day, slots: futureSlots };
+      }
+      return day;
+    })
+    .filter((day) => day.slots.length > 0);
+});
+
+const getMorningSlots = (slots: string[]) => {
+  return slots.filter((slot) => {
+    const hour = parseInt(slot.split(":")[0] || "0", 10);
+    return hour < 12;
+  });
+};
+
+const getAfternoonSlots = (slots: string[]) => {
+  return slots.filter((slot) => {
+    const hour = parseInt(slot.split(":")[0] || "0", 10);
+    return hour >= 12;
+  });
+};
+
+const formatDayShort = (dateString: string) => {
+  const date = new Date(dateString);
+  return date.toLocaleDateString("fr-FR", { weekday: "short" }).slice(0, 3);
+};
+
+const formatDayNumber = (dateString: string) => {
+  const date = new Date(dateString);
+  return date.getDate();
+};
+
+const formatDateFull = (dateString: string) => {
+  const date = new Date(dateString);
+  return date.toLocaleDateString("fr-FR", {
+    weekday: "long",
+    day: "numeric",
+    month: "long",
+  });
 };
 
 const formatDate = (dateString: string) => {
