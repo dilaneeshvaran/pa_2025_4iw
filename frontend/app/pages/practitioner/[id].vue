@@ -485,6 +485,7 @@
       :preselected-date="preselectedDate"
       :preselected-time="preselectedTime"
       @close="closeBookingModal"
+      @success="onBookingSuccess"
     />
   </div>
 </template>
@@ -700,6 +701,11 @@ const closeBookingModal = () => {
   isBookingModalOpen.value = false;
   preselectedDate.value = null;
   preselectedTime.value = null;
+};
+
+const onBookingSuccess = () => {
+  // refresh available slots so the booked time disappears
+  fetchAvailableSlots();
 };
 
 // filter slots to exclude past dates and times
