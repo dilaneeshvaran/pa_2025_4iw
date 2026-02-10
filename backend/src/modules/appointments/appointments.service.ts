@@ -332,6 +332,22 @@ export class AppointmentsService {
       throw new Error('La date du rendez-vous ne peut pas être dans le passé')
     }
 
+    // check if patient already has an appointment at the same time
+    const patientExistingAppointment = await prisma.appointment.findFirst({
+      where: {
+        patientId: data.patientId,
+        appointmentDate,
+        startTime: data.startTime,
+        status: { in: ['PENDING', 'CONFIRMED'] },
+      },
+    })
+
+    if (patientExistingAppointment) {
+      throw new Error(
+        'Vous avez déjà un rendez-vous à cette date et à cette heure',
+      )
+    }
+
     // check if slot is reserved by another user
     const isReserved = await isSlotReserved(
       data.practitionerId,
