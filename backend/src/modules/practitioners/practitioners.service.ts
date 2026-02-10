@@ -332,7 +332,7 @@ export class PractitionersService {
 
     while (currentDate <= end) {
       const dayOfWeek = this.getDayOfWeek(currentDate)
-      const dateStr = currentDate.toISOString().split('T')[0]
+      const dateStr = this.formatDateLocal(currentDate)
 
       // check if practitioner is absent on this date
       const isAbsent = absences.some(
@@ -359,7 +359,7 @@ export class PractitionersService {
           const availableSlots = timeSlots.filter((slot) => {
             return !appointments.some(
               (apt) =>
-                apt.appointmentDate.toISOString().split('T')[0] === dateStr &&
+                this.formatDateLocal(apt.appointmentDate) === dateStr &&
                 apt.startTime === slot,
             )
           })
@@ -387,7 +387,7 @@ export class PractitionersService {
     date: Date,
   ): Promise<string[]> {
     const dayOfWeek = this.getDayOfWeek(date)
-    const dateStr = date.toISOString().split('T')[0]
+    const dateStr = this.formatDateLocal(date)
 
     const isAbsent = await prisma.absence.findFirst({
       where: {
@@ -506,7 +506,15 @@ export class PractitionersService {
     return days[date.getDay()]
   }
 
-  // helper calculate distance between two coordinates (haversine formula)
+  // format date as local YYYY-MM-DD (timezone safe, no UTC shit)
+  private formatDateLocal(date: Date): string {
+    const year = date.getFullYear()
+    const month = String(date.getMonth() + 1).padStart(2, '0')
+    const day = String(date.getDate()).padStart(2, '0')
+    return `${year}-${month}-${day}`
+  }
+
+  // calculate distance between two coordinates (haversine formula)
   private calculateDistance(
     lat1: number,
     lon1: number,
