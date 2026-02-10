@@ -5,6 +5,7 @@ import {
   PatientAppointment,
   CreateAppointmentData,
   AppointmentCreatedResult,
+  UpdateAppointmentData,
 } from './appointments.types'
 import { isSlotReserved, releaseSlotReservation } from '../../config/redis'
 import { sendAppointmentConfirmationEmail } from '../../utils/email'
@@ -13,7 +14,7 @@ import { scheduleAppointmentReminders } from '../../utils/reminder-scheduler'
 export class AppointmentsService {
   async getPatientAppointments(
     patientId: string,
-    status: 'upcoming' | 'past' | 'all' = 'all',
+    status: 'upcoming' | 'past' | 'cancelled' | 'all' = 'all',
     limit = 10,
     page = 1,
   ): Promise<PatientAppointmentsResult> {
@@ -34,13 +35,14 @@ export class AppointmentsService {
         { appointmentDate: { lt: today } },
         {
           status: {
-            in: ['COMPLETED', 'CANCELLED', 'NO_SHOW'] as AppointmentStatus[],
+            in: ['COMPLETED', 'NO_SHOW'] as AppointmentStatus[],
           },
         },
-        // include todays past appointments if we could filter by time,
-        // but for pagination query we may just include all "today" in upcoming
-        // and let front sort/filter specific times if neeed.
       ]
+      // xclude cancelled from past
+      where.status = { not: 'CANCELLED' as AppointmentStatus }
+    } else if (status === 'cancelled') {
+      where.status = 'CANCELLED' as AppointmentStatus
     }
 
     const [appointments, total] = await Promise.all([
@@ -81,7 +83,9 @@ export class AppointmentsService {
         lastName: apt.practitioner.lastName,
         title: apt.practitioner.title,
         specialty: apt.practitioner.specialties[0]?.specialty.name || null,
-        photo: null, // todo : add photo field to practitioner
+        photo: null,
+        address: apt.practitioner.address || null,
+        city: apt.practitioner.city || null,
       },
     }))
 
@@ -101,7 +105,7 @@ export class AppointmentsService {
     const today = new Date()
     today.setHours(0, 0, 0, 0)
 
-    // Fetch potential next appointments starting from today
+    // fetch potential next appointments starting from today
     // checking a reasonable number to find the first valid one
     const appointments = await prisma.appointment.findMany({
       where: {
@@ -112,7 +116,7 @@ export class AppointmentsService {
       orderBy: {
         appointmentDate: 'asc',
       },
-      take: 10, // Check first 10, usually enough
+      take: 10, // check first 10, usually enough
       include: {
         practitioner: {
           include: {
@@ -126,7 +130,7 @@ export class AppointmentsService {
       },
     })
 
-    // Find first appointment that is in the future
+    // find first appointment that is in the future
     const nextAppointment = appointments.find((apt) => {
       const aptDate = new Date(apt.appointmentDate)
       // specific check for today
@@ -160,6 +164,8 @@ export class AppointmentsService {
         specialty:
           nextAppointment.practitioner.specialties[0]?.specialty.name || null,
         photo: null,
+        address: nextAppointment.practitioner.address || null,
+        city: nextAppointment.practitioner.city || null,
       },
     }
   }
@@ -172,7 +178,7 @@ export class AppointmentsService {
     today.setHours(0, 0, 0, 0)
     const now = new Date()
 
-    // Fetch slightly more to filter in memory
+    // fetch slightly more to filter in memory
     const appointments = await prisma.appointment.findMany({
       where: {
         patientId,
@@ -180,11 +186,11 @@ export class AppointmentsService {
           { status: 'COMPLETED' as AppointmentStatus },
           { status: 'CANCELLED' as AppointmentStatus },
           { status: 'NO_SHOW' as AppointmentStatus },
-          { appointmentDate: { lt: today } }, // Strictly past dates
-          { appointmentDate: today }, // Today needs time check
+          { appointmentDate: { lt: today } }, // strictly past dates
+          { appointmentDate: today }, // today needs time check
         ],
       },
-      take: limit * 2, // Fetch more to filter
+      take: limit * 2, // fetch more to filter
       orderBy: {
         appointmentDate: 'desc',
       },
@@ -201,9 +207,9 @@ export class AppointmentsService {
       },
     })
 
-    // Filter to ensure "Today" items are actually in the past
+    // filter to ensure "Today" items are actually in the past
     const filtered = appointments.filter((apt) => {
-      // If status is final, it's past
+      // if status is final, it's past
       if (['COMPLETED', 'CANCELLED', 'NO_SHOW'].includes(apt.status)) {
         return true
       }
@@ -223,7 +229,7 @@ export class AppointmentsService {
       return false
     })
 
-    // Slice to limit
+    // slice to limit
     return filtered.slice(0, limit).map((apt) => ({
       id: apt.id,
       appointmentDate: apt.appointmentDate,
@@ -240,6 +246,8 @@ export class AppointmentsService {
         title: apt.practitioner.title,
         specialty: apt.practitioner.specialties[0]?.specialty.name || null,
         photo: null,
+        address: apt.practitioner.address || null,
+        city: apt.practitioner.city || null,
       },
     }))
   }
@@ -410,6 +418,171 @@ export class AppointmentsService {
         lastName: practitioner.lastName,
         title: practitioner.title,
         specialty: practitioner.specialties[0]?.specialty.name || null,
+      },
+    }
+  }
+
+  async cancelAppointment(
+    appointmentId: string,
+    patientId: string,
+    reason?: string,
+  ): Promise<void> {
+    const appointment = await prisma.appointment.findUnique({
+      where: { id: appointmentId },
+    })
+
+    if (!appointment) {
+      throw new Error('Rendez-vous non trouvé')
+    }
+
+    if (appointment.patientId !== patientId) {
+      throw new Error('Vous ne pouvez pas annuler ce rendez-vous')
+    }
+
+    if (
+      appointment.status === 'CANCELLED' ||
+      appointment.status === 'COMPLETED'
+    ) {
+      throw new Error('Ce rendez-vous ne peut pas être annulé')
+    }
+
+    const now = new Date()
+    const aptDate = new Date(appointment.appointmentDate)
+    const [hours, minutes] = appointment.startTime.split(':').map(Number)
+    aptDate.setHours(hours, minutes, 0, 0)
+
+    if (aptDate <= now) {
+      throw new Error('Vous ne pouvez pas annuler un rendez-vous passé')
+    }
+
+    await prisma.appointment.update({
+      where: { id: appointmentId },
+      data: {
+        status: 'CANCELLED',
+        cancelledAt: new Date(),
+        cancelledBy: patientId,
+        cancellationReason: reason || null,
+      },
+    })
+  }
+
+  async updateAppointment(
+    appointmentId: string,
+    patientId: string,
+    data: UpdateAppointmentData,
+  ): Promise<PatientAppointment> {
+    const appointment = await prisma.appointment.findUnique({
+      where: { id: appointmentId },
+      include: {
+        practitioner: {
+          include: {
+            specialties: {
+              where: { isPrimary: true },
+              include: { specialty: true },
+              take: 1,
+            },
+          },
+        },
+      },
+    })
+
+    if (!appointment) {
+      throw new Error('Rendez-vous non trouvé')
+    }
+
+    if (appointment.patientId !== patientId) {
+      throw new Error('Vous ne pouvez pas modifier ce rendez-vous')
+    }
+
+    if (
+      appointment.status === 'CANCELLED' ||
+      appointment.status === 'COMPLETED'
+    ) {
+      throw new Error('Ce rendez-vous ne peut pas être modifié')
+    }
+
+    // check 24h rule
+    const now = new Date()
+    const aptDate = new Date(appointment.appointmentDate)
+    const [hours, minutes] = appointment.startTime.split(':').map(Number)
+    aptDate.setHours(hours, minutes, 0, 0)
+    const diffMs = aptDate.getTime() - now.getTime()
+    const diffHours = diffMs / (1000 * 60 * 60)
+
+    if (diffHours < 24) {
+      throw new Error(
+        'Vous ne pouvez modifier un rendez-vous que 24 heures avant',
+      )
+    }
+
+    const newDate = data.appointmentDate
+      ? new Date(data.appointmentDate)
+      : appointment.appointmentDate
+    const newStartTime = data.startTime || appointment.startTime
+
+    // check new slot availability
+    if (data.appointmentDate || data.startTime) {
+      const existing = await prisma.appointment.findFirst({
+        where: {
+          practitionerId: appointment.practitionerId,
+          appointmentDate: newDate,
+          startTime: newStartTime,
+          status: { in: ['PENDING', 'CONFIRMED'] },
+          id: { not: appointmentId },
+        },
+      })
+
+      if (existing) {
+        throw new Error("Ce créneau n'est plus disponible")
+      }
+    }
+
+    // calculate new end time
+    const [h, m] = newStartTime.split(':').map(Number)
+    const endMinutes = h * 60 + m + appointment.duration
+    const endTime = `${Math.floor(endMinutes / 60)
+      .toString()
+      .padStart(2, '0')}:${(endMinutes % 60).toString().padStart(2, '0')}`
+
+    const updated = await prisma.appointment.update({
+      where: { id: appointmentId },
+      data: {
+        appointmentDate: newDate,
+        startTime: newStartTime,
+        endTime,
+        status: 'CONFIRMED',
+      },
+      include: {
+        practitioner: {
+          include: {
+            specialties: {
+              where: { isPrimary: true },
+              include: { specialty: true },
+              take: 1,
+            },
+          },
+        },
+      },
+    })
+
+    return {
+      id: updated.id,
+      appointmentDate: updated.appointmentDate,
+      startTime: updated.startTime,
+      endTime: updated.endTime,
+      type: updated.type,
+      status: updated.status,
+      reason: updated.reason,
+      consultationFee: Number(updated.consultationFee),
+      practitioner: {
+        id: updated.practitioner.id,
+        firstName: updated.practitioner.firstName,
+        lastName: updated.practitioner.lastName,
+        title: updated.practitioner.title,
+        specialty: updated.practitioner.specialties[0]?.specialty.name || null,
+        photo: null,
+        address: updated.practitioner.address || null,
+        city: updated.practitioner.city || null,
       },
     }
   }
