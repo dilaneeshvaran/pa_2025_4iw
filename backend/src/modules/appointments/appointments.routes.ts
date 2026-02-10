@@ -154,7 +154,8 @@ export async function appointmentsRoutes(fastify: FastifyInstance) {
           })
         }
 
-        const status = (query.status as 'upcoming' | 'past' | 'all') || 'all'
+        const status =
+          (query.status as 'upcoming' | 'past' | 'cancelled' | 'all') || 'all'
         const limit = query.limit ? parseInt(query.limit, 10) : 10
         const page = query.page ? parseInt(query.page, 10) : 1
 
@@ -255,6 +256,100 @@ export async function appointmentsRoutes(fastify: FastifyInstance) {
         return reply.status(500).send({
           success: false,
           message: 'Failed to get past appointments',
+        })
+      }
+    },
+  )
+
+  fastify.patch(
+    '/:id/cancel',
+    { preHandler: [authenticate] },
+    async (request: FastifyRequest, reply: FastifyReply) => {
+      try {
+        const user = request.user as { id: string; role: string }
+        const { id } = request.params as { id: string }
+        const body = request.body as { reason?: string }
+
+        const patient = await prisma.patient.findUnique({
+          where: { userId: user.id },
+          select: { id: true },
+        })
+
+        if (!patient) {
+          return reply.status(404).send({
+            success: false,
+            message: 'Patient profile not found',
+          })
+        }
+
+        await appointmentsService.cancelAppointment(
+          id,
+          patient.id,
+          body?.reason,
+        )
+
+        return reply.status(200).send({
+          success: true,
+          message: 'Rendez-vous annulé avec succès',
+        })
+      } catch (error) {
+        request.log.error(error)
+        const message =
+          error instanceof Error
+            ? error.message
+            : "Erreur lors de l'annulation du rendez-vous"
+        return reply.status(400).send({
+          success: false,
+          message,
+        })
+      }
+    },
+  )
+
+  fastify.patch(
+    '/:id',
+    { preHandler: [authenticate] },
+    async (request: FastifyRequest, reply: FastifyReply) => {
+      try {
+        const user = request.user as { id: string; role: string }
+        const { id } = request.params as { id: string }
+        const body = request.body as {
+          appointmentDate?: string
+          startTime?: string
+        }
+
+        const patient = await prisma.patient.findUnique({
+          where: { userId: user.id },
+          select: { id: true },
+        })
+
+        if (!patient) {
+          return reply.status(404).send({
+            success: false,
+            message: 'Patient profile not found',
+          })
+        }
+
+        const updated = await appointmentsService.updateAppointment(
+          id,
+          patient.id,
+          body,
+        )
+
+        return reply.status(200).send({
+          success: true,
+          data: updated,
+          message: 'Rendez-vous modifié avec succès',
+        })
+      } catch (error) {
+        request.log.error(error)
+        const message =
+          error instanceof Error
+            ? error.message
+            : 'Erreur lors de la modification du rendez-vous'
+        return reply.status(400).send({
+          success: false,
+          message,
         })
       }
     },
