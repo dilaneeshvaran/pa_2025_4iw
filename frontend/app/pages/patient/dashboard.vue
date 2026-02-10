@@ -74,19 +74,27 @@
             </div>
           </div>
           <div class="mt-4 flex gap-3 border-t pt-4">
-            <UiButton
-              variant="secondary"
-              class-name="flex-1"
-              :disabled="!canModifyNext"
-              :title="
-                !canModifyNext
-                  ? 'Vous pouvez modifier votre rendez-vous uniquement 24 heures avant la date prévue'
-                  : ''
-              "
-              @click="handleModifyClick"
-            >
-              Modifier
-            </UiButton>
+            <div class="group relative flex-1">
+              <UiButton
+                variant="secondary"
+                class-name="w-full"
+                :disabled="!canModifyNext"
+                @click="handleModifyClick"
+              >
+                Modifier
+              </UiButton>
+              <div
+                v-if="!canModifyNext"
+                class="invisible absolute bottom-full left-1/2 z-10 mb-2 -translate-x-1/2 whitespace-nowrap rounded-lg bg-gray-900 px-3 py-2 text-xs text-white opacity-0 shadow-lg transition-opacity duration-200 group-hover:visible group-hover:opacity-100"
+              >
+                <div class="relative">
+                  Vous pouvez modifier uniquement 24h avant
+                  <div
+                    class="absolute left-1/2 top-full -mt-1 -translate-x-1/2 border-4 border-transparent border-t-gray-900"
+                  ></div>
+                </div>
+              </div>
+            </div>
             <UiButton
               v-if="canCancelNext"
               variant="danger"

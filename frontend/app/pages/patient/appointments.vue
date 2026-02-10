@@ -74,7 +74,7 @@
       <div
         v-for="apt in currentAppointments"
         :key="apt.id"
-        class="overflow-hidden rounded-lg border bg-white shadow-sm transition-shadow hover:shadow-md"
+        class="rounded-lg border bg-white shadow-sm transition-shadow hover:shadow-md"
       >
         <div class="p-6">
           <div class="flex items-start gap-4">
@@ -145,22 +145,30 @@
         <!-- action  -->
         <div
           v-if="getActions(apt).length > 0"
-          class="flex gap-3 border-t bg-gray-50 px-6 py-3"
+          class="flex gap-3 rounded-b-lg border-t bg-gray-50 px-6 py-3"
         >
-          <UiButton
-            variant="secondary"
-            size="sm"
-            :disabled="!canModify(apt)"
-            :title="
-              !canModify(apt)
-                ? 'Vous pouvez modifier votre rendez-vous uniquement 24 heures avant la date prévue'
-                : ''
-            "
-            @click="handleModifyClick(apt)"
-          >
-            <Pencil class="mr-1.5 h-4 w-4" />
-            Modifier
-          </UiButton>
+          <div class="group relative">
+            <UiButton
+              variant="secondary"
+              size="sm"
+              :disabled="!canModify(apt)"
+              @click="handleModifyClick(apt)"
+            >
+              <Pencil class="mr-1.5 h-4 w-4" />
+              Modifier
+            </UiButton>
+            <div
+              v-if="!canModify(apt)"
+              class="pointer-events-none invisible absolute bottom-full left-1/2 z-[100] mb-2 -translate-x-1/2 whitespace-nowrap rounded-lg bg-gray-900 px-3 py-2 text-xs text-white opacity-0 shadow-xl transition-opacity duration-200 group-hover:visible group-hover:opacity-100"
+            >
+              <div class="relative">
+                Vous pouvez modifier uniquement 24h avant
+                <div
+                  class="absolute left-1/2 top-full -mt-1 -translate-x-1/2 border-4 border-transparent border-t-gray-900"
+                ></div>
+              </div>
+            </div>
+          </div>
           <UiButton
             v-if="canCancel(apt)"
             variant="danger"
