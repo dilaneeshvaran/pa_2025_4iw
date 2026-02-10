@@ -15,8 +15,8 @@ export const signupSchema = z.object({
   firstName: z.string().min(2, 'Le prénom doit contenir au moins 2 caractères'),
   lastName: z.string().min(2, 'Le nom doit contenir au moins 2 caractères'),
   phone: z.string().regex(/^\+?[0-9]{10,15}$/, 'Numéro de téléphone invalide'),
-  dateOfBirth: z.string(), // Required for patients
-  gender: z.enum(['MALE', 'FEMALE', 'OTHER', 'PREFER_NOT_TO_SAY']), // Required for patients
+  dateOfBirth: z.string(),
+  gender: z.enum(['MALE', 'FEMALE', 'OTHER', 'PREFER_NOT_TO_SAY']),
 })
 
 export type SignupInput = z.infer<typeof signupSchema>

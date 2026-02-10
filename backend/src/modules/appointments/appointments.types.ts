@@ -14,6 +14,8 @@ export interface PatientAppointment {
     title: string
     specialty: string | null
     photo: string | null
+    address: string | null
+    city: string | null
   }
 }
 
@@ -50,4 +52,9 @@ export interface AppointmentCreatedResult {
     title: string
     specialty: string | null
   }
+}
+
+export interface UpdateAppointmentData {
+  appointmentDate?: string
+  startTime?: string
 }
