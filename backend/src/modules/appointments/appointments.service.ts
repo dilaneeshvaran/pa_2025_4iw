@@ -17,17 +17,21 @@ export class AppointmentsService {
     status: 'upcoming' | 'past' | 'cancelled' | 'all' = 'all',
     limit = 10,
     page = 1,
+    sort?: 'asc' | 'desc',
   ): Promise<PatientAppointmentsResult> {
     const today = new Date()
     today.setHours(0, 0, 0, 0)
+    const now = new Date()
     const skip = (page - 1) * limit
 
     const where: any = {
       patientId,
     }
 
+    // determine default sort direction based on tab
+    const orderDirection = sort || (status === 'past' ? 'desc' : 'asc')
+
     if (status === 'upcoming') {
-      // include today for upcoming, todo : we will filter by time later
       where.appointmentDate = { gte: today }
       where.status = { in: ['PENDING', 'CONFIRMED'] as AppointmentStatus[] }
     } else if (status === 'past') {
@@ -51,7 +55,7 @@ export class AppointmentsService {
         skip,
         take: limit,
         orderBy: {
-          appointmentDate: status === 'past' ? 'desc' : 'asc',
+          appointmentDate: orderDirection,
         },
         include: {
           practitioner: {
@@ -68,7 +72,28 @@ export class AppointmentsService {
       prisma.appointment.count({ where }),
     ])
 
-    const data: PatientAppointment[] = appointments.map((apt) => ({
+    // post filter : for 'upcoming'  exclude today's appointments whihc time has passed
+    let filteredAppointments = appointments
+    let adjustedTotal = total
+
+    if (status === 'upcoming') {
+      filteredAppointments = appointments.filter((apt) => {
+        const aptDate = new Date(apt.appointmentDate)
+        aptDate.setHours(0, 0, 0, 0)
+        if (aptDate.getTime() === today.getTime()) {
+          const [hours, minutes] = apt.startTime.split(':').map(Number)
+          const appointmentTime = new Date(today)
+          appointmentTime.setHours(hours, minutes, 0, 0)
+          return appointmentTime > now
+        }
+        return true
+      })
+      // adjust total count by the number of filtered-out items
+      const removedCount = appointments.length - filteredAppointments.length
+      adjustedTotal = Math.max(0, total - removedCount)
+    }
+
+    const data: PatientAppointment[] = filteredAppointments.map((apt) => ({
       id: apt.id,
       appointmentDate: apt.appointmentDate,
       startTime: apt.startTime,
@@ -91,10 +116,10 @@ export class AppointmentsService {
 
     return {
       data,
-      total,
+      total: adjustedTotal,
       page,
       limit,
-      totalPages: Math.ceil(total / limit),
+      totalPages: Math.ceil(adjustedTotal / limit),
     }
   }
 
