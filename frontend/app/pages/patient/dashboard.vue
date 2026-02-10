@@ -74,13 +74,31 @@
             </div>
           </div>
           <div class="mt-4 flex gap-3 border-t pt-4">
-            <UiButton variant="secondary" class-name="flex-1">
+            <UiButton
+              variant="secondary"
+              class-name="flex-1"
+              :disabled="!canModifyNext"
+              :title="
+                !canModifyNext
+                  ? 'Vous pouvez modifier votre rendez-vous uniquement 24 heures avant la date prévue'
+                  : ''
+              "
+              @click="handleModifyClick"
+            >
               Modifier
             </UiButton>
-            <UiButton variant="danger" class-name="flex-1"> Annuler </UiButton>
             <UiButton
-              v-if="nextAppointment.type === 'TELECONSULTATION'"
+              v-if="canCancelNext"
+              variant="danger"
               class-name="flex-1"
+              @click="openCancelModal"
+            >
+              Annuler
+            </UiButton>
+            <UiButton
+              v-if="canJoinNext"
+              class-name="flex-1"
+              @click="handleJoin"
             >
               <Video class="h-4 w-4" />
               Rejoindre
@@ -215,6 +233,150 @@
         </div>
       </UiCard>
     </div>
+
+    <!-- cancel modal -->
+    <Teleport to="body">
+      <div
+        v-if="showCancelModal"
+        class="fixed inset-0 z-50 flex items-center justify-center bg-black/50"
+        @click.self="closeCancelModal"
+      >
+        <div class="mx-4 w-full max-w-md rounded-xl bg-white p-6 shadow-2xl">
+          <div class="mb-4 flex items-center gap-3">
+            <div
+              class="flex h-10 w-10 items-center justify-center rounded-full bg-red-100"
+            >
+              <AlertTriangle class="h-5 w-5 text-red-600" />
+            </div>
+            <h3 class="text-lg font-semibold text-gray-900">
+              Annuler le rendez-vous
+            </h3>
+          </div>
+
+          <p class="mb-4 text-sm text-gray-600">
+            Êtes-vous sûr de vouloir annuler votre rendez-vous avec
+            <strong>
+              {{ nextAppointment?.practitioner.title }}
+              {{ nextAppointment?.practitioner.firstName }}
+              {{ nextAppointment?.practitioner.lastName }}
+            </strong>
+            le
+            <strong>{{
+              formatDate(nextAppointment?.appointmentDate || "")
+            }}</strong>
+            à <strong>{{ nextAppointment?.startTime }}</strong> ?
+          </p>
+
+          <div class="mb-4">
+            <label class="mb-1 block text-sm font-medium text-gray-700">
+              Raison (optionnelle)
+            </label>
+            <textarea
+              v-model="cancelReason"
+              rows="3"
+              placeholder="Indiquez la raison de l'annulation..."
+              class="w-full rounded-lg border border-gray-300 px-3 py-2 text-sm focus:border-blue-500 focus:outline-none focus:ring-1 focus:ring-blue-500"
+            ></textarea>
+          </div>
+
+          <div class="flex gap-3">
+            <UiButton
+              variant="secondary"
+              class-name="flex-1"
+              @click="closeCancelModal"
+              :disabled="cancelling"
+            >
+              Non, garder
+            </UiButton>
+            <UiButton
+              variant="danger"
+              class-name="flex-1"
+              @click="confirmCancel"
+              :disabled="cancelling"
+            >
+              {{ cancelling ? "Annulation..." : "Oui, annuler" }}
+            </UiButton>
+          </div>
+        </div>
+      </div>
+    </Teleport>
+
+    <!-- Modify Modal -->
+    <Teleport to="body">
+      <div
+        v-if="showModifyModal"
+        class="fixed inset-0 z-50 flex items-center justify-center bg-black/50"
+        @click.self="closeModifyModal"
+      >
+        <div class="mx-4 w-full max-w-md rounded-xl bg-white p-6 shadow-2xl">
+          <div class="mb-4 flex items-center gap-3">
+            <div
+              class="flex h-10 w-10 items-center justify-center rounded-full bg-blue-100"
+            >
+              <Pencil class="h-5 w-5 text-blue-600" />
+            </div>
+            <h3 class="text-lg font-semibold text-gray-900">
+              Modifier le rendez-vous
+            </h3>
+          </div>
+
+          <p class="mb-4 text-sm text-gray-600">
+            Modifier votre rendez-vous avec
+            <strong>
+              {{ nextAppointment?.practitioner.title }}
+              {{ nextAppointment?.practitioner.firstName }}
+              {{ nextAppointment?.practitioner.lastName }}
+            </strong>
+          </p>
+
+          <div class="mb-4 space-y-3">
+            <div>
+              <label class="mb-1 block text-sm font-medium text-gray-700">
+                Nouvelle date
+              </label>
+              <input
+                v-model="modifyDate"
+                type="date"
+                :min="minModifyDate"
+                class="w-full rounded-lg border border-gray-300 px-3 py-2 text-sm focus:border-blue-500 focus:outline-none focus:ring-1 focus:ring-blue-500"
+              />
+            </div>
+            <div>
+              <label class="mb-1 block text-sm font-medium text-gray-700">
+                Nouvel horaire
+              </label>
+              <input
+                v-model="modifyTime"
+                type="time"
+                class="w-full rounded-lg border border-gray-300 px-3 py-2 text-sm focus:border-blue-500 focus:outline-none focus:ring-1 focus:ring-blue-500"
+              />
+            </div>
+          </div>
+
+          <p v-if="modifyError" class="mb-3 text-sm text-red-600">
+            {{ modifyError }}
+          </p>
+
+          <div class="flex gap-3">
+            <UiButton
+              variant="secondary"
+              class-name="flex-1"
+              @click="closeModifyModal"
+              :disabled="modifying"
+            >
+              Annuler
+            </UiButton>
+            <UiButton
+              class-name="flex-1"
+              @click="confirmModify"
+              :disabled="modifying || !modifyDate || !modifyTime"
+            >
+              {{ modifying ? "Modification..." : "Confirmer" }}
+            </UiButton>
+          </div>
+        </div>
+      </div>
+    </Teleport>
   </div>
 </template>
 
@@ -226,8 +388,9 @@ import {
   MessageSquare,
   Clock,
   Bell,
-  Heart,
   Activity,
+  AlertTriangle,
+  Pencil,
 } from "lucide-vue-next";
 import { useAuthStore } from "~/stores/auth";
 
@@ -236,7 +399,6 @@ definePageMeta({
   middleware: "auth",
 });
 
-const config = useRuntimeConfig();
 const authStore = useAuthStore();
 const router = useRouter();
 
@@ -276,6 +438,61 @@ const notifications = ref<Notification[]>([]);
 const loadingNext = ref(true);
 const loadingPast = ref(true);
 const loadingNotifications = ref(true);
+
+// cancel modal state
+const showCancelModal = ref(false);
+const cancelReason = ref("");
+const cancelling = ref(false);
+
+// modify modal state
+const showModifyModal = ref(false);
+const modifyDate = ref("");
+const modifyTime = ref("");
+const modifyError = ref("");
+const modifying = ref(false);
+
+const minModifyDate = computed(() => {
+  const d = new Date();
+  d.setDate(d.getDate() + 2);
+  return d.toISOString().split("T")[0] || "";
+});
+
+// action helpers for next appointment
+const canModifyNext = computed(() => {
+  if (!nextAppointment.value) return false;
+  const apt = nextAppointment.value;
+  if (apt.status === "CANCELLED" || apt.status === "COMPLETED") return false;
+  const now = new Date();
+  const aptDate = new Date(apt.appointmentDate);
+  const parts = apt.startTime.split(":").map(Number);
+  aptDate.setHours(parts[0] || 0, parts[1] || 0, 0, 0);
+  const diffHours = (aptDate.getTime() - now.getTime()) / (1000 * 60 * 60);
+  return diffHours >= 24;
+});
+
+const canCancelNext = computed(() => {
+  if (!nextAppointment.value) return false;
+  const apt = nextAppointment.value;
+  if (apt.status === "CANCELLED" || apt.status === "COMPLETED") return false;
+  const now = new Date();
+  const aptDate = new Date(apt.appointmentDate);
+  const parts = apt.startTime.split(":").map(Number);
+  aptDate.setHours(parts[0] || 0, parts[1] || 0, 0, 0);
+  return aptDate > now;
+});
+
+const canJoinNext = computed(() => {
+  if (!nextAppointment.value) return false;
+  const apt = nextAppointment.value;
+  if (apt.type !== "TELECONSULTATION") return false;
+  if (apt.status === "CANCELLED" || apt.status === "COMPLETED") return false;
+  const now = new Date();
+  const aptDate = new Date(apt.appointmentDate);
+  const parts = apt.startTime.split(":").map(Number);
+  aptDate.setHours(parts[0] || 0, parts[1] || 0, 0, 0);
+  const diffMinutes = (aptDate.getTime() - now.getTime()) / (1000 * 60);
+  return diffMinutes <= 15 && diffMinutes >= -60;
+});
 
 const quickActions = [
   {
@@ -353,6 +570,7 @@ const fetchNotifications = async () => {
 };
 
 const formatDate = (dateStr: string) => {
+  if (!dateStr) return "";
   const date = new Date(dateStr);
   return date.toLocaleDateString("fr-FR", {
     day: "numeric",
@@ -417,6 +635,93 @@ const getStatusLabel = (status: string) => {
     default:
       return status;
   }
+};
+
+const openCancelModal = () => {
+  cancelReason.value = "";
+  showCancelModal.value = true;
+};
+
+const closeCancelModal = () => {
+  showCancelModal.value = false;
+};
+
+const confirmCancel = async () => {
+  if (!nextAppointment.value) return;
+  cancelling.value = true;
+  try {
+    await useAuthenticatedFetch(
+      `/appointments/${nextAppointment.value.id}/cancel`,
+      {
+        method: "PATCH",
+        body: { reason: cancelReason.value || undefined },
+      },
+    );
+    closeCancelModal();
+    loadingNext.value = true;
+    await fetchNextAppointment();
+    loadingPast.value = true;
+    await fetchPastAppointments();
+  } catch (error: any) {
+    console.error("Error cancelling:", error);
+    alert(error?.data?.message || "Erreur lors de l'annulation");
+  } finally {
+    cancelling.value = false;
+  }
+};
+
+const handleModifyClick = () => {
+  if (!canModifyNext.value) {
+    // show popup for mobile/touch devices only bcoz we got hover on pc bro
+    if ("ontouchstart" in window || navigator.maxTouchPoints > 0) {
+      alert(
+        "Vous pouvez modifier votre rendez-vous uniquement 24 heures avant la date prévue.",
+      );
+    }
+    return;
+  }
+  openModifyModal();
+};
+
+const openModifyModal = () => {
+  if (!nextAppointment.value) return;
+  const d = new Date(nextAppointment.value.appointmentDate);
+  modifyDate.value = d.toISOString().split("T")[0] || "";
+  modifyTime.value = nextAppointment.value.startTime;
+  modifyError.value = "";
+  showModifyModal.value = true;
+};
+
+const closeModifyModal = () => {
+  showModifyModal.value = false;
+  modifyError.value = "";
+};
+
+const confirmModify = async () => {
+  if (!nextAppointment.value || !modifyDate.value || !modifyTime.value) return;
+  modifying.value = true;
+  modifyError.value = "";
+  try {
+    await useAuthenticatedFetch(`/appointments/${nextAppointment.value.id}`, {
+      method: "PATCH",
+      body: {
+        appointmentDate: modifyDate.value,
+        startTime: modifyTime.value,
+      },
+    });
+    closeModifyModal();
+    loadingNext.value = true;
+    await fetchNextAppointment();
+  } catch (error: any) {
+    modifyError.value =
+      error?.data?.message || "Erreur lors de la modification";
+  } finally {
+    modifying.value = false;
+  }
+};
+
+const handleJoin = () => {
+  alert("La téléconsultation sera bientôt disponible.");
 };
 
 onMounted(() => {
