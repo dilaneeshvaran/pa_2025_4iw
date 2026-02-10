@@ -1,15 +1,19 @@
 import { FastifyRequest, FastifyReply } from 'fastify'
 import { appointmentsService } from './appointments.service'
-import type { GetPatientAppointmentsInput } from './appointments.schema'
 
 export class AppointmentsController {
-  async getPatientAppointments(
-    request: FastifyRequest<{ Querystring: GetPatientAppointmentsInput }>,
-    reply: FastifyReply,
-  ) {
+  async getPatientAppointments(request: FastifyRequest, reply: FastifyReply) {
     try {
       const user = request.user as { id: string; role: string }
-      const { status, limit, page } = request.query
+      const query = request.query as {
+        status?: string
+        limit?: string
+        page?: string
+      }
+      const status =
+        (query.status as 'upcoming' | 'past' | 'cancelled' | 'all') || 'all'
+      const limit = query.limit ? parseInt(query.limit, 10) : 10
+      const page = query.page ? parseInt(query.page, 10) : 1
 
       // get patient id from user
       const patient = await import('../../config/database').then((m) =>
