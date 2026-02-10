@@ -9,11 +9,14 @@ export class AppointmentsController {
         status?: string
         limit?: string
         page?: string
+        sort?: string
       }
       const status =
         (query.status as 'upcoming' | 'past' | 'cancelled' | 'all') || 'all'
       const limit = query.limit ? parseInt(query.limit, 10) : 10
       const page = query.page ? parseInt(query.page, 10) : 1
+      const sort =
+        query.sort === 'asc' || query.sort === 'desc' ? query.sort : undefined
 
       // get patient id from user
       const patient = await import('../../config/database').then((m) =>
@@ -35,6 +38,7 @@ export class AppointmentsController {
         status,
         limit,
         page,
+        sort,
       )
 
       return reply.status(200).send({
