@@ -2,7 +2,9 @@
   <div class="space-y-6">
     <div>
       <h1 class="mb-2 text-2xl font-bold text-gray-900">Mon dossier médical</h1>
-      <p class="text-gray-600">Consultez et gérez vos informations médicales</p>
+      <p class="text-gray-600">
+        Gérez vos informations médicales et téléversez vos documents
+      </p>
     </div>
 
     <div class="border-b border-gray-200">
@@ -471,105 +473,94 @@
       </UiCard>
     </div>
 
-    <div v-if="activeTab === 'prescriptions'">
-      <UiCard>
-        <h2 class="mb-4 text-lg font-semibold text-gray-900">Ordonnances</h2>
-
-        <div v-if="loadingPrescriptions" class="animate-pulse space-y-4">
-          <div v-for="i in 3" :key="i" class="h-20 rounded-lg bg-gray-100" />
-        </div>
-
-        <div v-else-if="prescriptions.length === 0" class="py-8 text-center">
-          <Pill class="mx-auto mb-3 h-12 w-12 text-gray-300" />
-          <p class="text-gray-500">Aucune ordonnance</p>
-        </div>
-
-        <div v-else class="space-y-4">
-          <div
-            v-for="prescription in prescriptions"
-            :key="prescription.id"
-            class="rounded-lg border border-gray-200 p-4"
-          >
-            <div class="flex items-start justify-between">
-              <div>
-                <p class="font-medium text-gray-900">
-                  {{ prescription.practitioner.title }}
-                  {{ prescription.practitioner.firstName }}
-                  {{ prescription.practitioner.lastName }}
-                </p>
-                <p class="mt-1 text-sm text-gray-600">
-                  <Calendar class="mr-1 inline-block h-3.5 w-3.5" />
-                  {{ formatDate(prescription.issuedDate) }}
-                </p>
-                <p v-if="prescription.validUntil" class="text-xs text-gray-500">
-                  Valide jusqu'au {{ formatDate(prescription.validUntil) }}
-                </p>
-              </div>
-            </div>
-
-            <div class="mt-3 border-t pt-3">
-              <p class="mb-2 text-sm font-medium text-gray-700">
-                Médicaments :
-              </p>
-              <div class="space-y-2">
-                <div
-                  v-for="(med, idx) in parseMedications(
-                    prescription.medications,
-                  )"
-                  :key="idx"
-                  class="rounded bg-gray-50 p-2 text-sm"
-                >
-                  <p class="font-medium text-gray-800">{{ med.name }}</p>
-                  <p v-if="med.dosage" class="text-gray-600">
-                    {{ med.dosage }}
-                    <span v-if="med.frequency"> · {{ med.frequency }}</span>
-                    <span v-if="med.duration"> · {{ med.duration }}</span>
-                  </p>
-                  <p v-if="med.instructions" class="text-xs text-gray-500">
-                    {{ med.instructions }}
-                  </p>
-                </div>
-              </div>
-            </div>
-          </div>
-
-          <!-- pagination -->
-          <div
-            v-if="prescriptionsPagination.totalPages > 1"
-            class="mt-4 flex items-center justify-center gap-2"
-          >
-            <UiButton
-              size="sm"
-              variant="outline"
-              :disabled="prescriptionsPagination.page <= 1"
-              @click="fetchPrescriptions(prescriptionsPagination.page - 1)"
-            >
-              Précédent
-            </UiButton>
-            <span class="text-sm text-gray-600">
-              Page {{ prescriptionsPagination.page }} /
-              {{ prescriptionsPagination.totalPages }}
-            </span>
-            <UiButton
-              size="sm"
-              variant="outline"
-              :disabled="
-                prescriptionsPagination.page >=
-                prescriptionsPagination.totalPages
-              "
-              @click="fetchPrescriptions(prescriptionsPagination.page + 1)"
-            >
-              Suivant
-            </UiButton>
-          </div>
-        </div>
-      </UiCard>
-    </div>
-
     <div v-if="activeTab === 'documents'">
+      <!-- search + view toggle + upload -->
+      <div
+        class="mb-4 flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between"
+      >
+        <div class="relative flex-1 sm:max-w-md">
+          <SearchIcon
+            class="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-gray-400"
+          />
+          <input
+            v-model="docSearchQuery"
+            type="text"
+            placeholder="Rechercher un document..."
+            class="w-full rounded-lg border border-gray-300 py-2.5 pl-10 pr-4 text-sm focus:border-blue-600 focus:outline-none focus:ring-2 focus:ring-blue-600/20"
+            @input="debouncedDocSearch"
+          />
+          <button
+            v-if="docSearchQuery"
+            class="absolute right-3 top-1/2 -translate-y-1/2 text-gray-400 hover:text-gray-600"
+            @click="clearDocSearch"
+          >
+            <X class="h-4 w-4" />
+          </button>
+        </div>
+        <div class="flex items-center gap-3">
+          <div
+            class="flex items-center gap-1 rounded-lg border border-gray-200 p-1"
+          >
+            <button
+              :class="[
+                'rounded-md px-2.5 py-1.5 text-sm font-medium transition-colors',
+                docViewMode === 'card'
+                  ? 'bg-blue-600 text-white'
+                  : 'text-gray-600 hover:bg-gray-100',
+              ]"
+              @click="docViewMode = 'card'"
+            >
+              <LayoutGrid class="inline-block h-4 w-4" />
+            </button>
+            <button
+              :class="[
+                'rounded-md px-2.5 py-1.5 text-sm font-medium transition-colors',
+                docViewMode === 'list'
+                  ? 'bg-blue-600 text-white'
+                  : 'text-gray-600 hover:bg-gray-100',
+              ]"
+              @click="docViewMode = 'list'"
+            >
+              <ListIcon class="inline-block h-4 w-4" />
+            </button>
+          </div>
+          <UiButton size="sm" @click="openDocUploadModal">
+            <Upload class="mr-1.5 h-4 w-4" />
+            Téléverser
+          </UiButton>
+        </div>
+      </div>
+
+      <!-- document sub tabs for type filter -->
+      <div class="mb-4 flex gap-2 overflow-x-auto">
+        <button
+          v-for="st in docSubTabs"
+          :key="st.key"
+          :class="[
+            'rounded-full px-3 py-1.5 text-sm font-medium transition-colors',
+            docActiveSubTab === st.key
+              ? 'bg-blue-600 text-white'
+              : 'bg-gray-100 text-gray-600 hover:bg-gray-200',
+          ]"
+          @click="switchDocSubTab(st.key)"
+        >
+          {{ st.label }}
+          <span
+            :class="[
+              'ml-1 inline-flex items-center rounded-full px-1.5 py-0.5 text-xs',
+              docActiveSubTab === st.key
+                ? 'bg-blue-500 text-white'
+                : 'bg-gray-200 text-gray-700',
+            ]"
+          >
+            {{ getDocSubTabCount(st.key) }}
+          </span>
+        </button>
+      </div>
+
       <UiCard>
         <h2 class="mb-4 text-lg font-semibold text-gray-900">
-          Examens et analyses
+          Mes documents médicaux
         </h2>
 
         <div v-if="loadingDocuments" class="animate-pulse space-y-4">
@@ -578,16 +569,30 @@
 
         <div v-else-if="documents.length === 0" class="py-8 text-center">
           <FileSearch class="mx-auto mb-3 h-12 w-12 text-gray-300" />
-          <p class="text-gray-500">Aucun examen ou analyse disponible</p>
+          <p class="text-gray-500">
+            {{
+              docSearchQuery
+                ? "Aucun document ne correspond à votre recherche"
+                : "Téléversez vos documents médicaux ici"
+            }}
+          </p>
+          <UiButton size="sm" class="mt-3" @click="openDocUploadModal">
+            <Upload class="mr-1.5 h-4 w-4" />
+            Ajouter un document
+          </UiButton>
         </div>
 
-        <div v-else class="space-y-3">
+        <!-- card view -->
+        <div
+          v-else-if="docViewMode === 'card'"
+          class="grid gap-4 sm:grid-cols-2"
+        >
           <div
             v-for="doc in documents"
             :key="doc.id"
-            class="flex items-center justify-between rounded-lg border border-gray-200 p-4"
+            class="group rounded-lg border border-gray-200 p-4 transition-shadow hover:shadow-md"
           >
-            <div class="flex items-center gap-3">
+            <div class="mb-2 flex items-start justify-between">
               <div
                 :class="[
                   'flex h-10 w-10 items-center justify-center rounded-lg',
@@ -596,59 +601,139 @@
               >
                 <component :is="getDocTypeIcon(doc.type)" class="h-5 w-5" />
               </div>
-              <div>
-                <p class="font-medium text-gray-900">{{ doc.title }}</p>
-                <p class="text-sm text-gray-500">
+              <div class="flex items-center gap-1">
+                <span
+                  :class="[
+                    'rounded-full px-2 py-0.5 text-xs font-medium',
+                    getDocTypeBadgeColor(doc.type),
+                  ]"
+                >
                   {{ getDocTypeLabel(doc.type) }}
-                  <span v-if="doc.medicalRecord">
-                    · {{ doc.medicalRecord.practitioner.title }}
-                    {{ doc.medicalRecord.practitioner.lastName }}
+                </span>
+                <button
+                  class="rounded-lg p-1 text-gray-400 hover:bg-red-50 hover:text-red-500"
+                  title="Supprimer"
+                  @click="deleteOwnDocument(doc.id)"
+                >
+                  <Trash2 class="h-4 w-4" />
+                </button>
+              </div>
+            </div>
+            <h3 class="mb-1 line-clamp-2 font-medium text-gray-900">
+              {{ doc.title }}
+            </h3>
+            <p class="mb-3 text-xs text-gray-400">
+              {{ formatDate(doc.uploadedAt) }} ·
+              {{ formatFileSize(doc.fileSize) }}
+            </p>
+            <div class="flex gap-2">
+              <button
+                v-if="isPdf(doc.mimeType)"
+                class="flex flex-1 items-center justify-center gap-1.5 rounded-lg border border-gray-200 px-3 py-1.5 text-sm font-medium text-gray-700 hover:bg-gray-50"
+                @click="viewOwnDocument(doc)"
+              >
+                <Eye class="h-4 w-4" />
+                Lire
+              </button>
+              <button
+                class="flex flex-1 items-center justify-center gap-1.5 rounded-lg bg-blue-600 px-3 py-1.5 text-sm font-medium text-white hover:bg-blue-700"
+                @click="downloadDocument(doc.id, doc.fileName)"
+              >
+                <Download class="mr-1 h-4 w-4" />
+                Télécharger
+              </button>
+            </div>
+          </div>
+        </div>
+
+        <!-- list view -->
+        <div v-else class="space-y-2">
+          <div
+            v-for="doc in documents"
+            :key="doc.id"
+            class="flex items-center justify-between rounded-lg border border-gray-200 p-4 hover:shadow-sm"
+          >
+            <div class="flex items-center gap-3">
+              <div
+                :class="[
+                  'flex h-10 w-10 flex-shrink-0 items-center justify-center rounded-lg',
+                  getDocTypeColor(doc.type),
+                ]"
+              >
+                <component :is="getDocTypeIcon(doc.type)" class="h-5 w-5" />
+              </div>
+              <div>
+                <div class="flex items-center gap-2">
+                  <p class="font-medium text-gray-900">{{ doc.title }}</p>
+                  <span
+                    :class="[
+                      'hidden rounded-full px-2 py-0.5 text-xs font-medium sm:inline-flex',
+                      getDocTypeBadgeColor(doc.type),
+                    ]"
+                  >
+                    {{ getDocTypeLabel(doc.type) }}
                   </span>
-                </p>
-                <p class="text-xs text-gray-400">
+                </div>
+                <p class="text-sm text-gray-500">
                   {{ formatDate(doc.uploadedAt) }} ·
                   {{ formatFileSize(doc.fileSize) }}
                 </p>
               </div>
             </div>
-            <UiButton
-              size="sm"
-              variant="outline"
-              @click="downloadDocument(doc.id, doc.fileName)"
-            >
-              <Download class="mr-1 h-4 w-4" />
-              Télécharger
-            </UiButton>
+            <div class="ml-4 flex flex-shrink-0 items-center gap-1">
+              <button
+                v-if="isPdf(doc.mimeType)"
+                class="rounded-lg p-2 text-gray-400 hover:bg-gray-100 hover:text-blue-600"
+                title="Lire"
+                @click="viewOwnDocument(doc)"
+              >
+                <Eye class="h-5 w-5" />
+              </button>
+              <button
+                class="rounded-lg p-2 text-gray-400 hover:bg-gray-100 hover:text-blue-600"
+                title="Télécharger"
+                @click="downloadDocument(doc.id, doc.fileName)"
+              >
+                <Download class="h-5 w-5" />
+              </button>
+              <button
+                class="rounded-lg p-2 text-gray-400 hover:bg-red-50 hover:text-red-500"
+                title="Supprimer"
+                @click="deleteOwnDocument(doc.id)"
+              >
+                <Trash2 class="h-4 w-4" />
+              </button>
+            </div>
           </div>
+        </div>
 
-          <!-- pagination -->
-          <div
-            v-if="documentsPagination.totalPages > 1"
-            class="mt-4 flex items-center justify-center gap-2"
+        <!-- pagination -->
+        <div
+          v-if="documentsPagination.totalPages > 1"
+          class="mt-4 flex items-center justify-center gap-2"
+        >
+          <UiButton
+            size="sm"
+            variant="outline"
+            :disabled="documentsPagination.page <= 1"
+            @click="fetchDocuments(documentsPagination.page - 1)"
           >
-            <UiButton
-              size="sm"
-              variant="outline"
-              :disabled="documentsPagination.page <= 1"
-              @click="fetchDocuments(documentsPagination.page - 1)"
-            >
-              Précédent
-            </UiButton>
-            <span class="text-sm text-gray-600">
-              Page {{ documentsPagination.page }} /
-              {{ documentsPagination.totalPages }}
-            </span>
-            <UiButton
-              size="sm"
-              variant="outline"
-              :disabled="
-                documentsPagination.page >= documentsPagination.totalPages
-              "
-              @click="fetchDocuments(documentsPagination.page + 1)"
-            >
-              Suivant
-            </UiButton>
-          </div>
+            Précédent
+          </UiButton>
+          <span class="text-sm text-gray-600">
+            Page {{ documentsPagination.page }} /
+            {{ documentsPagination.totalPages }}
+          </span>
+          <UiButton
+            size="sm"
+            variant="outline"
+            :disabled="
+              documentsPagination.page >= documentsPagination.totalPages
+            "
+            @click="fetchDocuments(documentsPagination.page + 1)"
+          >
+            Suivant
+          </UiButton>
         </div>
       </UiCard>
     </div>
@@ -876,6 +961,125 @@
         </div>
       </div>
     </Teleport>
+    <!-- doc upload modal -->
+    <Teleport to="body">
+      <div
+        v-if="showDocUploadModal"
+        class="fixed inset-0 z-50 flex items-center justify-center bg-black/50"
+        @click.self="showDocUploadModal = false"
+      >
+        <div class="mx-4 w-full max-w-lg rounded-xl bg-white p-6 shadow-2xl">
+          <h3 class="mb-4 text-lg font-semibold text-gray-900">
+            Téléverser un document
+          </h3>
+          <form class="space-y-4" @submit.prevent="confirmDocUpload">
+            <div>
+              <label class="mb-1 block text-sm font-medium text-gray-700">
+                Titre *
+              </label>
+              <UiInput
+                v-model="docUploadForm.title"
+                placeholder="ex: Analyse de sang - Janvier 2026"
+              />
+            </div>
+            <div>
+              <label class="mb-1 block text-sm font-medium text-gray-700">
+                Type de document *
+              </label>
+              <select
+                v-model="docUploadForm.type"
+                class="w-full rounded-lg border border-gray-300 px-4 py-2.5 text-base focus:border-blue-600 focus:outline-none focus:ring-2 focus:ring-blue-600/20"
+              >
+                <option value="LAB_RESULT">Résultat d'analyse</option>
+                <option value="RADIOLOGY">Imagerie médicale</option>
+                <option value="MEDICAL_REPORT">Rapport médical</option>
+                <option value="CERTIFICATE">Certificat</option>
+                <option value="OTHER">Autre</option>
+              </select>
+            </div>
+            <div>
+              <label class="mb-1 block text-sm font-medium text-gray-700">
+                Description
+              </label>
+              <textarea
+                v-model="docUploadForm.description"
+                rows="2"
+                class="w-full rounded-lg border border-gray-300 px-4 py-2.5 text-sm focus:border-blue-600 focus:outline-none focus:ring-2 focus:ring-blue-600/20"
+                placeholder="Optionnel"
+              />
+            </div>
+            <div>
+              <label class="mb-1 block text-sm font-medium text-gray-700">
+                Fichier *
+              </label>
+              <input
+                ref="fileInput"
+                type="file"
+                accept=".pdf,.jpg,.jpeg,.png,.doc,.docx"
+                class="w-full rounded-lg border border-gray-300 px-4 py-2 text-sm file:mr-4 file:rounded-lg file:border-0 file:bg-blue-50 file:px-4 file:py-2 file:text-sm file:font-medium file:text-blue-700 hover:file:bg-blue-100"
+                @change="handleFileSelect"
+              />
+              <p class="mt-1 text-xs text-gray-400">
+                PDF, image ou document Word (max 10 Mo)
+              </p>
+            </div>
+
+            <p v-if="docUploadError" class="text-sm text-red-600">
+              {{ docUploadError }}
+            </p>
+
+            <div class="flex gap-3">
+              <UiButton
+                type="submit"
+                :disabled="
+                  uploadingDoc || !docUploadForm.title || !docUploadFile
+                "
+              >
+                {{ uploadingDoc ? "Téléversement..." : "Téléverser" }}
+              </UiButton>
+              <UiButton variant="outline" @click="showDocUploadModal = false">
+                Annuler
+              </UiButton>
+            </div>
+          </form>
+        </div>
+      </div>
+    </Teleport>
+
+    <!-- pdf view modal -->
+    <Teleport to="body">
+      <div
+        v-if="showDocViewer"
+        class="fixed inset-0 z-50 flex items-center justify-center bg-black/60"
+        @click.self="showDocViewer = false"
+      >
+        <div
+          class="relative mx-4 flex h-[90vh] w-full max-w-4xl flex-col rounded-xl bg-white shadow-2xl"
+        >
+          <div class="flex items-center justify-between border-b px-6 py-4">
+            <div>
+              <h3 class="font-semibold text-gray-900">{{ docViewerTitle }}</h3>
+            </div>
+            <div class="flex items-center gap-2">
+              <button
+                class="rounded-lg p-2 text-gray-500 hover:bg-gray-100"
+                @click="showDocViewer = false"
+              >
+                <X class="h-5 w-5" />
+              </button>
+            </div>
+          </div>
+          <div class="flex-1 overflow-hidden">
+            <iframe
+              v-if="docViewerUrl"
+              :src="docViewerUrl"
+              class="h-full w-full"
+              frameborder="0"
+            />
+          </div>
+        </div>
+      </div>
+    </Teleport>
   </div>
 </template>
 
@@ -900,6 +1104,13 @@ import {
   FileText,
   Heart,
   Shield,
+  Search as SearchIcon,
+  LayoutGrid,
+  List as ListIcon,
+  Upload,
+  Eye,
+  Award,
+  FolderOpen,
 } from "lucide-vue-next";
 import { useAuthStore } from "~/stores/auth";
 
@@ -911,12 +1122,12 @@ definePageMeta({
 });
 
 const authStore = useAuthStore();
+const config = useRuntimeConfig();
 
 type TabKey =
   | "profile"
   | "antecedents"
   | "consultations"
-  | "prescriptions"
   | "documents"
   | "vaccinations";
 
@@ -928,8 +1139,7 @@ const tabs: { key: TabKey; label: string; icon: Component }[] = [
     label: "Historique des consultations",
     icon: Stethoscope,
   },
-  { key: "prescriptions", label: "Ordonnances", icon: Pill },
-  { key: "documents", label: "Examens et analyses", icon: TestTubes },
+  { key: "documents", label: "Documents de mon dossier", icon: FolderOpen },
   { key: "vaccinations", label: "Carnet de vaccination", icon: Shield },
 ];
 
@@ -1078,24 +1288,51 @@ interface DocItem {
   fileSize: number;
   mimeType: string;
   uploadedAt: string;
-  medicalRecord: {
-    appointment: { appointmentDate: string };
-    practitioner: {
-      firstName: string;
-      lastName: string;
-      title: string;
-    };
-  } | null;
 }
 
 const documents = ref<DocItem[]>([]);
 const loadingDocuments = ref(false);
 const documentsPagination = reactive({
   page: 1,
-  limit: 10,
+  limit: 12,
   total: 0,
   totalPages: 0,
 });
+
+// document sub tabs, search, view mode
+type DocSubTab = "all" | "exams" | "certificates" | "others";
+const docSubTabs = [
+  { key: "all" as DocSubTab, label: "Tous" },
+  { key: "exams" as DocSubTab, label: "Examens" },
+  { key: "certificates" as DocSubTab, label: "Certificats" },
+  { key: "others" as DocSubTab, label: "Autres" },
+];
+const docActiveSubTab = ref<DocSubTab>("all");
+const docViewMode = ref<"card" | "list">("card");
+const docSearchQuery = ref("");
+const docCounts = ref({
+  all: 0,
+  exams: 0,
+  certificates: 0,
+  others: 0,
+});
+
+// Upload modal
+const showDocUploadModal = ref(false);
+const uploadingDoc = ref(false);
+const docUploadError = ref("");
+const docUploadFile = ref<File | null>(null);
+const fileInput = ref<HTMLInputElement | null>(null);
+const docUploadForm = reactive({
+  title: "",
+  type: "OTHER" as string,
+  description: "",
+});
+
+// viewer of pdf
+const showDocViewer = ref(false);
+const docViewerUrl = ref("");
+const docViewerTitle = ref("");
 
 interface VaccinationItem {
   id: string;
@@ -1179,7 +1416,7 @@ const formatFileSize = (bytes: number) => {
   return `${(bytes / (1024 * 1024)).toFixed(1)} Mo`;
 };
 
-const parseMedications = (meds: Record<string, unknown>[] | string) => {
+const _parseMedications = (meds: Record<string, unknown>[] | string) => {
   if (!meds) return [];
   if (Array.isArray(meds)) return meds;
   try {
@@ -1191,9 +1428,11 @@ const parseMedications = (meds: Record<string, unknown>[] | string) => {
 
 const getDocTypeLabel = (type: string) => {
   const labels: Record<string, string> = {
+    PRESCRIPTION: "Ordonnance",
     LAB_RESULT: "Résultat de laboratoire",
     RADIOLOGY: "Imagerie médicale",
     MEDICAL_REPORT: "Rapport médical",
+    CERTIFICATE: "Certificat",
     OTHER: "Document",
   };
   return labels[type] || "Document";
@@ -1201,23 +1440,43 @@ const getDocTypeLabel = (type: string) => {
 
 const getDocTypeColor = (type: string) => {
   const colors: Record<string, string> = {
+    PRESCRIPTION: "bg-blue-100 text-blue-600",
     LAB_RESULT: "bg-green-100 text-green-600",
-    RADIOLOGY: "bg-blue-100 text-blue-600",
+    RADIOLOGY: "bg-cyan-100 text-cyan-600",
     MEDICAL_REPORT: "bg-purple-100 text-purple-600",
+    CERTIFICATE: "bg-amber-100 text-amber-600",
     OTHER: "bg-gray-100 text-gray-600",
   };
   return colors[type] || "bg-gray-100 text-gray-600";
 };
 
+const getDocTypeBadgeColor = (type: string) => {
+  const colors: Record<string, string> = {
+    PRESCRIPTION: "bg-blue-50 text-blue-700",
+    LAB_RESULT: "bg-green-50 text-green-700",
+    RADIOLOGY: "bg-cyan-50 text-cyan-700",
+    MEDICAL_REPORT: "bg-purple-50 text-purple-700",
+    CERTIFICATE: "bg-amber-50 text-amber-700",
+    OTHER: "bg-gray-50 text-gray-700",
+  };
+  return colors[type] || "bg-gray-50 text-gray-700";
+};
+
 const getDocTypeIcon = (type: string) => {
   const icons: Record<string, Component> = {
+    PRESCRIPTION: Pill,
     LAB_RESULT: TestTubes,
     RADIOLOGY: FileSearch,
     MEDICAL_REPORT: FileText,
+    CERTIFICATE: Award,
     OTHER: FileText,
   };
   return icons[type] || FileText;
 };
+
+const isPdf = (mimeType: string) => mimeType === "application/pdf";
+
+const getDocSubTabCount = (key: DocSubTab) => docCounts.value[key] ?? 0;
 
 const fetchProfile = async () => {
   loadingProfile.value = true;
@@ -1399,7 +1658,7 @@ const toggleConsultationDetails = (id: string) => {
   }
 };
 
-const fetchPrescriptions = async (page = 1) => {
+const _fetchPrescriptions = async (page = 1) => {
   loadingPrescriptions.value = true;
   try {
     const response = await useAuthenticatedFetch<{
@@ -1427,19 +1686,30 @@ const fetchPrescriptions = async (page = 1) => {
 const fetchDocuments = async (page = 1) => {
   loadingDocuments.value = true;
   try {
+    const params = new URLSearchParams({
+      page: String(page),
+      limit: String(documentsPagination.limit),
+      type: docActiveSubTab.value,
+    });
+    if (docSearchQuery.value) {
+      params.set("search", docSearchQuery.value);
+    }
+
     const response = await useAuthenticatedFetch<{
       success: boolean;
       data: DocItem[];
+      counts: typeof docCounts.value;
       pagination: {
         page: number;
         limit: number;
         total: number;
         totalPages: number;
       };
-    }>(`/medical-records/documents?page=${page}&limit=10`);
+    }>(`/documents/own?${params.toString()}`);
 
     if (response.success) {
       documents.value = response.data;
+      docCounts.value = response.counts;
       Object.assign(documentsPagination, response.pagination);
     }
   } catch (error) {
@@ -1449,10 +1719,108 @@ const fetchDocuments = async (page = 1) => {
   }
 };
 
+const switchDocSubTab = (tab: DocSubTab) => {
+  docActiveSubTab.value = tab;
+  fetchDocuments(1);
+};
+
+let docSearchTimeout: ReturnType<typeof setTimeout> | null = null;
+const debouncedDocSearch = () => {
+  if (docSearchTimeout) clearTimeout(docSearchTimeout);
+  docSearchTimeout = setTimeout(() => {
+    fetchDocuments(1);
+  }, 400);
+};
+
+const clearDocSearch = () => {
+  docSearchQuery.value = "";
+  fetchDocuments(1);
+};
+
+const handleFileSelect = (event: Event) => {
+  const target = event.target as HTMLInputElement;
+  if (target.files && target.files.length > 0) {
+    docUploadFile.value = target.files[0] || null;
+  }
+};
+
+const openDocUploadModal = () => {
+  docUploadForm.title = "";
+  docUploadForm.type = "OTHER";
+  docUploadForm.description = "";
+  docUploadFile.value = null;
+  docUploadError.value = "";
+  showDocUploadModal.value = true;
+};
+
+const confirmDocUpload = async () => {
+  if (!docUploadFile.value || !docUploadForm.title) return;
+
+  uploadingDoc.value = true;
+  docUploadError.value = "";
+
+  try {
+    const formData = new FormData();
+    formData.append("file", docUploadFile.value);
+    formData.append("title", docUploadForm.title);
+    formData.append("type", docUploadForm.type);
+    if (docUploadForm.description) {
+      formData.append("description", docUploadForm.description);
+    }
+
+    const response = await fetch(`${config.public.apiBase}/documents/upload`, {
+      method: "POST",
+      headers: {
+        Authorization: `Bearer ${authStore.accessToken}`,
+      },
+      body: formData,
+    });
+
+    if (!response.ok) {
+      const err = await response.json();
+      throw new Error(err.message || "Erreur lors du téléversement");
+    }
+
+    showDocUploadModal.value = false;
+    await fetchDocuments(1);
+  } catch (error: unknown) {
+    docUploadError.value =
+      (error as Error)?.message || "Erreur lors du téléversement";
+  } finally {
+    uploadingDoc.value = false;
+  }
+};
+
+const deleteOwnDocument = async (docId: string) => {
+  if (!confirm("Supprimer ce document ?")) return;
+  try {
+    await useAuthenticatedFetch(`/documents/${docId}`, { method: "DELETE" });
+    await fetchDocuments(documentsPagination.page);
+  } catch (error) {
+    console.error("Error deleting document:", error);
+    alert("Erreur lors de la suppression du document");
+  }
+};
+
+const viewOwnDocument = (doc: DocItem) => {
+  docViewerTitle.value = doc.title;
+  const url = `${config.public.apiBase}/documents/${doc.id}/view`;
+  fetch(url, {
+    headers: { Authorization: `Bearer ${authStore.accessToken}` },
+  })
+    .then((r) => r.blob())
+    .then((blob) => {
+      docViewerUrl.value = URL.createObjectURL(blob);
+      showDocViewer.value = true;
+    })
+    .catch(() => {
+      alert("Erreur lors de l'ouverture du document");
+    });
+};
+
 const downloadDocument = async (docId: string, fileName: string) => {
   try {
-    const config = useRuntimeConfig();
-    const url = `${config.public.apiBase}/medical-records/documents/${docId}/download`;
+    const url = `${config.public.apiBase}/documents/${docId}/download`;
 
     const response = await fetch(url, {
       headers: {
@@ -1575,8 +1943,6 @@ const deleteVaccination = async (id: string) => {
 watch(activeTab, (tab) => {
   if (tab === "consultations" && consultations.value.length === 0) {
     fetchConsultations();
-  } else if (tab === "prescriptions" && prescriptions.value.length === 0) {
-    fetchPrescriptions();
   } else if (tab === "documents" && documents.value.length === 0) {
     fetchDocuments();
   } else if (tab === "vaccinations" && vaccinations.value.length === 0) {
