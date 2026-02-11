@@ -272,6 +272,140 @@
                 rendez-vous.
               </p>
             </div>
+
+            <!-- cancellation rule for teleconsultation -->
+            <div
+              v-if="appointmentType === 'TELECONSULTATION'"
+              class="rounded-lg bg-blue-50 p-4 text-sm text-blue-800"
+            >
+              <p class="mb-1 font-medium">Politique de remboursement :</p>
+              <ul class="list-inside list-disc space-y-1 text-xs">
+                <li>
+                  Annulation &gt; 24h avant le RDV : remboursement intégral
+                </li>
+                <li>Annulation entre 12h et 24h : remboursement de 50%</li>
+                <li>Annulation &lt; 12h avant le RDV : aucun remboursement</li>
+              </ul>
+            </div>
+          </div>
+
+          <!-- step 4 : payment (teleconsultation only) -->
+          <div v-if="currentStep === 4" class="space-y-4">
+            <h3 class="font-medium text-gray-800">
+              Paiement de la consultation
+            </h3>
+            <p class="text-sm text-gray-500">
+              Le paiement est requis pour confirmer votre téléconsultation.
+            </p>
+
+            <div class="rounded-lg border border-gray-200 p-4">
+              <div class="mb-3 flex justify-between">
+                <span class="text-gray-600">Montant à payer</span>
+                <span class="text-xl font-bold text-blue-600">
+                  {{ consultationFee?.toLocaleString() }} FCFA
+                </span>
+              </div>
+            </div>
+
+            <!-- payment method selection -->
+            <div class="space-y-3">
+              <label class="text-sm font-medium text-gray-700"
+                >Moyen de paiement</label
+              >
+              <div class="grid grid-cols-2 gap-3">
+                <button
+                  v-for="pm in paymentOptions"
+                  :key="pm.value"
+                  type="button"
+                  class="flex flex-col items-center gap-2 rounded-lg border-2 p-4 transition-all"
+                  :class="[
+                    selectedPaymentMethod === pm.value
+                      ? 'border-blue-600 bg-blue-50'
+                      : 'border-gray-200 hover:border-gray-300',
+                  ]"
+                  @click="selectedPaymentMethod = pm.value"
+                >
+                  <span class="text-2xl">{{ pm.icon }}</span>
+                  <span class="text-sm font-medium">{{ pm.label }}</span>
+                </button>
+              </div>
+            </div>
+
+            <!-- mobile money operator selection -->
+            <div
+              v-if="selectedPaymentMethod === 'MOBILE_MONEY'"
+              class="space-y-3"
+            >
+              <label class="text-sm font-medium text-gray-700"
+                >Opérateur mobile</label
+              >
+              <div class="grid grid-cols-2 gap-2">
+                <button
+                  v-for="op in mobileOperators"
+                  :key="op.value"
+                  type="button"
+                  class="flex items-center gap-2 rounded-lg border-2 px-3 py-2.5 text-sm transition-all"
+                  :class="[
+                    selectedMobileOperator === op.value
+                      ? 'border-orange-500 bg-orange-50'
+                      : 'border-gray-200 hover:border-gray-300',
+                  ]"
+                  @click="selectedMobileOperator = op.value"
+                >
+                  <span>{{ op.icon }}</span>
+                  <span class="font-medium">{{ op.label }}</span>
+                </button>
+              </div>
+              <div>
+                <label class="text-sm text-gray-600">Numéro de téléphone</label>
+                <input
+                  v-model="mobilePaymentNumber"
+                  type="tel"
+                  placeholder="07 XX XX XX XX"
+                  class="mt-1 w-full rounded-lg border border-gray-300 px-4 py-2.5 focus:border-blue-600 focus:outline-none focus:ring-2 focus:ring-blue-600"
+                />
+              </div>
+            </div>
+
+            <!-- card payment fields -->
+            <div v-if="selectedPaymentMethod === 'CARD'" class="space-y-3">
+              <div>
+                <label class="text-sm text-gray-600">Numéro de carte</label>
+                <input
+                  v-model="cardNumber"
+                  type="text"
+                  placeholder="4XXX XXXX XXXX XXXX"
+                  maxlength="19"
+                  class="mt-1 w-full rounded-lg border border-gray-300 px-4 py-2.5 focus:border-blue-600 focus:outline-none focus:ring-2 focus:ring-blue-600"
+                />
+              </div>
+              <div class="grid grid-cols-2 gap-3">
+                <div>
+                  <label class="text-sm text-gray-600">Expiration</label>
+                  <input
+                    v-model="cardExpiry"
+                    type="text"
+                    placeholder="MM/AA"
+                    maxlength="5"
+                    class="mt-1 w-full rounded-lg border border-gray-300 px-4 py-2.5 focus:border-blue-600 focus:outline-none focus:ring-2 focus:ring-blue-600"
+                  />
+                </div>
+                <div>
+                  <label class="text-sm text-gray-600">CVV</label>
+                  <input
+                    v-model="cardCvv"
+                    type="text"
+                    placeholder="XXX"
+                    maxlength="4"
+                    class="mt-1 w-full rounded-lg border border-gray-300 px-4 py-2.5 focus:border-blue-600 focus:outline-none focus:ring-2 focus:ring-blue-600"
+                  />
+                </div>
+              </div>
+            </div>
+
+            <div class="rounded-lg bg-green-50 p-3 text-sm text-green-800">
+              <p>🔒 Paiement sécurisé. Vos informations sont chiffrées.</p>
+            </div>
           </div>
 
           <div
@@ -312,7 +446,7 @@
               Annuler
             </Button>
             <Button
-              v-if="currentStep < 3 && !success"
+              v-if="currentStep < lastStep && !success"
               type="button"
               class="flex-1"
               :disabled="!canProceed"
@@ -321,14 +455,22 @@
               Continuer
             </Button>
             <Button
-              v-if="currentStep === 3 && !success"
+              v-if="currentStep === lastStep && !success"
               type="button"
               class="flex-1"
               :disabled="submitting"
               @click="handleSubmit"
             >
-              <span v-if="submitting">Réservation en cours...</span>
-              <span v-else>Confirmer la réservation</span>
+              <span v-if="submitting">{{
+                requiresPayment
+                  ? "Paiement en cours..."
+                  : "Réservation en cours..."
+              }}</span>
+              <span v-else>{{
+                requiresPayment
+                  ? "Payer et confirmer"
+                  : "Confirmer la réservation"
+              }}</span>
             </Button>
             <Button v-if="success" type="button" class="flex-1" @click="close">
               Fermer
@@ -341,7 +483,7 @@
 </template>
 
 <script setup lang="ts">
-import { ref, computed, watch, onMounted } from "vue";
+import { ref, computed, watch } from "vue";
 import { useRoute, navigateTo } from "#app";
 import {
   X as IconX,
@@ -387,7 +529,7 @@ const emit = defineEmits<{
 const config = useRuntimeConfig();
 const authStore = useAuthStore();
 
-const steps = ["Date & Heure", "Type", "Motif", "Récapitulatif"];
+const baseSteps = ["Date & Heure", "Type", "Motif", "Récapitulatif"];
 const currentStep = ref(0);
 const appointmentType = ref<"IN_PERSON" | "TELECONSULTATION">("IN_PERSON");
 const selectedDate = ref("");
@@ -398,6 +540,33 @@ const error = ref("");
 const success = ref(false);
 const loadingSlots = ref(false);
 const availableSlots = ref<AvailableSlot[]>([]);
+
+const selectedPaymentMethod = ref<"MOBILE_MONEY" | "CARD">("MOBILE_MONEY");
+const selectedMobileOperator = ref("orange_money");
+const mobilePaymentNumber = ref("");
+const cardNumber = ref("");
+const cardExpiry = ref("");
+const cardCvv = ref("");
+
+const requiresPayment = computed(
+  () => appointmentType.value === "TELECONSULTATION",
+);
+const steps = computed(() =>
+  requiresPayment.value ? [...baseSteps, "Paiement"] : baseSteps,
+);
+const lastStep = computed(() => steps.value.length - 1);
+
+const paymentOptions = [
+  { value: "MOBILE_MONEY" as const, label: "Mobile Money", icon: "📱" },
+  { value: "CARD" as const, label: "Carte bancaire", icon: "💳" },
+];
+
+const mobileOperators = [
+  { value: "orange_money", label: "Orange Money", icon: "🟠" },
+  { value: "mtn_money", label: "MTN MoMo", icon: "🟡" },
+  { value: "moov_money", label: "Moov Money", icon: "🔵" },
+  { value: "wave", label: "Wave", icon: "🌊" },
+];
 const slotReserved = ref(false);
 
 const selectedDateSlots = computed(() => {
@@ -452,6 +621,21 @@ const canProceed = computed(() => {
   if (currentStep.value === 1) {
     return appointmentType.value;
   }
+  if (currentStep.value === 4 && requiresPayment.value) {
+    if (selectedPaymentMethod.value === "MOBILE_MONEY") {
+      return (
+        selectedMobileOperator.value && mobilePaymentNumber.value.length >= 8
+      );
+    }
+    if (selectedPaymentMethod.value === "CARD") {
+      return (
+        cardNumber.value.length >= 16 &&
+        cardExpiry.value.length >= 4 &&
+        cardCvv.value.length >= 3
+      );
+    }
+    return false;
+  }
   return true;
 });
 
@@ -472,6 +656,14 @@ const formatDateLong = (dateStr: string) => {
     month: "long",
     year: "numeric",
   });
+};
+
+const detectCardBrand = (number: string): string => {
+  const cleaned = number.replace(/\s/g, "");
+  if (/^4/.test(cleaned)) return "Visa";
+  if (/^5[1-5]/.test(cleaned)) return "Mastercard";
+  if (/^3[47]/.test(cleaned)) return "Amex";
+  return "Carte";
 };
 
 const fetchAvailableSlots = async () => {
@@ -576,6 +768,12 @@ const close = () => {
   error.value = "";
   success.value = false;
   slotReserved.value = false;
+  selectedPaymentMethod.value = "MOBILE_MONEY";
+  selectedMobileOperator.value = "orange_money";
+  mobilePaymentNumber.value = "";
+  cardNumber.value = "";
+  cardExpiry.value = "";
+  cardCvv.value = "";
 
   emit("close");
 };
@@ -598,7 +796,11 @@ const handleSubmit = async () => {
   success.value = false;
 
   try {
-    await useAuthenticatedFetch("/appointments", {
+    // create  appointment
+    const aptResponse = await useAuthenticatedFetch<{
+      success: boolean;
+      data: { id: string };
+    }>("/appointments", {
       method: "POST",
       body: {
         practitionerId: props.practitioner.id,
@@ -608,6 +810,41 @@ const handleSubmit = async () => {
         reason: reason.value || undefined,
       },
     });
+
+    // if teleconsultation, process payment
+    if (requiresPayment.value && aptResponse.data?.id) {
+      try {
+        await useAuthenticatedFetch("/payments", {
+          method: "POST",
+          body: {
+            appointmentId: aptResponse.data.id,
+            method: selectedPaymentMethod.value,
+            mobileOperator:
+              selectedPaymentMethod.value === "MOBILE_MONEY"
+                ? selectedMobileOperator.value
+                : undefined,
+            mobileNumber:
+              selectedPaymentMethod.value === "MOBILE_MONEY"
+                ? mobilePaymentNumber.value
+                : undefined,
+            cardLast4:
+              selectedPaymentMethod.value === "CARD"
+                ? cardNumber.value.slice(-4)
+                : undefined,
+            cardBrand:
+              selectedPaymentMethod.value === "CARD"
+                ? detectCardBrand(cardNumber.value)
+                : undefined,
+          },
+        });
+      } catch (payErr: unknown) {
+        const payError = payErr as { data?: { message?: string } };
+        error.value =
+          payError.data?.message ||
+          "Le paiement a échoué. Votre rendez-vous a été créé sans paiement.";
+        // dont block bcoz appointment is created and payment can be retried
+      }
+    }
 
     success.value = true;
     slotReserved.value = false;
