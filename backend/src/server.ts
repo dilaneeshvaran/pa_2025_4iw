@@ -1,5 +1,6 @@
 import Fastify from 'fastify'
 import cors from '@fastify/cors'
+import multipart from '@fastify/multipart'
 import {
   serializerCompiler,
   validatorCompiler,
@@ -32,6 +33,13 @@ app.register(cors, {
   allowedHeaders: ['Content-Type', 'Authorization', 'Accept'],
   exposedHeaders: ['Content-Type', 'Authorization'],
   maxAge: 86400,
+})
+
+// register multipart support for file uploads
+app.register(multipart, {
+  limits: {
+    fileSize: 10 * 1024 * 1024, // 10 MB
+  },
 })
 
 // register routes
