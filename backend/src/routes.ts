@@ -6,6 +6,7 @@ import { appointmentsRoutes } from './modules/appointments/appointments.routes'
 import { notificationsRoutes } from './modules/notifications/notifications.routes'
 import { medicalRecordsRoutes } from './modules/medical-records/medical-records.routes'
 import { documentsRoutes } from './modules/documents/documents.routes'
+import { messagesRoutes } from './modules/messages/messages.routes'
 
 export async function routes(fastify: FastifyInstance) {
   fastify.register(authRoutes, { prefix: '/api/auth' })
@@ -15,6 +16,7 @@ export async function routes(fastify: FastifyInstance) {
   fastify.register(notificationsRoutes, { prefix: '/api/notifications' })
   fastify.register(medicalRecordsRoutes, { prefix: '/api/medical-records' })
   fastify.register(documentsRoutes, { prefix: '/api/documents' })
+  fastify.register(messagesRoutes, { prefix: '/api/messages' })
 
   fastify.get('/health', async () => {
     return { status: 'ok', timestamp: new Date().toISOString() }
