@@ -352,6 +352,7 @@ model Patient {
   reviews               Review[]
   teleconsultationSessions TeleconsultationSession[]
   documents             Document[]
+  savedPaymentMethods   SavedPaymentMethod[]
   
   @@index([userId])
   @@index([phone])
@@ -841,6 +842,43 @@ model Payment {
   @@index([stripePaymentId])
   @@index([invoiceNumber])
   @@map("payments")
+}
+
+// ============================================================================
+// SAVED PAYMENT METHODS
+// ============================================================================
+
+model SavedPaymentMethod {
+  id              String        @id @default(cuid())
+  patientId       String
+  
+  // Method type
+  type            PaymentMethod // CARD, MOBILE_MONEY
+  label           String        // User-friendly label: "Orange Money - 07 XX XX 89"
+  isDefault       Boolean       @default(false)
+  
+  // Card details (masked)
+  cardLast4       String?       // Last 4 digits
+  cardBrand       String?       // Visa, Mastercard
+  cardExpMonth    Int?
+  cardExpYear     Int?
+  
+  // Mobile Money details
+  mobileOperator  String?       // "orange_money", "mtn_money", "moov_money", "wave"
+  mobileNumber    String?       // Phone number (masked in API response)
+  
+  // Verification
+  isVerified      Boolean       @default(false)
+  verifiedAt      DateTime?
+  
+  // Timestamps
+  createdAt       DateTime      @default(now())
+  updatedAt       DateTime      @updatedAt
+  
+  patient         Patient       @relation(fields: [patientId], references: [id], onDelete: Cascade)
+  
+  @@index([patientId])
+  @@map("saved_payment_methods")
 }
 
 // ============================================================================
