@@ -12,6 +12,7 @@ import { routes } from './routes'
 import prisma from './config/database'
 import { redis } from './config/redis'
 import { startReminderWorker } from './utils/reminder-scheduler'
+import { websocketPlugin } from './plugins/websocket'
 
 const app = Fastify({
   logger: {
@@ -41,6 +42,9 @@ app.register(multipart, {
     fileSize: 10 * 1024 * 1024, // 10 MB
   },
 })
+
+//  websocket support for real time messaging
+app.register(websocketPlugin)
 
 // register routes
 app.register(routes)
