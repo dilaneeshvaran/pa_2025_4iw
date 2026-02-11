@@ -5,7 +5,7 @@
         <!-- logo -->
         <div class="flex-shrink-0">
           <NuxtLink to="/" class="text-2xl font-bold text-blue-600">
-            MedicalApp
+            MediCôte
           </NuxtLink>
         </div>
 
