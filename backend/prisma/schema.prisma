@@ -57,6 +57,7 @@ enum DocumentType {
   LAB_RESULT
   RADIOLOGY
   MEDICAL_REPORT
+  CERTIFICATE
   CONSENT_FORM
   INSURANCE
   OTHER
@@ -350,6 +351,7 @@ model Patient {
   virtualQueueEntries   VirtualQueue[]
   reviews               Review[]
   teleconsultationSessions TeleconsultationSession[]
+  documents             Document[]
   
   @@index([userId])
   @@index([phone])
@@ -708,6 +710,7 @@ model Document {
   id              String        @id @default(cuid())
   medicalRecordId String?
   practitionerId  String?
+  patientId       String?
   
   type            DocumentType
   title           String
@@ -729,9 +732,11 @@ model Document {
   
   medicalRecord   MedicalRecord? @relation(fields: [medicalRecordId], references: [id], onDelete: Cascade)
   practitioner    Practitioner?  @relation(fields: [practitionerId], references: [id], onDelete: SetNull)
+  patient         Patient?       @relation(fields: [patientId], references: [id], onDelete: Cascade)
   
   @@index([medicalRecordId])
   @@index([practitionerId])
+  @@index([patientId])
   @@index([type])
   @@map("documents")
 }
