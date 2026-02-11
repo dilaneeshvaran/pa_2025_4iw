@@ -313,10 +313,15 @@ model Patient {
   latitude              Float?
   longitude             Float?
   
+  // Physical measurements
+  height                Decimal?  @db.Decimal(5, 2) // cm
+  weight                Decimal?  @db.Decimal(5, 2) // kg
+  
   // Medical Information (encrypted in application layer)
   bloodType             String?
   allergies             String[]
   chronicConditions     String[]
+  surgicalOperations    String[]
   emergencyContactName  String?
   emergencyContactPhone String?
   
