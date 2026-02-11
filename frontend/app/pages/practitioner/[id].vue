@@ -1,23 +1,5 @@
 <template>
   <div class="min-h-screen bg-gray-50">
-    <header class="border-b border-gray-200 bg-white">
-      <div
-        class="mx-auto flex max-w-7xl items-center justify-between px-4 py-4 sm:px-6 lg:px-8"
-      >
-        <NuxtLink
-          to="/"
-          class="cursor-pointer text-2xl font-bold text-[var(--color-primary)]"
-        >
-          MediCôte
-        </NuxtLink>
-        <div class="flex items-center gap-4">
-          <Button variant="secondary" @click="navigateTo('/search')">
-            Retour
-          </Button>
-        </div>
-      </div>
-    </header>
-
     <div class="mx-auto max-w-7xl px-4 py-8 sm:px-6 lg:px-8">
       <!-- loading -->
       <div v-if="loading" class="flex items-center justify-center py-12">
