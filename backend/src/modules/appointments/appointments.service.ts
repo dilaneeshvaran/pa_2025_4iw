@@ -326,10 +326,21 @@ export class AppointmentsService {
     appointmentDate.setHours(0, 0, 0, 0)
 
     const now = new Date()
-    now.setHours(0, 0, 0, 0)
+    const today = new Date(now)
+    today.setHours(0, 0, 0, 0)
 
-    if (appointmentDate < now) {
+    if (appointmentDate < today) {
       throw new Error('La date du rendez-vous ne peut pas être dans le passé')
+    }
+
+    //  prevent booking slots too close to current time (minimum booking delay 1 hour)
+    const [requestHours, requestMinutes] = data.startTime.split(':').map(Number)
+    const requestedAppointmentTime = new Date(appointmentDate)
+    requestedAppointmentTime.setHours(requestHours, requestMinutes, 0, 0)
+
+    const oneHourFromNow = new Date(now.getTime() + 60 * 60 * 1000)
+    if (requestedAppointmentTime < oneHourFromNow) {
+      throw new Error("Vous devez réserver au moins 1 heure à l'avance")
     }
 
     // check if patient already has an appointment at the same time
@@ -346,6 +357,79 @@ export class AppointmentsService {
       throw new Error(
         'Vous avez déjà un rendez-vous à cette date et à cette heure',
       )
+    }
+
+    // prevent multiple active appointments with same doctor on same day
+    const sameDaySameDoctor = await prisma.appointment.findFirst({
+      where: {
+        patientId: data.patientId,
+        practitionerId: data.practitionerId,
+        appointmentDate: appointmentDate,
+        status: { in: ['PENDING', 'CONFIRMED'] },
+      },
+    })
+
+    if (sameDaySameDoctor) {
+      throw new Error(
+        'Vous avez déjà un rendez-vous avec ce praticien ce jour-là',
+      )
+    }
+
+    // warn and prevent booking if too close to another existing appointment (less than 1 hour)
+    // check for any appointment on the same day that ends within 1 hour of start time
+    // or starts within 1 hour of end time
+    const dayAppointments = await prisma.appointment.findMany({
+      where: {
+        patientId: data.patientId,
+        appointmentDate: appointmentDate,
+        status: { in: ['PENDING', 'CONFIRMED'] },
+      },
+    })
+
+    const duration = practitioner.consultationDuration
+    const requestedEndTime = new Date(
+      requestedAppointmentTime.getTime() + duration * 60000,
+    )
+
+    for (const apt of dayAppointments) {
+      const [aptHours, aptMinutes] = apt.startTime.split(':').map(Number)
+      const aptStartTime = new Date(appointmentDate)
+      aptStartTime.setHours(aptHours, aptMinutes, 0, 0)
+
+      const [aptEndHours, aptEndMinutes] = apt.endTime.split(':').map(Number)
+      const aptEndTime = new Date(appointmentDate)
+      aptEndTime.setHours(aptEndHours, aptEndMinutes, 0, 0)
+
+      // buffer time (60 minutes)
+      const bufferMs = 60 * 60 * 1000
+
+      // check if requested start is too close to existing end
+      if (
+        requestedAppointmentTime >= aptEndTime &&
+        requestedAppointmentTime.getTime() - aptEndTime.getTime() < bufferMs
+      ) {
+        throw new Error(
+          "Ce rendez-vous est trop proche d'un autre rendez-vous existant",
+        )
+      }
+
+      // check if requested end is too close to existing start
+      if (
+        requestedEndTime <= aptStartTime &&
+        aptStartTime.getTime() - requestedEndTime.getTime() < bufferMs
+      ) {
+        throw new Error(
+          "Ce rendez-vous est trop proche d'un autre rendez-vous existant",
+        )
+      }
+
+      // also check for overlaps
+      if (
+        requestedAppointmentTime < aptEndTime &&
+        requestedEndTime > aptStartTime
+      ) {
+        throw new Error('Ce créneau chevauche un autre rendez-vous')
+      }
     }
 
     // check if slot is reserved by another user
@@ -373,7 +457,6 @@ export class AppointmentsService {
       throw new Error("Ce créneau n'est plus disponible")
     }
 
-    const duration = practitioner.consultationDuration
     const [hours, minutes] = data.startTime.split(':').map(Number)
     const endMinutes = hours * 60 + minutes + duration
     const endTime = `${Math.floor(endMinutes / 60)
