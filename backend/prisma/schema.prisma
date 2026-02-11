@@ -344,7 +344,7 @@ model Patient {
   medicalRecords        MedicalRecord[]
   prescriptions         Prescription[]
   sharedRecords         SharedMedicalRecord[]
-  sentMessages          Message[]         @relation("PatientMessages")
+  conversations         Conversation[]    @relation("PatientConversations")
   payments              Payment[]
   campaignRecipients    CampaignRecipient[]
   vaccinationRecords    VaccinationRecord[]
@@ -395,6 +395,7 @@ model Practitioner {
   // Consultation Settings
   consultationDuration  Int       @default(30) // minutes
   teleconsultationEnabled Boolean @default(false)
+  messagingEnabled      Boolean   @default(false)
   
   // Pricing
   baseConsultationFee   Decimal   @db.Decimal(10, 2)
@@ -422,7 +423,7 @@ model Practitioner {
   medicalRecords        MedicalRecord[]
   prescriptions         Prescription[]
   documents             Document[]
-  receivedMessages      Message[]               @relation("PractitionerMessages")
+  conversations         Conversation[]          @relation("PractitionerConversations")
   staffMembers          Staff[]
   sharedRecordsAccess   SharedMedicalRecord[]
   payments              Payment[]
@@ -745,12 +746,35 @@ model Document {
 // COMMUNICATION
 // ============================================================================
 
+model Conversation {
+  id              String        @id @default(cuid())
+  patientId       String
+  practitionerId  String
+  
+  // Last activity for sorting
+  lastMessageAt   DateTime?     
+  lastMessagePreview String?     @db.Text
+  
+  createdAt       DateTime      @default(now())
+  updatedAt       DateTime      @updatedAt
+  
+  patient         Patient       @relation("PatientConversations", fields: [patientId], references: [id], onDelete: Cascade)
+  practitioner    Practitioner  @relation("PractitionerConversations", fields: [practitionerId], references: [id], onDelete: Cascade)
+  messages        Message[]
+  
+  @@unique([patientId, practitionerId])
+  @@index([patientId])
+  @@index([practitionerId])
+  @@index([lastMessageAt])
+  @@map("conversations")
+}
+
 model Message {
   id              String        @id @default(cuid())
-  senderId        String
-  recipientId     String
+  conversationId  String
+  senderUserId    String        // userId of the sender (patient or practitioner)
   
-  // Content (encrypted in application layer)
+  // Content (encrypted in application layer via AES-256-GCM)
   content         String        @db.Text
   
   // Attachments
@@ -760,17 +784,13 @@ model Message {
   status          MessageStatus @default(SENT)
   readAt          DateTime?
   
-  // Metadata
-  appointmentId   String?       // Optional link to appointment context
-  
   createdAt       DateTime      @default(now())
   updatedAt       DateTime      @updatedAt
   
-  sender          Patient       @relation("PatientMessages", fields: [senderId], references: [id], onDelete: Cascade)
-  recipient       Practitioner  @relation("PractitionerMessages", fields: [recipientId], references: [id], onDelete: Cascade)
+  conversation    Conversation  @relation(fields: [conversationId], references: [id], onDelete: Cascade)
   
-  @@index([senderId])
-  @@index([recipientId])
+  @@index([conversationId])
+  @@index([senderUserId])
   @@index([createdAt])
   @@map("messages")
 }
