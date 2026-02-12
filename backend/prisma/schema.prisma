@@ -432,6 +432,7 @@ model Practitioner {
   reviews               Review[]
   teleconsultationSessions TeleconsultationSession[]
   virtualQueueEntries   VirtualQueue[]
+  todos                 PractitionerTodo[]
   
   @@index([userId])
   @@index([licenseNumber])
@@ -1408,6 +1409,28 @@ model ContactRequest {
   @@index([requestType])
   @@index([createdAt])
   @@map("contact_requests")
+}
+
+// ============================================================================
+// PRACTITIONER TODO LIST
+// ============================================================================
+
+model PractitionerTodo {
+  id              String       @id @default(cuid())
+  practitionerId  String
+  
+  title           String
+  completed       Boolean      @default(false)
+  completedAt     DateTime?
+  
+  createdAt       DateTime     @default(now())
+  updatedAt       DateTime     @updatedAt
+  
+  practitioner    Practitioner @relation(fields: [practitionerId], references: [id], onDelete: Cascade)
+  
+  @@index([practitionerId])
+  @@index([completed])
+  @@map("practitioner_todos")
 }
 
 // ============================================================================
