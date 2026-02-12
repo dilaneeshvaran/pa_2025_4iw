@@ -9,6 +9,7 @@ import { documentsRoutes } from './modules/documents/documents.routes'
 import { messagesRoutes } from './modules/messages/messages.routes'
 import { paymentsRoutes } from './modules/payments/payments.routes'
 import { settingsRoutes } from './modules/settings/settings.routes'
+import { practitionerDashboardRoutes } from './modules/practitioners/practitioners-dashboard.routes'
 
 export async function routes(fastify: FastifyInstance) {
   fastify.register(authRoutes, { prefix: '/api/auth' })
@@ -21,6 +22,9 @@ export async function routes(fastify: FastifyInstance) {
   fastify.register(messagesRoutes, { prefix: '/api/messages' })
   fastify.register(paymentsRoutes, { prefix: '/api/payments' })
   fastify.register(settingsRoutes, { prefix: '/api/settings' })
+  fastify.register(practitionerDashboardRoutes, {
+    prefix: '/api/practitioner/dashboard',
+  })
 
   fastify.get('/health', async () => {
     return { status: 'ok', timestamp: new Date().toISOString() }
