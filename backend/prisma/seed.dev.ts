@@ -65,6 +65,9 @@ async function main() {
   // Messages
   await prisma.message.deleteMany()
 
+  // Conversations
+  await prisma.conversation.deleteMany()
+
   // Documents
   await prisma.document.deleteMany()
 
@@ -97,6 +100,9 @@ async function main() {
 
   // Staff
   await prisma.staff.deleteMany()
+
+  // Practitioner todos
+  await prisma.practitionerTodo.deleteMany()
 
   // Practitioners
   await prisma.practitioner.deleteMany()
@@ -699,35 +705,68 @@ async function main() {
   })
 
   // ============================================================================
-  // MESSAGES
+  // CONVERSATIONS & MESSAGES
   // ============================================================================
-  console.log(' Creating messages...')
+  console.log('💬 Creating conversations and messages...')
+
+  // Conversation 1: Patient 0 <-> Practitioner 0
+  const conversation1 = await prisma.conversation.create({
+    data: {
+      patientId: patients[0].id,
+      practitionerId: practitioners[0].id,
+      lastMessageAt: new Date(),
+      lastMessagePreview:
+        "Bonjour Docteur, j'ai une question concernant mon traitement.",
+    },
+  })
 
   await prisma.message.createMany({
     data: [
       {
-        senderId: patients[0].id,
-        recipientId: practitioners[0].id,
+        conversationId: conversation1.id,
+        senderUserId: patientUsers[0].id,
         content:
           "Bonjour Docteur, j'ai une question concernant mon traitement.",
         status: 'READ',
         readAt: new Date(),
       },
       {
-        senderId: patients[0].id,
-        recipientId: practitioners[0].id,
+        conversationId: conversation1.id,
+        senderUserId: patientUsers[0].id,
         content:
           'Est-ce que je peux prendre le médicament le soir au lieu du matin?',
         status: 'READ',
         readAt: new Date(),
       },
       {
-        senderId: patients[1].id,
-        recipientId: practitioners[2].id,
-        content: 'Docteur, les démangeaisons persistent malgré la crème.',
-        status: 'DELIVERED',
+        conversationId: conversation1.id,
+        senderUserId: practitionerUsers[0].id,
+        content:
+          "Oui, vous pouvez prendre le médicament le soir. N'oubliez pas de le prendre après le repas.",
+        status: 'READ',
+        readAt: new Date(),
       },
     ],
+  })
+
+  // Conversation 2: Patient 1 <-> Practitioner 2
+  const conversation2 = await prisma.conversation.create({
+    data: {
+      patientId: patients[1].id,
+      practitionerId: practitioners[2].id,
+      lastMessageAt: new Date(),
+      lastMessagePreview:
+        'Docteur, les démangeaisons persistent malgré la crème.',
+    },
+  })
+
+  await prisma.message.create({
+    data: {
+      conversationId: conversation2.id,
+      senderUserId: patientUsers[1].id,
+      content: 'Docteur, les démangeaisons persistent malgré la crème.',
+      status: 'DELIVERED',
+    },
   })
 
   // ============================================================================
