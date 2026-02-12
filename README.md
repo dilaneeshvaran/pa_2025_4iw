@@ -50,6 +50,7 @@ npx prisma migrate dev
 ### 5. Seed the Database (Optional)
 
 ```bash
+cd backend
 npm run seed:dev
 ```
 
