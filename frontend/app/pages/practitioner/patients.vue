@@ -140,16 +140,16 @@
           class="animate-pulse rounded-lg border border-gray-200 bg-white p-5"
         >
           <div class="mb-4 flex items-center gap-3">
-            <div class="h-12 w-12 rounded-full bg-gray-200"></div>
+            <div class="h-12 w-12 rounded-full bg-gray-200" />
             <div class="flex-1 space-y-2">
-              <div class="h-4 w-2/3 rounded bg-gray-200"></div>
-              <div class="h-3 w-1/3 rounded bg-gray-200"></div>
+              <div class="h-4 w-2/3 rounded bg-gray-200" />
+              <div class="h-3 w-1/3 rounded bg-gray-200" />
             </div>
           </div>
-          <div class="h-3 w-full rounded bg-gray-200"></div>
+          <div class="h-3 w-full rounded bg-gray-200" />
           <div class="mt-4 flex gap-2">
-            <div class="h-8 w-20 rounded bg-gray-200"></div>
-            <div class="h-8 w-20 rounded bg-gray-200"></div>
+            <div class="h-8 w-20 rounded bg-gray-200" />
+            <div class="h-8 w-20 rounded bg-gray-200" />
           </div>
         </div>
       </div>
@@ -158,7 +158,7 @@
           v-for="i in 6"
           :key="i"
           class="h-16 rounded-lg border border-gray-200 bg-white"
-        ></div>
+        />
       </div>
     </div>
 
@@ -499,7 +499,7 @@ const resetAndFetch = () => {
 const fetchPatients = async () => {
   loading.value = true;
   try {
-    const [sortBy, sortOrder] = sortValue.value.split("-");
+    const [sortBy = "name", sortOrder = "asc"] = sortValue.value.split("-");
     const params = new URLSearchParams({
       page: currentPage.value.toString(),
       limit: "18",
