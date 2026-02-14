@@ -454,7 +454,7 @@ const kpiCards = computed(() => [
     iconColor: "text-blue-600",
   },
   {
-    label: "Revenus",
+    label: "Revenus ce mois",
     value: dashboard.value
       ? `${dashboard.value.revenue.toLocaleString("fr-FR")} XOF`
       : "—",
@@ -463,14 +463,14 @@ const kpiCards = computed(() => [
     iconColor: "text-green-600",
   },
   {
-    label: "Taux de présence",
+    label: "Taux de présence ce mois",
     value: dashboard.value ? `${dashboard.value.attendanceRate}%` : "—",
     icon: TrendingUp,
     bgColor: "bg-purple-100",
     iconColor: "text-purple-600",
   },
   {
-    label: "Nouveaux patients",
+    label: "Nouveaux patients ce mois",
     value: dashboard.value?.newPatients ?? "—",
     icon: UserPlus,
     bgColor: "bg-orange-100",
