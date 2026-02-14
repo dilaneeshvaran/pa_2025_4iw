@@ -484,6 +484,8 @@
       :practitioner="practitioner"
       :preselected-date="preselectedDate"
       :preselected-time="preselectedTime"
+      @close="isBookingModalOpen = false"
+      @success="isBookingModalOpen = false"
     />
   </div>
 </template>
