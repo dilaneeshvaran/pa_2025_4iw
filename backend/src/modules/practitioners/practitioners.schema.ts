@@ -25,7 +25,7 @@ export const getAvailableSlotsSchema = z.object({
   id: z.string(),
   startDate: z.string().optional(), // iso date string
   endDate: z.string().optional(), // iso date string
-  days: z.coerce.number().min(1).max(30).default(7), // number of days to look ahead
+  days: z.coerce.number().min(1).max(90).default(7), // number of days to look ahead
 })
 
 export type SearchPractitionersInput = z.infer<typeof searchPractitionersSchema>
