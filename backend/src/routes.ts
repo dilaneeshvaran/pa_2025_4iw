@@ -11,6 +11,7 @@ import { paymentsRoutes } from './modules/payments/payments.routes'
 import { settingsRoutes } from './modules/settings/settings.routes'
 import { practitionerDashboardRoutes } from './modules/practitioners/practitioners-dashboard.routes'
 import { availabilitiesRoutes } from './modules/availabilities/availabilities.routes'
+import { practitionerPatientsRoutes } from './modules/patients/patients.routes'
 
 export async function routes(fastify: FastifyInstance) {
   fastify.register(authRoutes, { prefix: '/api/auth' })
@@ -28,6 +29,9 @@ export async function routes(fastify: FastifyInstance) {
   })
   fastify.register(availabilitiesRoutes, {
     prefix: '/api/practitioner/agenda',
+  })
+  fastify.register(practitionerPatientsRoutes, {
+    prefix: '/api/practitioner/patients',
   })
 
   fastify.get('/health', async () => {
