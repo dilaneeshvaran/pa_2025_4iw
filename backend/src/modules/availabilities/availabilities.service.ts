@@ -118,7 +118,7 @@ export class AvailabilitiesService {
   async createAbsence(
     practitionerId: string,
     data: CreateAbsenceInput,
-  ): Promise<AbsenceInfo> {
+  ): Promise<{ absence: AbsenceInfo; cancelledAppointmentsCount: number }> {
     const startDate = new Date(data.startDate)
     startDate.setHours(0, 0, 0, 0)
     const endDate = new Date(data.endDate)
@@ -137,13 +137,84 @@ export class AvailabilitiesService {
       },
     })
 
+    // automatically cancel affected appointments and notify patients
+    const practitioner = await prisma.practitioner.findUnique({
+      where: { id: practitionerId },
+      select: { firstName: true, lastName: true, title: true },
+    })
+
+    const affectedAppointments = await prisma.appointment.findMany({
+      where: {
+        practitionerId,
+        appointmentDate: {
+          gte: startDate,
+          lte: endDate,
+        },
+        status: {
+          in: [AppointmentStatus.PENDING, AppointmentStatus.CONFIRMED],
+        },
+      },
+      include: {
+        patient: {
+          include: {
+            user: { select: { email: true } },
+          },
+        },
+      },
+    })
+
+    const startStr = startDate.toLocaleDateString('fr-FR', {
+      day: 'numeric',
+      month: 'long',
+      year: 'numeric',
+    })
+    const endStr = endDate.toLocaleDateString('fr-FR', {
+      day: 'numeric',
+      month: 'long',
+      year: 'numeric',
+    })
+
+    // cancel appointments and send emails
+    for (const apt of affectedAppointments) {
+      try {
+        // cancel the appointment
+        await prisma.appointment.update({
+          where: { id: apt.id },
+          data: { status: AppointmentStatus.CANCELLED },
+        })
+
+        // send email notification
+        await sendEmail(
+          apt.patient.user.email,
+          `Annulation de votre rendez-vous – Absence de ${practitioner?.title} ${practitioner?.lastName}`,
+          `
+          <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto;">
+            <h2>Annulation de rendez-vous</h2>
+            <p>Bonjour ${apt.patient.firstName},</p>
+            <p>Nous vous informons que votre rendez-vous du <strong>${apt.appointmentDate.toLocaleDateString('fr-FR', { day: 'numeric', month: 'long', year: 'numeric' })}</strong> à <strong>${apt.startTime}</strong> avec ${practitioner?.title} ${practitioner?.firstName} ${practitioner?.lastName} a été <strong>annulé</strong>.</p>
+            <p><strong>Raison :</strong> Absence du praticien du ${startStr} au ${endStr}.</p>
+            ${data.reason ? `<p><em>Motif : ${data.reason}</em></p>` : ''}
+            <p>Nous vous prions de bien vouloir reprogrammer votre rendez-vous à une autre date via votre espace patient.</p>
+            <p>Nous nous excusons pour ce désagrément.</p>
+            <p>Cordialement,<br/>L'équipe MediCote</p>
+          </div>
+          `,
+        )
+      } catch (err) {
+        console.error(`Failed to cancel/notify appointment ${apt.id}:`, err)
+      }
+    }
+
     return {
-      id: row.id,
-      startDate: row.startDate,
-      endDate: row.endDate,
-      reason: row.reason,
-      notifiedPatients: row.notifiedPatients,
-      createdAt: row.createdAt,
+      absence: {
+        id: row.id,
+        startDate: row.startDate,
+        endDate: row.endDate,
+        reason: row.reason,
+        notifiedPatients: row.notifiedPatients,
+        createdAt: row.createdAt,
+      },
+      cancelledAppointmentsCount: affectedAppointments.length,
     }
   }
 
@@ -260,7 +331,10 @@ export class AvailabilitiesService {
   async createBlockedSlot(
     practitionerId: string,
     data: CreateBlockedSlotInput,
-  ): Promise<BlockedSlotInfo> {
+  ): Promise<{
+    blockedSlot: BlockedSlotInfo
+    cancelledAppointmentsCount: number
+  }> {
     const date = new Date(data.date)
     date.setHours(0, 0, 0, 0)
 
@@ -274,12 +348,82 @@ export class AvailabilitiesService {
       },
     })
 
+    // automatically cancel affected appointments and notify patients
+    const practitioner = await prisma.practitioner.findUnique({
+      where: { id: practitionerId },
+      select: { firstName: true, lastName: true, title: true },
+    })
+
+    // find all appointments on this date
+    const allAppointments = await prisma.appointment.findMany({
+      where: {
+        practitionerId,
+        appointmentDate: date,
+        status: {
+          in: [AppointmentStatus.PENDING, AppointmentStatus.CONFIRMED],
+        },
+      },
+      include: {
+        patient: {
+          include: {
+            user: { select: { email: true } },
+          },
+        },
+      },
+    })
+
+    // filter appointments that overlap with the blocked slot
+    // overlap occurs when : appointment starts before blocked slot ends and ends after blocked slot starts
+    const affectedAppointments = allAppointments.filter((apt) => {
+      return apt.startTime < data.endTime && apt.endTime > data.startTime
+    })
+
+    const dateStr = date.toLocaleDateString('fr-FR', {
+      day: 'numeric',
+      month: 'long',
+      year: 'numeric',
+    })
+
+    // cancel appointments and send emails
+    for (const apt of affectedAppointments) {
+      try {
+        // cancel  appointment
+        await prisma.appointment.update({
+          where: { id: apt.id },
+          data: { status: AppointmentStatus.CANCELLED },
+        })
+
+        // send email
+        await sendEmail(
+          apt.patient.user.email,
+          `Annulation de votre rendez-vous – Créneau bloqué`,
+          `
+          <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto;">
+            <h2>Annulation de rendez-vous</h2>
+            <p>Bonjour ${apt.patient.firstName},</p>
+            <p>Nous vous informons que votre rendez-vous du <strong>${dateStr}</strong> à <strong>${apt.startTime}</strong> avec ${practitioner?.title} ${practitioner?.firstName} ${practitioner?.lastName} a été <strong>annulé</strong>.</p>
+            <p><strong>Raison :</strong> Le praticien a bloqué ce créneau (${data.startTime} - ${data.endTime}).</p>
+            ${data.reason ? `<p><em>Motif : ${data.reason}</em></p>` : ''}
+            <p>Nous vous prions de bien vouloir reprogrammer votre rendez-vous à une autre date via votre espace patient.</p>
+            <p>Nous nous excusons pour ce désagrément.</p>
+            <p>Cordialement,<br/>L'équipe MediCote</p>
+          </div>
+          `,
+        )
+      } catch (err) {
+        console.error(`Failed to cancel/notify appointment ${apt.id}:`, err)
+      }
+    }
+
     return {
-      id: row.id,
-      date: row.date,
-      startTime: row.startTime,
-      endTime: row.endTime,
-      reason: row.reason,
+      blockedSlot: {
+        id: row.id,
+        date: row.date,
+        startTime: row.startTime,
+        endTime: row.endTime,
+        reason: row.reason,
+      },
+      cancelledAppointmentsCount: affectedAppointments.length,
     }
   }
 
