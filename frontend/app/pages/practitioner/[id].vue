@@ -6,7 +6,7 @@
         <div class="text-center">
           <div
             class="mx-auto h-12 w-12 animate-spin rounded-full border-4 border-gray-300 border-t-[var(--color-primary)]"
-          ></div>
+          />
           <p class="mt-4 text-gray-600">Chargement...</p>
         </div>
       </div>
@@ -106,13 +106,13 @@
             <button
               v-for="tab in tabs"
               :key="tab.id"
-              @click="activeTab = tab.id"
               :class="[
                 'px-6 py-3 font-medium transition-colors',
                 activeTab === tab.id
                   ? 'border-b-2 border-[var(--color-primary)] text-[var(--color-primary)]'
                   : 'text-gray-600 hover:text-gray-900',
               ]"
+              @click="activeTab = tab.id"
             >
               {{ tab.label }}
             </button>
@@ -269,7 +269,7 @@
             <div v-if="loadingSlots" class="flex justify-center py-8">
               <div
                 class="h-8 w-8 animate-spin rounded-full border-4 border-gray-300 border-t-[var(--color-primary)]"
-              ></div>
+              />
             </div>
 
             <!-- slots content -->
@@ -339,6 +339,17 @@
                   </div>
                 </div>
               </div>
+
+              <!-- voir plus button -->
+              <div class="mt-4 text-center">
+                <button
+                  class="inline-flex items-center gap-1.5 rounded-lg border border-[var(--color-primary)] px-4 py-2 text-sm font-medium text-[var(--color-primary)] transition-colors hover:bg-blue-50"
+                  @click="openBookingModalFromAvailability"
+                >
+                  <IconCalendar class="h-4 w-4" />
+                  Voir plus de disponibilités
+                </button>
+              </div>
             </div>
 
             <!-- no slots -->
@@ -351,6 +362,13 @@
                 Veuillez contacter directement le praticien pour plus
                 d'informations.
               </p>
+              <button
+                class="mt-4 inline-flex items-center gap-1.5 rounded-lg border border-[var(--color-primary)] px-4 py-2 text-sm font-medium text-[var(--color-primary)] transition-colors hover:bg-blue-50"
+                @click="openBookingModalFromAvailability"
+              >
+                <IconCalendar class="h-4 w-4" />
+                Voir plus de disponibilités
+              </button>
             </div>
           </Card>
         </div>
@@ -466,8 +484,6 @@
       :practitioner="practitioner"
       :preselected-date="preselectedDate"
       :preselected-time="preselectedTime"
-      @close="closeBookingModal"
-      @success="onBookingSuccess"
     />
   </div>
 </template>
@@ -618,9 +634,10 @@ const fetchPractitioner = async () => {
     } else {
       error.value = "Impossible de charger les informations du praticien.";
     }
-  } catch (err: any) {
+  } catch (err: unknown) {
     console.error("Error fetching practitioner:", err);
-    error.value = err.message || "Une erreur est survenue lors du chargement.";
+    error.value =
+      (err as Error).message || "Une erreur est survenue lors du chargement.";
   } finally {
     loading.value = false;
   }
@@ -649,7 +666,7 @@ const fetchAvailableSlots = async () => {
     if (response.success && response.data) {
       availableSlots.value = response.data;
     }
-  } catch (err: any) {
+  } catch (err: unknown) {
     console.error("Error fetching available slots:", err);
   } finally {
     loadingSlots.value = false;
@@ -679,15 +696,10 @@ const selectTimeSlot = (date: string, time: string) => {
   isBookingModalOpen.value = true;
 };
 
-const closeBookingModal = () => {
-  isBookingModalOpen.value = false;
+const openBookingModalFromAvailability = () => {
   preselectedDate.value = null;
   preselectedTime.value = null;
-};
-
-const onBookingSuccess = () => {
-  // refresh available slots so the booked time disappears
-  fetchAvailableSlots();
+  isBookingModalOpen.value = true;
 };
 
 // filter slots to exclude past dates and times
