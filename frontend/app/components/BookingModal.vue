@@ -696,7 +696,13 @@ const slotsGroupedByWeek = computed(() => {
     for (let i = 0; i < 7; i++) {
       const d = new Date(current);
       d.setDate(d.getDate() + i);
-      const ds = d.toISOString().split("T")[0] || "";
+
+      // format date string in local timezone to match toLocaleDateString()
+      const year = d.getFullYear();
+      const month = String(d.getMonth() + 1).padStart(2, "0");
+      const day = String(d.getDate()).padStart(2, "0");
+      const ds = `${year}-${month}-${day}`;
+
       const found = slotMap.get(ds);
       weekDays.push({
         date: ds,
