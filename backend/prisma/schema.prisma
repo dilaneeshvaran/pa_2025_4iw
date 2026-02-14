@@ -398,6 +398,16 @@ model Practitioner {
   consultationDuration  Int       @default(30) // minutes
   teleconsultationEnabled Boolean @default(false)
   messagingEnabled      Boolean   @default(false)
+  homeVisitEnabled      Boolean   @default(false)
+  emergencySlotsEnabled Boolean   @default(false)
+  
+  // Scheduling settings
+  backToBack            Boolean   @default(false) // no break between consultations
+  breakBetweenSlots     Int       @default(0)     // minutes between appointments (if not backToBack)
+  minBookingNotice      Int       @default(60)    // minimum minutes before appointment can be booked
+  maxBookingAdvance     Int       @default(60)    // maximum days in advance one can book
+  cancellationNotice    Int       @default(24)    // hours before appointment cancellation allowed
+  newPatientMaxPerDay   Int       @default(0)     // 0 = unlimited
   
   // Pricing
   baseConsultationFee   Decimal   @db.Decimal(10, 2)
@@ -433,6 +443,7 @@ model Practitioner {
   teleconsultationSessions TeleconsultationSession[]
   virtualQueueEntries   VirtualQueue[]
   todos                 PractitionerTodo[]
+  blockedSlots          BlockedSlot[]
   
   @@index([userId])
   @@index([licenseNumber])
@@ -544,6 +555,7 @@ model Absence {
   endDate        DateTime
   reason         String?
   isRecurring    Boolean      @default(false)
+  notifiedPatients Boolean   @default(false)
   
   createdAt      DateTime     @default(now())
   updatedAt      DateTime     @updatedAt
@@ -553,6 +565,29 @@ model Absence {
   @@index([practitionerId])
   @@index([startDate, endDate])
   @@map("absences")
+}
+
+// ============================================================================
+// BLOCKED SLOTS (short-term slot blocking by practitioner)
+// ============================================================================
+
+model BlockedSlot {
+  id             String       @id @default(cuid())
+  practitionerId String
+  
+  date           DateTime
+  startTime      String       // Format: "HH:mm"
+  endTime        String       // Format: "HH:mm"
+  reason         String?
+  
+  createdAt      DateTime     @default(now())
+  updatedAt      DateTime     @updatedAt
+  
+  practitioner   Practitioner @relation(fields: [practitionerId], references: [id], onDelete: Cascade)
+  
+  @@index([practitionerId])
+  @@index([date])
+  @@map("blocked_slots")
 }
 
 // ============================================================================
