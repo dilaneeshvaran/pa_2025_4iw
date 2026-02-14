@@ -128,6 +128,19 @@ export class AvailabilitiesService {
       throw new Error('La date de fin doit être après la date de début')
     }
 
+    // check for overlapping absences
+    const overlapping = await prisma.absence.findFirst({
+      where: {
+        practitionerId,
+        AND: [{ startDate: { lte: endDate } }, { endDate: { gte: startDate } }],
+      },
+    })
+    if (overlapping) {
+      throw new Error(
+        "Une absence existe déjà pour cette période. Veuillez modifier ou supprimer l'absence existante avant d'en créer une nouvelle.",
+      )
+    }
+
     const row = await prisma.absence.create({
       data: {
         practitionerId,
