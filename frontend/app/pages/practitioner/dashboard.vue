@@ -90,6 +90,18 @@
               >
                 Motif : {{ dashboard.nextAppointment.reason }}
               </p>
+              <UiButton
+                variant="secondary"
+                size="sm"
+                class="mt-3"
+                @click="
+                  navigateTo(
+                    `/practitioner/patients/${dashboard.nextAppointment.patient.id}/medical-record`,
+                  )
+                "
+              >
+                Voir le dossier
+              </UiButton>
             </div>
           </div>
         </div>
@@ -101,9 +113,18 @@
           <h3 class="text-lg font-semibold text-gray-900">
             Rendez-vous aujourd'hui
           </h3>
-          <UiBadge variant="primary">
-            {{ loading ? "..." : dashboard?.todayAppointments?.length || 0 }}
-          </UiBadge>
+          <div class="flex items-center gap-2">
+            <UiBadge variant="primary">
+              {{ loading ? "..." : dashboard?.todayAppointments?.length || 0 }}
+            </UiBadge>
+            <UiButton
+              variant="secondary"
+              size="sm"
+              @click="navigateTo('/practitioner/agenda')"
+            >
+              Voir agenda complet
+            </UiButton>
+          </div>
         </div>
 
         <div v-if="loading" class="animate-pulse space-y-3">
@@ -317,13 +338,13 @@
             @click="toggleTodo(todo.id)"
             :disabled="togglingId === todo.id"
             :class="[
-              'flex h-5 w-5 flex-shrink-0 items-center justify-center rounded border-2 transition-colors',
+              'flex h-4 w-4 flex-shrink-0 items-center justify-center rounded border transition-colors',
               todo.completed
                 ? 'border-green-500 bg-green-500 text-white'
                 : 'border-gray-300 hover:border-blue-400',
             ]"
           >
-            <Check v-if="todo.completed" class="h-3 w-3" />
+            <Check v-if="todo.completed" class="h-2.5 w-2.5" />
           </button>
           <span
             :class="[
@@ -336,9 +357,9 @@
           <button
             @click="deleteTodo(todo.id)"
             :disabled="deletingId === todo.id"
-            class="rounded p-1 text-gray-400 transition-colors hover:bg-red-50 hover:text-red-500"
+            class="flex h-6 w-6 flex-shrink-0 items-center justify-center rounded text-gray-400 transition-colors hover:bg-red-50 hover:text-red-500"
           >
-            <X class="h-4 w-4" />
+            <X class="h-3.5 w-3.5" />
           </button>
         </div>
       </div>

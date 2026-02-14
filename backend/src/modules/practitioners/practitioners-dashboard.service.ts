@@ -23,6 +23,9 @@ export class PractitionerDashboardService {
       59,
     )
 
+    // auto mark NO_SHOW for appointments 3+ hours past their start time
+    await this.autoMarkNoShow(practitionerId, now)
+
     const [
       monthlyAppointments,
       monthlyRevenue,
@@ -49,12 +52,15 @@ export class PractitionerDashboardService {
         },
       }),
 
-      // revenue this month
+      // revenue this month (only for appointments where patient was present)
       prisma.payment.aggregate({
         where: {
           practitionerId,
           status: 'COMPLETED',
           paidAt: { gte: monthStart, lte: monthEnd },
+          appointment: {
+            status: AppointmentStatus.COMPLETED,
+          },
         },
         _sum: { amount: true },
       }),
@@ -119,11 +125,12 @@ export class PractitionerDashboardService {
         },
       }),
 
-      // patients waiting for teleconsultation
+      // patients waiting for teleconsultation (today only)
       prisma.virtualQueue.count({
         where: {
           practitionerId,
           status: 'WAITING',
+          checkInTime: { gte: today, lt: tomorrow },
         },
       }),
 
@@ -290,6 +297,47 @@ export class PractitionerDashboardService {
     if (!todo) throw new Error('Todo not found')
 
     return prisma.practitionerTodo.delete({ where: { id: todoId } })
+  }
+
+  // auto- mark appointments as NO_SHOW if 3+ hours have passed
+  //since the scheduled start time and the doctor hasnt marked them.
+
+  private async autoMarkNoShow(
+    practitionerId: string,
+    now: Date,
+  ): Promise<void> {
+    // find confirmed/pending appointments whose start time is 3+ hours ago
+    const overdueAppointments = await prisma.appointment.findMany({
+      where: {
+        practitionerId,
+        status: {
+          in: [AppointmentStatus.PENDING, AppointmentStatus.CONFIRMED],
+        },
+        appointmentDate: { lte: now },
+      },
+    })
+
+    const toMarkIds: string[] = []
+    for (const apt of overdueAppointments) {
+      const aptDate = new Date(apt.appointmentDate)
+      const [hours, minutes] = apt.startTime.split(':').map(Number)
+      aptDate.setHours(hours, minutes, 0, 0)
+      // if 3 hours have elapsed since the appointment start time
+      if (now.getTime() - aptDate.getTime() >= 3 * 60 * 60 * 1000) {
+        toMarkIds.push(apt.id)
+      }
+    }
+
+    if (toMarkIds.length > 0) {
+      await prisma.appointment.updateMany({
+        where: { id: { in: toMarkIds } },
+        data: {
+          status: AppointmentStatus.NO_SHOW,
+          markedAsNoShow: true,
+          noShowMarkedAt: now,
+        },
+      })
+    }
   }
 }
 
