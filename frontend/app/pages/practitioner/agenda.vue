@@ -941,6 +941,62 @@
       </div>
     </Teleport>
 
+    <!-- delete absence confirmation modal -->
+    <Teleport to="body">
+      <div
+        v-if="showDeleteAbsenceConfirm"
+        class="fixed inset-0 z-50 flex items-center justify-center bg-black/50"
+        @click.self="showDeleteAbsenceConfirm = false"
+      >
+        <div class="mx-4 w-full max-w-md rounded-xl bg-white p-6 shadow-2xl">
+          <div class="mb-4 flex items-center gap-3">
+            <div
+              class="flex h-10 w-10 items-center justify-center rounded-full bg-red-100"
+            >
+              <Trash2 class="h-5 w-5 text-red-600" />
+            </div>
+            <h3 class="text-lg font-semibold text-gray-900">
+              Supprimer l'absence
+            </h3>
+          </div>
+          <p class="mb-2 text-sm text-gray-600">
+            Êtes-vous sûr de vouloir supprimer cette absence ?
+          </p>
+          <div
+            v-if="absenceToDeleteInfo"
+            class="mb-4 rounded-lg bg-gray-50 p-3"
+          >
+            <p class="text-sm font-medium text-gray-900">
+              {{ formatShortDate(absenceToDeleteInfo.startDate) }} →
+              {{ formatShortDate(absenceToDeleteInfo.endDate) }}
+            </p>
+            <p
+              v-if="absenceToDeleteInfo.reason"
+              class="mt-1 text-sm text-gray-500"
+            >
+              {{ absenceToDeleteInfo.reason }}
+            </p>
+          </div>
+          <p class="mb-4 text-xs text-gray-500">
+            Cette action est irréversible. Les rendez-vous déjà annulés ne
+            seront pas restaurés.
+          </p>
+          <div class="flex justify-end gap-2">
+            <UiButton
+              variant="secondary"
+              size="sm"
+              @click="showDeleteAbsenceConfirm = false"
+            >
+              Annuler
+            </UiButton>
+            <UiButton variant="danger" size="sm" @click="confirmDeleteAbsence">
+              Supprimer
+            </UiButton>
+          </div>
+        </div>
+      </div>
+    </Teleport>
+
     <!-- toast notifications -->
     <div class="fixed bottom-4 right-4 z-50 flex flex-col gap-2">
       <div
@@ -1125,6 +1181,9 @@ const settingsForm = ref<SettingsData>({
 
 const showNewAppointmentModal = ref(false);
 const showBlockSlotModal = ref(false);
+const showDeleteAbsenceConfirm = ref(false);
+const absenceToDelete = ref<string | null>(null);
+const absenceToDeleteInfo = ref<AbsenceInfo | null>(null);
 
 const patientSearch = ref("");
 const patientResults = ref<PatientInfo[]>([]);
@@ -1556,20 +1615,37 @@ async function addAbsence() {
     }
   } catch (error) {
     console.error("Error adding absence:", error);
-    showToast("Erreur lors de la création de l'absence", "error");
+    const errorMsg =
+      (error as { data?: { message?: string } })?.data?.message ||
+      "Erreur lors de la création de l'absence";
+    showToast(errorMsg, "error");
   } finally {
     savingAbsence.value = false;
   }
 }
 
 async function removeAbsence(id: string) {
+  absenceToDelete.value = id;
+  absenceToDeleteInfo.value = absences.value.find((a) => a.id === id) || null;
+  showDeleteAbsenceConfirm.value = true;
+}
+
+async function confirmDeleteAbsence() {
+  const id = absenceToDelete.value;
+  if (!id) return;
   try {
     await useAuthenticatedFetch(`/practitioner/agenda/absences/${id}`, {
       method: "DELETE",
     });
     absences.value = absences.value.filter((a) => a.id !== id);
+    showToast("Absence supprimée", "success");
   } catch (error) {
     console.error("Error removing absence:", error);
+    showToast("Erreur lors de la suppression de l'absence", "error");
+  } finally {
+    showDeleteAbsenceConfirm.value = false;
+    absenceToDelete.value = null;
+    absenceToDeleteInfo.value = null;
   }
 }
 
