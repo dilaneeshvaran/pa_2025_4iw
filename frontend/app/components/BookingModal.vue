@@ -102,7 +102,7 @@
             >
               <div
                 class="h-8 w-8 animate-spin rounded-full border-4 border-blue-600 border-t-transparent"
-              ></div>
+              />
               <span class="ml-3 text-gray-600"
                 >Chargement des disponibilités...</span
               >
@@ -112,54 +112,113 @@
               v-else-if="filteredAvailableSlots.length > 0"
               class="space-y-4"
             >
-              <div class="flex flex-wrap gap-2">
+              <!-- week navigation -->
+              <div
+                class="flex items-center justify-between rounded-lg bg-gray-50 px-3 py-2"
+              >
                 <button
-                  v-for="slot in filteredAvailableSlots"
-                  :key="slot.date"
                   type="button"
-                  :class="[
-                    'rounded-lg border-2 px-4 py-2 text-sm transition-all',
-                    selectedDate === slot.date
-                      ? 'border-blue-600 bg-blue-50 text-blue-700'
-                      : 'border-gray-200 hover:border-gray-300',
-                  ]"
-                  @click="selectDate(slot.date)"
+                  :disabled="currentWeekIndex <= 0"
+                  class="rounded p-1 text-gray-500 transition-colors hover:bg-gray-200 disabled:cursor-not-allowed disabled:opacity-30"
+                  @click="currentWeekIndex--"
                 >
-                  <div class="font-medium">
-                    {{ formatDateShort(slot.date) }}
-                  </div>
-                  <div class="text-xs text-gray-500">
-                    {{ slot.slots.length }} créneaux
-                  </div>
+                  <IconChevronLeft class="h-5 w-5" />
+                </button>
+                <span class="text-sm font-medium text-gray-700">
+                  {{ weekLabel }}
+                </span>
+                <button
+                  type="button"
+                  :disabled="currentWeekIndex >= totalWeeks - 1"
+                  class="rounded p-1 text-gray-500 transition-colors hover:bg-gray-200 disabled:cursor-not-allowed disabled:opacity-30"
+                  @click="currentWeekIndex++"
+                >
+                  <IconChevronRight class="h-5 w-5" />
                 </button>
               </div>
 
+              <!-- days of current week -->
+              <div class="grid grid-cols-7 gap-1">
+                <button
+                  v-for="day in currentWeekDays"
+                  :key="day.date"
+                  type="button"
+                  :disabled="!day.hasSlots"
+                  :class="[
+                    'flex flex-col items-center rounded-lg border-2 px-1 py-2 text-sm transition-all',
+                    selectedDate === day.date
+                      ? 'border-blue-600 bg-blue-50 text-blue-700'
+                      : day.hasSlots
+                        ? 'border-gray-200 hover:border-blue-300 hover:bg-blue-50/50'
+                        : 'cursor-not-allowed border-gray-100 bg-gray-50 text-gray-300',
+                  ]"
+                  @click="day.hasSlots && selectDate(day.date)"
+                >
+                  <span class="text-xs uppercase">{{ day.dayShort }}</span>
+                  <span class="text-lg font-bold">{{ day.dayNumber }}</span>
+                  <span v-if="day.hasSlots" class="text-[10px] text-gray-500">{{
+                    day.slotCount
+                  }}</span>
+                </button>
+              </div>
+
+              <!-- Time slots for selected date -->
               <div v-if="selectedDate && selectedDateSlots.length > 0">
-                <p class="mb-2 text-sm font-medium text-gray-700">
+                <p class="mb-3 text-sm font-medium text-gray-700">
                   Créneaux disponibles le {{ formatDateLong(selectedDate) }}
                 </p>
-                <div class="flex flex-wrap gap-2">
-                  <button
-                    v-for="time in selectedDateSlots"
-                    :key="time"
-                    type="button"
-                    :class="[
-                      'rounded-lg border-2 px-4 py-2 text-sm transition-all',
-                      selectedTime === time
-                        ? 'border-blue-600 bg-blue-50 text-blue-700'
-                        : 'border-gray-200 hover:border-gray-300',
-                    ]"
-                    @click="selectTime(time)"
-                  >
-                    {{ time }}
-                  </button>
+
+                <!-- Morning slots -->
+                <div v-if="selectedDateMorningSlots.length > 0" class="mb-3">
+                  <p class="mb-2 text-xs font-medium uppercase text-gray-500">
+                    Matin
+                  </p>
+                  <div class="flex flex-wrap gap-2">
+                    <button
+                      v-for="time in selectedDateMorningSlots"
+                      :key="time"
+                      type="button"
+                      :class="[
+                        'rounded-lg border-2 px-3 py-2 text-sm transition-all',
+                        selectedTime === time
+                          ? 'border-blue-600 bg-blue-50 text-blue-700'
+                          : 'border-gray-200 hover:border-gray-300',
+                      ]"
+                      @click="selectTime(time)"
+                    >
+                      {{ time }}
+                    </button>
+                  </div>
+                </div>
+
+                <!-- afternoon slots -->
+                <div v-if="selectedDateAfternoonSlots.length > 0">
+                  <p class="mb-2 text-xs font-medium uppercase text-gray-500">
+                    Après-midi
+                  </p>
+                  <div class="flex flex-wrap gap-2">
+                    <button
+                      v-for="time in selectedDateAfternoonSlots"
+                      :key="time"
+                      type="button"
+                      :class="[
+                        'rounded-lg border-2 px-3 py-2 text-sm transition-all',
+                        selectedTime === time
+                          ? 'border-blue-600 bg-blue-50 text-blue-700'
+                          : 'border-gray-200 hover:border-gray-300',
+                      ]"
+                      @click="selectTime(time)"
+                    >
+                      {{ time }}
+                    </button>
+                  </div>
                 </div>
               </div>
             </div>
 
             <div v-else class="py-8 text-center text-gray-500">
               <IconCalendarOff class="mx-auto mb-2 h-12 w-12 text-gray-300" />
-              <p>Aucune disponibilité dans les 14 prochains jours</p>
+              <p>Aucune disponibilité dans les 3 prochains mois</p>
             </div>
           </div>
 
@@ -222,7 +281,7 @@
               rows="4"
               placeholder="Ex: Douleurs au niveau du dos depuis une semaine..."
               class="w-full rounded-lg border border-gray-300 px-4 py-3 focus:border-blue-600 focus:outline-none focus:ring-2 focus:ring-blue-600"
-            ></textarea>
+            />
           </div>
 
           <div v-if="currentStep === 3" class="space-y-4">
@@ -491,6 +550,8 @@ import {
   Video as IconVideo,
   Check as IconCheck,
   CalendarOff as IconCalendarOff,
+  ChevronLeft as IconChevronLeft,
+  ChevronRight as IconChevronRight,
 } from "lucide-vue-next";
 import Button from "~/components/ui/Button.vue";
 import { useAuthStore } from "~/stores/auth";
@@ -568,6 +629,7 @@ const mobileOperators = [
   { value: "wave", label: "Wave", icon: "🌊" },
 ];
 const slotReserved = ref(false);
+const currentWeekIndex = ref(0);
 
 const selectedDateSlots = computed(() => {
   const slot = filteredAvailableSlots.value.find(
@@ -575,6 +637,122 @@ const selectedDateSlots = computed(() => {
   );
   return slot?.slots || [];
 });
+
+const selectedDateMorningSlots = computed(() =>
+  selectedDateSlots.value.filter(
+    (s) => parseInt(s.split(":")[0] || "0", 10) < 12,
+  ),
+);
+
+const selectedDateAfternoonSlots = computed(() =>
+  selectedDateSlots.value.filter(
+    (s) => parseInt(s.split(":")[0] || "0", 10) >= 12,
+  ),
+);
+
+// Week by week navigation
+const slotsGroupedByWeek = computed(() => {
+  const slots = filteredAvailableSlots.value;
+  if (!slots.length) return [];
+
+  // build a map of date -> slot data
+  const slotMap = new Map<string, AvailableSlot>();
+  for (const s of slots) slotMap.set(s.date, s);
+
+  // find the monday of the first available date's week
+  const firstSlot = slots[0];
+  if (!firstSlot) return [];
+  const firstDate = new Date(firstSlot.date + "T00:00:00");
+  const firstDow = firstDate.getDay(); // 0=Sun
+  const mondayOffset = firstDow === 0 ? -6 : 1 - firstDow;
+  const weekStart = new Date(firstDate);
+  weekStart.setDate(weekStart.getDate() + mondayOffset);
+
+  // find the last available date
+  const lastSlot = slots[slots.length - 1];
+  if (!lastSlot) return [];
+  const lastDate = new Date(lastSlot.date + "T00:00:00");
+
+  const weeks: {
+    startDate: Date;
+    days: {
+      date: string;
+      dayShort: string;
+      dayNumber: number;
+      hasSlots: boolean;
+      slotCount: number;
+    }[];
+  }[] = [];
+
+  const current = new Date(weekStart);
+  while (current <= lastDate) {
+    const weekDays: {
+      date: string;
+      dayShort: string;
+      dayNumber: number;
+      hasSlots: boolean;
+      slotCount: number;
+    }[] = [];
+    for (let i = 0; i < 7; i++) {
+      const d = new Date(current);
+      d.setDate(d.getDate() + i);
+      const ds = d.toISOString().split("T")[0] || "";
+      const found = slotMap.get(ds);
+      weekDays.push({
+        date: ds,
+        dayShort: d
+          .toLocaleDateString("fr-FR", { weekday: "short" })
+          .slice(0, 3),
+        dayNumber: d.getDate(),
+        hasSlots: !!found && found.slots.length > 0,
+        slotCount: found?.slots.length || 0,
+      });
+    }
+    weeks.push({ startDate: new Date(current), days: weekDays });
+    current.setDate(current.getDate() + 7);
+  }
+
+  return weeks;
+});
+
+const totalWeeks = computed(() => slotsGroupedByWeek.value.length);
+
+const currentWeekDays = computed(() => {
+  const week = slotsGroupedByWeek.value[currentWeekIndex.value];
+  return week?.days || [];
+});
+
+const weekLabel = computed(() => {
+  const week = slotsGroupedByWeek.value[currentWeekIndex.value];
+  if (!week) return "";
+  const days = week.days;
+  const first = days[0];
+  const last = days[days.length - 1];
+  if (!first || !last) return "";
+  const f = new Date(first.date + "T00:00:00");
+  const l = new Date(last.date + "T00:00:00");
+  const fStr = f.toLocaleDateString("fr-FR", {
+    day: "numeric",
+    month: "short",
+  });
+  const lStr = l.toLocaleDateString("fr-FR", {
+    day: "numeric",
+    month: "short",
+    year: "numeric",
+  });
+  return `${fStr} – ${lStr}`;
+});
+
+const navigateToDateWeek = (dateStr: string) => {
+  const weeks = slotsGroupedByWeek.value;
+  for (let i = 0; i < weeks.length; i++) {
+    const week = weeks[i];
+    if (week && week.days.some((d) => d.date === dateStr)) {
+      currentWeekIndex.value = i;
+      return;
+    }
+  }
+};
 
 const filteredAvailableSlots = computed(() => {
   const now = new Date();
@@ -639,15 +817,6 @@ const canProceed = computed(() => {
   return true;
 });
 
-const formatDateShort = (dateStr: string) => {
-  const date = new Date(dateStr);
-  return date.toLocaleDateString("fr-FR", {
-    weekday: "short",
-    day: "numeric",
-    month: "short",
-  });
-};
-
 const formatDateLong = (dateStr: string) => {
   const date = new Date(dateStr);
   return date.toLocaleDateString("fr-FR", {
@@ -691,6 +860,8 @@ const fetchAvailableSlots = async () => {
         if (preselectedSlot?.slots.includes(props.preselectedTime)) {
           selectedDate.value = props.preselectedDate;
           selectedTime.value = props.preselectedTime;
+          // navigate to the correct week
+          navigateToDateWeek(props.preselectedDate);
         }
       }
     }
@@ -768,6 +939,7 @@ const close = () => {
   error.value = "";
   success.value = false;
   slotReserved.value = false;
+  currentWeekIndex.value = 0;
   selectedPaymentMethod.value = "MOBILE_MONEY";
   selectedMobileOperator.value = "orange_money";
   mobilePaymentNumber.value = "";
