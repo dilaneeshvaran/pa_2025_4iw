@@ -1484,17 +1484,28 @@ async function addAbsence() {
   try {
     const response = await useAuthenticatedFetch<{
       success: boolean;
-      data: AbsenceInfo;
+      data: {
+        absence: AbsenceInfo;
+        cancelledAppointmentsCount: number;
+      };
     }>("/practitioner/agenda/absences", {
       method: "POST",
       body: newAbsence.value,
     });
     if (response.success) {
-      absences.value.push(response.data);
+      absences.value.push(response.data.absence);
       newAbsence.value = { startDate: "", endDate: "", reason: "" };
+
+      // show feedback about cancelled appointments
+      if (response.data.cancelledAppointmentsCount > 0) {
+        alert(
+          `Absence créée. ${response.data.cancelledAppointmentsCount} rendez-vous ${response.data.cancelledAppointmentsCount > 1 ? "ont été annulés" : "a été annulé"} et les patients ont été notifiés par email.`,
+        );
+      }
     }
   } catch (error) {
     console.error("Error adding absence:", error);
+    alert("Erreur lors de la création de l'absence");
   } finally {
     savingAbsence.value = false;
   }
@@ -1542,17 +1553,28 @@ async function blockSlot() {
   try {
     const response = await useAuthenticatedFetch<{
       success: boolean;
-      data: BlockedSlotInfo;
+      data: {
+        blockedSlot: BlockedSlotInfo;
+        cancelledAppointmentsCount: number;
+      };
     }>("/practitioner/agenda/blocked-slots", {
       method: "POST",
       body: newBlockedSlot.value,
     });
     if (response.success) {
-      blockedSlots.value.push(response.data);
+      blockedSlots.value.push(response.data.blockedSlot);
       showBlockSlotModal.value = false;
+
+      // show feedback about cancelled appointments
+      if (response.data.cancelledAppointmentsCount > 0) {
+        alert(
+          `Créneau bloqué. ${response.data.cancelledAppointmentsCount} rendez-vous ${response.data.cancelledAppointmentsCount > 1 ? "ont été annulés" : "a été annulé"} et les patients ont été notifiés par email.`,
+        );
+      }
     }
   } catch (error) {
     console.error("Error blocking slot:", error);
+    alert("Erreur lors du blocage du créneau");
   } finally {
     blockingSlot.value = false;
   }
