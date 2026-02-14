@@ -244,25 +244,19 @@ export class AvailabilitiesService {
     })
     if (!practitioner) throw new Error('Praticien non trouvé')
 
-    // find appointments that fall within the absence period
-    const affectedAppointments = await prisma.appointment.findMany({
+    // find all unique patients who have ever had appointments with this practitioner
+    const allAppointments = await prisma.appointment.findMany({
       where: {
         practitionerId,
-        appointmentDate: {
-          gte: absence.startDate,
-          lte: absence.endDate,
-        },
-        status: {
-          in: [AppointmentStatus.PENDING, AppointmentStatus.CONFIRMED],
-        },
       },
-      include: {
+      select: {
         patient: {
           include: {
             user: { select: { email: true } },
           },
         },
       },
+      distinct: ['patientId'],
     })
 
     const startStr = absence.startDate.toLocaleDateString('fr-FR', {
@@ -277,19 +271,19 @@ export class AvailabilitiesService {
     })
 
     let notifiedCount = 0
-    for (const apt of affectedAppointments) {
+    for (const apt of allAppointments) {
       try {
         await sendEmail(
           apt.patient.user.email,
-          `Absence de ${practitioner.title} ${practitioner.lastName} – Rendez-vous impacté`,
+          `Absence de ${practitioner.title} ${practitioner.lastName} – Indisponibilité`,
           `
           <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto;">
             <h2>Information importante</h2>
             <p>Bonjour ${apt.patient.firstName},</p>
             <p>${practitioner.title} ${practitioner.firstName} ${practitioner.lastName} sera absent(e) du <strong>${startStr}</strong> au <strong>${endStr}</strong>.</p>
-            <p>Votre rendez-vous du <strong>${apt.appointmentDate.toLocaleDateString('fr-FR', { day: 'numeric', month: 'long', year: 'numeric' })}</strong> à <strong>${apt.startTime}</strong> est impacté.</p>
-            <p>Nous vous invitons à reprogrammer votre rendez-vous à une date ultérieure.</p>
+            <p>Aucune prise de rendez-vous ne sera possible durant cette période.</p>
             ${absence.reason ? `<p><em>Motif : ${absence.reason}</em></p>` : ''}
+            <p>Nous vous remercions de votre compréhension.</p>
             <p>Cordialement,<br/>L'équipe MediCote</p>
           </div>
           `,

@@ -357,7 +357,7 @@
               {{
                 notifyingId === absence.id
                   ? "Envoi..."
-                  : "Notifier les patients"
+                  : "Notifier tous les patients"
               }}
             </button>
             <button
@@ -940,6 +940,32 @@
         </div>
       </div>
     </Teleport>
+
+    <!-- toast notifications -->
+    <div class="fixed bottom-4 right-4 z-50 flex flex-col gap-2">
+      <div
+        v-for="toast in toasts"
+        :key="toast.id"
+        :class="[
+          'rounded-lg px-4 py-3 shadow-lg transition-all duration-300',
+          toast.type === 'success' ? 'bg-green-600 text-white' : '',
+          toast.type === 'error' ? 'bg-red-600 text-white' : '',
+          toast.type === 'info' ? 'bg-blue-600 text-white' : '',
+        ]"
+      >
+        <div class="flex items-start gap-2">
+          <div class="flex-1">
+            <p class="text-sm font-medium">{{ toast.message }}</p>
+          </div>
+          <button
+            @click="removeToast(toast.id)"
+            class="text-white/80 hover:text-white"
+          >
+            <X class="h-4 w-4" />
+          </button>
+        </div>
+      </div>
+    </div>
   </div>
 </template>
 
@@ -1119,6 +1145,28 @@ const newBlockedSlot = ref({
   endTime: "",
   reason: "",
 });
+
+interface Toast {
+  id: number;
+  message: string;
+  type: "success" | "error" | "info";
+}
+
+const toasts = ref<Toast[]>([]);
+let toastIdCounter = 0;
+
+function showToast(
+  message: string,
+  type: "success" | "error" | "info" = "info",
+) {
+  const id = ++toastIdCounter;
+  toasts.value.push({ id, message, type });
+  setTimeout(() => removeToast(id), 5000);
+}
+
+function removeToast(id: number) {
+  toasts.value = toasts.value.filter((t) => t.id !== id);
+}
 
 const daysOfWeek = [
   { value: "MONDAY", label: "Lundi" },
@@ -1498,14 +1546,17 @@ async function addAbsence() {
 
       // show feedback about cancelled appointments
       if (response.data.cancelledAppointmentsCount > 0) {
-        alert(
+        showToast(
           `Absence créée. ${response.data.cancelledAppointmentsCount} rendez-vous ${response.data.cancelledAppointmentsCount > 1 ? "ont été annulés" : "a été annulé"} et les patients ont été notifiés par email.`,
+          "success",
         );
+      } else {
+        showToast("Absence créée avec succès", "success");
       }
     }
   } catch (error) {
     console.error("Error adding absence:", error);
-    alert("Erreur lors de la création de l'absence");
+    showToast("Erreur lors de la création de l'absence", "error");
   } finally {
     savingAbsence.value = false;
   }
@@ -1525,14 +1576,21 @@ async function removeAbsence(id: string) {
 async function notifyPatients(absenceId: string) {
   notifyingId.value = absenceId;
   try {
-    await useAuthenticatedFetch<{ success: boolean }>(
-      `/practitioner/agenda/absences/${absenceId}/notify`,
-      { method: "POST" },
-    );
-    const a = absences.value.find((ab) => ab.id === absenceId);
-    if (a) a.notifiedPatients = true;
+    const response = await useAuthenticatedFetch<{
+      success: boolean;
+      data: { notifiedCount: number };
+    }>(`/practitioner/agenda/absences/${absenceId}/notify`, { method: "POST" });
+    if (response.success) {
+      const a = absences.value.find((ab) => ab.id === absenceId);
+      if (a) a.notifiedPatients = true;
+      showToast(
+        `${response.data.notifiedCount} patient(s) ont été notifiés par email`,
+        "success",
+      );
+    }
   } catch (error) {
     console.error("Error notifying patients:", error);
+    showToast("Erreur lors de la notification des patients", "error");
   } finally {
     notifyingId.value = null;
   }
@@ -1567,14 +1625,17 @@ async function blockSlot() {
 
       // show feedback about cancelled appointments
       if (response.data.cancelledAppointmentsCount > 0) {
-        alert(
+        showToast(
           `Créneau bloqué. ${response.data.cancelledAppointmentsCount} rendez-vous ${response.data.cancelledAppointmentsCount > 1 ? "ont été annulés" : "a été annulé"} et les patients ont été notifiés par email.`,
+          "success",
         );
+      } else {
+        showToast("Créneau bloqué avec succès", "success");
       }
     }
   } catch (error) {
     console.error("Error blocking slot:", error);
-    alert("Erreur lors du blocage du créneau");
+    showToast("Erreur lors du blocage du créneau", "error");
   } finally {
     blockingSlot.value = false;
   }
