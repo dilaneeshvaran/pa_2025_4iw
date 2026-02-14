@@ -676,7 +676,7 @@ const fetchAvailableSlots = async () => {
     const response = await $fetch<{
       success: boolean;
       data: AvailableSlot[];
-    }>(`/practitioners/${props.practitioner.id}/available-slots?days=14`, {
+    }>(`/practitioners/${props.practitioner.id}/available-slots?days=90`, {
       baseURL: config.public.apiBase,
     });
 
