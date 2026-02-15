@@ -18,6 +18,26 @@ import { sendToUser } from '../../plugins/websocket'
 import path from 'path'
 import fs from 'fs'
 
+async function authenticateAttachmentRequest(
+  request: FastifyRequest,
+  reply: FastifyReply,
+) {
+  const query = (request.query ?? {}) as { token?: string }
+  const token = query.token
+
+  if (
+    !request.headers.authorization &&
+    typeof token === 'string' &&
+    token.length > 0
+  ) {
+    ;(
+      request.headers as Record<string, string | string[] | undefined>
+    ).authorization = `Bearer ${token}`
+  }
+
+  return authenticate(request, reply)
+}
+
 export async function messagesRoutes(fastify: FastifyInstance) {
   fastify.get(
     '/conversations',
@@ -453,7 +473,7 @@ export async function messagesRoutes(fastify: FastifyInstance) {
   //  attachment files
   fastify.get(
     '/attachments/:filename',
-    { preHandler: [authenticate] },
+    { preHandler: [authenticateAttachmentRequest] },
     async (request: FastifyRequest, reply: FastifyReply) => {
       try {
         const params = request.params as { filename: string }
