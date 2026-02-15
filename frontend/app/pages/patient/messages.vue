@@ -496,7 +496,7 @@ import {
   UserX,
 } from "lucide-vue-next";
 import { useAuthStore } from "~/stores/auth";
-import { useMessagingSocket } from "~/composables/useMessagingSocket";
+import { useMessagingStore } from "~/stores/messaging";
 
 definePageMeta({
   layout: "patient",
@@ -535,6 +535,7 @@ interface ConversationDetail {
   practitionerId: string;
   practitioner: {
     id: string;
+    userId: string;
     firstName: string;
     lastName: string;
     title: string;
@@ -543,6 +544,7 @@ interface ConversationDetail {
   };
   patient: {
     id: string;
+    userId: string;
     firstName: string;
     lastName: string;
   };
@@ -581,8 +583,11 @@ const sendingFirst = ref(false);
 const isTyping = ref(false);
 let typingTimeout: ReturnType<typeof setTimeout> | null = null;
 
-// websocket
-const { connect, send: wsSend, on: wsOn } = useMessagingSocket();
+// websocket (shared global store)
+const messagingStore = useMessagingStore();
+const wsSend = messagingStore.send;
+const wsOn = messagingStore.on;
+const wsOff = messagingStore.off;
 
 // computed
 const filteredConversations = computed(() => {
@@ -639,7 +644,11 @@ const openConversation = async (conversationId: string) => {
       activeConversation.value = response.data;
       // update unread count in the list
       const conv = conversations.value.find((c) => c.id === conversationId);
-      if (conv) conv.unreadCount = 0;
+      if (conv) {
+        conv.unreadCount = 0;
+        // refresh count (badge)
+        messagingStore.fetchUnreadCount();
+      }
       await nextTick();
       scrollToBottom();
     }
@@ -728,11 +737,7 @@ const handleTyping = () => {
 };
 
 const getPractitionerUserId = (): string | null => {
-  // we dont have  practitioner userid directly, but the ws server handles this
-  // we can send dummy value and let server determine the recipient
-  // actually, we need the practitioners userId for typing indicators
-  // for now, skip typing ws if we dont have it
-  return null;
+  return activeConversation.value?.practitioner?.userId ?? null;
 };
 
 const fetchMessagablePractitioners = async () => {
@@ -866,15 +871,15 @@ const formatDateLabel = (date: Date) => {
   });
 };
 
-// ─── watch for new conversation modal ───────
+// watch new conv modal
 watch(showNewConversation, (value) => {
   if (value) {
     fetchMessagablePractitioners();
   }
 });
 
-// ─── websocket event handlers ───────────────
-wsOn("new_message", (data: Message) => {
+// ws event
+const handleNewMessage = (data: Message) => {
   // if were in the same conversation, add the message
   if (
     activeConversation.value &&
@@ -888,6 +893,11 @@ wsOn("new_message", (data: Message) => {
       `/messages/conversations/${data.conversationId}/read`,
       { method: "PATCH" },
     ).catch(() => {});
+
+    // minus global unread since we read msg
+    if (messagingStore.unreadCount > 0) {
+      messagingStore.unreadCount--;
+    }
   }
 
   // update conversation list
@@ -905,9 +915,9 @@ wsOn("new_message", (data: Message) => {
     // new conversation from a practitioner, refresh the list
     fetchConversations();
   }
-});
+};
 
-wsOn("messages_read", (data: { conversationId: string }) => {
+const handleMessagesRead = (data: { conversationId: string }) => {
   if (
     activeConversation.value &&
     data.conversationId === activeConversationId.value
@@ -919,9 +929,9 @@ wsOn("messages_read", (data: { conversationId: string }) => {
       }
     });
   }
-});
+};
 
-wsOn("typing", (data: { conversationId: string }) => {
+const handleTypingStart = (data: { conversationId: string }) => {
   if (data.conversationId === activeConversationId.value) {
     isTyping.value = true;
     if (typingTimeout) clearTimeout(typingTimeout);
@@ -929,13 +939,13 @@ wsOn("typing", (data: { conversationId: string }) => {
       isTyping.value = false;
     }, 3000);
   }
-});
+};
 
-wsOn("stop_typing", (data: { conversationId: string }) => {
+const handleTypingStop = (data: { conversationId: string }) => {
   if (data.conversationId === activeConversationId.value) {
     isTyping.value = false;
   }
-});
+};
 
 //init
 onMounted(() => {
@@ -945,7 +955,19 @@ onMounted(() => {
 
   if (authStore.accessToken) {
     fetchConversations();
-    connect();
+    // ws is connected at layout,  register handlers
+    wsOn("new_message", handleNewMessage);
+    wsOn("messages_read", handleMessagesRead);
+    wsOn("typing", handleTypingStart);
+    wsOn("stop_typing", handleTypingStop);
   }
+});
+
+onUnmounted(() => {
+  // unregister handlers, ws is alive in layout
+  wsOff("new_message", handleNewMessage);
+  wsOff("messages_read", handleMessagesRead);
+  wsOff("typing", handleTypingStart);
+  wsOff("stop_typing", handleTypingStop);
 });
 </script>
