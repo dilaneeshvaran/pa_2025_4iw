@@ -271,7 +271,50 @@
                         : 'rounded-bl-md bg-gray-100 text-gray-900',
                     ]"
                   >
-                    <p class="whitespace-pre-wrap text-sm">{{ msg.content }}</p>
+                    <div
+                      v-if="msg.attachments && msg.attachments.length > 0"
+                      class="mb-2"
+                    >
+                      <div
+                        v-for="(att, i) in msg.attachments"
+                        :key="i"
+                        class="mb-1"
+                      >
+                        <img
+                          v-if="isImageFile(att.mimeType)"
+                          :src="getAttachmentUrl(att.url, true)"
+                          :alt="att.originalName"
+                          class="max-h-48 cursor-pointer rounded-lg object-cover"
+                          @click="openAttachment(att.url)"
+                        />
+                        <a
+                          v-else
+                          :href="getAttachmentUrl(att.url, true)"
+                          target="_blank"
+                          :class="[
+                            'flex items-center gap-2 rounded-lg p-2 text-xs',
+                            msg.senderUserId === currentUserId
+                              ? 'bg-blue-500/30 text-blue-100 hover:bg-blue-500/50'
+                              : 'bg-gray-200 text-gray-700 hover:bg-gray-300',
+                          ]"
+                        >
+                          <Paperclip class="h-3.5 w-3.5 flex-shrink-0" />
+                          <span class="truncate">{{ att.originalName }}</span>
+                          <span class="flex-shrink-0 text-[10px] opacity-75">
+                            {{ formatFileSize(att.fileSize) }}
+                          </span>
+                        </a>
+                      </div>
+                    </div>
+                    <p
+                      v-if="
+                        msg.content &&
+                        msg.content !== '\uD83D\uDCCE Fichier joint'
+                      "
+                      class="whitespace-pre-wrap text-sm"
+                    >
+                      {{ msg.content }}
+                    </p>
                     <div
                       :class="[
                         'mt-1 flex items-center justify-end gap-1',
@@ -299,10 +342,47 @@
 
           <!-- message input -->
           <div class="border-t px-4 py-3">
+            <div
+              v-if="pendingAttachment"
+              class="mb-2 flex items-center gap-2 rounded-lg bg-gray-50 px-3 py-2"
+            >
+              <Paperclip class="h-4 w-4 text-gray-500" />
+              <span class="flex-1 truncate text-sm text-gray-700">
+                {{ pendingAttachment.name }}
+              </span>
+              <span class="text-xs text-gray-400">
+                {{ formatFileSize(pendingAttachment.size) }}
+              </span>
+              <button
+                class="rounded p-0.5 text-gray-400 hover:text-red-500"
+                @click="pendingAttachment = null"
+              >
+                <X class="h-4 w-4" />
+              </button>
+            </div>
+
             <form
               class="flex items-end gap-2"
               @submit.prevent="handleSendMessage"
             >
+              <div class="relative">
+                <button
+                  type="button"
+                  class="flex h-10 w-10 items-center justify-center rounded-xl text-gray-500 transition-colors hover:bg-gray-100"
+                  :title="`Joindre un fichier (${fileConstraintsInfo.allowedFormatsLabel}, max ${fileConstraintsInfo.maxSizeLabel})`"
+                  @click="triggerFileUpload"
+                >
+                  <Paperclip class="h-5 w-5" />
+                </button>
+                <input
+                  ref="fileInput"
+                  type="file"
+                  class="hidden"
+                  :accept="fileAcceptString"
+                  @change="handleFileSelect"
+                />
+              </div>
+
               <div class="relative flex-1">
                 <textarea
                   ref="messageInput"
@@ -316,12 +396,18 @@
               </div>
               <button
                 type="submit"
-                :disabled="!newMessage.trim() || sendingMessage"
+                :disabled="
+                  (!newMessage.trim() && !pendingAttachment) || sendingMessage
+                "
                 class="flex h-10 w-10 flex-shrink-0 items-center justify-center rounded-xl bg-blue-600 text-white transition-colors hover:bg-blue-700 disabled:cursor-not-allowed disabled:opacity-50"
               >
                 <Send class="h-4 w-4" />
               </button>
             </form>
+            <p class="mt-1 text-[10px] text-gray-400">
+              Formats : {{ fileConstraintsInfo.allowedFormatsLabel }} · Max
+              {{ fileConstraintsInfo.maxSizeLabel }} par fichier
+            </p>
           </div>
         </template>
       </div>
@@ -494,6 +580,7 @@ import {
   Check,
   CheckCheck,
   UserX,
+  Paperclip,
 } from "lucide-vue-next";
 import { useAuthStore } from "~/stores/auth";
 import { useMessagingStore } from "~/stores/messaging";
@@ -524,9 +611,18 @@ interface Message {
   conversationId: string;
   senderUserId: string;
   content: string;
+  attachments: MessageAttachment[] | null;
   status: string;
   readAt: string | null;
   createdAt: string;
+}
+
+interface MessageAttachment {
+  originalName: string;
+  fileName: string;
+  fileSize: number;
+  mimeType: string;
+  url: string;
 }
 
 interface ConversationDetail {
@@ -569,6 +665,8 @@ const newMessage = ref("");
 const sendingMessage = ref(false);
 const messagesContainer = ref<HTMLElement | null>(null);
 const messageInput = ref<HTMLTextAreaElement | null>(null);
+const fileInput = ref<HTMLInputElement | null>(null);
+const pendingAttachment = ref<File | null>(null);
 
 const showNewConversation = ref(false);
 const messagablePractitioners = ref<MessagablePractitioner[]>([]);
@@ -588,6 +686,28 @@ const messagingStore = useMessagingStore();
 const wsSend = messagingStore.send;
 const wsOn = messagingStore.on;
 const wsOff = messagingStore.off;
+
+const fileConstraintsInfo = reactive({
+  maxSize: 10 * 1024 * 1024,
+  maxSizeLabel: "10 Mo",
+  allowedExtensions: [
+    ".jpg",
+    ".jpeg",
+    ".png",
+    ".heic",
+    ".pdf",
+    ".doc",
+    ".docx",
+    ".txt",
+  ],
+  allowedFormatsLabel: "JPG, PNG, HEIC, PDF, DOC, DOCX, TXT",
+});
+
+const fileAcceptString = computed(() =>
+  fileConstraintsInfo.allowedExtensions
+    .map((e) => (e === ".jpg" ? ".jpg,.jpeg" : e))
+    .join(","),
+);
 
 // computed
 const filteredConversations = computed(() => {
@@ -666,11 +786,16 @@ const openConversation = async (conversationId: string) => {
 
 const handleSendMessage = async () => {
   if (
-    !newMessage.value.trim() ||
+    (!newMessage.value.trim() && !pendingAttachment.value) ||
     sendingMessage.value ||
     !activeConversationId.value
   )
     return;
+
+  if (pendingAttachment.value) {
+    await sendAttachmentMessage();
+    return;
+  }
 
   const content = newMessage.value.trim();
   newMessage.value = "";
@@ -699,15 +824,7 @@ const handleSendMessage = async () => {
 
     if (response.success && activeConversation.value) {
       activeConversation.value.messages.push(response.data);
-      // update conversation list preview
-      const conv = conversations.value.find(
-        (c) => c.id === activeConversationId.value,
-      );
-      if (conv) {
-        conv.lastMessagePreview =
-          content.length > 100 ? content.substring(0, 100) + "…" : content;
-        conv.lastMessageAt = response.data.createdAt;
-      }
+      updateConversationPreview(content, response.data.createdAt);
       await nextTick();
       scrollToBottom();
     }
@@ -719,6 +836,64 @@ const handleSendMessage = async () => {
     sendingMessage.value = false;
   }
 };
+
+const sendAttachmentMessage = async () => {
+  if (!pendingAttachment.value || !activeConversationId.value) return;
+
+  sendingMessage.value = true;
+  const formData = new FormData();
+  formData.append("file", pendingAttachment.value);
+  if (newMessage.value.trim()) {
+    formData.append("content", newMessage.value.trim());
+  }
+
+  const file = pendingAttachment.value;
+  const content = newMessage.value.trim();
+  pendingAttachment.value = null;
+  newMessage.value = "";
+
+  try {
+    const config = useRuntimeConfig();
+    const response = await $fetch<{
+      success: boolean;
+      data: Message;
+    }>(
+      `${config.public.apiBase}/messages/conversations/${activeConversationId.value}/messages/attachment`,
+      {
+        method: "POST",
+        headers: { Authorization: `Bearer ${authStore.accessToken}` },
+        body: formData,
+      },
+    );
+
+    if (response.success && activeConversation.value) {
+      activeConversation.value.messages.push(response.data);
+      updateConversationPreview(
+        content || "\uD83D\uDCCE Fichier joint",
+        response.data.createdAt,
+      );
+      await nextTick();
+      scrollToBottom();
+    }
+  } catch (error) {
+    console.error("Error sending attachment:", error);
+    pendingAttachment.value = file;
+    newMessage.value = content;
+  } finally {
+    sendingMessage.value = false;
+  }
+};
+
+function updateConversationPreview(content: string, createdAt: string) {
+  const conv = conversations.value.find(
+    (c) => c.id === activeConversationId.value,
+  );
+  if (conv) {
+    conv.lastMessagePreview =
+      content.length > 100 ? content.substring(0, 100) + "…" : content;
+    conv.lastMessageAt = createdAt;
+  }
+}
 
 const handleTyping = () => {
   if (!activeConversationId.value) return;
@@ -744,6 +919,64 @@ const handleTyping = () => {
 const getPractitionerUserId = (): string | null => {
   return activeConversation.value?.practitioner?.userId ?? null;
 };
+
+function isImageFile(mimeType: string): boolean {
+  return mimeType.startsWith("image/");
+}
+
+function getAttachmentUrl(url: string, includeToken = false): string {
+  const config = useRuntimeConfig();
+  const apiBase = (config.public.apiBase as string).replace(/\/api\/?$/, "");
+  const normalizedUrl = url.startsWith("/") ? url : `/${url}`;
+  const attachmentUrl = `${apiBase}${normalizedUrl}`;
+
+  if (!includeToken || !authStore.accessToken) {
+    return attachmentUrl;
+  }
+
+  const separator = attachmentUrl.includes("?") ? "&" : "?";
+  return `${attachmentUrl}${separator}token=${encodeURIComponent(authStore.accessToken)}`;
+}
+
+function openAttachment(url: string) {
+  window.open(getAttachmentUrl(url, true), "_blank");
+}
+
+function formatFileSize(bytes: number): string {
+  if (bytes < 1024) return `${bytes} o`;
+  if (bytes < 1024 * 1024) return `${(bytes / 1024).toFixed(1)} Ko`;
+  return `${(bytes / (1024 * 1024)).toFixed(1)} Mo`;
+}
+
+function triggerFileUpload() {
+  fileInput.value?.click();
+}
+
+function handleFileSelect(event: Event) {
+  const input = event.target as HTMLInputElement;
+  const file = input.files?.[0];
+  if (!file) return;
+
+  if (file.size > fileConstraintsInfo.maxSize) {
+    alert(
+      `Le fichier est trop volumineux. Taille maximale : ${fileConstraintsInfo.maxSizeLabel}`,
+    );
+    input.value = "";
+    return;
+  }
+
+  const ext = "." + (file.name.split(".").pop()?.toLowerCase() || "");
+  if (!fileConstraintsInfo.allowedExtensions.includes(ext)) {
+    alert(
+      `Format non autorisé. Formats acceptés : ${fileConstraintsInfo.allowedFormatsLabel}`,
+    );
+    input.value = "";
+    return;
+  }
+
+  pendingAttachment.value = file;
+  input.value = "";
+}
 
 const fetchMessagablePractitioners = async () => {
   loadingPractitioners.value = true;
