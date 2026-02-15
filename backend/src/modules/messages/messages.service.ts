@@ -9,14 +9,16 @@ import {
 } from './messages.types'
 import { sendEmail } from '../../utils/email'
 
-// delayed email notifications messageId -> timeout
+// pending email notifications conversationId:userId -> timeout
 const pendingEmailNotifications = new Map<
   string,
   ReturnType<typeof setTimeout>
 >()
 
-// delay before sending   (5 minutes)
-const EMAIL_NOTIFICATION_DELAY_MS = 5 * 60 * 1000
+// default to instant email notification for offline recipients
+const rawEmailDelay = Number(process.env.BACKEND_MESSAGE_EMAIL_DELAY_MS ?? '0')
+const EMAIL_NOTIFICATION_DELAY_MS =
+  Number.isFinite(rawEmailDelay) && rawEmailDelay >= 0 ? rawEmailDelay : 0
 
 export class MessagesService {
   async isPatientLinkedToPractitioner(
@@ -772,6 +774,39 @@ export class MessagesService {
     return newValue
   }
 
+  async createInAppMessageNotification(
+    recipientUserId: string,
+    senderName: string,
+    messagePreview: string,
+    conversationId: string,
+    messageId: string,
+  ): Promise<void> {
+    const prefs = await prisma.notificationPreference.findUnique({
+      where: { userId: recipientUserId },
+      select: { newMessages: true },
+    })
+
+    if (prefs && !prefs.newMessages) return
+
+    await prisma.notification.create({
+      data: {
+        userId: recipientUserId,
+        type: 'MESSAGE_RECEIVED',
+        channel: 'IN_APP',
+        title: 'Nouveau message',
+        message: `${senderName} vous a envoyé un message`,
+        metadata: {
+          conversationId,
+          messageId,
+          preview: messagePreview,
+        },
+        sent: true,
+        sentAt: new Date(),
+        deliveryStatus: 'DELIVERED',
+      },
+    })
+  }
+
   // schedule a delayed email notification for a message
   async scheduleEmailNotification(
     messageId: string,
@@ -801,7 +836,22 @@ export class MessagesService {
     })
     if (convSettings?.emailMuted) return
 
-    // schedule the email with delay
+    // send instantly by default (delay can be configured via env)
+    if (EMAIL_NOTIFICATION_DELAY_MS === 0) {
+      try {
+        await this.sendMessageEmailIfUnread(
+          messageId,
+          recipientUserId,
+          senderName,
+          messagePreview,
+        )
+      } catch (error) {
+        console.error('Error sending message notification email:', error)
+      }
+      return
+    }
+
+    // schedule the email with configured delay
     const key = `${conversationId}:${recipientUserId}`
 
     // cancel existing pending notification for this conversation
@@ -813,21 +863,12 @@ export class MessagesService {
     const timeout = setTimeout(async () => {
       pendingEmailNotifications.delete(key)
       try {
-        // check if the message is still unread
-        const msg = await prisma.message.findUnique({
-          where: { id: messageId },
-          select: { status: true },
-        })
-        if (!msg || msg.status === 'READ') return
-
-        // get the recipient email
-        const user = await prisma.user.findUnique({
-          where: { id: recipientUserId },
-          select: { email: true },
-        })
-        if (!user) return
-
-        await sendNewMessageEmail(user.email, senderName, messagePreview)
+        await this.sendMessageEmailIfUnread(
+          messageId,
+          recipientUserId,
+          senderName,
+          messagePreview,
+        )
       } catch (error) {
         console.error('Error sending message notification email:', error)
       }
@@ -847,6 +888,27 @@ export class MessagesService {
       clearTimeout(timeout)
       pendingEmailNotifications.delete(key)
     }
+  }
+
+  private async sendMessageEmailIfUnread(
+    messageId: string,
+    recipientUserId: string,
+    senderName: string,
+    messagePreview: string,
+  ): Promise<void> {
+    const msg = await prisma.message.findUnique({
+      where: { id: messageId },
+      select: { status: true },
+    })
+    if (!msg || msg.status === 'READ') return
+
+    const user = await prisma.user.findUnique({
+      where: { id: recipientUserId },
+      select: { email: true },
+    })
+    if (!user) return
+
+    await sendNewMessageEmail(user.email, senderName, messagePreview)
   }
 
   // get  recipient user ids for a conversation
