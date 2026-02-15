@@ -3,20 +3,43 @@ import websocket from '@fastify/websocket'
 import jwt from 'jsonwebtoken'
 import type { WebSocket } from 'ws'
 
-// extend fastify with websocket clients map
-declare module 'fastify' {
-  interface FastifyInstance {
-    websocketClients: Map<string, WebSocket>
+// module level clients map any module can send ws events
+// without fastify  decorator scope.
+const clients = new Map<string, WebSocket>()
+export { clients as wsClients }
+
+//send if online
+export function sendToUser(
+  userId: string,
+  type: string,
+  data: unknown,
+): boolean {
+  const client = clients.get(userId)
+  if (client && client.readyState === 1) {
+    client.send(JSON.stringify({ type, data }))
+    return true
   }
+  return false
+}
+
+// send to many users and return to whm its sent
+export function broadcastToUsers(
+  userIds: string[],
+  type: string,
+  data: unknown,
+): string[] {
+  const delivered: string[] = []
+  for (const userId of userIds) {
+    if (sendToUser(userId, type, data)) {
+      delivered.push(userId)
+    }
+  }
+  return delivered
 }
 
 export async function websocketPlugin(fastify: FastifyInstance) {
   // register websocket plugin
   await fastify.register(websocket)
-
-  // store connected clients mapped by userid
-  const clients = new Map<string, WebSocket>()
-  fastify.decorate('websocketClients', clients)
 
   // webSocket route for messaging
   fastify.get(
