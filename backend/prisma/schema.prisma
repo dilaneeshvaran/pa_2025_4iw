@@ -436,6 +436,7 @@ model Practitioner {
   prescriptions         Prescription[]
   documents             Document[]
   conversations         Conversation[]          @relation("PractitionerConversations")
+  conversations2        Conversation[]          @relation("Practitioner2Conversations")
   staffMembers          Staff[]
   sharedRecordsAccess   SharedMedicalRecord[]
   payments              Payment[]
@@ -785,9 +786,11 @@ model Document {
 // ============================================================================
 
 model Conversation {
-  id              String        @id @default(cuid())
-  patientId       String
+  id              String            @id @default(cuid())
+  type            ConversationType  @default(PATIENT_PRACTITIONER)
+  patientId       String?
   practitionerId  String
+  practitioner2Id String?           // second practitioner for PRACTITIONER_PRACTITIONER type
   
   // Last activity for sorting
   lastMessageAt   DateTime?     
@@ -796,14 +799,18 @@ model Conversation {
   createdAt       DateTime      @default(now())
   updatedAt       DateTime      @updatedAt
   
-  patient         Patient       @relation("PatientConversations", fields: [patientId], references: [id], onDelete: Cascade)
+  patient         Patient?      @relation("PatientConversations", fields: [patientId], references: [id], onDelete: Cascade)
   practitioner    Practitioner  @relation("PractitionerConversations", fields: [practitionerId], references: [id], onDelete: Cascade)
+  practitioner2   Practitioner? @relation("Practitioner2Conversations", fields: [practitioner2Id], references: [id], onDelete: Cascade)
   messages        Message[]
+  userSettings    ConversationUserSettings[]
   
   @@unique([patientId, practitionerId])
   @@index([patientId])
   @@index([practitionerId])
+  @@index([practitioner2Id])
   @@index([lastMessageAt])
+  @@index([type])
   @@map("conversations")
 }
 
@@ -1471,6 +1478,23 @@ model PractitionerTodo {
 // ============================================================================
 // NOTIFICATION PREFERENCES
 // ============================================================================
+
+model ConversationUserSettings {
+  id              String    @id @default(cuid())
+  conversationId  String
+  userId          String
+  emailMuted      Boolean   @default(false)
+  deletedAt       DateTime?
+  
+  createdAt       DateTime  @default(now())
+  updatedAt       DateTime  @updatedAt
+  
+  conversation    Conversation @relation(fields: [conversationId], references: [id], onDelete: Cascade)
+  
+  @@unique([conversationId, userId])
+  @@index([userId])
+  @@map("conversation_user_settings")
+}
 
 model NotificationPreference {
   id                    String   @id @default(cuid())
