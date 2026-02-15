@@ -349,7 +349,7 @@
                         <!-- image preview -->
                         <img
                           v-if="isImageFile(att.mimeType)"
-                          :src="getAttachmentUrl(att.url)"
+                          :src="getAttachmentUrl(att.url, true)"
                           :alt="att.originalName"
                           class="max-h-48 cursor-pointer rounded-lg object-cover"
                           @click="openAttachment(att.url)"
@@ -357,7 +357,7 @@
                         <!-- file download -->
                         <a
                           v-else
-                          :href="getAttachmentUrl(att.url)"
+                          :href="getAttachmentUrl(att.url, true)"
                           target="_blank"
                           :class="[
                             'flex items-center gap-2 rounded-lg p-2 text-xs',
@@ -1029,14 +1029,22 @@ function isImageFile(mimeType: string): boolean {
   return mimeType.startsWith("image/");
 }
 
-function getAttachmentUrl(url: string): string {
+function getAttachmentUrl(url: string, includeToken = false): string {
   const config = useRuntimeConfig();
-  const apiBase = (config.public.apiBase as string).replace(/\/api$/, "");
-  return `${apiBase}${url}`;
+  const apiBase = (config.public.apiBase as string).replace(/\/api\/?$/, "");
+  const normalizedUrl = url.startsWith("/") ? url : `/${url}`;
+  const attachmentUrl = `${apiBase}${normalizedUrl}`;
+
+  if (!includeToken || !authStore.accessToken) {
+    return attachmentUrl;
+  }
+
+  const separator = attachmentUrl.includes("?") ? "&" : "?";
+  return `${attachmentUrl}${separator}token=${encodeURIComponent(authStore.accessToken)}`;
 }
 
 function openAttachment(url: string) {
-  window.open(getAttachmentUrl(url), "_blank");
+  window.open(getAttachmentUrl(url, true), "_blank");
 }
 
 function formatFileSize(bytes: number): string {
