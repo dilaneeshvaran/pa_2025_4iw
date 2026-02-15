@@ -30,6 +30,19 @@
               >
                 <component :is="item.icon" class="h-5 w-5" />
                 {{ item.label }}
+                <span
+                  v-if="
+                    item.path === '/practitioner/messages' &&
+                    messagingStore.unreadCount > 0
+                  "
+                  class="ml-auto inline-flex h-5 min-w-5 items-center justify-center rounded-full bg-red-500 px-1.5 text-xs font-semibold text-white"
+                >
+                  {{
+                    messagingStore.unreadCount > 99
+                      ? "99+"
+                      : messagingStore.unreadCount
+                  }}
+                </span>
               </NuxtLink>
             </li>
           </ul>
@@ -86,9 +99,29 @@ import {
   LogOut,
 } from "lucide-vue-next";
 import { useAuthStore } from "~/stores/auth";
+import { useMessagingStore } from "~/stores/messaging";
 
 const router = useRouter();
 const authStore = useAuthStore();
+const messagingStore = useMessagingStore();
+
+// ws connection + unread badge
+const onNewMessage = () => {
+  messagingStore.unreadCount++;
+};
+
+onMounted(() => {
+  if (authStore.isAuthenticated) {
+    messagingStore.connect();
+    messagingStore.fetchUnreadCount();
+    messagingStore.on("new_message", onNewMessage);
+  }
+});
+
+onUnmounted(() => {
+  messagingStore.off("new_message", onNewMessage);
+  messagingStore.disconnect();
+});
 
 const menuItems = [
   {
