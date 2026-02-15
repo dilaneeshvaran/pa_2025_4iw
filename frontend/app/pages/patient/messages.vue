@@ -634,6 +634,7 @@ const openConversation = async (conversationId: string) => {
   activeConversationId.value = conversationId;
   loadingMessages.value = true;
   isTyping.value = false;
+  let conversationLoaded = false;
 
   try {
     const response = await useAuthenticatedFetch<{
@@ -649,13 +650,17 @@ const openConversation = async (conversationId: string) => {
         // refresh count (badge)
         messagingStore.fetchUnreadCount();
       }
-      await nextTick();
-      scrollToBottom();
+      conversationLoaded = true;
     }
   } catch (error) {
     console.error("Error loading conversation:", error);
   } finally {
     loadingMessages.value = false;
+  }
+
+  if (conversationLoaded) {
+    await nextTick();
+    scrollToBottom();
   }
 };
 
