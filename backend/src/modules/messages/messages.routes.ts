@@ -78,6 +78,17 @@ export async function messagesRoutes(fastify: FastifyInstance) {
           })
         }
 
+        // keep read receipts in sync when a user opens a conversation
+        if (!query.cursor) {
+          const recipientIds = await messagesService.getRecipientUserIds(
+            id,
+            user.id,
+          )
+          for (const recipientId of recipientIds) {
+            sendToUser(recipientId, 'messages_read', { conversationId: id })
+          }
+        }
+
         return reply.status(200).send({
           success: true,
           data: conversation,
@@ -715,7 +726,7 @@ export async function messagesRoutes(fastify: FastifyInstance) {
 }
 
 async function notifyRecipients(
-  _fastify: FastifyInstance,
+  fastify: FastifyInstance,
   conversationId: string,
   senderUserId: string,
   message: any,
@@ -731,20 +742,37 @@ async function notifyRecipients(
       : message.content
 
   for (const recipientUserId of recipientUserIds) {
-    // send ws if online
-    const isOnline = sendToUser(recipientUserId, 'new_message', {
-      ...message,
-      conversationId,
-    })
+    try {
+      // send ws if online
+      const isOnline = sendToUser(recipientUserId, 'new_message', {
+        ...message,
+        conversationId,
+      })
 
-    // schedule email if off
-    await messagesService.scheduleEmailNotification(
-      message.id,
-      conversationId,
-      recipientUserId,
-      senderName,
-      messagePreview,
-      isOnline,
-    )
+      if (!isOnline) {
+        await messagesService.createInAppMessageNotification(
+          recipientUserId,
+          senderName,
+          messagePreview,
+          conversationId,
+          message.id,
+        )
+      }
+
+      // schedule email if off
+      await messagesService.scheduleEmailNotification(
+        message.id,
+        conversationId,
+        recipientUserId,
+        senderName,
+        messagePreview,
+        isOnline,
+      )
+    } catch (error) {
+      fastify.log.error(
+        error,
+        `Erreur de notification message pour ${recipientUserId}`,
+      )
+    }
   }
 }
