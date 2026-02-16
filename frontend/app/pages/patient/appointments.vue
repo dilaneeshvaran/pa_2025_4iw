@@ -814,6 +814,7 @@ interface Practitioner {
   photo: string | null;
   address: string | null;
   city: string | null;
+  cancellationNotice?: number;
 }
 
 interface Appointment {
@@ -1065,13 +1066,14 @@ const canModify = (apt: Appointment): boolean => {
     apt.status === "NO_SHOW"
   )
     return false;
+  const cancellationNotice = apt.practitioner?.cancellationNotice || 24;
   const now = new Date();
   const aptDate = new Date(apt.appointmentDate);
   const parts = apt.startTime.split(":").map(Number);
   aptDate.setHours(parts[0] || 0, parts[1] || 0, 0, 0);
   const diffMs = aptDate.getTime() - now.getTime();
   const diffHours = diffMs / (1000 * 60 * 60);
-  return diffHours >= 24;
+  return diffHours >= cancellationNotice;
 };
 
 const canCancel = (apt: Appointment): boolean => {
