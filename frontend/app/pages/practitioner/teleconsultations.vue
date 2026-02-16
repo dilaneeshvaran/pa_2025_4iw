@@ -141,7 +141,54 @@
       </div>
     </UiCard>
 
-    <UiCard>
+    <div class="border-b border-gray-200">
+      <nav class="-mb-px flex gap-6">
+        <button
+          :class="[
+            'whitespace-nowrap border-b-2 px-1 py-3 text-sm font-medium transition-colors',
+            activeTab === 'today'
+              ? 'border-blue-600 text-blue-600'
+              : 'border-transparent text-gray-500 hover:border-gray-300 hover:text-gray-700',
+          ]"
+          @click="activeTab = 'today'"
+        >
+          Téléconsultations du jour
+          <span
+            :class="[
+              'ml-2 rounded-full px-2 py-0.5 text-xs',
+              activeTab === 'today'
+                ? 'bg-blue-100 text-blue-600'
+                : 'bg-gray-100 text-gray-500',
+            ]"
+          >
+            {{ todaySessions.length }}
+          </span>
+        </button>
+        <button
+          :class="[
+            'whitespace-nowrap border-b-2 px-1 py-3 text-sm font-medium transition-colors',
+            activeTab === 'past'
+              ? 'border-blue-600 text-blue-600'
+              : 'border-transparent text-gray-500 hover:border-gray-300 hover:text-gray-700',
+          ]"
+          @click="activeTab = 'past'"
+        >
+          Consultations passées
+          <span
+            :class="[
+              'ml-2 rounded-full px-2 py-0.5 text-xs',
+              activeTab === 'past'
+                ? 'bg-blue-100 text-blue-600'
+                : 'bg-gray-100 text-gray-500',
+            ]"
+          >
+            {{ pastSessions.length }}
+          </span>
+        </button>
+      </nav>
+    </div>
+
+    <UiCard v-if="activeTab === 'today'">
       <div class="mb-4 flex items-center justify-between">
         <h3 class="text-lg font-semibold text-gray-900">
           Téléconsultations du jour
@@ -173,70 +220,100 @@
         <p class="text-gray-500">Aucune téléconsultation prévue aujourd'hui</p>
       </div>
 
-      <div v-else class="space-y-3">
-        <div
-          v-for="session in todaySessions"
-          :key="session.id"
-          class="flex items-center justify-between rounded-lg border p-4 transition-colors hover:bg-gray-50"
-        >
-          <div class="flex items-center gap-4">
-            <div
-              :class="[
-                'flex h-10 w-10 items-center justify-center rounded-full',
-                getSessionBgColor(session.status),
-              ]"
-            >
-              <Video
-                :class="['h-5 w-5', getSessionIconColor(session.status)]"
-              />
-            </div>
-            <div>
-              <p class="font-medium text-gray-900">{{ session.patientName }}</p>
-              <div class="flex items-center gap-3 text-sm text-gray-500">
-                <span class="flex items-center gap-1">
-                  <Clock class="h-3.5 w-3.5" />
-                  {{ session.startTime }} - {{ session.endTime }}
-                </span>
-                <span v-if="session.reason" class="truncate">{{
-                  session.reason
-                }}</span>
+      <div v-else>
+        <div class="space-y-3">
+          <div
+            v-for="session in paginatedTodaySessions"
+            :key="session.id"
+            class="flex items-center justify-between rounded-lg border p-4 transition-colors hover:bg-gray-50"
+          >
+            <div class="flex items-center gap-4">
+              <div
+                :class="[
+                  'flex h-10 w-10 items-center justify-center rounded-full',
+                  getSessionBgColor(session.status),
+                ]"
+              >
+                <Video
+                  :class="['h-5 w-5', getSessionIconColor(session.status)]"
+                />
+              </div>
+              <div>
+                <p class="font-medium text-gray-900">
+                  {{ session.patientName }}
+                </p>
+                <div class="flex items-center gap-3 text-sm text-gray-500">
+                  <span class="flex items-center gap-1">
+                    <Clock class="h-3.5 w-3.5" />
+                    {{ session.startTime }} - {{ session.endTime }}
+                  </span>
+                  <span v-if="session.reason" class="truncate">{{
+                    session.reason
+                  }}</span>
+                </div>
               </div>
             </div>
+            <div class="flex items-center gap-2">
+              <UiBadge :variant="getStatusBadgeVariant(session.status)">
+                {{ getStatusLabel(session.status) }}
+              </UiBadge>
+              <UiButton
+                v-if="canJoinSession(session)"
+                size="sm"
+                @click="joinSession(session)"
+              >
+                <Video class="mr-1.5 h-4 w-4" />
+                Rejoindre
+              </UiButton>
+              <UiButton
+                v-if="canMarkNoShow(session)"
+                variant="danger"
+                size="sm"
+                @click="markNoShow(session)"
+              >
+                Non présenté
+              </UiButton>
+              <UiButton
+                variant="secondary"
+                size="sm"
+                @click="viewPatientFile(session)"
+              >
+                <FileText class="mr-1.5 h-4 w-4" />
+                Dossier
+              </UiButton>
+            </div>
           </div>
-          <div class="flex items-center gap-2">
-            <UiBadge :variant="getStatusBadgeVariant(session.status)">
-              {{ getStatusLabel(session.status) }}
-            </UiBadge>
-            <UiButton
-              v-if="canJoinSession(session)"
-              size="sm"
-              @click="joinSession(session)"
-            >
-              <Video class="mr-1.5 h-4 w-4" />
-              Rejoindre
-            </UiButton>
-            <UiButton
-              v-if="canMarkNoShow(session)"
-              variant="danger"
-              size="sm"
-              @click="markNoShow(session)"
-            >
-              Non présenté
-            </UiButton>
-            <UiButton
-              variant="secondary"
-              size="sm"
-              @click="viewPatientFile(session)"
-            >
-              <FileText class="mr-1.5 h-4 w-4" />
-              Dossier
-            </UiButton>
-          </div>
+        </div>
+
+        <!-- today pagination -->
+        <div
+          v-if="todayTotalPages > 1"
+          class="mt-4 flex items-center justify-center gap-2 border-t pt-4"
+        >
+          <UiButton
+            variant="outline"
+            size="sm"
+            :disabled="todayPage <= 1"
+            @click="todayPage--"
+          >
+            Précédent
+          </UiButton>
+          <span class="text-sm text-gray-600">
+            Page {{ todayPage }} / {{ todayTotalPages }}
+          </span>
+          <UiButton
+            variant="outline"
+            size="sm"
+            :disabled="todayPage >= todayTotalPages"
+            @click="todayPage++"
+          >
+            Suivant
+          </UiButton>
         </div>
       </div>
     </UiCard>
 
-    <UiCard>
+    <UiCard v-if="activeTab === 'past'">
       <div class="mb-4 flex items-center justify-between">
         <h3 class="text-lg font-semibold text-gray-900">
           Consultations passées
@@ -313,7 +390,7 @@
           </thead>
           <tbody class="divide-y">
             <tr
-              v-for="ps in pastSessions"
+              v-for="ps in paginatedPastSessions"
               :key="ps.id"
               class="hover:bg-gray-50"
             >
@@ -353,6 +430,31 @@
             </tr>
           </tbody>
         </table>
+
+        <div
+          v-if="pastTotalPages > 1"
+          class="mt-4 flex items-center justify-center gap-2 border-t pt-4"
+        >
+          <UiButton
+            variant="outline"
+            size="sm"
+            :disabled="pastPage <= 1"
+            @click="pastPage--"
+          >
+            Précédent
+          </UiButton>
+          <span class="text-sm text-gray-600">
+            Page {{ pastPage }} / {{ pastTotalPages }}
+          </span>
+          <UiButton
+            variant="outline"
+            size="sm"
+            :disabled="pastPage >= pastTotalPages"
+            @click="pastPage++"
+          >
+            Suivant
+          </UiButton>
+        </div>
       </div>
     </UiCard>
 
@@ -679,6 +781,27 @@ const waitingPatients = ref<SessionItem[]>([]);
 const pastSessions = ref<SessionItem[]>([]);
 const noShowCount = ref(0);
 const pastPeriod = ref<"week" | "month">("week");
+const activeTab = ref<"today" | "past">("today");
+
+const ITEMS_PER_PAGE = 5;
+const todayPage = ref(1);
+const pastPage = ref(1);
+
+const todayTotalPages = computed(() =>
+  Math.ceil(todaySessions.value.length / ITEMS_PER_PAGE),
+);
+const pastTotalPages = computed(() =>
+  Math.ceil(pastSessions.value.length / ITEMS_PER_PAGE),
+);
+
+const paginatedTodaySessions = computed(() => {
+  const start = (todayPage.value - 1) * ITEMS_PER_PAGE;
+  return todaySessions.value.slice(start, start + ITEMS_PER_PAGE);
+});
+const paginatedPastSessions = computed(() => {
+  const start = (pastPage.value - 1) * ITEMS_PER_PAGE;
+  return pastSessions.value.slice(start, start + ITEMS_PER_PAGE);
+});
 
 const showHistoryModal = ref(false);
 const historySearch = ref("");
@@ -729,7 +852,19 @@ const fetchTodaySessions = async () => {
       success: boolean;
       data: SessionItem[];
     }>("/teleconsultations/practitioner/today");
-    if (res.success) todaySessions.value = res.data;
+    if (res.success) {
+      // sort: active/upcoming sessions first (nearest at top), then completed
+      const activeStatuses = ["IN_PROGRESS", "WAITING", "SCHEDULED"];
+      todaySessions.value = [...res.data].sort((a, b) => {
+        const aActive = activeStatuses.includes(a.status) ? 0 : 1;
+        const bActive = activeStatuses.includes(b.status) ? 0 : 1;
+        if (aActive !== bActive) return aActive - bActive;
+        // within same group, sort by scheduledAt ascending (nearest first)
+        return (
+          new Date(a.scheduledAt).getTime() - new Date(b.scheduledAt).getTime()
+        );
+      });
+    }
   } catch (e) {
     console.error("Error fetching today sessions:", e);
   }
@@ -934,7 +1069,8 @@ const canJoinSession = (session: SessionItem) => {
   return (
     session.status === "SCHEDULED" ||
     session.status === "WAITING" ||
-    session.status === "IN_PROGRESS"
+    session.status === "IN_PROGRESS" ||
+    session.status === "COMPLETED"
   );
 };
 
@@ -1066,6 +1202,7 @@ watch(showPreCallChecks, (val) => {
 });
 
 watch(pastPeriod, () => {
+  pastPage.value = 1;
   fetchPastSessions();
 });
 
