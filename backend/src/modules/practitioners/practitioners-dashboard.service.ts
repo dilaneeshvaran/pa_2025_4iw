@@ -1,6 +1,7 @@
 import prisma from '../../config/database'
 import { AppointmentStatus, AppointmentType } from '@prisma/client'
 import type { DashboardData } from './practitioners-dashboard.types'
+import { decrypt } from '../../utils/crypto'
 
 export class PractitionerDashboardService {
   //get all dashboard data in one go for efficiency
@@ -254,10 +255,17 @@ export class PractitionerDashboardService {
       .filter((c) => c.messages.length > 0)
       .map((c) => {
         const lastMsg = c.messages[0]!
+        let messagePreview = lastMsg.content.substring(0, 80)
+        try {
+          const decrypted = decrypt(lastMsg.content)
+          messagePreview = decrypted.substring(0, 80)
+        } catch {
+          // fallback to raw content if decryption fails
+        }
         return {
           conversationId: c.id,
           patientName: `${c.patient.firstName} ${c.patient.lastName}`,
-          lastMessage: lastMsg.content.substring(0, 80),
+          lastMessage: messagePreview,
           isFromPatient: lastMsg.senderUserId !== practitioner.userId,
           unread:
             lastMsg.senderUserId !== practitioner.userId &&
