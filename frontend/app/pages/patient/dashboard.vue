@@ -142,7 +142,17 @@
     <div class="grid gap-6 lg:grid-cols-2">
       <!-- notifications /  reminders -->
       <UiCard>
-        <h3 class="mb-4 text-lg font-semibold text-gray-900">Rappels santé</h3>
+        <div class="mb-4 flex items-center justify-between">
+          <h3 class="text-lg font-semibold text-gray-900">Rappels santé</h3>
+          <UiButton
+            v-if="notifications.length > 0"
+            variant="secondary"
+            size="sm"
+            @click="navigateTo('/patient/settings')"
+          >
+            Voir tout
+          </UiButton>
+        </div>
 
         <!-- loading  -->
         <div v-if="loadingNotifications" class="animate-pulse space-y-3">
@@ -166,7 +176,7 @@
         </div>
 
         <!-- notifications list -->
-        <div v-else class="space-y-3">
+        <div v-else class="max-h-[300px] space-y-3 overflow-y-auto">
           <div
             v-for="notification in notifications"
             :key="notification.id"
@@ -218,7 +228,7 @@
         </div>
 
         <!-- past appointments list -->
-        <div v-else class="space-y-3">
+        <div v-else class="max-h-[300px] space-y-3 overflow-y-auto">
           <div
             v-for="apt in pastAppointments"
             :key="apt.id"
