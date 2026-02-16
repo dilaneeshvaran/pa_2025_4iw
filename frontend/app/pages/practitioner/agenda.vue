@@ -1812,9 +1812,11 @@ async function saveSettings() {
     });
     if (response.success) {
       settingsForm.value = { ...response.data };
+      showToast("Paramètres enregistrés avec succès", "success");
     }
   } catch (error) {
     console.error("Error saving settings:", error);
+    showToast("Erreur lors de l'enregistrement des paramètres", "error");
   } finally {
     savingSettings.value = false;
   }
