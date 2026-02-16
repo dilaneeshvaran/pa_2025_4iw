@@ -31,7 +31,7 @@
             </span>
             <span v-else class="flex items-center gap-1">
               <span class="h-2 w-2 rounded-full bg-gray-500" />
-              En attente du praticien
+              En attente de l'autre participant
             </span>
           </p>
         </div>
@@ -84,7 +84,7 @@
             <p class="text-lg font-medium text-gray-400">
               {{
                 callStatus === "waiting"
-                  ? "En attente du praticien..."
+                  ? "En attente de l'autre participant..."
                   : "Connexion en cours..."
               }}
             </p>
@@ -92,7 +92,7 @@
               v-if="callStatus === 'waiting'"
               class="mt-2 text-sm text-gray-500"
             >
-              Le praticien rejoindra bientôt la consultation
+              L'autre participant rejoindra bientôt la consultation
             </p>
           </div>
         </div>
