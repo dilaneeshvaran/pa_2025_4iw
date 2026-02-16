@@ -527,6 +527,18 @@ export class AppointmentsService {
       // dont fail the appointment creation if reminders fail
     }
 
+    // auto create teleconsultation session if appointment is a teleconsultation
+    if (data.type === 'TELECONSULTATION') {
+      try {
+        const { teleconsultationsService } =
+          await import('../teleconsultations/teleconsultations.service')
+        await teleconsultationsService.createSession(appointment.id)
+      } catch (teleError) {
+        console.error('Failed to create teleconsultation session:', teleError)
+        // dont fail appointment creation if teleconsultation session creation fails
+      }
+    }
+
     return {
       id: appointment.id,
       appointmentDate: appointment.appointmentDate,
