@@ -36,7 +36,7 @@ export async function teleconsultationsRoutes(fastify: FastifyInstance) {
 
   fastify.post(
     '/:id/no-show',
-    { preHandler: [authenticate, authorize(['PRACTITIONER'])] },
+    { preHandler: [authenticate, authorize(['PRACTITIONER', 'PATIENT'])] },
     teleconsultationsController.markNoShow.bind(teleconsultationsController),
   )
 
