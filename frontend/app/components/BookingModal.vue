@@ -166,51 +166,58 @@
               <div v-if="selectedDate && selectedDateSlots.length > 0">
                 <p class="mb-3 text-sm font-medium text-gray-700">
                   Créneaux disponibles le {{ formatDateLong(selectedDate) }}
+                  <span class="ml-1 text-xs text-gray-400"
+                    >({{ selectedDateSlots.length }} créneaux)</span
+                  >
                 </p>
 
-                <!-- Morning slots -->
-                <div v-if="selectedDateMorningSlots.length > 0" class="mb-3">
-                  <p class="mb-2 text-xs font-medium uppercase text-gray-500">
-                    Matin
-                  </p>
-                  <div class="flex flex-wrap gap-2">
-                    <button
-                      v-for="time in selectedDateMorningSlots"
-                      :key="time"
-                      type="button"
-                      :class="[
-                        'rounded-lg border-2 px-3 py-2 text-sm transition-all',
-                        selectedTime === time
-                          ? 'border-blue-600 bg-blue-50 text-blue-700'
-                          : 'border-gray-200 hover:border-gray-300',
-                      ]"
-                      @click="selectTime(time)"
-                    >
-                      {{ time }}
-                    </button>
+                <div
+                  class="max-h-60 overflow-y-auto rounded-lg border border-gray-100 p-3"
+                >
+                  <!-- Morning slots -->
+                  <div v-if="selectedDateMorningSlots.length > 0" class="mb-3">
+                    <p class="mb-2 text-xs font-medium uppercase text-gray-500">
+                      Matin
+                    </p>
+                    <div class="flex flex-wrap gap-2">
+                      <button
+                        v-for="time in selectedDateMorningSlots"
+                        :key="time"
+                        type="button"
+                        :class="[
+                          'rounded-lg border-2 px-3 py-2 text-sm transition-all',
+                          selectedTime === time
+                            ? 'border-blue-600 bg-blue-50 text-blue-700'
+                            : 'border-gray-200 hover:border-gray-300',
+                        ]"
+                        @click="selectTime(time)"
+                      >
+                        {{ time }}
+                      </button>
+                    </div>
                   </div>
-                </div>
 
-                <!-- afternoon slots -->
-                <div v-if="selectedDateAfternoonSlots.length > 0">
-                  <p class="mb-2 text-xs font-medium uppercase text-gray-500">
-                    Après-midi
-                  </p>
-                  <div class="flex flex-wrap gap-2">
-                    <button
-                      v-for="time in selectedDateAfternoonSlots"
-                      :key="time"
-                      type="button"
-                      :class="[
-                        'rounded-lg border-2 px-3 py-2 text-sm transition-all',
-                        selectedTime === time
-                          ? 'border-blue-600 bg-blue-50 text-blue-700'
-                          : 'border-gray-200 hover:border-gray-300',
-                      ]"
-                      @click="selectTime(time)"
-                    >
-                      {{ time }}
-                    </button>
+                  <!-- afternoon slots -->
+                  <div v-if="selectedDateAfternoonSlots.length > 0">
+                    <p class="mb-2 text-xs font-medium uppercase text-gray-500">
+                      Après-midi
+                    </p>
+                    <div class="flex flex-wrap gap-2">
+                      <button
+                        v-for="time in selectedDateAfternoonSlots"
+                        :key="time"
+                        type="button"
+                        :class="[
+                          'rounded-lg border-2 px-3 py-2 text-sm transition-all',
+                          selectedTime === time
+                            ? 'border-blue-600 bg-blue-50 text-blue-700'
+                            : 'border-gray-200 hover:border-gray-300',
+                        ]"
+                        @click="selectTime(time)"
+                      >
+                        {{ time }}
+                      </button>
+                    </div>
                   </div>
                 </div>
               </div>
