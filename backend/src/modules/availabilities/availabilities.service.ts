@@ -40,6 +40,13 @@ export class AvailabilitiesService {
     practitionerId: string,
     data: UpsertAvailabilityInput,
   ): Promise<AvailabilitySlot> {
+    // fetch practitioner's current consultationDuration as default slotDuration
+    const practitioner = await prisma.practitioner.findUnique({
+      where: { id: practitionerId },
+      select: { consultationDuration: true },
+    })
+    const defaultDuration = practitioner?.consultationDuration ?? 30
+
     // check if theres already a slot for this day
     const existing = await prisma.availability.findFirst({
       where: {
@@ -68,7 +75,7 @@ export class AvailabilitiesService {
             dayOfWeek: data.dayOfWeek as DayOfWeek,
             startTime: data.startTime,
             endTime: data.endTime,
-            slotDuration: data.slotDuration ?? 30,
+            slotDuration: data.slotDuration ?? defaultDuration,
             breakStartTime: data.breakStartTime ?? null,
             breakEndTime: data.breakEndTime ?? null,
             isEmergencySlot: data.isEmergencySlot ?? false,
@@ -505,6 +512,14 @@ export class AvailabilitiesService {
       where: { id: practitionerId },
       data: updateData,
     })
+
+    // when consultationDuration changes, also sync to all availability records
+    if (data.consultationDuration !== undefined) {
+      await prisma.availability.updateMany({
+        where: { practitionerId },
+        data: { slotDuration: data.consultationDuration },
+      })
+    }
 
     return {
       consultationDuration: p.consultationDuration,
