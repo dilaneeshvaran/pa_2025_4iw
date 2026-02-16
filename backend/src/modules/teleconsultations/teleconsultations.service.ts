@@ -692,16 +692,18 @@ export class TeleconsultationsService {
   async cleanupExpiredSessions() {
     const now = new Date()
 
-    // find sessions that are still scheduled or waitingg past grace period
+    // find sessions that are still scheduled or waiting past grace period (15 min after scheduled time)
     const expiredSessions = await prisma.teleconsultationSession.findMany({
       where: {
         status: { in: ['SCHEDULED', 'WAITING'] },
         scheduledAt: {
-          lt: new Date(now.getTime() - 30 * 60 * 1000), // 30 min grace
+          lt: new Date(now.getTime() - 15 * 60 * 1000), // 15 min grace
         },
       },
       include: {
         appointment: { select: { duration: true } },
+        patient: { include: { user: { select: { id: true } } } },
+        practitioner: { include: { user: { select: { id: true } } } },
       },
     })
 
@@ -711,13 +713,38 @@ export class TeleconsultationsService {
           ((session.appointment?.duration || 30) + 30) * 60 * 1000, // duration + 30 min grace
       )
 
-      if (now > scheduledEnd) {
+      // only auto-mark no-show after 15 minutes past scheduled start
+      const patientJoined = !!session.patientJoinedAt
+      const practitionerJoined = !!session.practitionerJoinedAt
+
+      let errorMessage = ''
+
+      if (!patientJoined && !practitionerJoined) {
+        errorMessage = "Aucun participant ne s'est présenté (no-show)"
+      } else if (!patientJoined) {
+        errorMessage = 'Patient absent (no-show)'
+      } else if (!practitionerJoined) {
+        errorMessage = 'Praticien absent (no-show)'
+      }
+
+      // mark as no show if 15+ min past scheduled time OR if session fully expired
+      if (errorMessage || now > scheduledEnd) {
         await prisma.teleconsultationSession.update({
           where: { id: session.id },
           data: {
             status: 'FAILED',
             endedAt: now,
-            errorMessage: 'Session expirée - aucun participant',
+            errorMessage: errorMessage || 'Session expirée - aucun participant',
+          },
+        })
+
+        // mark appointment as noshow
+        await prisma.appointment.update({
+          where: { id: session.appointmentId },
+          data: {
+            status: 'NO_SHOW',
+            markedAsNoShow: true,
+            noShowMarkedAt: now,
           },
         })
       }
