@@ -18,6 +18,16 @@ export interface PatientAppointment {
     city: string | null
     cancellationNotice: number
   }
+  teleconsultationSession?: {
+    id: string
+    roomId: string
+    roomName: string
+    status: string
+    duration: number | null
+    startedAt: Date | null
+    endedAt: Date | null
+    connectionQuality: string | null
+  } | null
 }
 
 export interface PatientAppointmentsResult {
