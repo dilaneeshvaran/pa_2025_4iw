@@ -44,20 +44,23 @@
           <div class="h-3 w-1/3 rounded bg-gray-200"></div>
         </div>
 
-        <div v-else-if="!dashboard?.nextAppointment" class="py-6 text-center">
-          <Calendar class="mx-auto mb-3 h-12 w-12 text-gray-300" />
+        <div
+          v-else-if="!dashboard?.nextAppointment"
+          class="flex flex-col items-center justify-center py-8"
+        >
+          <Calendar class="mb-3 h-12 w-12 text-gray-300" />
           <p class="text-gray-500">Aucun rendez-vous à venir</p>
         </div>
 
-        <div v-else class="space-y-3">
-          <div class="flex items-start gap-4">
+        <div v-else class="flex flex-col">
+          <div class="flex items-center gap-4 rounded-lg bg-blue-50 p-4">
             <div
-              class="flex h-12 w-12 flex-shrink-0 items-center justify-center rounded-full bg-blue-100"
+              class="flex h-14 w-14 flex-shrink-0 items-center justify-center rounded-full bg-blue-100"
             >
-              <User class="h-6 w-6 text-blue-600" />
+              <User class="h-7 w-7 text-blue-600" />
             </div>
-            <div class="flex-1">
-              <p class="font-semibold text-gray-900">
+            <div class="min-w-0 flex-1">
+              <p class="text-lg font-semibold text-gray-900">
                 {{ dashboard.nextAppointment.patient.firstName }}
                 {{ dashboard.nextAppointment.patient.lastName }}
               </p>
@@ -66,52 +69,58 @@
                 {{ formatDate(dashboard.nextAppointment.appointmentDate) }} à
                 {{ dashboard.nextAppointment.startTime }}
               </div>
-              <div class="mt-1 flex items-center gap-2">
-                <UiBadge
-                  :variant="
-                    dashboard.nextAppointment.type === 'TELECONSULTATION'
-                      ? 'success'
-                      : 'primary'
-                  "
-                >
-                  {{
-                    dashboard.nextAppointment.type === "TELECONSULTATION"
-                      ? "Téléconsultation"
-                      : "Cabinet"
-                  }}
-                </UiBadge>
-                <UiBadge variant="default">
-                  {{ getStatusLabel(dashboard.nextAppointment.status) }}
-                </UiBadge>
-              </div>
-              <p
-                v-if="dashboard.nextAppointment.reason"
-                class="mt-2 text-sm text-gray-500"
-              >
-                Motif : {{ dashboard.nextAppointment.reason }}
-              </p>
-              <UiButton
-                variant="secondary"
-                size="sm"
-                class="mt-3"
-                @click="
-                  navigateTo(
-                    `/practitioner/patients/${dashboard.nextAppointment.patient.id}/medical-record`,
-                  )
-                "
-              >
-                Voir le dossier
-              </UiButton>
-              <UiButton
-                v-if="dashboard.nextAppointment.type === 'TELECONSULTATION'"
-                size="sm"
-                class="ml-2 mt-3"
-                @click="navigateTo('/practitioner/teleconsultations')"
-              >
-                <Video class="mr-1.5 h-4 w-4" />
-                Rejoindre
-              </UiButton>
             </div>
+          </div>
+
+          <div class="mt-4 flex flex-wrap items-center gap-2">
+            <UiBadge
+              :variant="
+                dashboard.nextAppointment.type === 'TELECONSULTATION'
+                  ? 'success'
+                  : 'primary'
+              "
+            >
+              {{
+                dashboard.nextAppointment.type === "TELECONSULTATION"
+                  ? "Téléconsultation"
+                  : "Cabinet"
+              }}
+            </UiBadge>
+            <UiBadge variant="default">
+              {{ getStatusLabel(dashboard.nextAppointment.status) }}
+            </UiBadge>
+          </div>
+
+          <p
+            v-if="dashboard.nextAppointment.reason"
+            class="mt-3 rounded-lg bg-gray-50 p-3 text-sm text-gray-600"
+          >
+            <span class="font-medium text-gray-700">Motif :</span>
+            {{ dashboard.nextAppointment.reason }}
+          </p>
+
+          <div class="mt-4 flex gap-2">
+            <UiButton
+              variant="secondary"
+              size="sm"
+              class="flex-1"
+              @click="
+                navigateTo(
+                  `/practitioner/patients/${dashboard.nextAppointment.patient.id}/medical-record`,
+                )
+              "
+            >
+              Voir le dossier
+            </UiButton>
+            <UiButton
+              v-if="dashboard.nextAppointment.type === 'TELECONSULTATION'"
+              size="sm"
+              class="flex-1"
+              @click="navigateTo('/practitioner/teleconsultations')"
+            >
+              <Video class="mr-1.5 h-4 w-4" />
+              Rejoindre
+            </UiButton>
           </div>
         </div>
       </UiCard>
