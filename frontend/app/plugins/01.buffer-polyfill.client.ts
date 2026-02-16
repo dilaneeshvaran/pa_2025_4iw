@@ -17,7 +17,7 @@ interface SimpleBufferPolyfill {
 
 export default defineNuxtPlugin(() => {
   if (import.meta.client && typeof window !== "undefined") {
-    // Check if global and process are available first
+    // check if global and process are available first
     if (!(globalThis as Record<string, unknown>).global) {
       (globalThis as Record<string, unknown>).global = globalThis;
     }
@@ -30,7 +30,7 @@ export default defineNuxtPlugin(() => {
       };
     }
 
-    // Buffer polyfill for simple peer
+    // buffer polyfill for simple peer
     if (!(globalThis as Record<string, unknown>).Buffer) {
       const BufferPolyfill = function BufferPolyfill(
         data: string | number | number[] | ArrayBuffer | Uint8Array,

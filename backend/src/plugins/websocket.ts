@@ -135,6 +135,145 @@ export async function websocketPlugin(fastify: FastifyInstance) {
             }
           }
 
+          // webrtc signaling for teleconsultation
+          if (
+            data.type === 'webrtc_offer' &&
+            data.targetUserId &&
+            data.signal
+          ) {
+            const targetSocket = clients.get(data.targetUserId)
+            if (targetSocket && targetSocket.readyState === 1) {
+              targetSocket.send(
+                JSON.stringify({
+                  type: 'webrtc_offer',
+                  data: {
+                    signal: data.signal,
+                    fromUserId: userId,
+                    sessionId: data.sessionId,
+                  },
+                }),
+              )
+            }
+          }
+
+          if (
+            data.type === 'webrtc_answer' &&
+            data.targetUserId &&
+            data.signal
+          ) {
+            const targetSocket = clients.get(data.targetUserId)
+            if (targetSocket && targetSocket.readyState === 1) {
+              targetSocket.send(
+                JSON.stringify({
+                  type: 'webrtc_answer',
+                  data: {
+                    signal: data.signal,
+                    fromUserId: userId,
+                    sessionId: data.sessionId,
+                  },
+                }),
+              )
+            }
+          }
+
+          if (
+            data.type === 'webrtc_ice_candidate' &&
+            data.targetUserId &&
+            data.candidate
+          ) {
+            const targetSocket = clients.get(data.targetUserId)
+            if (targetSocket && targetSocket.readyState === 1) {
+              targetSocket.send(
+                JSON.stringify({
+                  type: 'webrtc_ice_candidate',
+                  data: {
+                    candidate: data.candidate,
+                    fromUserId: userId,
+                    sessionId: data.sessionId,
+                  },
+                }),
+              )
+            }
+          }
+
+          // teleconsultation chat message
+          if (
+            data.type === 'teleconsult_chat' &&
+            data.targetUserId &&
+            data.message
+          ) {
+            const targetSocket = clients.get(data.targetUserId)
+            if (targetSocket && targetSocket.readyState === 1) {
+              targetSocket.send(
+                JSON.stringify({
+                  type: 'teleconsult_chat',
+                  data: {
+                    message: data.message,
+                    fromUserId: userId,
+                    sessionId: data.sessionId,
+                    timestamp: new Date().toISOString(),
+                  },
+                }),
+              )
+            }
+          }
+
+          // teleconsultation session events (join/leave notifications)
+          if (data.type === 'teleconsult_joined' && data.targetUserId) {
+            const targetSocket = clients.get(data.targetUserId)
+            if (targetSocket && targetSocket.readyState === 1) {
+              targetSocket.send(
+                JSON.stringify({
+                  type: 'teleconsult_joined',
+                  data: {
+                    userId: userId,
+                    sessionId: data.sessionId,
+                  },
+                }),
+              )
+            }
+          }
+
+          if (data.type === 'teleconsult_left' && data.targetUserId) {
+            const targetSocket = clients.get(data.targetUserId)
+            if (targetSocket && targetSocket.readyState === 1) {
+              targetSocket.send(
+                JSON.stringify({
+                  type: 'teleconsult_left',
+                  data: {
+                    userId: userId,
+                    sessionId: data.sessionId,
+                  },
+                }),
+              )
+            }
+          }
+
+          // screen sharing state
+          if (data.type === 'screen_share_started' && data.targetUserId) {
+            const targetSocket = clients.get(data.targetUserId)
+            if (targetSocket && targetSocket.readyState === 1) {
+              targetSocket.send(
+                JSON.stringify({
+                  type: 'screen_share_started',
+                  data: { userId: userId, sessionId: data.sessionId },
+                }),
+              )
+            }
+          }
+
+          if (data.type === 'screen_share_stopped' && data.targetUserId) {
+            const targetSocket = clients.get(data.targetUserId)
+            if (targetSocket && targetSocket.readyState === 1) {
+              targetSocket.send(
+                JSON.stringify({
+                  type: 'screen_share_stopped',
+                  data: { userId: userId, sessionId: data.sessionId },
+                }),
+              )
+            }
+          }
+
           // ping/pong keepalive
           // (ping pong means nothing just to detect broken connections)
           if (data.type === 'ping') {
