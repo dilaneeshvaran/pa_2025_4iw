@@ -102,6 +102,15 @@
               >
                 Voir le dossier
               </UiButton>
+              <UiButton
+                v-if="dashboard.nextAppointment.type === 'TELECONSULTATION'"
+                size="sm"
+                class="ml-2 mt-3"
+                @click="navigateTo('/practitioner/teleconsultations')"
+              >
+                <Video class="mr-1.5 h-4 w-4" />
+                Rejoindre
+              </UiButton>
             </div>
           </div>
         </div>
