@@ -16,6 +16,7 @@ export interface PatientAppointment {
     photo: string | null
     address: string | null
     city: string | null
+    cancellationNotice: number
   }
 }
 
