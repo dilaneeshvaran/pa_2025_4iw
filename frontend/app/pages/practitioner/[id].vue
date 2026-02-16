@@ -306,36 +306,40 @@
                 </div>
 
                 <!-- morning slots -->
-                <div v-if="getMorningSlots(day.slots).length" class="mb-3">
-                  <p class="mb-2 text-xs font-medium uppercase text-gray-500">
-                    Matin
-                  </p>
-                  <div class="flex flex-wrap gap-2">
-                    <button
-                      v-for="slot in getMorningSlots(day.slots)"
-                      :key="slot"
-                      class="rounded-lg border border-gray-200 bg-white px-3 py-2 text-sm font-medium text-gray-700 transition-all hover:border-[var(--color-primary)] hover:bg-blue-50 hover:text-[var(--color-primary)]"
-                      @click="selectTimeSlot(day.date, slot)"
-                    >
-                      {{ slot }}
-                    </button>
+                <div
+                  class="max-h-48 overflow-y-auto rounded-lg border border-gray-100 p-2"
+                >
+                  <div v-if="getMorningSlots(day.slots).length" class="mb-3">
+                    <p class="mb-2 text-xs font-medium uppercase text-gray-500">
+                      Matin
+                    </p>
+                    <div class="flex flex-wrap gap-2">
+                      <button
+                        v-for="slot in getMorningSlots(day.slots)"
+                        :key="slot"
+                        class="rounded-lg border border-gray-200 bg-white px-3 py-2 text-sm font-medium text-gray-700 transition-all hover:border-[var(--color-primary)] hover:bg-blue-50 hover:text-[var(--color-primary)]"
+                        @click="selectTimeSlot(day.date, slot)"
+                      >
+                        {{ slot }}
+                      </button>
+                    </div>
                   </div>
-                </div>
 
-                <!-- afternoon slots -->
-                <div v-if="getAfternoonSlots(day.slots).length">
-                  <p class="mb-2 text-xs font-medium uppercase text-gray-500">
-                    Après-midi
-                  </p>
-                  <div class="flex flex-wrap gap-2">
-                    <button
-                      v-for="slot in getAfternoonSlots(day.slots)"
-                      :key="slot"
-                      class="rounded-lg border border-gray-200 bg-white px-3 py-2 text-sm font-medium text-gray-700 transition-all hover:border-[var(--color-primary)] hover:bg-blue-50 hover:text-[var(--color-primary)]"
-                      @click="selectTimeSlot(day.date, slot)"
-                    >
-                      {{ slot }}
-                    </button>
+                  <!-- afternoon slots -->
+                  <div v-if="getAfternoonSlots(day.slots).length">
+                    <p class="mb-2 text-xs font-medium uppercase text-gray-500">
+                      Après-midi
+                    </p>
+                    <div class="flex flex-wrap gap-2">
+                      <button
+                        v-for="slot in getAfternoonSlots(day.slots)"
+                        :key="slot"
+                        class="rounded-lg border border-gray-200 bg-white px-3 py-2 text-sm font-medium text-gray-700 transition-all hover:border-[var(--color-primary)] hover:bg-blue-50 hover:text-[var(--color-primary)]"
+                        @click="selectTimeSlot(day.date, slot)"
+                      >
+                        {{ slot }}
+                      </button>
+                    </div>
                   </div>
                 </div>
               </div>
