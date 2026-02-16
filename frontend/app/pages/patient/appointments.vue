@@ -34,144 +34,165 @@
       </nav>
     </div>
 
-    <!-- search & sort bar -->
-    <div
-      class="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between"
-    >
-      <div class="relative flex-1 sm:max-w-sm">
-        <Search
-          class="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-gray-400"
-        />
-        <input
-          v-model="searchQuery"
-          type="text"
-          placeholder="Rechercher par nom ou spécialité..."
-          class="w-full rounded-lg border border-gray-300 py-2 pl-10 pr-4 text-sm focus:border-blue-500 focus:outline-none focus:ring-1 focus:ring-blue-500"
-        />
-      </div>
-      <button
-        @click="toggleSort"
-        class="inline-flex items-center gap-2 rounded-lg border border-gray-300 bg-white px-4 py-2 text-sm font-medium text-gray-700 transition-colors hover:bg-gray-50"
-      >
-        <ArrowUpDown class="h-4 w-4" />
-        {{ sortOrder === "desc" ? "Plus récents" : "Plus anciens" }}
-      </button>
-    </div>
-
-    <!-- loading -->
-    <div v-if="loading" class="space-y-4">
-      <div
-        v-for="i in 3"
-        :key="i"
-        class="animate-pulse rounded-lg border bg-white p-6"
-      >
-        <div class="flex gap-4">
-          <div class="h-16 w-16 rounded-full bg-gray-200"></div>
-          <div class="flex-1 space-y-3">
-            <div class="h-4 w-1/3 rounded bg-gray-200"></div>
-            <div class="h-3 w-1/4 rounded bg-gray-200"></div>
-            <div class="h-3 w-1/2 rounded bg-gray-200"></div>
+    <!-- teleconsultation tab -->
+    <div v-if="activeTab === 'teleconsultations'">
+      <UiCard class="mb-6">
+        <div class="flex items-center justify-between">
+          <div class="flex items-center gap-3">
+            <Video class="h-5 w-5 text-green-600" />
+            <h3 class="text-lg font-semibold text-gray-900">
+              Préparer ma consultation
+            </h3>
+          </div>
+          <UiButton
+            variant="secondary"
+            size="sm"
+            @click="showPreCallChecks = true"
+          >
+            <Camera class="mr-1.5 h-4 w-4" />
+            Tester caméra et microphone
+          </UiButton>
+        </div>
+        <div class="mt-4 grid gap-3 sm:grid-cols-2 lg:grid-cols-4">
+          <div class="flex items-center gap-2 rounded-lg bg-gray-50 p-3">
+            <div
+              :class="[
+                'h-3 w-3 rounded-full',
+                preCallStatus.camera ? 'bg-green-500' : 'bg-gray-300',
+              ]"
+            />
+            <span class="text-sm">Caméra</span>
+          </div>
+          <div class="flex items-center gap-2 rounded-lg bg-gray-50 p-3">
+            <div
+              :class="[
+                'h-3 w-3 rounded-full',
+                preCallStatus.microphone ? 'bg-green-500' : 'bg-gray-300',
+              ]"
+            />
+            <span class="text-sm">Microphone</span>
+          </div>
+          <div class="flex items-center gap-2 rounded-lg bg-gray-50 p-3">
+            <div
+              :class="[
+                'h-3 w-3 rounded-full',
+                preCallStatus.network
+                  ? 'bg-green-500'
+                  : preCallStatus.network === false
+                    ? 'bg-red-500'
+                    : 'bg-gray-300',
+              ]"
+            />
+            <span class="text-sm">Réseau</span>
+          </div>
+          <div class="flex items-center gap-2 rounded-lg bg-gray-50 p-3">
+            <div
+              :class="[
+                'h-3 w-3 rounded-full',
+                preCallStatus.browser ? 'bg-green-500' : 'bg-yellow-500',
+              ]"
+            />
+            <span class="text-sm">Navigateur</span>
           </div>
         </div>
-      </div>
-    </div>
+      </UiCard>
 
-    <!-- empty state -->
-    <div
-      v-else-if="currentAppointments.length === 0"
-      class="rounded-lg border bg-white py-16 text-center"
-    >
-      <Calendar class="mx-auto mb-4 h-16 w-16 text-gray-300" />
-      <h3 class="mb-2 text-lg font-medium text-gray-900">
-        {{ emptyMessages[activeTab].title }}
+      <h3 class="mb-3 text-lg font-semibold text-gray-900">
+        Téléconsultations à venir
       </h3>
-      <p class="mb-6 text-gray-500">
-        {{ emptyMessages[activeTab].description }}
-      </p>
-      <UiButton v-if="activeTab === 'upcoming'" @click="navigateTo('/search')">
-        Prendre un rendez-vous
-      </UiButton>
-    </div>
-
-    <!-- appointment list -->
-    <div v-else class="space-y-4">
-      <div
-        v-for="apt in currentAppointments"
-        :key="apt.id"
-        class="rounded-lg border bg-white shadow-sm transition-shadow hover:shadow-md"
-      >
-        <div class="p-6">
-          <div class="flex items-start gap-4">
-            <!-- Doctor photo -->
-            <UiImageWithFallback
-              :src="apt.practitioner.photo || ''"
-              :alt="`${apt.practitioner.title} ${apt.practitioner.firstName} ${apt.practitioner.lastName}`"
-              class-name="w-16 h-16 rounded-full object-cover flex-shrink-0"
-            />
-
-            <!-- appointment info -->
-            <div class="min-w-0 flex-1">
-              <div class="flex items-start justify-between gap-3">
-                <div>
-                  <h3 class="text-lg font-semibold text-gray-900">
-                    {{ apt.practitioner.title }}
-                    {{ apt.practitioner.firstName }}
-                    {{ apt.practitioner.lastName }}
-                  </h3>
-                  <p class="text-sm text-gray-600">
-                    {{ apt.practitioner.specialty || "Médecine générale" }}
-                  </p>
-                </div>
-                <UiBadge :variant="getStatusVariant(apt.status)">
-                  {{ getStatusLabel(apt.status) }}
-                </UiBadge>
-              </div>
-
-              <div class="mt-3 flex flex-wrap gap-4 text-sm text-gray-600">
-                <div class="flex items-center gap-1.5">
-                  <Calendar class="h-4 w-4 text-gray-400" />
-                  <span>{{ formatDate(apt.appointmentDate) }}</span>
-                </div>
-                <div class="flex items-center gap-1.5">
-                  <Clock class="h-4 w-4 text-gray-400" />
-                  <span>{{ apt.startTime }} - {{ apt.endTime }}</span>
-                </div>
-                <div class="flex items-center gap-1.5">
-                  <component
-                    :is="apt.type === 'TELECONSULTATION' ? Video : MapPin"
-                    class="h-4 w-4 text-gray-400"
-                  />
-                  <span>{{
-                    apt.type === "TELECONSULTATION"
-                      ? "Téléconsultation"
-                      : "En cabinet"
-                  }}</span>
-                </div>
-              </div>
-
-              <!-- address for in person -->
-              <div
-                v-if="apt.type === 'IN_PERSON' && apt.practitioner.address"
-                class="mt-2 flex items-start gap-1.5 text-sm text-gray-500"
-              >
-                <MapPin class="mt-0.5 h-4 w-4 flex-shrink-0 text-gray-400" />
-                <span>
-                  {{ apt.practitioner.address }}
-                  <template v-if="apt.practitioner.city"
-                    >, {{ apt.practitioner.city }}</template
-                  >
-                </span>
-              </div>
+      <div v-if="loadingTeleconsultations" class="space-y-4">
+        <div
+          v-for="i in 2"
+          :key="i"
+          class="animate-pulse rounded-lg border bg-white p-6"
+        >
+          <div class="flex gap-4">
+            <div class="h-16 w-16 rounded-full bg-gray-200"></div>
+            <div class="flex-1 space-y-3">
+              <div class="h-4 w-1/3 rounded bg-gray-200"></div>
+              <div class="h-3 w-1/2 rounded bg-gray-200"></div>
             </div>
           </div>
         </div>
-
-        <!-- action  -->
-        <div
-          v-if="getActions(apt).length > 0"
-          class="flex gap-3 rounded-b-lg border-t bg-gray-50 px-6 py-3"
+      </div>
+      <div
+        v-else-if="(upcomingTeleconsultations?.length ?? 0) === 0"
+        class="rounded-lg border bg-white py-12 text-center"
+      >
+        <Video class="mx-auto mb-4 h-16 w-16 text-gray-300" />
+        <h3 class="mb-2 text-lg font-medium text-gray-900">
+          Aucune téléconsultation à venir
+        </h3>
+        <p class="mb-6 text-gray-500">
+          Prenez rendez-vous avec un praticien qui propose la téléconsultation.
+        </p>
+        <UiButton @click="navigateTo('/search')"
+          >Rechercher un praticien</UiButton
         >
-          <div class="group relative">
+      </div>
+      <div v-else class="space-y-4">
+        <div
+          v-for="apt in upcomingTeleconsultations"
+          :key="apt.id"
+          class="rounded-lg border bg-white shadow-sm transition-shadow hover:shadow-md"
+        >
+          <div class="p-6">
+            <div class="flex items-start gap-4">
+              <div
+                class="flex h-16 w-16 flex-shrink-0 items-center justify-center rounded-full bg-green-100"
+              >
+                <Video class="h-8 w-8 text-green-600" />
+              </div>
+              <div class="min-w-0 flex-1">
+                <div class="flex items-start justify-between gap-3">
+                  <div>
+                    <h3 class="text-lg font-semibold text-gray-900">
+                      {{ apt.practitioner.title }}
+                      {{ apt.practitioner.firstName }}
+                      {{ apt.practitioner.lastName }}
+                    </h3>
+                    <p class="text-sm text-gray-600">
+                      {{ apt.practitioner.specialty || "Médecine générale" }}
+                    </p>
+                  </div>
+                  <UiBadge :variant="getStatusVariant(apt.status)">{{
+                    getStatusLabel(apt.status)
+                  }}</UiBadge>
+                </div>
+                <div class="mt-3 flex flex-wrap gap-4 text-sm text-gray-600">
+                  <div class="flex items-center gap-1.5">
+                    <Calendar class="h-4 w-4 text-gray-400" />
+                    <span>{{ formatDate(apt.appointmentDate) }}</span>
+                  </div>
+                  <div class="flex items-center gap-1.5">
+                    <Clock class="h-4 w-4 text-gray-400" />
+                    <span>{{ apt.startTime }} - {{ apt.endTime }}</span>
+                  </div>
+                </div>
+                <p v-if="apt.reason" class="mt-2 text-sm text-gray-500">
+                  Motif : {{ apt.reason }}
+                </p>
+              </div>
+            </div>
+          </div>
+          <div class="flex gap-3 rounded-b-lg border-t bg-gray-50 px-6 py-3">
+            <UiButton
+              v-if="canJoinTeleconsultation(apt)"
+              size="sm"
+              @click="joinTeleconsultation(apt)"
+            >
+              <Video class="mr-1.5 h-4 w-4" />
+              Rejoindre la téléconsultation
+            </UiButton>
+            <UiButton
+              v-else-if="isTeleconsultationSoon(apt)"
+              variant="secondary"
+              size="sm"
+              disabled
+            >
+              <Clock class="mr-1.5 h-4 w-4" />
+              Disponible dans {{ getTimeUntilJoin(apt) }}
+            </UiButton>
             <UiButton
               variant="secondary"
               size="sm"
@@ -181,59 +202,382 @@
               <Pencil class="mr-1.5 h-4 w-4" />
               Modifier
             </UiButton>
-            <div
-              v-if="!canModify(apt)"
-              class="pointer-events-none invisible absolute bottom-full left-1/2 z-[100] mb-2 -translate-x-1/2 whitespace-nowrap rounded-lg bg-gray-900 px-3 py-2 text-xs text-white opacity-0 shadow-xl transition-opacity duration-200 group-hover:visible group-hover:opacity-100"
+            <UiButton
+              v-if="canCancel(apt)"
+              variant="danger"
+              size="sm"
+              @click="openCancelModal(apt)"
             >
-              <div class="relative">
-                Vous pouvez modifier uniquement 24h avant
-                <div
-                  class="absolute left-1/2 top-full -mt-1 -translate-x-1/2 border-4 border-transparent border-t-gray-900"
-                ></div>
-              </div>
-            </div>
+              <X class="mr-1.5 h-4 w-4" />
+              Annuler
+            </UiButton>
           </div>
-          <UiButton
-            v-if="canCancel(apt)"
-            variant="danger"
-            size="sm"
-            @click="openCancelModal(apt)"
-          >
-            <X class="mr-1.5 h-4 w-4" />
-            Annuler
-          </UiButton>
-          <UiButton v-if="canJoin(apt)" size="sm" @click="handleJoin(apt)">
-            <Video class="mr-1.5 h-4 w-4" />
-            Rejoindre
-          </UiButton>
         </div>
       </div>
 
+      <h3 class="mb-3 mt-8 text-lg font-semibold text-gray-900">
+        Téléconsultations passées
+      </h3>
       <div
-        v-if="pagination.totalPages > 1"
-        class="flex items-center justify-center gap-2 pt-4"
+        v-if="
+          (pastTeleconsultations?.length ?? 0) === 0 &&
+          !loadingTeleconsultations
+        "
+        class="rounded-lg border bg-white py-8 text-center"
       >
-        <UiButton
-          variant="outline"
-          size="sm"
-          :disabled="pagination.page <= 1"
-          @click="changePage(pagination.page - 1)"
+        <p class="text-gray-500">Aucune téléconsultation passée</p>
+      </div>
+      <div v-else class="space-y-3">
+        <div
+          v-for="apt in pastTeleconsultations"
+          :key="apt.id"
+          class="flex items-center justify-between rounded-lg border bg-white p-4"
         >
-          Précédent
-        </UiButton>
-        <span class="px-3 text-sm text-gray-600">
-          Page {{ pagination.page }} / {{ pagination.totalPages }}
-        </span>
-        <UiButton
-          variant="outline"
-          size="sm"
-          :disabled="pagination.page >= pagination.totalPages"
-          @click="changePage(pagination.page + 1)"
-        >
-          Suivant
-        </UiButton>
+          <div class="flex items-center gap-4">
+            <div
+              class="flex h-10 w-10 flex-shrink-0 items-center justify-center rounded-full bg-gray-100"
+            >
+              <Video class="h-5 w-5 text-gray-400" />
+            </div>
+            <div>
+              <p class="font-medium text-gray-900">
+                {{ apt.practitioner.title }} {{ apt.practitioner.firstName }}
+                {{ apt.practitioner.lastName }}
+              </p>
+              <p class="text-sm text-gray-500">
+                {{ formatDate(apt.appointmentDate) }} à {{ apt.startTime }}
+              </p>
+              <p
+                v-if="apt.teleconsultationSession?.duration"
+                class="text-xs text-gray-400"
+              >
+                Durée : {{ apt.teleconsultationSession.duration }} min
+              </p>
+            </div>
+          </div>
+          <UiBadge :variant="getStatusVariant(apt.status)">{{
+            getStatusLabel(apt.status)
+          }}</UiBadge>
+        </div>
       </div>
     </div>
+
+    <!-- normal appointment -->
+    <template v-if="activeTab !== 'teleconsultations'">
+      <!-- search & sort bar -->
+      <div
+        class="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between"
+      >
+        <div class="relative flex-1 sm:max-w-sm">
+          <Search
+            class="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-gray-400"
+          />
+          <input
+            v-model="searchQuery"
+            type="text"
+            placeholder="Rechercher par nom ou spécialité..."
+            class="w-full rounded-lg border border-gray-300 py-2 pl-10 pr-4 text-sm focus:border-blue-500 focus:outline-none focus:ring-1 focus:ring-blue-500"
+          />
+        </div>
+        <button
+          @click="toggleSort"
+          class="inline-flex items-center gap-2 rounded-lg border border-gray-300 bg-white px-4 py-2 text-sm font-medium text-gray-700 transition-colors hover:bg-gray-50"
+        >
+          <ArrowUpDown class="h-4 w-4" />
+          {{ sortOrder === "desc" ? "Plus récents" : "Plus anciens" }}
+        </button>
+      </div>
+
+      <!-- loading -->
+      <div v-if="loading" class="space-y-4">
+        <div
+          v-for="i in 3"
+          :key="i"
+          class="animate-pulse rounded-lg border bg-white p-6"
+        >
+          <div class="flex gap-4">
+            <div class="h-16 w-16 rounded-full bg-gray-200"></div>
+            <div class="flex-1 space-y-3">
+              <div class="h-4 w-1/3 rounded bg-gray-200"></div>
+              <div class="h-3 w-1/4 rounded bg-gray-200"></div>
+              <div class="h-3 w-1/2 rounded bg-gray-200"></div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- empty state -->
+      <div
+        v-else-if="currentAppointments.length === 0"
+        class="rounded-lg border bg-white py-16 text-center"
+      >
+        <Calendar class="mx-auto mb-4 h-16 w-16 text-gray-300" />
+        <h3 class="mb-2 text-lg font-medium text-gray-900">
+          {{ emptyMessages[activeTab].title }}
+        </h3>
+        <p class="mb-6 text-gray-500">
+          {{ emptyMessages[activeTab].description }}
+        </p>
+        <UiButton
+          v-if="activeTab === 'upcoming'"
+          @click="navigateTo('/search')"
+        >
+          Prendre un rendez-vous
+        </UiButton>
+      </div>
+
+      <!-- appointment list -->
+      <div v-else class="space-y-4">
+        <div
+          v-for="apt in currentAppointments"
+          :key="apt.id"
+          class="rounded-lg border bg-white shadow-sm transition-shadow hover:shadow-md"
+        >
+          <div class="p-6">
+            <div class="flex items-start gap-4">
+              <!-- Doctor photo -->
+              <UiImageWithFallback
+                :src="apt.practitioner.photo || ''"
+                :alt="`${apt.practitioner.title} ${apt.practitioner.firstName} ${apt.practitioner.lastName}`"
+                class-name="w-16 h-16 rounded-full object-cover flex-shrink-0"
+              />
+
+              <!-- appointment info -->
+              <div class="min-w-0 flex-1">
+                <div class="flex items-start justify-between gap-3">
+                  <div>
+                    <h3 class="text-lg font-semibold text-gray-900">
+                      {{ apt.practitioner.title }}
+                      {{ apt.practitioner.firstName }}
+                      {{ apt.practitioner.lastName }}
+                    </h3>
+                    <p class="text-sm text-gray-600">
+                      {{ apt.practitioner.specialty || "Médecine générale" }}
+                    </p>
+                  </div>
+                  <UiBadge :variant="getStatusVariant(apt.status)">
+                    {{ getStatusLabel(apt.status) }}
+                  </UiBadge>
+                </div>
+
+                <div class="mt-3 flex flex-wrap gap-4 text-sm text-gray-600">
+                  <div class="flex items-center gap-1.5">
+                    <Calendar class="h-4 w-4 text-gray-400" />
+                    <span>{{ formatDate(apt.appointmentDate) }}</span>
+                  </div>
+                  <div class="flex items-center gap-1.5">
+                    <Clock class="h-4 w-4 text-gray-400" />
+                    <span>{{ apt.startTime }} - {{ apt.endTime }}</span>
+                  </div>
+                  <div class="flex items-center gap-1.5">
+                    <component
+                      :is="apt.type === 'TELECONSULTATION' ? Video : MapPin"
+                      class="h-4 w-4 text-gray-400"
+                    />
+                    <span>{{
+                      apt.type === "TELECONSULTATION"
+                        ? "Téléconsultation"
+                        : "En cabinet"
+                    }}</span>
+                  </div>
+                </div>
+
+                <!-- address for in person -->
+                <div
+                  v-if="apt.type === 'IN_PERSON' && apt.practitioner.address"
+                  class="mt-2 flex items-start gap-1.5 text-sm text-gray-500"
+                >
+                  <MapPin class="mt-0.5 h-4 w-4 flex-shrink-0 text-gray-400" />
+                  <span>
+                    {{ apt.practitioner.address }}
+                    <template v-if="apt.practitioner.city"
+                      >, {{ apt.practitioner.city }}</template
+                    >
+                  </span>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <!-- action  -->
+          <div
+            v-if="getActions(apt).length > 0"
+            class="flex gap-3 rounded-b-lg border-t bg-gray-50 px-6 py-3"
+          >
+            <div class="group relative">
+              <UiButton
+                variant="secondary"
+                size="sm"
+                :disabled="!canModify(apt)"
+                @click="handleModifyClick(apt)"
+              >
+                <Pencil class="mr-1.5 h-4 w-4" />
+                Modifier
+              </UiButton>
+              <div
+                v-if="!canModify(apt)"
+                class="pointer-events-none invisible absolute bottom-full left-1/2 z-[100] mb-2 -translate-x-1/2 whitespace-nowrap rounded-lg bg-gray-900 px-3 py-2 text-xs text-white opacity-0 shadow-xl transition-opacity duration-200 group-hover:visible group-hover:opacity-100"
+              >
+                <div class="relative">
+                  Vous pouvez modifier uniquement 24h avant
+                  <div
+                    class="absolute left-1/2 top-full -mt-1 -translate-x-1/2 border-4 border-transparent border-t-gray-900"
+                  ></div>
+                </div>
+              </div>
+            </div>
+            <UiButton
+              v-if="canCancel(apt)"
+              variant="danger"
+              size="sm"
+              @click="openCancelModal(apt)"
+            >
+              <X class="mr-1.5 h-4 w-4" />
+              Annuler
+            </UiButton>
+            <UiButton
+              v-if="canJoin(apt)"
+              size="sm"
+              @click="joinTeleconsultation(apt)"
+            >
+              <Video class="mr-1.5 h-4 w-4" />
+              Rejoindre
+            </UiButton>
+          </div>
+        </div>
+
+        <div
+          v-if="pagination.totalPages > 1"
+          class="flex items-center justify-center gap-2 pt-4"
+        >
+          <UiButton
+            variant="outline"
+            size="sm"
+            :disabled="pagination.page <= 1"
+            @click="changePage(pagination.page - 1)"
+          >
+            Précédent
+          </UiButton>
+          <span class="px-3 text-sm text-gray-600">
+            Page {{ pagination.page }} / {{ pagination.totalPages }}
+          </span>
+          <UiButton
+            variant="outline"
+            size="sm"
+            :disabled="pagination.page >= pagination.totalPages"
+            @click="changePage(pagination.page + 1)"
+          >
+            Suivant
+          </UiButton>
+        </div>
+      </div>
+    </template>
+
+    <Teleport to="body">
+      <div
+        v-if="showPreCallChecks"
+        class="fixed inset-0 z-50 flex items-center justify-center bg-black/50"
+        @click.self="showPreCallChecks = false"
+      >
+        <div class="mx-4 w-full max-w-lg rounded-xl bg-white p-6 shadow-2xl">
+          <div class="mb-4 flex items-center justify-between">
+            <h3 class="text-lg font-semibold text-gray-900">
+              Test caméra et microphone
+            </h3>
+            <button
+              @click="showPreCallChecks = false"
+              class="rounded-lg p-1 hover:bg-gray-100"
+            >
+              <X class="h-5 w-5 text-gray-400" />
+            </button>
+          </div>
+          <div class="space-y-4">
+            <div class="overflow-hidden rounded-lg bg-black">
+              <video
+                ref="preCallVideoRef"
+                autoplay
+                muted
+                playsinline
+                class="h-48 w-full object-cover"
+              />
+            </div>
+            <div class="flex items-center gap-3 rounded-lg bg-gray-50 p-3">
+              <div class="h-2 flex-1 overflow-hidden rounded-full bg-gray-200">
+                <div
+                  :style="{ width: micLevel + '%' }"
+                  class="h-full rounded-full bg-green-500 transition-all"
+                />
+              </div>
+              <span class="text-xs text-gray-500">Volume micro</span>
+            </div>
+            <div class="grid grid-cols-2 gap-3">
+              <div
+                class="flex items-center gap-2 rounded-lg border p-3"
+                :class="
+                  preCallStatus.camera
+                    ? 'border-green-200 bg-green-50'
+                    : 'border-red-200 bg-red-50'
+                "
+              >
+                <Camera
+                  :class="
+                    preCallStatus.camera ? 'text-green-600' : 'text-red-600'
+                  "
+                  class="h-5 w-5"
+                />
+                <span class="text-sm">{{
+                  preCallStatus.camera ? "Caméra OK" : "Caméra indisponible"
+                }}</span>
+              </div>
+              <div
+                class="flex items-center gap-2 rounded-lg border p-3"
+                :class="
+                  preCallStatus.microphone
+                    ? 'border-green-200 bg-green-50'
+                    : 'border-red-200 bg-red-50'
+                "
+              >
+                <Mic
+                  :class="
+                    preCallStatus.microphone ? 'text-green-600' : 'text-red-600'
+                  "
+                  class="h-5 w-5"
+                />
+                <span class="text-sm">{{
+                  preCallStatus.microphone ? "Micro OK" : "Micro indisponible"
+                }}</span>
+              </div>
+            </div>
+            <div class="rounded-lg border border-blue-200 bg-blue-50 p-3">
+              <p class="text-sm text-blue-800">
+                <strong>Conseil :</strong> Utilisez un casque ou des écouteurs
+                pour une meilleure qualité audio.
+              </p>
+            </div>
+          </div>
+          <div class="mt-6 flex justify-end gap-3">
+            <UiButton variant="secondary" @click="stopPreCallTest"
+              >Fermer</UiButton
+            >
+            <UiButton @click="runPreCallTest">Relancer le test</UiButton>
+          </div>
+        </div>
+      </div>
+    </Teleport>
+
+    <!-- teleconsultation room modal -->
+    <Teleport to="body">
+      <div
+        v-if="showTeleconsultationRoom"
+        class="fixed inset-0 z-50 flex flex-col bg-gray-900"
+      >
+        <TeleconsultationRoom
+          :appointment-id="activeRoomAppointmentId!"
+          :session="activeSession!"
+          @close="closeTeleconsultationRoom"
+        />
+      </div>
+    </Teleport>
 
     <!-- cancel modal -->
     <Teleport to="body">
@@ -449,6 +793,8 @@ import {
   AlertTriangle,
   Search,
   ArrowUpDown,
+  Camera,
+  Mic,
 } from "lucide-vue-next";
 import { useAuthStore } from "~/stores/auth";
 
@@ -480,9 +826,22 @@ interface Appointment {
   reason: string | null;
   consultationFee: number;
   practitioner: Practitioner;
+  teleconsultationSession?: {
+    id: string;
+    roomId: string;
+    roomName: string;
+    status: string;
+    duration: number | null;
+    startedAt: string | null;
+    endedAt: string | null;
+    connectionQuality: string | null;
+  } | null;
 }
 
-const activeTab = ref<"upcoming" | "past" | "cancelled">("upcoming");
+const route = useRoute();
+const activeTab = ref<"upcoming" | "past" | "cancelled" | "teleconsultations">(
+  "upcoming",
+);
 const loading = ref(true);
 const appointments = ref<Appointment[]>([]);
 const pagination = ref({
@@ -497,10 +856,16 @@ const sortOrder = ref<"asc" | "desc">("asc");
 const searchQuery = ref("");
 
 // tab counts are always visible
-const tabCounts = ref<{ upcoming: number; past: number; cancelled: number }>({
+const tabCounts = ref<{
+  upcoming: number;
+  past: number;
+  cancelled: number;
+  teleconsultations: number;
+}>({
   upcoming: 0,
   past: 0,
   cancelled: 0,
+  teleconsultations: 0,
 });
 
 //cancel
@@ -529,6 +894,46 @@ const modifyDateSlots = computed(() => {
   );
   return day?.slots || [];
 });
+
+// teleconsultation state
+const loadingTeleconsultations = ref(false);
+const upcomingTeleconsultations = ref<Appointment[]>([]);
+const pastTeleconsultations = ref<Appointment[]>([]);
+const showPreCallChecks = ref(false);
+const showTeleconsultationRoom = ref(false);
+const activeRoomAppointmentId = ref<string | null>(null);
+const activeSession = ref<{
+  id: string;
+  roomId: string;
+  roomName: string;
+  status: string;
+  duration: number | null;
+  startedAt: string | null;
+  endedAt: string | null;
+  connectionQuality: string | null;
+  patient?: {
+    id: string;
+    userId: string;
+    firstName: string;
+    lastName: string;
+  };
+  practitioner?: {
+    id: string;
+    userId: string;
+    firstName: string;
+    lastName: string;
+  };
+} | null>(null);
+const preCallVideoRef = ref<HTMLVideoElement | null>(null);
+const micLevel = ref(0);
+const preCallStatus = ref({
+  camera: null as boolean | null,
+  microphone: null as boolean | null,
+  network: null as boolean | null,
+  browser: null as boolean | null,
+});
+let preCallStream: MediaStream | null = null;
+let micAnalyserInterval: ReturnType<typeof setInterval> | null = null;
 
 const selectModifyDate = (date: string) => {
   modifyDate.value = date;
@@ -560,10 +965,15 @@ const tabs = computed(() => [
     label: "Annulés",
     count: tabCounts.value.cancelled,
   },
+  {
+    key: "teleconsultations" as const,
+    label: "Téléconsultations",
+    count: upcomingTeleconsultations.value?.length ?? 0,
+  },
 ]);
 
 const emptyMessages: Record<
-  "upcoming" | "past" | "cancelled",
+  "upcoming" | "past" | "cancelled" | "teleconsultations",
   { title: string; description: string }
 > = {
   upcoming: {
@@ -578,6 +988,10 @@ const emptyMessages: Record<
   cancelled: {
     title: "Aucun rendez-vous annulé",
     description: "Vos rendez-vous annulés apparaîtront ici.",
+  },
+  teleconsultations: {
+    title: "Aucune téléconsultation",
+    description: "Vos téléconsultations apparaîtront ici.",
   },
 };
 
@@ -699,10 +1113,195 @@ const getActions = (apt: Appointment): string[] => {
   return actions;
 };
 
-const handleJoin = (_apt: Appointment) => {
-  // tofo :video call not implemented yet
-  alert("La téléconsultation sera bientôt disponible.");
+const canJoinTeleconsultation = (apt: Appointment): boolean => {
+  if (
+    apt.status === "CANCELLED" ||
+    apt.status === "COMPLETED" ||
+    apt.status === "NO_SHOW"
+  )
+    return false;
+  const now = new Date();
+  const aptDate = new Date(apt.appointmentDate);
+  const parts = apt.startTime.split(":").map(Number);
+  aptDate.setHours(parts[0] || 0, parts[1] || 0, 0, 0);
+  const diffMs = aptDate.getTime() - now.getTime();
+  const diffMinutes = diffMs / (1000 * 60);
+  return diffMinutes <= 15 && diffMinutes >= -60;
 };
+
+const isTeleconsultationSoon = (apt: Appointment): boolean => {
+  const now = new Date();
+  const aptDate = new Date(apt.appointmentDate);
+  const parts = apt.startTime.split(":").map(Number);
+  aptDate.setHours(parts[0] || 0, parts[1] || 0, 0, 0);
+  const diffMs = aptDate.getTime() - now.getTime();
+  const diffMinutes = diffMs / (1000 * 60);
+  return diffMinutes > 15 && diffMinutes <= 120; // within 2 hours but not yet joinable
+};
+
+const getTimeUntilJoin = (apt: Appointment): string => {
+  const now = new Date();
+  const aptDate = new Date(apt.appointmentDate);
+  const parts = apt.startTime.split(":").map(Number);
+  aptDate.setHours(parts[0] || 0, parts[1] || 0, 0, 0);
+  const joinTime = new Date(aptDate.getTime() - 15 * 60 * 1000);
+  const diffMs = joinTime.getTime() - now.getTime();
+  const diffMinutes = Math.ceil(diffMs / (1000 * 60));
+  if (diffMinutes >= 60) {
+    const hours = Math.floor(diffMinutes / 60);
+    const mins = diffMinutes % 60;
+    return `${hours}h${mins > 0 ? mins + "min" : ""}`;
+  }
+  return `${diffMinutes} min`;
+};
+
+const joinTeleconsultation = async (apt: Appointment) => {
+  try {
+    const response = await useAuthenticatedFetch<{
+      success: boolean;
+      data: {
+        id: string;
+        roomId: string;
+        roomName: string;
+        status: string;
+        duration: number | null;
+        startedAt: string | null;
+        endedAt: string | null;
+        connectionQuality: string | null;
+        patient?: {
+          id: string;
+          userId: string;
+          firstName: string;
+          lastName: string;
+        };
+        practitioner?: {
+          id: string;
+          userId: string;
+          firstName: string;
+          lastName: string;
+        };
+      };
+    }>(`/teleconsultations/appointment/${apt.id}`);
+    if (response.success && response.data) {
+      activeRoomAppointmentId.value = apt.id;
+      activeSession.value = {
+        id: response.data.id,
+        roomId: response.data.roomId,
+        roomName: response.data.roomName,
+        status: response.data.status,
+        duration: response.data.duration,
+        startedAt: response.data.startedAt,
+        endedAt: response.data.endedAt,
+        connectionQuality: response.data.connectionQuality,
+        patient: response.data.patient,
+        practitioner: response.data.practitioner,
+      };
+      showTeleconsultationRoom.value = true;
+    }
+  } catch (e) {
+    console.error("Failed to join teleconsultation:", e);
+  }
+};
+
+const closeTeleconsultationRoom = () => {
+  showTeleconsultationRoom.value = false;
+  activeRoomAppointmentId.value = null;
+  activeSession.value = null;
+  if (activeTab.value === "teleconsultations") {
+    fetchTeleconsultations();
+  }
+};
+
+const fetchTeleconsultations = async () => {
+  loadingTeleconsultations.value = true;
+  try {
+    const response = await useAuthenticatedFetch<{
+      success: boolean;
+      data: { upcoming: Appointment[]; past: Appointment[] };
+    }>("/teleconsultations/patient");
+    if (response.success && response.data) {
+      upcomingTeleconsultations.value = response.data.upcoming;
+      pastTeleconsultations.value = response.data.past;
+    }
+  } catch (e) {
+    console.error("Failed to fetch teleconsultations:", e);
+  } finally {
+    loadingTeleconsultations.value = false;
+  }
+};
+
+const runPreCallTest = async () => {
+  // check browser web rtc support
+  preCallStatus.value.browser = !!(
+    navigator.mediaDevices &&
+    typeof navigator.mediaDevices.getUserMedia === "function" &&
+    window.RTCPeerConnection
+  );
+
+  try {
+    preCallStream = await navigator.mediaDevices.getUserMedia({
+      video: true,
+      audio: true,
+    });
+    preCallStatus.value.camera = true;
+    preCallStatus.value.microphone = true;
+
+    if (preCallVideoRef.value) {
+      preCallVideoRef.value.srcObject = preCallStream;
+    }
+
+    // mic level
+    const audioCtx = new AudioContext();
+    const analyser = audioCtx.createAnalyser();
+    const source = audioCtx.createMediaStreamSource(preCallStream);
+    source.connect(analyser);
+    analyser.fftSize = 256;
+    const dataArray = new Uint8Array(analyser.frequencyBinCount);
+    micAnalyserInterval = setInterval(() => {
+      analyser.getByteFrequencyData(dataArray);
+      const avg = dataArray.reduce((a, b) => a + b, 0) / dataArray.length;
+      micLevel.value = Math.min(100, Math.round((avg / 128) * 100));
+    }, 100);
+  } catch {
+    preCallStatus.value.camera = false;
+    preCallStatus.value.microphone = false;
+  }
+
+  // network
+  if ("connection" in navigator) {
+    const conn = (
+      navigator as unknown as { connection?: { downlink?: number } }
+    ).connection;
+    preCallStatus.value.network = !!(
+      conn &&
+      conn.downlink &&
+      conn.downlink > 1
+    );
+  } else {
+    preCallStatus.value.network = navigator.onLine;
+  }
+};
+
+const stopPreCallTest = () => {
+  if (preCallStream) {
+    preCallStream.getTracks().forEach((t) => t.stop());
+    preCallStream = null;
+  }
+  if (micAnalyserInterval) {
+    clearInterval(micAnalyserInterval);
+    micAnalyserInterval = null;
+  }
+  micLevel.value = 0;
+  showPreCallChecks.value = false;
+};
+
+watch(showPreCallChecks, (val) => {
+  if (val) {
+    nextTick(() => runPreCallTest());
+  } else {
+    stopPreCallTest();
+  }
+});
 
 const fetchAppointments = async (page = 1) => {
   loading.value = true;
@@ -791,9 +1390,16 @@ const confirmCancel = async () => {
     closeCancelModal();
     fetchAppointments(pagination.value.page);
     fetchAllTabCounts();
-  } catch (error: any) {
+  } catch (error: unknown) {
     console.error("Error cancelling:", error);
-    alert(error?.data?.message || "Erreur lors de l'annulation");
+    const errorMessage =
+      error instanceof Error
+        ? error.message
+        : typeof error === "object" && error !== null && "data" in error
+          ? (error as { data: { message?: string } }).data.message ||
+            "Erreur lors de l'annulation"
+          : "Erreur lors de l'annulation";
+    alert(errorMessage);
   } finally {
     cancelling.value = false;
   }
@@ -886,16 +1492,27 @@ const confirmModify = async () => {
     closeModifyModal();
     fetchAppointments(pagination.value.page);
     fetchAllTabCounts();
-  } catch (error: any) {
-    modifyError.value =
-      error?.data?.message || "Erreur lors de la modification";
+  } catch (error: unknown) {
+    if (error instanceof Error) {
+      modifyError.value = error.message;
+    } else if (typeof error === "object" && error !== null && "data" in error) {
+      modifyError.value =
+        (error as { data?: { message?: string } }).data?.message ||
+        "Erreur lors de la modification";
+    } else {
+      modifyError.value = "Erreur lors de la modification";
+    }
   } finally {
     modifying.value = false;
   }
 };
 
 watch(activeTab, () => {
-  fetchAppointments(1);
+  if (activeTab.value === "teleconsultations") {
+    fetchTeleconsultations();
+  } else {
+    fetchAppointments(1);
+  }
 });
 
 onMounted(async () => {
@@ -903,9 +1520,39 @@ onMounted(async () => {
     authStore.initAuth();
   }
   if (authStore.accessToken) {
-    await Promise.all([fetchAppointments(1), fetchAllTabCounts()]);
+    // check for tab query param from dashboard redirect
+    const tabParam = route.query.tab as string;
+    if (tabParam === "teleconsultations") {
+      activeTab.value = "teleconsultations";
+    }
+
+    const promises: Promise<void>[] = [fetchAllTabCounts()];
+
+    // only fetch appointments if not on teleconsultations tab
+    if (activeTab.value === "teleconsultations") {
+      promises.push(fetchTeleconsultations());
+    } else {
+      promises.push(fetchAppointments(1));
+    }
+
+    await Promise.all(promises);
+
+    // auto join if appointmentId is there already
+    const appointmentId = route.query.appointmentId as string;
+    if (appointmentId && activeTab.value === "teleconsultations") {
+      const apt = upcomingTeleconsultations.value?.find(
+        (a) => a.id === appointmentId,
+      );
+      if (apt && canJoinTeleconsultation(apt)) {
+        joinTeleconsultation(apt);
+      }
+    }
   } else {
     loading.value = false;
   }
+});
+
+onUnmounted(() => {
+  stopPreCallTest();
 });
 </script>
