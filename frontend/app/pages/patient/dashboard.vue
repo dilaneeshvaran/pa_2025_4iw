@@ -159,10 +159,10 @@
           </div>
         </div>
 
-        <!-- no notifications -->
+        <!-- no reminders -->
         <div v-else-if="notifications.length === 0" class="py-6 text-center">
           <Bell class="mx-auto mb-3 h-12 w-12 text-gray-300" />
-          <p class="text-gray-500">Aucune notification</p>
+          <p class="text-gray-500">Aucun rappel pour le moment</p>
         </div>
 
         <!-- notifications list -->
@@ -516,7 +516,7 @@ const quickActions = [
   {
     icon: Video,
     label: "Téléconsultation",
-    action: () => router.push("/patient/appointments?tab=teleconsultations"),
+    action: () => router.push("/patient/teleconsultations"),
     color: "bg-green-100 text-green-600",
   },
   {
@@ -570,9 +570,14 @@ const fetchNotifications = async () => {
     const response = await useAuthenticatedFetch<{
       success: boolean;
       data: Notification[];
-    }>("/notifications?limit=5");
+    }>("/notifications?limit=10");
     if (response.success) {
-      notifications.value = response.data;
+      // filter out message notifications
+      notifications.value = response.data
+        .filter(
+          (n) => n.type !== "MESSAGE_RECEIVED" && n.type !== "NEW_MESSAGE",
+        )
+        .slice(0, 5);
     }
   } catch (error) {
     console.error("Error fetching notifications:", error);
@@ -614,10 +619,10 @@ const getNotificationIcon = (type: string) => {
       return Bell;
     case "DOCUMENT_SHARED":
       return FileText;
-    case "MESSAGE_RECEIVED":
-      return MessageSquare;
-    default:
+    case "HEALTH_REMINDER":
       return Activity;
+    default:
+      return Bell;
   }
 };
 
@@ -737,7 +742,7 @@ const confirmModify = async () => {
 const handleJoin = () => {
   if (nextAppointment.value) {
     navigateTo(
-      `/patient/appointments?tab=teleconsultations&appointmentId=${nextAppointment.value.id}`,
+      `/patient/teleconsultations?appointmentId=${nextAppointment.value.id}`,
     );
   }
 };
