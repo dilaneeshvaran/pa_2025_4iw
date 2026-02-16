@@ -96,6 +96,7 @@ import {
   User,
   LogOut,
   Search,
+  Video,
 } from "lucide-vue-next";
 import { useAuthStore } from "~/stores/auth";
 import { useMessagingStore } from "~/stores/messaging";
@@ -130,6 +131,11 @@ const menuItems = [
   },
   { path: "/search", label: "Rechercher un praticien", icon: Search },
   { path: "/patient/appointments", label: "Mes rendez-vous", icon: Calendar },
+  {
+    path: "/patient/teleconsultations",
+    label: "Téléconsultations",
+    icon: Video,
+  },
   {
     path: "/patient/medical-record",
     label: "Mon dossier médical",
