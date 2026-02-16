@@ -613,12 +613,7 @@ const formatDate = (dateStr: string) => {
 };
 
 const canJoinTeleconsultation = (apt: Appointment): boolean => {
-  if (
-    apt.status === "CANCELLED" ||
-    apt.status === "COMPLETED" ||
-    apt.status === "NO_SHOW"
-  )
-    return false;
+  if (apt.status === "CANCELLED" || apt.status === "NO_SHOW") return false;
   const now = new Date();
   const aptDate = new Date(apt.appointmentDate);
   const parts = apt.startTime.split(":").map(Number);
