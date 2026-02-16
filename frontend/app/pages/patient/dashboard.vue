@@ -88,7 +88,9 @@
                 class="invisible absolute bottom-full left-1/2 z-10 mb-2 -translate-x-1/2 whitespace-nowrap rounded-lg bg-gray-900 px-3 py-2 text-xs text-white opacity-0 shadow-lg transition-opacity duration-200 group-hover:visible group-hover:opacity-100"
               >
                 <div class="relative">
-                  Vous pouvez modifier uniquement 24h avant
+                  Vous pouvez modifier uniquement
+                  {{ nextAppointment?.practitioner?.cancellationNotice || 24 }}h
+                  avant
                   <div
                     class="absolute left-1/2 top-full -mt-1 -translate-x-1/2 border-4 border-transparent border-t-gray-900"
                   ></div>
@@ -417,6 +419,7 @@ interface Practitioner {
   title: string;
   specialty: string | null;
   photo: string | null;
+  cancellationNotice?: number;
 }
 
 interface Appointment {
@@ -470,12 +473,13 @@ const canModifyNext = computed(() => {
   if (!nextAppointment.value) return false;
   const apt = nextAppointment.value;
   if (apt.status === "CANCELLED" || apt.status === "COMPLETED") return false;
+  const cancellationNotice = apt.practitioner.cancellationNotice || 24;
   const now = new Date();
   const aptDate = new Date(apt.appointmentDate);
   const parts = apt.startTime.split(":").map(Number);
   aptDate.setHours(parts[0] || 0, parts[1] || 0, 0, 0);
   const diffHours = (aptDate.getTime() - now.getTime()) / (1000 * 60 * 60);
-  return diffHours >= 24;
+  return diffHours >= cancellationNotice;
 });
 
 const canCancelNext = computed(() => {
@@ -682,8 +686,10 @@ const handleModifyClick = () => {
   if (!canModifyNext.value) {
     // show popup for mobile/touch devices only bcoz we got hover on pc bro
     if ("ontouchstart" in window || navigator.maxTouchPoints > 0) {
+      const notice =
+        nextAppointment.value?.practitioner?.cancellationNotice || 24;
       alert(
-        "Vous pouvez modifier votre rendez-vous uniquement 24 heures avant la date prévue.",
+        `Vous pouvez modifier votre rendez-vous uniquement ${notice} heures avant la date prévue.`,
       );
     }
     return;
