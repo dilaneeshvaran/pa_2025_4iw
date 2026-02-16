@@ -140,6 +140,7 @@ export async function appointmentsRoutes(fastify: FastifyInstance) {
           status?: string
           limit?: string
           page?: string
+          sort?: string
         }
 
         const patient = await prisma.patient.findUnique({
@@ -158,12 +159,14 @@ export async function appointmentsRoutes(fastify: FastifyInstance) {
           (query.status as 'upcoming' | 'past' | 'cancelled' | 'all') || 'all'
         const limit = query.limit ? parseInt(query.limit, 10) : 10
         const page = query.page ? parseInt(query.page, 10) : 1
+        const sort = (query.sort as 'asc' | 'desc') || undefined
 
         const result = await appointmentsService.getPatientAppointments(
           patient.id,
           status,
           limit,
           page,
+          sort,
         )
 
         return reply.status(200).send({
