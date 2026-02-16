@@ -596,18 +596,9 @@ const handleRemoteJoined = (data: { userId: string; sessionId: string }) => {
   if (data.sessionId !== props.session.id) return;
   if (peer) return; // already have peer connection
 
-  // only  practitioner initiates the webrtc connection to avoid
-  // race condition where both sides become initiators.
-  const iAmPractitioner =
-    props.session.practitioner?.userId === authStore.user?.id;
-
-  if (iAmPractitioner) {
-    callStatus.value = "connecting";
-    createPeer(true);
-  } else {
-    // patient: just update status, wait for the offer
-    callStatus.value = "connecting";
-  }
+  // whoever receives the join notification first becomes the initiator
+  callStatus.value = "connecting";
+  createPeer(true);
 };
 
 const handleRemoteLeft = (data: { userId: string; sessionId: string }) => {
