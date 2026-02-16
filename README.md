@@ -1,6 +1,7 @@
 # MEDICOTE
 
 Medicote is where doctors and patients can connect, manage appointments, share medical records, and do video consultations.
+We also have an ai assistant that can guide you to the right doctor based on your symptoms, and answer your medical questions.
 
 ## Project Structure
 
