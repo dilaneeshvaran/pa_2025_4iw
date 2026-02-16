@@ -171,9 +171,21 @@ export class TeleconsultationsService {
       updateData.practitionerJoinedAt = now
     }
 
-    // if first person to join, set status to waiting
-    // if both join, set status to in_progres
-    if (session.status === 'SCHEDULED') {
+    // if session was COMPLETED or FAILED, allow rejoin by resetting status
+    if (session.status === 'COMPLETED' || session.status === 'FAILED') {
+      updateData.status = 'WAITING'
+      updateData.endedAt = null
+      // reset the appointment status back so it can be used again
+      await prisma.appointment.update({
+        where: { id: session.appointmentId },
+        data: {
+          status: 'CONFIRMED',
+          markedAsNoShow: false,
+          noShowMarkedAt: null,
+        },
+      })
+    } else if (session.status === 'SCHEDULED') {
+      // first person to join, set status to waiting
       updateData.status = 'WAITING'
     }
 
@@ -263,25 +275,33 @@ export class TeleconsultationsService {
     return updated
   }
 
-  async markNoShow(sessionId: string, practitionerUserId: string) {
+  async markNoShow(sessionId: string, userId: string) {
     const session = await prisma.teleconsultationSession.findUnique({
       where: { id: sessionId },
       include: {
         practitioner: { include: { user: { select: { id: true } } } },
+        patient: { include: { user: { select: { id: true } } } },
       },
     })
 
     if (!session) throw new Error('Session non trouvée')
-    if (session.practitioner.user.id !== practitionerUserId) {
+    // both patient and practitioner can mark no-show
+    const isPractitioner = session.practitioner.user.id === userId
+    const isPatient = session.patient.user.id === userId
+    if (!isPractitioner && !isPatient) {
       throw new Error('Non autorisé')
     }
+
+    const noShowMessage = isPractitioner
+      ? 'Patient absent (no-show)'
+      : 'Praticien absent (no-show)'
 
     const updated = await prisma.teleconsultationSession.update({
       where: { id: sessionId },
       data: {
         status: 'FAILED',
         endedAt: new Date(),
-        errorMessage: 'Patient absent (no-show)',
+        errorMessage: noShowMessage,
       },
     })
 
@@ -298,11 +318,14 @@ export class TeleconsultationsService {
     // log
     await prisma.auditLog.create({
       data: {
-        userId: practitionerUserId,
+        userId,
         action: 'UPDATE' as AuditAction,
         resource: 'TeleconsultationSession',
         resourceId: sessionId,
-        metadata: { event: 'no_show' },
+        metadata: {
+          event: 'no_show',
+          markedBy: isPractitioner ? 'practitioner' : 'patient',
+        },
       },
     })
 
