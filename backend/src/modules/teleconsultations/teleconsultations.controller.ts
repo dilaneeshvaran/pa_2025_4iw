@@ -20,6 +20,9 @@ export class TeleconsultationsController {
         practitioner.id,
       )
 
+      // auto cleanup expired sessions and mark no-shows
+      await teleconsultationsService.cleanupExpiredSessions()
+
       const sessions = await teleconsultationsService.getTodaySessions(
         practitioner.id,
       )
