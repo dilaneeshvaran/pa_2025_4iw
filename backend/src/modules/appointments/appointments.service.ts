@@ -125,6 +125,7 @@ export class AppointmentsService {
         city: apt.practitioner.city || null,
         cancellationNotice: apt.practitioner.cancellationNotice,
       },
+      teleconsultationSession: apt.teleconsultationSession || null,
     }))
 
     return {
