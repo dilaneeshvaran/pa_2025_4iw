@@ -512,7 +512,7 @@ const quickActions = [
   {
     icon: Video,
     label: "Téléconsultation",
-    action: () => router.push("/patient/waiting"),
+    action: () => router.push("/patient/appointments?tab=teleconsultations"),
     color: "bg-green-100 text-green-600",
   },
   {
@@ -729,7 +729,11 @@ const confirmModify = async () => {
 };
 
 const handleJoin = () => {
-  alert("La téléconsultation sera bientôt disponible.");
+  if (nextAppointment.value) {
+    navigateTo(
+      `/patient/appointments?tab=teleconsultations&appointmentId=${nextAppointment.value.id}`,
+    );
+  }
 };
 
 onMounted(() => {
