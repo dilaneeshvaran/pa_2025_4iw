@@ -34,236 +34,8 @@
       </nav>
     </div>
 
-    <!-- teleconsultation tab -->
-    <div v-if="activeTab === 'teleconsultations'">
-      <UiCard class="mb-6">
-        <div class="flex items-center justify-between">
-          <div class="flex items-center gap-3">
-            <Video class="h-5 w-5 text-green-600" />
-            <h3 class="text-lg font-semibold text-gray-900">
-              Préparer ma consultation
-            </h3>
-          </div>
-          <UiButton
-            variant="secondary"
-            size="sm"
-            @click="showPreCallChecks = true"
-          >
-            <Camera class="mr-1.5 h-4 w-4" />
-            Tester caméra et microphone
-          </UiButton>
-        </div>
-        <div class="mt-4 grid gap-3 sm:grid-cols-2 lg:grid-cols-4">
-          <div class="flex items-center gap-2 rounded-lg bg-gray-50 p-3">
-            <div
-              :class="[
-                'h-3 w-3 rounded-full',
-                preCallStatus.camera ? 'bg-green-500' : 'bg-gray-300',
-              ]"
-            />
-            <span class="text-sm">Caméra</span>
-          </div>
-          <div class="flex items-center gap-2 rounded-lg bg-gray-50 p-3">
-            <div
-              :class="[
-                'h-3 w-3 rounded-full',
-                preCallStatus.microphone ? 'bg-green-500' : 'bg-gray-300',
-              ]"
-            />
-            <span class="text-sm">Microphone</span>
-          </div>
-          <div class="flex items-center gap-2 rounded-lg bg-gray-50 p-3">
-            <div
-              :class="[
-                'h-3 w-3 rounded-full',
-                preCallStatus.network
-                  ? 'bg-green-500'
-                  : preCallStatus.network === false
-                    ? 'bg-red-500'
-                    : 'bg-gray-300',
-              ]"
-            />
-            <span class="text-sm">Réseau</span>
-          </div>
-          <div class="flex items-center gap-2 rounded-lg bg-gray-50 p-3">
-            <div
-              :class="[
-                'h-3 w-3 rounded-full',
-                preCallStatus.browser ? 'bg-green-500' : 'bg-yellow-500',
-              ]"
-            />
-            <span class="text-sm">Navigateur</span>
-          </div>
-        </div>
-      </UiCard>
-
-      <h3 class="mb-3 text-lg font-semibold text-gray-900">
-        Téléconsultations à venir
-      </h3>
-      <div v-if="loadingTeleconsultations" class="space-y-4">
-        <div
-          v-for="i in 2"
-          :key="i"
-          class="animate-pulse rounded-lg border bg-white p-6"
-        >
-          <div class="flex gap-4">
-            <div class="h-16 w-16 rounded-full bg-gray-200"></div>
-            <div class="flex-1 space-y-3">
-              <div class="h-4 w-1/3 rounded bg-gray-200"></div>
-              <div class="h-3 w-1/2 rounded bg-gray-200"></div>
-            </div>
-          </div>
-        </div>
-      </div>
-      <div
-        v-else-if="(upcomingTeleconsultations?.length ?? 0) === 0"
-        class="rounded-lg border bg-white py-12 text-center"
-      >
-        <Video class="mx-auto mb-4 h-16 w-16 text-gray-300" />
-        <h3 class="mb-2 text-lg font-medium text-gray-900">
-          Aucune téléconsultation à venir
-        </h3>
-        <p class="mb-6 text-gray-500">
-          Prenez rendez-vous avec un praticien qui propose la téléconsultation.
-        </p>
-        <UiButton @click="navigateTo('/search')"
-          >Rechercher un praticien</UiButton
-        >
-      </div>
-      <div v-else class="space-y-4">
-        <div
-          v-for="apt in upcomingTeleconsultations"
-          :key="apt.id"
-          class="rounded-lg border bg-white shadow-sm transition-shadow hover:shadow-md"
-        >
-          <div class="p-6">
-            <div class="flex items-start gap-4">
-              <div
-                class="flex h-16 w-16 flex-shrink-0 items-center justify-center rounded-full bg-green-100"
-              >
-                <Video class="h-8 w-8 text-green-600" />
-              </div>
-              <div class="min-w-0 flex-1">
-                <div class="flex items-start justify-between gap-3">
-                  <div>
-                    <h3 class="text-lg font-semibold text-gray-900">
-                      {{ apt.practitioner.title }}
-                      {{ apt.practitioner.firstName }}
-                      {{ apt.practitioner.lastName }}
-                    </h3>
-                    <p class="text-sm text-gray-600">
-                      {{ apt.practitioner.specialty || "Médecine générale" }}
-                    </p>
-                  </div>
-                  <UiBadge :variant="getStatusVariant(apt.status)">{{
-                    getStatusLabel(apt.status)
-                  }}</UiBadge>
-                </div>
-                <div class="mt-3 flex flex-wrap gap-4 text-sm text-gray-600">
-                  <div class="flex items-center gap-1.5">
-                    <Calendar class="h-4 w-4 text-gray-400" />
-                    <span>{{ formatDate(apt.appointmentDate) }}</span>
-                  </div>
-                  <div class="flex items-center gap-1.5">
-                    <Clock class="h-4 w-4 text-gray-400" />
-                    <span>{{ apt.startTime }} - {{ apt.endTime }}</span>
-                  </div>
-                </div>
-                <p v-if="apt.reason" class="mt-2 text-sm text-gray-500">
-                  Motif : {{ apt.reason }}
-                </p>
-              </div>
-            </div>
-          </div>
-          <div class="flex gap-3 rounded-b-lg border-t bg-gray-50 px-6 py-3">
-            <UiButton
-              v-if="canJoinTeleconsultation(apt)"
-              size="sm"
-              @click="joinTeleconsultation(apt)"
-            >
-              <Video class="mr-1.5 h-4 w-4" />
-              Rejoindre la téléconsultation
-            </UiButton>
-            <UiButton
-              v-else-if="isTeleconsultationSoon(apt)"
-              variant="secondary"
-              size="sm"
-              disabled
-            >
-              <Clock class="mr-1.5 h-4 w-4" />
-              Disponible dans {{ getTimeUntilJoin(apt) }}
-            </UiButton>
-            <UiButton
-              variant="secondary"
-              size="sm"
-              :disabled="!canModify(apt)"
-              @click="handleModifyClick(apt)"
-            >
-              <Pencil class="mr-1.5 h-4 w-4" />
-              Modifier
-            </UiButton>
-            <UiButton
-              v-if="canCancel(apt)"
-              variant="danger"
-              size="sm"
-              @click="openCancelModal(apt)"
-            >
-              <X class="mr-1.5 h-4 w-4" />
-              Annuler
-            </UiButton>
-          </div>
-        </div>
-      </div>
-
-      <h3 class="mb-3 mt-8 text-lg font-semibold text-gray-900">
-        Téléconsultations passées
-      </h3>
-      <div
-        v-if="
-          (pastTeleconsultations?.length ?? 0) === 0 &&
-          !loadingTeleconsultations
-        "
-        class="rounded-lg border bg-white py-8 text-center"
-      >
-        <p class="text-gray-500">Aucune téléconsultation passée</p>
-      </div>
-      <div v-else class="space-y-3">
-        <div
-          v-for="apt in pastTeleconsultations"
-          :key="apt.id"
-          class="flex items-center justify-between rounded-lg border bg-white p-4"
-        >
-          <div class="flex items-center gap-4">
-            <div
-              class="flex h-10 w-10 flex-shrink-0 items-center justify-center rounded-full bg-gray-100"
-            >
-              <Video class="h-5 w-5 text-gray-400" />
-            </div>
-            <div>
-              <p class="font-medium text-gray-900">
-                {{ apt.practitioner.title }} {{ apt.practitioner.firstName }}
-                {{ apt.practitioner.lastName }}
-              </p>
-              <p class="text-sm text-gray-500">
-                {{ formatDate(apt.appointmentDate) }} à {{ apt.startTime }}
-              </p>
-              <p
-                v-if="apt.teleconsultationSession?.duration"
-                class="text-xs text-gray-400"
-              >
-                Durée : {{ apt.teleconsultationSession.duration }} min
-              </p>
-            </div>
-          </div>
-          <UiBadge :variant="getStatusVariant(apt.status)">{{
-            getStatusLabel(apt.status)
-          }}</UiBadge>
-        </div>
-      </div>
-    </div>
-
     <!-- normal appointment -->
-    <template v-if="activeTab !== 'teleconsultations'">
+    <template>
       <!-- search & sort bar -->
       <div
         class="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between"
@@ -840,9 +612,7 @@ interface Appointment {
 }
 
 const route = useRoute();
-const activeTab = ref<"upcoming" | "past" | "cancelled" | "teleconsultations">(
-  "upcoming",
-);
+const activeTab = ref<"upcoming" | "past" | "cancelled">("upcoming");
 const loading = ref(true);
 const appointments = ref<Appointment[]>([]);
 const pagination = ref({
@@ -966,15 +736,10 @@ const tabs = computed(() => [
     label: "Annulés",
     count: tabCounts.value.cancelled,
   },
-  {
-    key: "teleconsultations" as const,
-    label: "Téléconsultations",
-    count: upcomingTeleconsultations.value?.length ?? 0,
-  },
 ]);
 
 const emptyMessages: Record<
-  "upcoming" | "past" | "cancelled" | "teleconsultations",
+  "upcoming" | "past" | "cancelled",
   { title: string; description: string }
 > = {
   upcoming: {
@@ -989,10 +754,6 @@ const emptyMessages: Record<
   cancelled: {
     title: "Aucun rendez-vous annulé",
     description: "Vos rendez-vous annulés apparaîtront ici.",
-  },
-  teleconsultations: {
-    title: "Aucune téléconsultation",
-    description: "Vos téléconsultations apparaîtront ici.",
   },
 };
 
@@ -1209,9 +970,7 @@ const closeTeleconsultationRoom = () => {
   showTeleconsultationRoom.value = false;
   activeRoomAppointmentId.value = null;
   activeSession.value = null;
-  if (activeTab.value === "teleconsultations") {
-    fetchTeleconsultations();
-  }
+  fetchAppointments(pagination.value.page);
 };
 
 const fetchTeleconsultations = async () => {
@@ -1510,11 +1269,7 @@ const confirmModify = async () => {
 };
 
 watch(activeTab, () => {
-  if (activeTab.value === "teleconsultations") {
-    fetchTeleconsultations();
-  } else {
-    fetchAppointments(1);
-  }
+  fetchAppointments(1);
 });
 
 onMounted(async () => {
@@ -1522,33 +1277,19 @@ onMounted(async () => {
     authStore.initAuth();
   }
   if (authStore.accessToken) {
-    // check for tab query param from dashboard redirect
+    // redirect teleconsultations tab to the dedicated page
     const tabParam = route.query.tab as string;
     if (tabParam === "teleconsultations") {
-      activeTab.value = "teleconsultations";
-    }
-
-    const promises: Promise<void>[] = [fetchAllTabCounts()];
-
-    // only fetch appointments if not on teleconsultations tab
-    if (activeTab.value === "teleconsultations") {
-      promises.push(fetchTeleconsultations());
-    } else {
-      promises.push(fetchAppointments(1));
-    }
-
-    await Promise.all(promises);
-
-    // auto join if appointmentId is there already
-    const appointmentId = route.query.appointmentId as string;
-    if (appointmentId && activeTab.value === "teleconsultations") {
-      const apt = upcomingTeleconsultations.value?.find(
-        (a) => a.id === appointmentId,
-      );
-      if (apt && canJoinTeleconsultation(apt)) {
-        joinTeleconsultation(apt);
+      const appointmentId = route.query.appointmentId as string;
+      if (appointmentId) {
+        navigateTo(`/patient/teleconsultations?appointmentId=${appointmentId}`);
+      } else {
+        navigateTo("/patient/teleconsultations");
       }
+      return;
     }
+
+    await Promise.all([fetchAllTabCounts(), fetchAppointments(1)]);
   } else {
     loading.value = false;
   }
