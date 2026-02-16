@@ -283,11 +283,44 @@ export class PractitionersService {
     endDate?: Date,
     days = 7,
   ): Promise<AvailableSlot[]> {
+    // fetch practitioner settings for slot generation rules
+    const practitioner = await prisma.practitioner.findUnique({
+      where: { id: practitionerId },
+      select: {
+        consultationDuration: true,
+        backToBack: true,
+        breakBetweenSlots: true,
+        minBookingNotice: true,
+        maxBookingAdvance: true,
+        acceptsNewPatients: true,
+      },
+    })
+
+    const slotDuration = practitioner?.consultationDuration ?? 30
+    const breakBetween =
+      practitioner && !practitioner.backToBack
+        ? practitioner.breakBetweenSlots
+        : 0
+    const minBookingNotice = practitioner?.minBookingNotice ?? 60 // minutes
+    const maxBookingAdvance = practitioner?.maxBookingAdvance ?? 60 // days
+
+    const now = new Date()
     const start = startDate || new Date()
     start.setHours(0, 0, 0, 0)
 
-    const end = endDate || new Date(start)
-    end.setDate(end.getDate() + days)
+    // cap end date to maxBookingAdvance days from now
+    const maxEnd = new Date(now)
+    maxEnd.setDate(maxEnd.getDate() + maxBookingAdvance)
+    maxEnd.setHours(23, 59, 59, 999)
+
+    let end = endDate || new Date(start)
+    if (!endDate) {
+      end.setDate(end.getDate() + days)
+    }
+    // enforce maxBookingAdvance
+    if (end > maxEnd) {
+      end = maxEnd
+    }
 
     const availabilities = await prisma.availability.findMany({
       where: {
@@ -305,6 +338,17 @@ export class PractitionersService {
             AND: [{ startDate: { lte: end } }, { endDate: { gte: start } }],
           },
         ],
+      },
+    })
+
+    // get blocked slots
+    const blockedSlots = await prisma.blockedSlot.findMany({
+      where: {
+        practitionerId,
+        date: {
+          gte: start,
+          lte: end,
+        },
       },
     })
 
@@ -327,6 +371,11 @@ export class PractitionersService {
       },
     })
 
+    // earliest bookable time = now + minBookingNotice
+    const earliestBookable = new Date(
+      now.getTime() + minBookingNotice * 60 * 1000,
+    )
+
     const result: AvailableSlot[] = []
     const currentDate = new Date(start)
 
@@ -344,24 +393,54 @@ export class PractitionersService {
           (a) => a.dayOfWeek === dayOfWeek,
         )
 
+        // get blocked slots for this date
+        const dayBlockedSlots = blockedSlots.filter(
+          (b) => this.formatDateLocal(b.date) === dateStr,
+        )
+
         const slots: string[] = []
 
         for (const availability of dayAvailabilities) {
+          // use practitioner's consultationDuration, with availability breakBetween gap
           const timeSlots = this.generateTimeSlots(
             availability.startTime,
             availability.endTime,
-            availability.slotDuration,
+            slotDuration,
             availability.breakStartTime,
             availability.breakEndTime,
+            breakBetween,
           )
 
-          // filter booked slots
+          // filter booked slots, blocked slots, and respect minBookingNotice
           const availableSlots = timeSlots.filter((slot) => {
-            return !appointments.some(
+            // check if slot is booked
+            const isBooked = appointments.some(
               (apt) =>
                 this.formatDateLocal(apt.appointmentDate) === dateStr &&
                 apt.startTime === slot,
             )
+            if (isBooked) return false
+
+            // check if slot overlaps a blocked slot
+            const [slotH, slotM] = slot.split(':').map(Number)
+            const slotStartMin = slotH * 60 + slotM
+            const slotEndMin = slotStartMin + slotDuration
+
+            const isBlocked = dayBlockedSlots.some((b) => {
+              const [bsH, bsM] = b.startTime.split(':').map(Number)
+              const [beH, beM] = b.endTime.split(':').map(Number)
+              const blockStart = bsH * 60 + bsM
+              const blockEnd = beH * 60 + beM
+              return slotStartMin < blockEnd && slotEndMin > blockStart
+            })
+            if (isBlocked) return false
+
+            // check minBookingNotice: slot must be after earliest bookable time
+            const slotDateTime = new Date(currentDate)
+            slotDateTime.setHours(slotH, slotM, 0, 0)
+            if (slotDateTime < earliestBookable) return false
+
+            return true
           })
 
           slots.push(...availableSlots)
@@ -451,6 +530,7 @@ export class PractitionersService {
     duration: number,
     breakStart?: string | null,
     breakEnd?: string | null,
+    breakBetween = 0,
   ): string[] {
     const slots: string[] = []
     const [startHour, startMinute] = startTime.split(':').map(Number)
@@ -484,9 +564,16 @@ export class PractitionersService {
           .toString()
           .padStart(2, '0')}`
         slots.push(timeStr)
+        // advance by duration + break between appointments
+        currentMinutes += duration + breakBetween
+      } else {
+        // if in break, skip to break end
+        if (breakEndMinutes !== null) {
+          currentMinutes = breakEndMinutes
+        } else {
+          currentMinutes += duration
+        }
       }
-
-      currentMinutes += duration
     }
 
     return slots
