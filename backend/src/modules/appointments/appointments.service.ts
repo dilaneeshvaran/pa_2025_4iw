@@ -67,6 +67,18 @@ export class AppointmentsService {
               },
             },
           },
+          teleconsultationSession: {
+            select: {
+              id: true,
+              roomId: true,
+              roomName: true,
+              status: true,
+              duration: true,
+              startedAt: true,
+              endedAt: true,
+              connectionQuality: true,
+            },
+          },
         },
       }),
       prisma.appointment.count({ where }),
@@ -111,6 +123,7 @@ export class AppointmentsService {
         photo: null,
         address: apt.practitioner.address || null,
         city: apt.practitioner.city || null,
+        cancellationNotice: apt.practitioner.cancellationNotice,
       },
     }))
 
@@ -191,6 +204,7 @@ export class AppointmentsService {
         photo: null,
         address: nextAppointment.practitioner.address || null,
         city: nextAppointment.practitioner.city || null,
+        cancellationNotice: nextAppointment.practitioner.cancellationNotice,
       },
     }
   }
@@ -273,6 +287,7 @@ export class AppointmentsService {
         photo: null,
         address: apt.practitioner.address || null,
         city: apt.practitioner.city || null,
+        cancellationNotice: apt.practitioner.cancellationNotice,
       },
     }))
   }
@@ -333,14 +348,80 @@ export class AppointmentsService {
       throw new Error('La date du rendez-vous ne peut pas être dans le passé')
     }
 
-    //  prevent booking slots too close to current time (minimum booking delay 1 hour)
+    // enforce maxBookingAdvance: prevent booking too far in the future
+    const maxAdvanceDays = practitioner.maxBookingAdvance || 60
+    const maxDate = new Date(now)
+    maxDate.setDate(maxDate.getDate() + maxAdvanceDays)
+    if (appointmentDate > maxDate) {
+      throw new Error(
+        `Vous ne pouvez pas réserver plus de ${maxAdvanceDays} jours à l'avance`,
+      )
+    }
+
+    // prevent booking slots too close to current time (use practitioners minBookingNotice)
+    const minNoticeMinutes = practitioner.minBookingNotice || 60
     const [requestHours, requestMinutes] = data.startTime.split(':').map(Number)
     const requestedAppointmentTime = new Date(appointmentDate)
     requestedAppointmentTime.setHours(requestHours, requestMinutes, 0, 0)
 
-    const oneHourFromNow = new Date(now.getTime() + 60 * 60 * 1000)
-    if (requestedAppointmentTime < oneHourFromNow) {
-      throw new Error("Vous devez réserver au moins 1 heure à l'avance")
+    const earliestBookable = new Date(
+      now.getTime() + minNoticeMinutes * 60 * 1000,
+    )
+    if (requestedAppointmentTime < earliestBookable) {
+      const noticeLabel =
+        minNoticeMinutes >= 60
+          ? `${Math.round(minNoticeMinutes / 60)} heure(s)`
+          : `${minNoticeMinutes} minutes`
+      throw new Error(`Vous devez réserver au moins ${noticeLabel} à l'avance`)
+    }
+
+    // enforce newPatientMaxPerDay limit
+    if (practitioner.newPatientMaxPerDay > 0) {
+      // check if this patient has had any previous appointment with this practitioner
+      const previousAppointment = await prisma.appointment.findFirst({
+        where: {
+          patientId: data.patientId,
+          practitionerId: data.practitionerId,
+          status: {
+            in: ['COMPLETED', 'CONFIRMED', 'PENDING'],
+          },
+          appointmentDate: { lt: today },
+        },
+      })
+
+      // if no previous appointment, this is a new patient
+      if (!previousAppointment) {
+        // count how many new patients already booked today
+        const existingNewPatientsToday = await prisma.appointment.findMany({
+          where: {
+            practitionerId: data.practitionerId,
+            appointmentDate: appointmentDate,
+            status: { in: ['PENDING', 'CONFIRMED'] },
+          },
+          select: { patientId: true },
+          distinct: ['patientId'],
+        })
+
+        // for each patient, check if they are "new" (no prior appointments)
+        let newPatientCount = 0
+        for (const apt of existingNewPatientsToday) {
+          const prior = await prisma.appointment.findFirst({
+            where: {
+              patientId: apt.patientId,
+              practitionerId: data.practitionerId,
+              status: { in: ['COMPLETED', 'CONFIRMED', 'PENDING'] },
+              appointmentDate: { lt: today },
+            },
+          })
+          if (!prior) newPatientCount++
+        }
+
+        if (newPatientCount >= practitioner.newPatientMaxPerDay) {
+          throw new Error(
+            `Le praticien a atteint la limite de ${practitioner.newPatientMaxPerDay} nouveau(x) patient(s) par jour`,
+          )
+        }
+      }
     }
 
     // check if patient already has an appointment at the same time
@@ -611,7 +692,15 @@ export class AppointmentsService {
       where: { id: appointmentId },
       include: {
         practitioner: {
-          include: {
+          select: {
+            id: true,
+            firstName: true,
+            lastName: true,
+            title: true,
+            cancellationNotice: true,
+            consultationDuration: true,
+            address: true,
+            city: true,
             specialties: {
               where: { isPrimary: true },
               include: { specialty: true },
@@ -637,7 +726,9 @@ export class AppointmentsService {
       throw new Error('Ce rendez-vous ne peut pas être modifié')
     }
 
-    // check 24h rule
+    // use practitioners cancellationNotice setting (in hours) instead of hardcoded 24h
+    const cancellationNoticeHours =
+      appointment.practitioner.cancellationNotice || 24
     const now = new Date()
     const aptDate = new Date(appointment.appointmentDate)
     const [hours, minutes] = appointment.startTime.split(':').map(Number)
@@ -645,9 +736,9 @@ export class AppointmentsService {
     const diffMs = aptDate.getTime() - now.getTime()
     const diffHours = diffMs / (1000 * 60 * 60)
 
-    if (diffHours < 24) {
+    if (diffHours < cancellationNoticeHours) {
       throw new Error(
-        'Vous ne pouvez modifier un rendez-vous que 24 heures avant',
+        `Vous ne pouvez modifier un rendez-vous que ${cancellationNoticeHours} heures avant`,
       )
     }
 
@@ -719,6 +810,7 @@ export class AppointmentsService {
         photo: null,
         address: updated.practitioner.address || null,
         city: updated.practitioner.city || null,
+        cancellationNotice: updated.practitioner.cancellationNotice,
       },
     }
   }
