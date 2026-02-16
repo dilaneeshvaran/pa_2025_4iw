@@ -193,10 +193,36 @@
         <h3 class="text-lg font-semibold text-gray-900">
           Téléconsultations du jour
         </h3>
-        <UiButton variant="outline" size="sm" @click="refreshData">
-          <RefreshCw class="mr-1.5 h-4 w-4" />
-          Actualiser
-        </UiButton>
+        <div class="flex items-center gap-2">
+          <div class="inline-flex rounded-lg border border-gray-300 bg-white">
+            <button
+              :class="[
+                'rounded-l-lg px-3 py-1.5 text-xs font-medium transition-colors',
+                todaySortOrder === 'asc'
+                  ? 'bg-blue-600 text-white'
+                  : 'text-gray-700 hover:bg-gray-50',
+              ]"
+              @click="todaySortOrder = 'asc'"
+            >
+              Plus proche
+            </button>
+            <button
+              :class="[
+                'rounded-r-lg px-3 py-1.5 text-xs font-medium transition-colors',
+                todaySortOrder === 'desc'
+                  ? 'bg-blue-600 text-white'
+                  : 'text-gray-700 hover:bg-gray-50',
+              ]"
+              @click="todaySortOrder = 'desc'"
+            >
+              Plus tard
+            </button>
+          </div>
+          <UiButton variant="outline" size="sm" @click="refreshData">
+            <RefreshCw class="mr-1.5 h-4 w-4" />
+            Actualiser
+          </UiButton>
+        </div>
       </div>
 
       <div v-if="loading" class="space-y-3">
@@ -786,6 +812,7 @@ const activeTab = ref<"today" | "past">("today");
 const ITEMS_PER_PAGE = 5;
 const todayPage = ref(1);
 const pastPage = ref(1);
+const todaySortOrder = ref<"asc" | "desc">("asc");
 
 const todayTotalPages = computed(() =>
   Math.ceil(todaySessions.value.length / ITEMS_PER_PAGE),
@@ -794,9 +821,17 @@ const pastTotalPages = computed(() =>
   Math.ceil(pastSessions.value.length / ITEMS_PER_PAGE),
 );
 
+const sortedTodaySessions = computed(() => {
+  return [...todaySessions.value].sort((a, b) => {
+    const timeA = new Date(a.scheduledAt).getTime();
+    const timeB = new Date(b.scheduledAt).getTime();
+    return todaySortOrder.value === "asc" ? timeA - timeB : timeB - timeA;
+  });
+});
+
 const paginatedTodaySessions = computed(() => {
   const start = (todayPage.value - 1) * ITEMS_PER_PAGE;
-  return todaySessions.value.slice(start, start + ITEMS_PER_PAGE);
+  return sortedTodaySessions.value.slice(start, start + ITEMS_PER_PAGE);
 });
 const paginatedPastSessions = computed(() => {
   const start = (pastPage.value - 1) * ITEMS_PER_PAGE;
@@ -853,17 +888,11 @@ const fetchTodaySessions = async () => {
       data: SessionItem[];
     }>("/teleconsultations/practitioner/today");
     if (res.success) {
-      // sort: active/upcoming sessions first (nearest at top), then completed
-      const activeStatuses = ["IN_PROGRESS", "WAITING", "SCHEDULED"];
-      todaySessions.value = [...res.data].sort((a, b) => {
-        const aActive = activeStatuses.includes(a.status) ? 0 : 1;
-        const bActive = activeStatuses.includes(b.status) ? 0 : 1;
-        if (aActive !== bActive) return aActive - bActive;
-        // within same group, sort by scheduledAt ascending (nearest first)
-        return (
-          new Date(a.scheduledAt).getTime() - new Date(b.scheduledAt).getTime()
-        );
-      });
+      // Filter out completed/failed/cancelled/no_show sessions (belong in past tab)
+      const activeStatuses = ["SCHEDULED", "WAITING", "IN_PROGRESS"];
+      todaySessions.value = res.data.filter((s) =>
+        activeStatuses.includes(s.status),
+      );
     }
   } catch (e) {
     console.error("Error fetching today sessions:", e);
@@ -1066,12 +1095,23 @@ const getQualityClass = (q: string) => {
 };
 
 const canJoinSession = (session: SessionItem) => {
-  return (
-    session.status === "SCHEDULED" ||
-    session.status === "WAITING" ||
-    session.status === "IN_PROGRESS" ||
-    session.status === "COMPLETED"
-  );
+  // IN_PROGRESS can always be joined
+  if (session.status === "IN_PROGRESS") return true;
+
+  // Only SCHEDULED, WAITING, and COMPLETED can be joined within time window
+  if (
+    session.status !== "SCHEDULED" &&
+    session.status !== "WAITING" &&
+    session.status !== "COMPLETED"
+  )
+    return false;
+
+  const scheduledTime = new Date(session.scheduledAt).getTime();
+  const now = Date.now();
+  const fifteenMin = 15 * 60 * 1000;
+  const sixtyMin = 60 * 60 * 1000;
+  // Can join from 15 min before to 60 min after scheduled time
+  return now >= scheduledTime - fifteenMin && now <= scheduledTime + sixtyMin;
 };
 
 const canMarkNoShow = (session: SessionItem) => {
@@ -1204,6 +1244,10 @@ watch(showPreCallChecks, (val) => {
 watch(pastPeriod, () => {
   pastPage.value = 1;
   fetchPastSessions();
+});
+
+watch(todaySortOrder, () => {
+  todayPage.value = 1;
 });
 
 watch(showHistoryModal, (val) => {
