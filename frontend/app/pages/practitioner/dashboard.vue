@@ -113,7 +113,7 @@
               Voir le dossier
             </UiButton>
             <UiButton
-              v-if="dashboard.nextAppointment.type === 'TELECONSULTATION'"
+              v-if="canJoinNextTeleconsultation"
               size="sm"
               class="flex-1"
               @click="navigateTo('/practitioner/teleconsultations')"
@@ -462,6 +462,19 @@ const newTodoTitle = ref("");
 const addingTodo = ref(false);
 const togglingId = ref<string | null>(null);
 const deletingId = ref<string | null>(null);
+
+const canJoinNextTeleconsultation = computed(() => {
+  if (!dashboard.value?.nextAppointment) return false;
+  const apt = dashboard.value.nextAppointment;
+  if (apt.type !== "TELECONSULTATION") return false;
+  if (apt.status === "CANCELLED" || apt.status === "NO_SHOW") return false;
+  const now = new Date();
+  const aptDate = new Date(apt.appointmentDate);
+  const parts = apt.startTime.split(":").map(Number);
+  aptDate.setHours(parts[0] || 0, parts[1] || 0, 0, 0);
+  const diffMinutes = (aptDate.getTime() - now.getTime()) / (1000 * 60);
+  return diffMinutes <= 15 && diffMinutes >= -60;
+});
 
 const kpiCards = computed(() => [
   {

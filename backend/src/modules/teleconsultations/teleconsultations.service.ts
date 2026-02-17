@@ -255,11 +255,10 @@ export class TeleconsultationsService {
       },
     })
 
-    // mark  appointment as completed
-    await prisma.appointment.update({
-      where: { id: session.appointmentId },
-      data: { status: 'COMPLETED' },
-    })
+    // do not mark the appointment as COMPLETED here.
+    // appointment stays CONFIRMED so both parties can rejoin
+    // within the time iof appoiontùent.  appointment will be marked COMPLETED
+    // when the time of appointment expires (via cleanupExpiredSessions).
 
     // audit
     await prisma.auditLog.create({
@@ -749,6 +748,41 @@ export class TeleconsultationsService {
         })
       }
     }
+
+    // finalize COMPLETED sessions whose rejoin time window has expired
+    // these are sessions where endSession was called but appointment was kept CONFIRMED
+    // so users could rejoin. now that the time window is over, mark appointment as COMPLETED.
+    const completedSessions = await prisma.teleconsultationSession.findMany({
+      where: {
+        status: 'COMPLETED',
+        endedAt: { not: null },
+      },
+      include: {
+        appointment: { select: { id: true, status: true, duration: true } },
+      },
+    })
+
+    for (const session of completedSessions) {
+      // Only process if appointment is still CONFIRMED (not yet finalized)
+      if (
+        session.appointment?.status !== 'CONFIRMED' &&
+        session.appointment?.status !== 'PENDING'
+      )
+        continue
+
+      const scheduledEnd = new Date(
+        session.scheduledAt.getTime() +
+          ((session.appointment?.duration || 30) + 30) * 60 * 1000,
+      )
+
+      // If past the rejoin window, finalize the appointment as COMPLETED
+      if (now > scheduledEnd) {
+        await prisma.appointment.update({
+          where: { id: session.appointmentId },
+          data: { status: 'COMPLETED' },
+        })
+      }
+    }
   }
 
   // get patients teleconsultation appointments
@@ -812,7 +846,7 @@ export class TeleconsultationsService {
     })
 
     // for upcoming rdv exclude todays appointments whose time has already passed
-    //  appointment is considered past if current time is more than 60 min after start time
+    //  appointment is considered past if current time is more than 30 min after end time
     const filtered =
       status === 'upcoming'
         ? allAppointments.filter((apt) => {
@@ -821,12 +855,12 @@ export class TeleconsultationsService {
             const aptStr = `${aptDate.getFullYear()}-${String(aptDate.getMonth() + 1).padStart(2, '0')}-${String(aptDate.getDate()).padStart(2, '0')}`
 
             if (aptStr === todayStr) {
-              // for todays appointments, check if the appointment time has passed
-              const [h, m] = apt.startTime.split(':').map(Number)
-              const appointmentTime = new Date(aptDate)
-              appointmentTime.setHours(h, m, 0, 0)
-              // keep if appointment start time is still in the future or within 60 min window
-              return now.getTime() <= appointmentTime.getTime() + 60 * 60 * 1000
+              // for todays appointments, use endTime + 30 min grace period
+              const [eh, em] = apt.endTime.split(':').map(Number)
+              const appointmentEnd = new Date(aptDate)
+              appointmentEnd.setHours(eh, em, 0, 0)
+              // keep if still within the rejoin window (endTime + 30 min)
+              return now.getTime() <= appointmentEnd.getTime() + 30 * 60 * 1000
             }
             return true // future dates always included
           })
