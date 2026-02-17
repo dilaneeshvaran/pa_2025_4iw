@@ -646,12 +646,20 @@ const canJoinTeleconsultation = (apt: Appointment): boolean => {
   if (apt.status === "CANCELLED" || apt.status === "NO_SHOW") return false;
   const now = new Date();
   const aptDate = new Date(apt.appointmentDate);
-  const parts = apt.startTime.split(":").map(Number);
-  aptDate.setHours(parts[0] || 0, parts[1] || 0, 0, 0);
-  const diffMs = aptDate.getTime() - now.getTime();
-  const diffMinutes = diffMs / (1000 * 60);
-  // Allow joining from 15 min before to 60 min after start, including COMPLETED sessions
-  return diffMinutes <= 15 && diffMinutes >= -60;
+  const startParts = apt.startTime.split(":").map(Number);
+  aptDate.setHours(startParts[0] || 0, startParts[1] || 0, 0, 0);
+
+  // calculate end time from the appointments endTime
+  const endDate = new Date(apt.appointmentDate);
+  const endParts = apt.endTime.split(":").map(Number);
+  endDate.setHours(endParts[0] || 0, endParts[1] || 0, 0, 0);
+
+  const earlyJoinMs = aptDate.getTime() - 15 * 60 * 1000; // 15 min before start
+  const lateJoinMs = endDate.getTime() + 30 * 60 * 1000; // 30 min after end time
+
+  // allow joining from 15 min before to 30 min after appointment end time
+  // this allows rejoining even after ending the call, as long as appointment window is active
+  return now.getTime() >= earlyJoinMs && now.getTime() <= lateJoinMs;
 };
 
 const isTeleconsultationSoon = (apt: Appointment): boolean => {

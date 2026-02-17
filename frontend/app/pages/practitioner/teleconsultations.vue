@@ -881,11 +881,25 @@ const fetchTodaySessions = async () => {
       data: SessionItem[];
     }>("/teleconsultations/practitioner/today");
     if (res.success) {
-      // Filter out completed/failed/cancelled/no_show sessions (belong in past tab)
-      const activeStatuses = ["SCHEDULED", "WAITING", "IN_PROGRESS"];
-      todaySessions.value = res.data.filter((s) =>
-        activeStatuses.includes(s.status),
-      );
+      const now = Date.now();
+      // keep SCHEDULED, WAITING, IN_PROGRESS always.
+      // keep COMPLETED sessions only if still within the rejoin time window
+      // (endTime + 30 min grace period)
+      todaySessions.value = res.data.filter((s) => {
+        const activeStatuses = ["SCHEDULED", "WAITING", "IN_PROGRESS"];
+        if (activeStatuses.includes(s.status)) return true;
+
+        // for COMPLETED sessions, check if the rejoin window is still open
+        if (s.status === "COMPLETED") {
+          const endParts = s.endTime.split(":").map(Number);
+          const endDate = new Date();
+          endDate.setHours(endParts[0] || 0, endParts[1] || 0, 0, 0);
+          const lateJoinMs = endDate.getTime() + 30 * 60 * 1000;
+          return now <= lateJoinMs;
+        }
+
+        return false;
+      });
     }
   } catch (e) {
     console.error("Error fetching today sessions:", e);
@@ -1099,12 +1113,18 @@ const canJoinSession = (session: SessionItem) => {
   )
     return false;
 
-  const scheduledTime = new Date(session.scheduledAt).getTime();
   const now = Date.now();
+  const scheduledTime = new Date(session.scheduledAt).getTime();
   const fifteenMin = 15 * 60 * 1000;
-  const sixtyMin = 60 * 60 * 1000;
-  // Can join from 15 min before to 60 min after scheduled time
-  return now >= scheduledTime - fifteenMin && now <= scheduledTime + sixtyMin;
+
+  // Use endTime for the late boundary (appointment end + 30 min grace)
+  const endParts = session.endTime.split(":").map(Number);
+  const endDate = new Date(session.scheduledAt);
+  endDate.setHours(endParts[0] || 0, endParts[1] || 0, 0, 0);
+  const lateJoinLimit = endDate.getTime() + 30 * 60 * 1000;
+
+  // Can join from 15 min before scheduled to 30 min after appointment end time
+  return now >= scheduledTime - fifteenMin && now <= lateJoinLimit;
 };
 
 const canMarkNoShow = (session: SessionItem) => {
