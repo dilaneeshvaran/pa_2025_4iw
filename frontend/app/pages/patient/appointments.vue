@@ -35,7 +35,7 @@
     </div>
 
     <!-- normal appointment -->
-    <template>
+    <div>
       <!-- search & sort bar -->
       <div
         class="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between"
@@ -243,7 +243,7 @@
           </UiButton>
         </div>
       </div>
-    </template>
+    </div>
 
     <Teleport to="body">
       <div
