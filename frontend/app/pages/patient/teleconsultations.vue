@@ -113,6 +113,32 @@
     </div>
 
     <div v-if="activeTab === 'upcoming'">
+      <div class="mb-4 flex items-center justify-end">
+        <div class="inline-flex rounded-lg border border-gray-300 bg-white">
+          <button
+            :class="[
+              'rounded-l-lg px-3 py-1.5 text-xs font-medium transition-colors',
+              upcomingSortOrder === 'asc'
+                ? 'bg-blue-600 text-white'
+                : 'text-gray-700 hover:bg-gray-50',
+            ]"
+            @click="upcomingSortOrder = 'asc'"
+          >
+            Plus proche
+          </button>
+          <button
+            :class="[
+              'rounded-r-lg px-3 py-1.5 text-xs font-medium transition-colors',
+              upcomingSortOrder === 'desc'
+                ? 'bg-blue-600 text-white'
+                : 'text-gray-700 hover:bg-gray-50',
+            ]"
+            @click="upcomingSortOrder = 'desc'"
+          >
+            Plus tard
+          </button>
+        </div>
+      </div>
       <div v-if="loading" class="space-y-4">
         <div
           v-for="i in 2"
@@ -208,14 +234,6 @@
               >
                 <Clock class="mr-1.5 h-4 w-4" />
                 Disponible dans {{ getTimeUntilJoin(apt) }}
-              </UiButton>
-              <UiButton
-                v-if="canMarkNoShow(apt)"
-                variant="danger"
-                size="sm"
-                @click="markNoShow(apt)"
-              >
-                Non présenté
               </UiButton>
             </div>
           </div>
@@ -494,6 +512,7 @@ const pastTeleconsultations = ref<Appointment[]>([]);
 const ITEMS_PER_PAGE = 5;
 const upcomingPage = ref(1);
 const pastPage = ref(1);
+const upcomingSortOrder = ref<"asc" | "desc">("asc");
 
 const upcomingTotalPages = computed(() =>
   Math.ceil(upcomingTeleconsultations.value.length / ITEMS_PER_PAGE),
@@ -502,8 +521,19 @@ const pastTotalPages = computed(() =>
   Math.ceil(pastTeleconsultations.value.length / ITEMS_PER_PAGE),
 );
 const paginatedUpcoming = computed(() => {
+  const sorted = [...upcomingTeleconsultations.value].sort((a, b) => {
+    const dateA = new Date(a.appointmentDate);
+    const partsA = a.startTime.split(":").map(Number);
+    dateA.setHours(partsA[0] || 0, partsA[1] || 0, 0, 0);
+    const dateB = new Date(b.appointmentDate);
+    const partsB = b.startTime.split(":").map(Number);
+    dateB.setHours(partsB[0] || 0, partsB[1] || 0, 0, 0);
+    return upcomingSortOrder.value === "asc"
+      ? dateA.getTime() - dateB.getTime()
+      : dateB.getTime() - dateA.getTime();
+  });
   const start = (upcomingPage.value - 1) * ITEMS_PER_PAGE;
-  return upcomingTeleconsultations.value.slice(start, start + ITEMS_PER_PAGE);
+  return sorted.slice(start, start + ITEMS_PER_PAGE);
 });
 const paginatedPast = computed(() => {
   const start = (pastPage.value - 1) * ITEMS_PER_PAGE;
@@ -620,6 +650,7 @@ const canJoinTeleconsultation = (apt: Appointment): boolean => {
   aptDate.setHours(parts[0] || 0, parts[1] || 0, 0, 0);
   const diffMs = aptDate.getTime() - now.getTime();
   const diffMinutes = diffMs / (1000 * 60);
+  // Allow joining from 15 min before to 60 min after start, including COMPLETED sessions
   return diffMinutes <= 15 && diffMinutes >= -60;
 };
 
@@ -647,35 +678,6 @@ const getTimeUntilJoin = (apt: Appointment): string => {
     return `${hours}h${mins > 0 ? mins + "min" : ""}`;
   }
   return `${diffMinutes} min`;
-};
-
-const canMarkNoShow = (apt: Appointment): boolean => {
-  if (
-    apt.status === "CANCELLED" ||
-    apt.status === "COMPLETED" ||
-    apt.status === "NO_SHOW"
-  )
-    return false;
-  const now = new Date();
-  const aptDate = new Date(apt.appointmentDate);
-  const parts = apt.startTime.split(":").map(Number);
-  aptDate.setHours(parts[0] || 0, parts[1] || 0, 0, 0);
-  return now.getTime() - aptDate.getTime() > 15 * 60 * 1000;
-};
-
-const markNoShow = async (apt: Appointment) => {
-  try {
-    //teleconsultation session for this appointment
-    if (apt.teleconsultationSession?.id) {
-      await useAuthenticatedFetch(
-        `/teleconsultations/${apt.teleconsultationSession.id}/no-show`,
-        { method: "POST" },
-      );
-      await fetchTeleconsultations();
-    }
-  } catch (e) {
-    console.error("Failed to mark no-show:", e);
-  }
 };
 
 const joinTeleconsultation = async (apt: Appointment) => {
