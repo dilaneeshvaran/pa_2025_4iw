@@ -762,8 +762,6 @@ export class TeleconsultationsService {
     const today = new Date()
     today.setHours(0, 0, 0, 0)
 
-    const skip = (page - 1) * limit
-
     const where: any = {
       patientId,
       type: 'TELECONSULTATION',
@@ -779,46 +777,67 @@ export class TeleconsultationsService {
       ]
     }
 
-    const [appointments, total] = await Promise.all([
-      prisma.appointment.findMany({
-        where,
-        skip,
-        take: limit,
-        orderBy: {
-          appointmentDate: status === 'upcoming' ? 'asc' : 'desc',
-        },
-        include: {
-          practitioner: {
-            select: {
-              id: true,
-              firstName: true,
-              lastName: true,
-              title: true,
-              specialties: {
-                where: { isPrimary: true },
-                include: { specialty: true },
-                take: 1,
-              },
-            },
-          },
-          teleconsultationSession: {
-            select: {
-              id: true,
-              roomId: true,
-              status: true,
-              scheduledAt: true,
-              startedAt: true,
-              endedAt: true,
-              duration: true,
+    const allAppointments = await prisma.appointment.findMany({
+      where,
+      orderBy: {
+        appointmentDate: status === 'upcoming' ? 'asc' : 'desc',
+      },
+      include: {
+        practitioner: {
+          select: {
+            id: true,
+            firstName: true,
+            lastName: true,
+            title: true,
+            specialties: {
+              where: { isPrimary: true },
+              include: { specialty: true },
+              take: 1,
             },
           },
         },
-      }),
-      prisma.appointment.count({ where }),
-    ])
+        teleconsultationSession: {
+          select: {
+            id: true,
+            roomId: true,
+            roomName: true,
+            status: true,
+            scheduledAt: true,
+            startedAt: true,
+            endedAt: true,
+            duration: true,
+          },
+        },
+      },
+    })
+
+    // for upcoming rdv exclude todays appointments whose time has already passed
+    //  appointment is considered past if current time is more than 60 min after start time
+    const filtered =
+      status === 'upcoming'
+        ? allAppointments.filter((apt) => {
+            const aptDate = new Date(apt.appointmentDate)
+            const todayStr = `${today.getFullYear()}-${String(today.getMonth() + 1).padStart(2, '0')}-${String(today.getDate()).padStart(2, '0')}`
+            const aptStr = `${aptDate.getFullYear()}-${String(aptDate.getMonth() + 1).padStart(2, '0')}-${String(aptDate.getDate()).padStart(2, '0')}`
+
+            if (aptStr === todayStr) {
+              // for todays appointments, check if the appointment time has passed
+              const [h, m] = apt.startTime.split(':').map(Number)
+              const appointmentTime = new Date(aptDate)
+              appointmentTime.setHours(h, m, 0, 0)
+              // keep if appointment start time is still in the future or within 60 min window
+              return now.getTime() <= appointmentTime.getTime() + 60 * 60 * 1000
+            }
+            return true // future dates always included
+          })
+        : allAppointments
+
+    const total = filtered.length
+    const skip = (page - 1) * limit
+    const paginated = filtered.slice(skip, skip + limit)
 
     return {
-      data: appointments.map((apt) => ({
+      data: paginated.map((apt) => ({
         id: apt.id,
         appointmentDate: apt.appointmentDate,
         startTime: apt.startTime,
