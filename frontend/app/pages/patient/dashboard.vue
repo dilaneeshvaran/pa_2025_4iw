@@ -507,7 +507,7 @@ const canJoinNext = computed(() => {
   if (!nextAppointment.value) return false;
   const apt = nextAppointment.value;
   if (apt.type !== "TELECONSULTATION") return false;
-  if (apt.status === "CANCELLED" || apt.status === "COMPLETED") return false;
+  if (apt.status === "CANCELLED" || apt.status === "NO_SHOW") return false;
   const now = new Date();
   const aptDate = new Date(apt.appointmentDate);
   const parts = apt.startTime.split(":").map(Number);
