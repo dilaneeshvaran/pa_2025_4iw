@@ -291,14 +291,7 @@
                 <Video class="mr-1.5 h-4 w-4" />
                 Rejoindre
               </UiButton>
-              <UiButton
-                v-if="canMarkNoShow(session)"
-                variant="danger"
-                size="sm"
-                @click="markNoShow(session)"
-              >
-                Non présenté
-              </UiButton>
+
               <UiButton
                 variant="secondary"
                 size="sm"
