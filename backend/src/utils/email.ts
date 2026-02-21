@@ -290,3 +290,65 @@ export async function sendAppointmentReminderEmail(
 
   await sendEmail(to, subject, html)
 }
+
+export async function sendInvoiceEmail(
+  to: string,
+  data: {
+    patientName: string
+    invoiceNumber: string
+    amount: number
+    date: string
+  },
+  pdfBuffer: Buffer,
+): Promise<void> {
+  const html = `
+    <!DOCTYPE html>
+    <html>
+      <head>
+        <meta charset="utf-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1.0">
+        <title>Votre facture MediCôte</title>
+      </head>
+      <body style="font-family: Arial, sans-serif; line-height: 1.6; color: #333; max-width: 600px; margin: 0 auto; padding: 20px;">
+        <div style="background-color: #0066cc; color: white; padding: 20px; text-align: center; border-radius: 5px 5px 0 0;">
+          <h1 style="margin: 0;">MediCôte</h1>
+        </div>
+        <div style="background-color: #f9f9f9; padding: 30px; border-radius: 0 0 5px 5px;">
+          <h2 style="color: #0066cc; margin-top: 0;">Votre facture est disponible</h2>
+          <p>Bonjour ${data.patientName},</p>
+          <p>Veuillez trouver ci-joint votre facture <strong>${data.invoiceNumber}</strong> du ${data.date} pour un montant de <strong>${data.amount.toLocaleString('fr-FR')} FCFA</strong>.</p>
+          
+          <div style="text-align: center; margin: 30px 0;">
+            <a href="${APP_URL}/patient/billing" style="background-color: #0066cc; color: white; padding: 12px 30px; text-decoration: none; border-radius: 5px; display: inline-block; font-weight: bold;">Voir mes factures</a>
+          </div>
+          
+          <p style="color: #666; font-size: 14px; margin-top: 30px;">
+            Merci de votre confiance.
+          </p>
+        </div>
+        <div style="text-align: center; margin-top: 20px; color: #999; font-size: 12px;">
+          <p>© ${new Date().getFullYear()} MediCôte. Tous droits réservés.</p>
+        </div>
+      </body>
+    </html>
+  `
+
+  try {
+    await transporter.sendMail({
+      from: SMTP_FROM,
+      to,
+      subject: `Votre facture ${data.invoiceNumber} - MediCôte`,
+      html,
+      attachments: [
+        {
+          filename: `Facture-${data.invoiceNumber}.pdf`,
+          content: pdfBuffer,
+          contentType: 'application/pdf',
+        },
+      ],
+    })
+  } catch (error) {
+    console.error('Error sending invoice email:', error)
+    throw new Error('Failed to send invoice email')
+  }
+}
