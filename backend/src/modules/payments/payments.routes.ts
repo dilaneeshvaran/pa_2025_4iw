@@ -3,9 +3,11 @@ import { paymentsController } from './payments.controller'
 import { authenticate } from '../../middleware/authenticate'
 import {
   createPaymentSchema,
+  createCabinetPaymentSchema,
   addPaymentMethodSchema,
   verifyPaymentMethodSchema,
 } from './payments.schema'
+import { authorize } from '../../middleware/authorize'
 
 export async function paymentsRoutes(fastify: FastifyInstance) {
   // get patient payments history
@@ -47,6 +49,48 @@ export async function paymentsRoutes(fastify: FastifyInstance) {
     '/invoices/:invoiceId/download',
     { preHandler: [authenticate] },
     paymentsController.downloadInvoicePdf.bind(paymentsController),
+  )
+
+  fastify.get(
+    '/practitioner/invoices',
+    { preHandler: [authenticate, authorize(['PRACTITIONER'])] },
+    paymentsController.getPractitionerInvoices.bind(paymentsController),
+  )
+
+  fastify.get(
+    '/practitioner/unpaid-appointments',
+    { preHandler: [authenticate, authorize(['PRACTITIONER'])] },
+    paymentsController.getPractitionerUnpaidAppointments.bind(
+      paymentsController,
+    ),
+  )
+
+  fastify.post(
+    '/practitioner/cabinet-payment',
+    { preHandler: [authenticate, authorize(['PRACTITIONER'])] },
+    async (request, reply) => {
+      try {
+        createCabinetPaymentSchema.parse(request.body)
+      } catch (error: any) {
+        return reply.status(400).send({
+          success: false,
+          message: error.errors?.[0]?.message || 'Données invalides',
+        })
+      }
+      return paymentsController.createCabinetPayment(request, reply)
+    },
+  )
+
+  fastify.get(
+    '/practitioner/invoices/:invoiceId',
+    { preHandler: [authenticate, authorize(['PRACTITIONER'])] },
+    paymentsController.getPractitionerInvoiceDetail.bind(paymentsController),
+  )
+
+  fastify.get(
+    '/practitioner/invoices/:invoiceId/download',
+    { preHandler: [authenticate, authorize(['PRACTITIONER'])] },
+    paymentsController.downloadPractitionerInvoicePdf.bind(paymentsController),
   )
 
   // get all saved payment methods
