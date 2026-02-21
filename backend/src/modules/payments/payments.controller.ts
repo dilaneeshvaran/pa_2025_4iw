@@ -182,10 +182,10 @@ export class PaymentsController {
       })
 
       return reply
-        .header('Content-Type', 'text/html; charset=utf-8')
+        .header('Content-Type', 'application/pdf')
         .header(
           'Content-Disposition',
-          `attachment; filename="facture-${invoice?.invoiceNumber || invoiceId}.html"`,
+          `attachment; filename="facture-${invoice?.invoiceNumber || invoiceId}.pdf"`,
         )
         .send(pdfBuffer)
     } catch (error) {
@@ -355,6 +355,196 @@ export class PaymentsController {
       request.log.error(error)
       const message =
         error instanceof Error ? error.message : 'Erreur lors de la mise à jour'
+      return reply.status(400).send({ success: false, message })
+    }
+  }
+
+  async getPractitionerInvoices(request: FastifyRequest, reply: FastifyReply) {
+    try {
+      const user = request.user as { id: string; role: string }
+      const query = request.query as {
+        page?: string
+        limit?: string
+        search?: string // allow search by patient name
+        status?: string
+      }
+
+      const practitioner = await prisma.practitioner.findUnique({
+        where: { userId: user.id },
+        select: { id: true },
+      })
+
+      if (!practitioner) {
+        return reply.status(404).send({
+          success: false,
+          message: 'Profil praticien non trouvé',
+        })
+      }
+
+      const result = await paymentsService.getPractitionerInvoices(
+        practitioner.id,
+        parseInt(query.page || '1'),
+        parseInt(query.limit || '10'),
+        query.search,
+        query.status,
+      )
+
+      return reply.send({ success: true, ...result })
+    } catch (error) {
+      request.log.error(error)
+      return reply.status(500).send({
+        success: false,
+        message: 'Erreur lors de la récupération des factures',
+      })
+    }
+  }
+
+  async createCabinetPayment(request: FastifyRequest, reply: FastifyReply) {
+    try {
+      const user = request.user as { id: string; role: string }
+      const body = request.body as any
+
+      const practitioner = await prisma.practitioner.findUnique({
+        where: { userId: user.id },
+        select: { id: true },
+      })
+
+      if (!practitioner) {
+        return reply.status(404).send({
+          success: false,
+          message: 'Profil praticien non trouvé',
+        })
+      }
+
+      const payment = await paymentsService.createCabinetPayment(
+        practitioner.id,
+        body.appointmentId,
+        body.method,
+      )
+
+      return reply.status(201).send({
+        success: true,
+        data: payment,
+        message: 'Facture créée avec succès',
+      })
+    } catch (error) {
+      request.log.error(error)
+      const message =
+        error instanceof Error ? error.message : 'Erreur lors de la facturation'
+      return reply.status(400).send({ success: false, message })
+    }
+  }
+
+  async getPractitionerUnpaidAppointments(
+    request: FastifyRequest,
+    reply: FastifyReply,
+  ) {
+    try {
+      const user = request.user as { id: string; role: string }
+
+      const practitioner = await prisma.practitioner.findUnique({
+        where: { userId: user.id },
+        select: { id: true },
+      })
+
+      if (!practitioner) {
+        return reply.status(404).send({
+          success: false,
+          message: 'Profil praticien non trouvé',
+        })
+      }
+
+      const appointments =
+        await paymentsService.getPractitionerUnpaidAppointments(practitioner.id)
+
+      return reply.send({ success: true, data: appointments })
+    } catch (error) {
+      request.log.error(error)
+      const message =
+        error instanceof Error
+          ? error.message
+          : 'Erreur lors de la récupération des rendez-vous non payés'
+      return reply.status(400).send({ success: false, message })
+    }
+  }
+
+  async getPractitionerInvoiceDetail(
+    request: FastifyRequest,
+    reply: FastifyReply,
+  ) {
+    try {
+      const user = request.user as { id: string; role: string }
+      const { invoiceId } = request.params as { invoiceId: string }
+
+      const practitioner = await prisma.practitioner.findUnique({
+        where: { userId: user.id },
+        select: { id: true },
+      })
+
+      if (!practitioner) {
+        return reply.status(404).send({
+          success: false,
+          message: 'Profil praticien non trouvé',
+        })
+      }
+
+      const invoice = await paymentsService.getPractitionerInvoiceDetail(
+        invoiceId,
+        practitioner.id,
+      )
+
+      return reply.send({ success: true, data: invoice })
+    } catch (error) {
+      request.log.error(error)
+      const message =
+        error instanceof Error
+          ? error.message
+          : 'Erreur lors de la récupération de la facture'
+      return reply.status(400).send({ success: false, message })
+    }
+  }
+
+  async downloadPractitionerInvoicePdf(
+    request: FastifyRequest,
+    reply: FastifyReply,
+  ) {
+    try {
+      const user = request.user as { id: string; role: string }
+      const { invoiceId } = request.params as { invoiceId: string }
+
+      const practitioner = await prisma.practitioner.findUnique({
+        where: { userId: user.id },
+        select: { id: true },
+      })
+
+      if (!practitioner) {
+        return reply.status(404).send({
+          success: false,
+          message: 'Profil praticien non trouvé',
+        })
+      }
+
+      const pdfBuffer = await paymentsService.generatePractitionerInvoicePdf(
+        invoiceId,
+        practitioner.id,
+      )
+
+      const invoice = await prisma.invoice.findUnique({
+        where: { id: invoiceId },
+        select: { invoiceNumber: true },
+      })
+
+      return reply
+        .header('Content-Type', 'application/pdf')
+        .header(
+          'Content-Disposition',
+          `attachment; filename="facture-${invoice?.invoiceNumber || invoiceId}.pdf"`,
+        )
+        .send(pdfBuffer)
+    } catch (error) {
+      request.log.error(error)
+      const message =
+        error instanceof Error ? error.message : 'Erreur lors du téléchargement'
       return reply.status(400).send({ success: false, message })
     }
   }
