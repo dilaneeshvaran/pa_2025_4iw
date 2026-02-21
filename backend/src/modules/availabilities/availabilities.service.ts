@@ -686,6 +686,25 @@ export class AvailabilitiesService {
       },
     })
 
+    // generate invoice number
+    const dateStr = new Date().toISOString().slice(0, 10).replace(/-/g, '')
+    const randomStr = Math.random().toString(36).substring(2, 6).toUpperCase()
+    const invoiceNumber = `INV-${dateStr}-${randomStr}`
+
+    // auto-generate a pendning payment record for this appointment
+    await prisma.payment.create({
+      data: {
+        appointmentId: appointment.id,
+        practitionerId: practitionerId,
+        patientId: data.patientId,
+        amount: consultationFee,
+        status: 'PENDING',
+        method: 'OTHER', // need a placeholder method or making it optional
+        invoiceNumber,
+        currency: 'XOF', // default
+      },
+    })
+
     return {
       id: appointment.id,
       appointmentDate: appointment.appointmentDate,
