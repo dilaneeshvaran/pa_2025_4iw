@@ -192,6 +192,15 @@
             >
               {{ getStatusLabel(apt.status) }}
             </UiBadge>
+            <UiButton
+              v-if="apt.status === 'COMPLETED' && apt.type === 'CABINET'"
+              size="sm"
+              variant="outline"
+              class="ml-2 h-6 px-2 py-0 text-xs"
+              @click.stop="openInvoiceModal(apt)"
+            >
+              Facturer
+            </UiButton>
           </div>
         </div>
       </UiCard>
@@ -382,6 +391,14 @@
         </div>
       </div>
     </UiCard>
+
+    <!-- invoice modal -->
+    <CreateInvoiceModal
+      :is-open="isInvoiceModalOpen"
+      :appointment="selectedAppointmentForInvoice"
+      @close="isInvoiceModalOpen = false"
+      @success="handleInvoiceSuccess"
+    />
   </div>
 </template>
 
@@ -400,7 +417,9 @@ import {
   Plus,
   Check,
   X,
+  Activity,
 } from "lucide-vue-next";
+import CreateInvoiceModal from "~/components/practitioner/CreateInvoiceModal.vue";
 import { useAuthStore } from "~/stores/auth";
 
 definePageMeta({
@@ -640,6 +659,19 @@ const getStatusVariant = (
     NO_SHOW: "danger",
   };
   return map[status] || "default";
+};
+
+const isInvoiceModalOpen = ref(false);
+const selectedAppointmentForInvoice = ref(null);
+
+const openInvoiceModal = (apt: any) => {
+  selectedAppointmentForInvoice.value = apt;
+  isInvoiceModalOpen.value = true;
+};
+
+const handleInvoiceSuccess = (invoice: any) => {
+  isInvoiceModalOpen.value = false;
+  navigateTo("/practitioner/billing");
 };
 
 onMounted(() => {
