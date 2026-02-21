@@ -28,6 +28,18 @@ export const getAvailableSlotsSchema = z.object({
   days: z.coerce.number().min(1).max(90).default(7), // number of days to look ahead
 })
 
+export const getPractitionerStatisticsSchema = z.object({
+  period: z
+    .enum(['semaine', 'mois', 'annee', 'personnalise'])
+    .optional()
+    .default('mois'),
+  startDate: z.string().optional(),
+  endDate: z.string().optional(),
+})
+
 export type SearchPractitionersInput = z.infer<typeof searchPractitionersSchema>
 export type GetPractitionerByIdInput = z.infer<typeof getPractitionerByIdSchema>
 export type GetAvailableSlotsInput = z.infer<typeof getAvailableSlotsSchema>
+export type GetPractitionerStatisticsInput = z.infer<
+  typeof getPractitionerStatisticsSchema
+>
