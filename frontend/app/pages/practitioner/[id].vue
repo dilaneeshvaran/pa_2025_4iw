@@ -489,7 +489,7 @@
       :preselected-date="preselectedDate"
       :preselected-time="preselectedTime"
       @close="isBookingModalOpen = false"
-      @success="isBookingModalOpen = false"
+      @success="fetchAvailableSlots"
     />
   </div>
 </template>
