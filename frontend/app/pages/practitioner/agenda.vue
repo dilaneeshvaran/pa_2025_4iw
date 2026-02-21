@@ -161,6 +161,15 @@
             <UiBadge :variant="getStatusVariant(apt.status)">
               {{ getStatusLabel(apt.status) }}
             </UiBadge>
+            <UiButton
+              v-if="apt.status === 'COMPLETED' && apt.type === 'CABINET'"
+              size="sm"
+              variant="outline"
+              class="ml-2 h-7 px-2 py-0 text-xs"
+              @click.stop="openInvoiceModal(apt)"
+            >
+              Facturer
+            </UiButton>
           </div>
         </div>
       </template>
@@ -1022,6 +1031,13 @@
         </div>
       </div>
     </div>
+    <!-- invoice modal -->
+    <CreateInvoiceModal
+      :is-open="isInvoiceModalOpen"
+      :appointment="selectedAppointmentForInvoice"
+      @close="isInvoiceModalOpen = false"
+      @success="handleInvoiceSuccess"
+    />
   </div>
 </template>
 
@@ -1044,6 +1060,7 @@ import {
   Mail,
   Trash2,
 } from "lucide-vue-next";
+import CreateInvoiceModal from "~/components/practitioner/CreateInvoiceModal.vue";
 import { useAuthStore } from "~/stores/auth";
 
 definePageMeta({
@@ -1826,6 +1843,20 @@ watch([currentDate, calendarView], () => {
   fetchAppointments();
   fetchDaySummary();
 });
+
+const isInvoiceModalOpen = ref(false);
+const selectedAppointmentForInvoice = ref(null);
+
+const openInvoiceModal = (apt: any) => {
+  selectedAppointmentForInvoice.value = apt;
+  isInvoiceModalOpen.value = true;
+};
+
+const handleInvoiceSuccess = (invoice: any) => {
+  isInvoiceModalOpen.value = false;
+  showToast("Facture créée avec succès", "success");
+  navigateTo("/practitioner/billing");
+};
 
 watch(activeTab, (tab) => {
   if (tab === "absences") {
