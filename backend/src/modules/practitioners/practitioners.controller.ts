@@ -5,6 +5,7 @@ import type {
   SearchPractitionersInput,
   GetPractitionerByIdInput,
   GetAvailableSlotsInput,
+  GetPractitionerStatisticsInput,
 } from './practitioners.schema'
 
 export class PractitionersController {
@@ -116,6 +117,52 @@ export class PractitionersController {
       return reply.status(500).send({
         success: false,
         message: 'Failed to get specialties',
+      })
+    }
+  }
+
+  async getStatistics(
+    request: FastifyRequest<{ Querystring: GetPractitionerStatisticsInput }>,
+    reply: FastifyReply,
+  ) {
+    try {
+      if (!request.user?.id) {
+        return reply.status(401).send({
+          success: false,
+          message: 'Unauthorized',
+        })
+      }
+
+      const practitioner = await prisma.practitioner.findUnique({
+        where: { userId: request.user.id },
+      })
+
+      if (!practitioner) {
+        return reply.status(404).send({
+          success: false,
+          message: 'Practitioner not found',
+        })
+      }
+
+      const practitionerId = practitioner.id
+      const { period, startDate, endDate } = request.query
+
+      const data = await practitionersService.getStatistics(
+        practitionerId,
+        period,
+        startDate,
+        endDate,
+      )
+
+      return reply.status(200).send({
+        success: true,
+        data,
+      })
+    } catch (error) {
+      request.log.error(error)
+      return reply.status(500).send({
+        success: false,
+        message: 'Failed to get statistics',
       })
     }
   }
