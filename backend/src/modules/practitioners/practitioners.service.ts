@@ -627,6 +627,127 @@ export class PractitionersService {
   private toRad(degrees: number): number {
     return (degrees * Math.PI) / 180
   }
+
+  // statistics  practitioner
+  async getStatistics(
+    practitionerId: string,
+    period?: string,
+    startDateStr?: string,
+    endDateStr?: string,
+  ) {
+    let startDate = new Date()
+    let endDate = new Date()
+
+    if (period === 'personnalise' && startDateStr && endDateStr) {
+      startDate = new Date(startDateStr)
+      endDate = new Date(endDateStr)
+    } else if (period === 'semaine') {
+      startDate.setDate(startDate.getDate() - 7)
+    } else if (period === 'annee') {
+      startDate.setFullYear(startDate.getFullYear() - 1)
+    } else {
+      // mois default
+      startDate.setMonth(startDate.getMonth() - 1)
+    }
+
+    startDate.setHours(0, 0, 0, 0)
+    endDate.setHours(23, 59, 59, 999)
+
+    const consultations = await prisma.appointment.findMany({
+      where: {
+        practitionerId,
+        appointmentDate: {
+          gte: startDate,
+          lte: endDate,
+        },
+      },
+    })
+
+    const totalConsultations = consultations.filter(
+      (c) => c.status !== 'CANCELLED',
+    ).length
+
+    const completed = consultations.filter(
+      (c) => c.status === 'COMPLETED',
+    ).length
+    const noShow = consultations.filter((c) => c.status === 'NO_SHOW').length
+    const totalFinished = completed + noShow
+    const attendanceRate =
+      totalFinished > 0 ? (completed / totalFinished) * 100 : 0
+
+    const payments = await prisma.payment.findMany({
+      where: {
+        practitionerId,
+        status: 'COMPLETED',
+        paidAt: {
+          gte: startDate,
+          lte: endDate,
+        },
+      },
+    })
+
+    const revenue = payments.reduce((sum, p) => sum + Number(p.amount), 0)
+
+    // patient  considered new if  first appointment is within this period
+    const patientIdsInPeriod = [
+      ...new Set(consultations.map((c) => c.patientId)),
+    ]
+    let newPatients = 0
+    for (const pId of patientIdsInPeriod) {
+      const firstApt = await prisma.appointment.findFirst({
+        where: { practitionerId, patientId: pId, status: 'COMPLETED' },
+        orderBy: { appointmentDate: 'asc' },
+      })
+      if (
+        firstApt &&
+        firstApt.appointmentDate >= startDate &&
+        firstApt.appointmentDate <= endDate
+      ) {
+        newPatients++
+      }
+    }
+
+    const reviews = await prisma.review.findMany({
+      where: {
+        practitionerId,
+        createdAt: {
+          gte: startDate,
+          lte: endDate,
+        },
+      },
+    })
+    const satisfactionScore =
+      reviews.length > 0
+        ? reviews.reduce((sum, r) => sum + r.rating, 0) / reviews.length
+        : 0
+
+    // chart data grouping
+    let groupBy: 'day' | 'month' = period === 'annee' ? 'month' : 'day'
+    const chartMap = new Map<string, number>()
+
+    for (const c of consultations) {
+      if (c.status !== 'CANCELLED') {
+        const dateStr =
+          groupBy === 'month'
+            ? c.appointmentDate.toISOString().substring(0, 7)
+            : c.appointmentDate.toISOString().substring(0, 10)
+        chartMap.set(dateStr, (chartMap.get(dateStr) || 0) + 1)
+      }
+    }
+
+    const chartData = Array.from(chartMap.entries())
+      .map(([date, count]) => ({ date, count }))
+      .sort((a, b) => a.date.localeCompare(b.date))
+
+    return {
+      totalConsultations,
+      attendanceRate: Math.round(attendanceRate),
+      revenue,
+      newPatients,
+      satisfactionScore: Number(satisfactionScore.toFixed(1)),
+      chartData,
+    }
+  }
 }
 
 export const practitionersService = new PractitionersService()
