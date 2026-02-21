@@ -155,6 +155,14 @@
                   <RotateCcw class="h-3.5 w-3.5" />
                   Rembourser
                 </button>
+                <button
+                  v-if="payment.status === 'PENDING'"
+                  class="flex items-center gap-1 rounded-lg bg-blue-600 px-3 py-1.5 text-xs font-medium text-white transition-colors hover:bg-blue-700"
+                  @click="openPaymentModal(payment)"
+                >
+                  <CreditCard class="h-3.5 w-3.5" />
+                  Payer
+                </button>
               </div>
             </div>
           </div>
@@ -667,6 +675,148 @@
         </div>
       </div>
     </Teleport>
+
+    <!-- payment modal -->
+    <Teleport to="body">
+      <div
+        v-if="showPaymentModal"
+        class="fixed inset-0 z-50 flex items-center justify-center bg-black/50"
+        @click.self="showPaymentModal = false"
+      >
+        <div class="mx-4 w-full max-w-lg rounded-xl bg-white p-6 shadow-2xl">
+          <div class="mb-4 flex items-center justify-between">
+            <h3 class="text-lg font-semibold text-gray-900">
+              Paiement de la facture
+            </h3>
+            <button
+              class="rounded-lg p-1 text-gray-400 hover:bg-gray-100"
+              @click="showPaymentModal = false"
+            >
+              <X class="h-5 w-5" />
+            </button>
+          </div>
+
+          <div class="mb-6 rounded-lg bg-gray-50 p-4">
+            <div class="flex justify-between text-sm">
+              <span class="text-gray-600">Montant à payer :</span>
+              <span class="font-bold text-gray-900"
+                >{{ payingPayment?.amount.toLocaleString() }} FCFA</span
+              >
+            </div>
+            <div class="mt-2 flex justify-between text-sm">
+              <span class="text-gray-600">Consultation avec :</span>
+              <span class="font-medium text-gray-900"
+                >Dr.
+                {{ payingPayment?.appointment.practitioner.lastName }}</span
+              >
+            </div>
+          </div>
+
+          <div class="mb-6">
+            <label class="mb-3 block text-sm font-medium text-gray-700"
+              >Moyen de paiement</label
+            >
+            <div class="space-y-3">
+              <label
+                v-for="method in verifiedPaymentMethods"
+                :key="method.id"
+                class="flex cursor-pointer items-center justify-between rounded-lg border p-4 transition-colors hover:bg-gray-50"
+                :class="
+                  selectedPaymentMethod === method.id
+                    ? 'border-blue-500 bg-blue-50 ring-1 ring-blue-500 hover:bg-blue-50'
+                    : 'border-gray-200'
+                "
+              >
+                <div class="flex items-center gap-3">
+                  <input
+                    type="radio"
+                    name="paymentMethod"
+                    :value="method.id"
+                    v-model="selectedPaymentMethod"
+                    class="h-4 w-4 border-gray-300 text-blue-600 focus:ring-blue-500"
+                  />
+                  <div
+                    class="flex h-8 w-8 items-center justify-center rounded-full text-sm"
+                    :class="
+                      method.type === 'MOBILE_MONEY'
+                        ? 'bg-orange-100'
+                        : 'bg-blue-100'
+                    "
+                  >
+                    {{ getMethodIcon(method) }}
+                  </div>
+                  <div>
+                    <div
+                      class="flex items-center gap-2 font-medium text-gray-900"
+                    >
+                      {{ method.label }}
+                      <UiBadge v-if="method.isDefault" variant="primary"
+                        >Défaut</UiBadge
+                      >
+                    </div>
+
+                    <div class="text-xs text-gray-500">
+                      <template v-if="method.type === 'MOBILE_MONEY'">
+                        {{ getOperatorLabel(method.mobileOperator) }}
+                        {{
+                          method.mobileNumber ? " • " + method.mobileNumber : ""
+                        }}
+                      </template>
+                      <template v-else>
+                        {{ method.cardBrand }} •••• {{ method.cardLast4 }}
+                      </template>
+                    </div>
+                  </div>
+                </div>
+              </label>
+
+              <div
+                v-if="verifiedPaymentMethods.length === 0"
+                class="rounded-lg bg-gray-50 p-4 text-center text-sm text-gray-600"
+              >
+                Aucun moyen de paiement vérifié.
+                <button
+                  type="button"
+                  class="mt-2 block w-full text-blue-600 hover:underline"
+                  @click="
+                    showPaymentModal = false;
+                    activeTab = 'methods';
+                  "
+                >
+                  Aller aux moyens de paiement
+                </button>
+              </div>
+            </div>
+          </div>
+
+          <div
+            v-if="paymentError"
+            class="mb-4 rounded-lg bg-red-50 p-3 text-sm text-red-600"
+          >
+            {{ paymentError }}
+          </div>
+
+          <div class="mt-6 flex gap-3">
+            <UiButton
+              variant="outline"
+              class="flex-1"
+              @click="showPaymentModal = false"
+            >
+              Annuler
+            </UiButton>
+            <UiButton
+              class="flex-1"
+              :disabled="!selectedPaymentMethod || processingPayment"
+              @click="processPayment"
+            >
+              {{
+                processingPayment ? "Paiement en cours..." : "Payer maintenant"
+              }}
+            </UiButton>
+          </div>
+        </div>
+      </div>
+    </Teleport>
   </div>
 </template>
 
@@ -803,6 +953,16 @@ const refunding = ref(false);
 const refundError = ref("");
 const refundSuccess = ref("");
 
+const showPaymentModal = ref(false);
+const payingPayment = ref<Payment | null>(null);
+const selectedPaymentMethod = ref("");
+const processingPayment = ref(false);
+const paymentError = ref("");
+
+const verifiedPaymentMethods = computed(() => {
+  return paymentMethods.value.filter((m) => m.isVerified);
+});
+
 // mobile operators
 const mobileOperatorOptions = [
   { value: "orange_money", label: "Orange Money", icon: "🟠" },
@@ -884,7 +1044,7 @@ const downloadInvoice = async (invoiceId: string, _invoiceNumber: string) => {
     );
 
     // open in new window for printing/saving as pdf
-    const blob = new Blob([response], { type: "text/html" });
+    const blob = new Blob([response as Blob], { type: "application/pdf" });
     const url = URL.createObjectURL(blob);
     const printWindow = window.open(url, "_blank");
     if (printWindow) {
@@ -1043,6 +1203,62 @@ const confirmRefund = async () => {
       (error as ApiError)?.data?.message || "Erreur lors du remboursement";
   } finally {
     refunding.value = false;
+  }
+};
+
+const openPaymentModal = (payment: Payment) => {
+  payingPayment.value = payment;
+  paymentError.value = "";
+
+  // set default payment method if available
+  const defaultMethod = verifiedPaymentMethods.value.find((m) => m.isDefault);
+  if (defaultMethod) {
+    selectedPaymentMethod.value = defaultMethod.id;
+  } else if (verifiedPaymentMethods.value.length > 0) {
+    selectedPaymentMethod.value = verifiedPaymentMethods.value[0]?.id || "";
+  } else {
+    selectedPaymentMethod.value = "";
+  }
+
+  showPaymentModal.value = true;
+};
+
+const processPayment = async () => {
+  if (!payingPayment.value || !selectedPaymentMethod.value) return;
+  processingPayment.value = true;
+  paymentError.value = "";
+
+  try {
+    const methodDetails = paymentMethods.value.find(
+      (m) => m.id === selectedPaymentMethod.value,
+    );
+
+    // Call the create payment endpoint
+    const response = await useAuthenticatedFetch<{
+      success: boolean;
+      data: any;
+    }>("/payments", {
+      method: "POST",
+      body: {
+        appointmentId: payingPayment.value.appointmentId,
+        method: methodDetails?.type || "CARD",
+        savedPaymentMethodId: selectedPaymentMethod.value,
+        mobileOperator: methodDetails?.mobileOperator,
+        mobileNumber: methodDetails?.mobileNumber,
+        cardLast4: methodDetails?.cardLast4,
+        cardBrand: methodDetails?.cardBrand,
+      },
+    });
+
+    if (response.success) {
+      showPaymentModal.value = false;
+      await fetchPayments();
+    }
+  } catch (error: unknown) {
+    paymentError.value =
+      (error as ApiError)?.data?.message || "Erreur lors du paiement";
+  } finally {
+    processingPayment.value = false;
   }
 };
 
