@@ -4,7 +4,10 @@ import {
   searchPractitionersSchema,
   getPractitionerByIdSchema,
   getAvailableSlotsSchema,
+  getPractitionerStatisticsSchema,
 } from './practitioners.schema'
+import { authenticate } from '../../middleware/authenticate'
+import { authorize } from '../../middleware/authorize'
 
 export async function practitionersRoutes(fastify: FastifyInstance) {
   fastify.get(
@@ -54,5 +57,19 @@ export async function practitionersRoutes(fastify: FastifyInstance) {
       },
     },
     practitionersController.getAvailableSlots.bind(practitionersController),
+  )
+
+  fastify.get(
+    '/statistics',
+    {
+      preHandler: [authenticate, authorize(['PRACTITIONER'])],
+      schema: {
+        querystring: getPractitionerStatisticsSchema,
+        tags: ['practitioners'],
+        description: 'Get statistics for a practitioner (protected endpoint)',
+      },
+    },
+    (request, reply) =>
+      practitionersController.getStatistics(request as any, reply),
   )
 }
