@@ -14,6 +14,16 @@ export const createPaymentSchema = z.object({
   cardBrand: z.string().optional(),
 })
 
+export const createCabinetPaymentSchema = z.object({
+  appointmentId: z.string().min(1, "L'identifiant du rendez-vous est requis"),
+  method: z.enum(
+    ['CASH', 'CARD', 'MOBILE_MONEY', 'CHECK', 'TRANSFER', 'OTHER'],
+    {
+      message: 'Méthode de paiement invalide',
+    },
+  ),
+})
+
 export const addPaymentMethodSchema = z
   .object({
     type: z.enum(['CARD', 'MOBILE_MONEY'], {
