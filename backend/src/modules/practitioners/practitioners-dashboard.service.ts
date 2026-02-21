@@ -1,6 +1,7 @@
 import prisma from '../../config/database'
 import { AppointmentStatus, AppointmentType } from '@prisma/client'
 import type { DashboardData } from './practitioners-dashboard.types'
+import { UpdateBillingConfigInput } from './practitioners-dashboard.schema'
 import { decrypt } from '../../utils/crypto'
 
 export class PractitionerDashboardService {
@@ -264,7 +265,9 @@ export class PractitionerDashboardService {
         }
         return {
           conversationId: c.id,
-          patientName: `${c.patient.firstName} ${c.patient.lastName}`,
+          patientName: c.patient
+            ? `${c.patient.firstName} ${c.patient.lastName}`
+            : 'Patient Inconnu',
           lastMessage: messagePreview,
           isFromPatient: lastMsg.senderUserId !== practitioner.userId,
           unread:
@@ -345,6 +348,78 @@ export class PractitionerDashboardService {
           noShowMarkedAt: now,
         },
       })
+    }
+  }
+
+  async getBillingConfig(practitionerId: string) {
+    const practitioner = await prisma.practitioner.findUnique({
+      where: { id: practitionerId },
+      select: {
+        baseConsultationFee: true,
+        teleconsultationFee: true,
+        emergencyFee: true,
+        acceptedPaymentMethods: true,
+        bankInfo: true,
+      },
+    })
+
+    if (!practitioner) throw new Error('Practitioner not found')
+
+    return {
+      baseConsultationFee: Number(practitioner.baseConsultationFee),
+      teleconsultationFee: practitioner.teleconsultationFee
+        ? Number(practitioner.teleconsultationFee)
+        : null,
+      emergencyFee: practitioner.emergencyFee
+        ? Number(practitioner.emergencyFee)
+        : null,
+      acceptedPaymentMethods: practitioner.acceptedPaymentMethods,
+      bankInfo: practitioner.bankInfo,
+    }
+  }
+
+  async updateBillingConfig(
+    practitionerId: string,
+    data: UpdateBillingConfigInput,
+  ) {
+    const updateData: any = {}
+
+    if (data.baseConsultationFee !== undefined) {
+      updateData.baseConsultationFee = data.baseConsultationFee
+    }
+    if (data.teleconsultationFee !== undefined) {
+      updateData.teleconsultationFee = data.teleconsultationFee
+    }
+    if (data.emergencyFee !== undefined) {
+      updateData.emergencyFee = data.emergencyFee
+    }
+    if (data.acceptedPaymentMethods !== undefined) {
+      updateData.acceptedPaymentMethods = data.acceptedPaymentMethods
+    }
+    if (data.bankInfo !== undefined) {
+      updateData.bankInfo = data.bankInfo
+    }
+
+    const updated = await prisma.practitioner.update({
+      where: { id: practitionerId },
+      data: updateData,
+      select: {
+        baseConsultationFee: true,
+        teleconsultationFee: true,
+        emergencyFee: true,
+        acceptedPaymentMethods: true,
+        bankInfo: true,
+      },
+    })
+
+    return {
+      baseConsultationFee: Number(updated.baseConsultationFee),
+      teleconsultationFee: updated.teleconsultationFee
+        ? Number(updated.teleconsultationFee)
+        : null,
+      emergencyFee: updated.emergencyFee ? Number(updated.emergencyFee) : null,
+      acceptedPaymentMethods: updated.acceptedPaymentMethods,
+      bankInfo: updated.bankInfo,
     }
   }
 }
