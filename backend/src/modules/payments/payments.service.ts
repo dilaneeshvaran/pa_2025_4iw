@@ -8,6 +8,8 @@ import {
   AddPaymentMethodData,
   InvoiceDetail,
 } from './payments.types'
+import { sendInvoiceEmail } from '../../utils/email'
+import puppeteer from 'puppeteer'
 
 export class PaymentsService {
   // invoice history
@@ -295,6 +297,35 @@ export class PaymentsService {
         billedFromLicense: appointment.practitioner.licenseNumber,
       },
     })
+
+    // send email with pdf
+    try {
+      const pdfBuffer = await this.buildInvoicePdfContent({
+        ...invoice,
+        payment: {
+          ...payment,
+          appointment,
+        },
+      })
+
+      await sendInvoiceEmail(
+        appointment.patient.user.email,
+        {
+          patientName: `${appointment.patient.firstName} ${appointment.patient.lastName}`,
+          invoiceNumber: invoice.invoiceNumber,
+          amount: amount,
+          date: new Date(invoice.invoiceDate).toLocaleDateString('fr-FR', {
+            day: 'numeric',
+            month: 'long',
+            year: 'numeric',
+          }),
+        },
+        pdfBuffer,
+      )
+    } catch (err) {
+      console.error('Failed to send invoice email after payment:', err)
+      // dont fail
+    }
 
     return {
       id: payment.id,
@@ -639,8 +670,8 @@ export class PaymentsService {
       throw new Error("Vous n'avez pas accès à cette facture")
     }
 
-    // generate pdf as plain text based format (no pdfkit req)
-    const pdf = this.buildInvoicePdfContent(invoice)
+    // generate pdf
+    const pdf = await this.buildInvoicePdfContent(invoice)
     return pdf
   }
 
@@ -652,7 +683,7 @@ export class PaymentsService {
     return `${masked}${visible}`
   }
 
-  private buildInvoicePdfContent(invoice: any): Buffer {
+  private async buildInvoicePdfContent(invoice: any): Promise<Buffer> {
     // build structured text/html receipt that can easily rendered as pdf in the front
     // todo : in prod use a service like puppeteer or wkhtmltopdf
     const items = (invoice.items as any[]) || []
@@ -788,8 +819,295 @@ export class PaymentsService {
   </div>
 </body>
 </html>`
+    const browser = await puppeteer.launch({
+      headless: true,
+      args: ['--no-sandbox', '--disable-setuid-sandbox'],
+    })
+    const page = await browser.newPage()
+    await page.setContent(html, { waitUntil: 'networkidle0' })
+    const pdfBufferArray = await page.pdf({
+      format: 'A4',
+      printBackground: true,
+    })
+    await browser.close()
 
-    return Buffer.from(html, 'utf-8')
+    return Buffer.from(pdfBufferArray)
+  }
+
+  async getPractitionerInvoices(
+    practitionerId: string,
+    page = 1,
+    limit = 10,
+    search?: string,
+    status?: string,
+  ) {
+    const skip = (page - 1) * limit
+    const where: any = { practitionerId, invoice: { isNot: null } }
+
+    if (status && status !== 'all') {
+      where.status = status.toUpperCase() as PaymentStatus
+    }
+
+    if (search) {
+      where.appointment = {
+        patient: {
+          OR: [
+            { firstName: { contains: search, mode: 'insensitive' } },
+            { lastName: { contains: search, mode: 'insensitive' } },
+          ],
+        },
+      }
+    }
+
+    const [payments, total] = await Promise.all([
+      prisma.payment.findMany({
+        where,
+        skip,
+        take: limit,
+        orderBy: { createdAt: 'desc' },
+        include: {
+          appointment: {
+            include: {
+              patient: {
+                select: { firstName: true, lastName: true },
+              },
+            },
+          },
+          invoice: {
+            select: { id: true, invoiceNumber: true, pdfPath: true },
+          },
+        },
+      }),
+      prisma.payment.count({ where }),
+    ])
+
+    return {
+      data: payments.map((p) => ({
+        id: p.id,
+        appointmentId: p.appointmentId,
+        amount: Number(p.amount),
+        currency: p.currency,
+        method: p.method,
+        status: p.status,
+        patientName: p.appointment.patient
+          ? `${p.appointment.patient.firstName} ${p.appointment.patient.lastName}`
+          : 'Anonyme',
+        appointmentType: p.appointment.type,
+        invoiceNumber: p.invoice?.invoiceNumber,
+        paidAt: p.paidAt?.toISOString() || null,
+        createdAt: p.createdAt.toISOString(),
+        invoice: p.invoice,
+      })),
+      total,
+      page,
+      limit,
+      totalPages: Math.ceil(total / limit),
+    }
+  }
+
+  async createCabinetPayment(
+    practitionerId: string,
+    appointmentId: string,
+    methodStr: string,
+  ) {
+    const appointment = await prisma.appointment.findUnique({
+      where: { id: appointmentId },
+      include: {
+        payment: true,
+        patient: { include: { user: { select: { email: true } } } },
+        practitioner: true,
+      },
+    })
+
+    if (!appointment) throw new Error('Rendez-vous non trouvé')
+    if (appointment.practitionerId !== practitionerId)
+      throw new Error('Accès refusé')
+    if (appointment.payment)
+      throw new Error('Ce rendez-vous a déjà été facturé')
+    if (appointment.status === 'CANCELLED')
+      throw new Error('Rendez-vous annulé')
+
+    // unique invoice number MED-YYYYMMDD-XXXX
+    const now = new Date()
+    const dateStr = now.toISOString().slice(0, 10).replace(/-/g, '')
+    const count = await prisma.payment.count()
+    const invoiceNumber = `CAB-${dateStr}-${(count + 1).toString().padStart(4, '0')}`
+
+    const amount = Number(appointment.consultationFee || 0)
+
+    const payment = await prisma.payment.create({
+      data: {
+        appointmentId,
+        patientId: appointment.patientId,
+        practitionerId,
+        amount,
+        currency: 'XOF',
+        method: methodStr as PaymentMethod,
+        status: 'COMPLETED',
+        invoiceNumber,
+        paidAt: now,
+      },
+    })
+
+    const invoice = await prisma.invoice.create({
+      data: {
+        paymentId: payment.id,
+        invoiceNumber,
+        invoiceDate: now,
+        subtotal: amount,
+        taxRate: 0,
+        taxAmount: 0,
+        total: amount,
+        currency: 'XOF',
+        items: [
+          {
+            description: `Consultation En cabinet - ${appointment.practitioner.title} ${appointment.practitioner.lastName}`,
+            quantity: 1,
+            unitPrice: amount,
+            amount: amount,
+          },
+        ],
+        billedToName: `${appointment.patient.firstName} ${appointment.patient.lastName}`,
+        billedToAddress: appointment.patient.address || null,
+        billedToEmail: appointment.patient.user.email,
+        billedToPhone: appointment.patient.phone,
+        billedFromName: `${appointment.practitioner.title} ${appointment.practitioner.firstName} ${appointment.practitioner.lastName}`,
+        billedFromAddress: appointment.practitioner.address || null,
+        billedFromLicense: appointment.practitioner.licenseNumber,
+      },
+    })
+
+    // send email with pdf on joint piece
+    try {
+      const pdfBuffer = await this.buildInvoicePdfContent({
+        ...invoice,
+        payment: {
+          ...payment,
+          appointment,
+        },
+      })
+
+      await sendInvoiceEmail(
+        appointment.patient.user.email,
+        {
+          patientName: `${appointment.patient.firstName} ${appointment.patient.lastName}`,
+          invoiceNumber: invoice.invoiceNumber,
+          amount: amount,
+          date: new Date(invoice.invoiceDate).toLocaleDateString('fr-FR', {
+            day: 'numeric',
+            month: 'long',
+            year: 'numeric',
+          }),
+        },
+        pdfBuffer,
+      )
+    } catch (err) {
+      console.error('Failed to send invoice email after cabinet payment:', err)
+      // dont fail
+    }
+
+    return { ...payment, invoice }
+  }
+
+  async getPractitionerUnpaidAppointments(practitionerId: string) {
+    // get appointments that are completed or past their date without any payment record
+    const today = new Date()
+    today.setHours(0, 0, 0, 0)
+    const now = new Date()
+
+    const appointments = await prisma.appointment.findMany({
+      where: {
+        practitionerId,
+        payment: null, // no payment exists
+        OR: [
+          { status: 'COMPLETED' },
+          {
+            status: { in: ['CONFIRMED', 'PENDING'] },
+            appointmentDate: { lt: today },
+          },
+          {
+            status: { in: ['CONFIRMED', 'PENDING'] },
+            appointmentDate: today,
+          },
+        ],
+      },
+      include: {
+        patient: {
+          select: {
+            id: true,
+            firstName: true,
+            lastName: true,
+            phone: true,
+          },
+        },
+      },
+      orderBy: {
+        appointmentDate: 'desc',
+      },
+    })
+
+    // filter todays appointments by checking time
+    const filtered = appointments.filter((apt) => {
+      if (apt.status === 'COMPLETED') return true
+      const aptDate = new Date(apt.appointmentDate)
+      if (aptDate < today) return true
+
+      if (aptDate.getTime() === today.getTime()) {
+        const [hours, minutes] = apt.endTime.split(':').map(Number)
+        const appointmentEndTime = new Date(today)
+        appointmentEndTime.setHours(hours, minutes, 0, 0)
+        return appointmentEndTime < now
+      }
+      return false
+    })
+
+    return filtered
+  }
+
+  async getPractitionerInvoiceDetail(
+    invoiceId: string,
+    practitionerId: string,
+  ) {
+    const invoice = await prisma.invoice.findUnique({
+      where: { id: invoiceId },
+      include: {
+        payment: {
+          include: {
+            appointment: {
+              include: {
+                patient: { select: { firstName: true, lastName: true } },
+              },
+            },
+          },
+        },
+      },
+    })
+
+    if (!invoice) throw new Error('Facture non trouvée')
+    if (invoice.payment.practitionerId !== practitionerId)
+      throw new Error('Accès refusé')
+
+    return invoice
+  }
+
+  async generatePractitionerInvoicePdf(
+    invoiceId: string,
+    practitionerId: string,
+  ) {
+    const invoice = await prisma.invoice.findUnique({
+      where: { id: invoiceId },
+      include: {
+        payment: {
+          include: { patient: true, practitioner: true, appointment: true },
+        },
+      },
+    })
+
+    if (!invoice) throw new Error('Facture non trouvée')
+    if (invoice.payment.practitionerId !== practitionerId)
+      throw new Error('Accès refusé')
+
+    return await this.buildInvoicePdfContent(invoice)
   }
 }
 
