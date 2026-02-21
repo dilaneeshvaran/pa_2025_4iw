@@ -1,7 +1,10 @@
 import { FastifyRequest, FastifyReply } from 'fastify'
 import { practitionerDashboardService } from './practitioners-dashboard.service'
 import prisma from '../../config/database'
-import { createTodoSchema } from './practitioners-dashboard.schema'
+import {
+  createTodoSchema,
+  updateBillingConfigSchema,
+} from './practitioners-dashboard.schema'
 
 export class PractitionerDashboardController {
   async getDashboard(request: FastifyRequest, reply: FastifyReply) {
@@ -149,6 +152,83 @@ export class PractitionerDashboardController {
       return reply.status(400).send({
         success: false,
         message,
+      })
+    }
+  }
+
+  async getBillingConfig(request: FastifyRequest, reply: FastifyReply) {
+    try {
+      const user = request.user as { id: string }
+      const practitioner = await prisma.practitioner.findUnique({
+        where: { userId: user.id },
+        select: { id: true },
+      })
+
+      if (!practitioner) {
+        return reply.status(404).send({
+          success: false,
+          message: 'Practitioner profile not found',
+        })
+      }
+
+      const config = await practitionerDashboardService.getBillingConfig(
+        practitioner.id,
+      )
+
+      return reply.status(200).send({
+        success: true,
+        data: config,
+      })
+    } catch (error) {
+      request.log.error(error)
+      return reply.status(500).send({
+        success: false,
+        message: 'Failed to get billing config',
+      })
+    }
+  }
+
+  async updateBillingConfig(request: FastifyRequest, reply: FastifyReply) {
+    try {
+      const user = request.user as { id: string }
+      const body = updateBillingConfigSchema.parse(request.body)
+
+      const practitioner = await prisma.practitioner.findUnique({
+        where: { userId: user.id },
+        select: { id: true },
+      })
+
+      if (!practitioner) {
+        return reply.status(404).send({
+          success: false,
+          message: 'Practitioner profile not found',
+        })
+      }
+
+      const config = await practitionerDashboardService.updateBillingConfig(
+        practitioner.id,
+        body,
+      )
+
+      return reply.status(200).send({
+        success: true,
+        message: 'Configuration mise à jour avec succès',
+        data: config,
+      })
+    } catch (error) {
+      request.log.error(error)
+
+      if (error instanceof Error && error.name === 'ZodError') {
+        return reply.status(400).send({
+          success: false,
+          message: 'Validation error',
+          errors: error,
+        })
+      }
+
+      return reply.status(500).send({
+        success: false,
+        message: 'Failed to update billing config',
       })
     }
   }
