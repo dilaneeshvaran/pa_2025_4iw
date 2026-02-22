@@ -422,6 +422,90 @@ export class PractitionerDashboardService {
       bankInfo: updated.bankInfo,
     }
   }
+
+  async getProfile(practitionerId: string) {
+    const p = await prisma.practitioner.findUnique({
+      where: { id: practitionerId },
+      include: { qualifications: true },
+    })
+    if (!p) throw new Error('Not found')
+    return {
+      id: p.id,
+      userId: p.userId,
+      firstName: p.firstName,
+      lastName: p.lastName,
+      title: p.title,
+      phone: p.phone,
+      bio: p.bio,
+      languages: p.languages,
+      photoUrl: p.photoUrl,
+      address: p.address,
+      city: p.city,
+      postalCode: p.postalCode,
+      country: p.country,
+      qualifications: p.qualifications,
+    }
+  }
+
+  async updateProfile(practitionerId: string, data: any) {
+    const { qualifications, ...rest } = data
+    if (qualifications) {
+      await prisma.qualification.deleteMany({ where: { practitionerId } })
+      for (const q of qualifications) {
+        await prisma.qualification.create({
+          data: {
+            practitionerId,
+            title: q.title,
+            institution: q.institution,
+            yearObtained: q.yearObtained,
+          },
+        })
+      }
+    }
+    const p = await prisma.practitioner.update({
+      where: { id: practitionerId },
+      data: rest,
+      include: { qualifications: true },
+    })
+    return {
+      userId: p.userId,
+      firstName: p.firstName,
+      lastName: p.lastName,
+      title: p.title,
+      phone: p.phone,
+      bio: p.bio,
+      languages: p.languages,
+      photoUrl: p.photoUrl,
+      qualifications: p.qualifications,
+    }
+  }
+
+  async getSubscription(practitionerId: string) {
+    let sub = await prisma.subscription.findUnique({
+      where: { practitionerId },
+    })
+    if (!sub) {
+      sub = await prisma.subscription.create({
+        data: {
+          practitionerId,
+          plan: 'PREMIUM',
+          status: 'ACTIVE',
+        },
+      })
+    }
+    return sub
+  }
+
+  async cancelSubscription(practitionerId: string) {
+    const sub = await prisma.subscription.findUnique({
+      where: { practitionerId },
+    })
+    if (!sub) throw new Error('Not found')
+    return prisma.subscription.update({
+      where: { practitionerId },
+      data: { cancelAtPeriodEnd: true },
+    })
+  }
 }
 
 export const practitionerDashboardService = new PractitionerDashboardService()
