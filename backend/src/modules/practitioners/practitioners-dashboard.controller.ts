@@ -232,6 +232,80 @@ export class PractitionerDashboardController {
       })
     }
   }
+
+  async getProfile(request: FastifyRequest, reply: FastifyReply) {
+    try {
+      const user = request.user as { id: string }
+      const practitioner = await prisma.practitioner.findUnique({
+        where: { userId: user.id },
+        select: { id: true },
+      })
+      if (!practitioner)
+        return reply.status(404).send({ success: false, message: 'Not found' })
+      const data = await practitionerDashboardService.getProfile(
+        practitioner.id,
+      )
+      return reply.send({ success: true, data })
+    } catch (e: any) {
+      return reply.status(500).send({ success: false, message: e.message })
+    }
+  }
+
+  async updateProfile(request: FastifyRequest, reply: FastifyReply) {
+    try {
+      const user = request.user as { id: string }
+      const practitioner = await prisma.practitioner.findUnique({
+        where: { userId: user.id },
+        select: { id: true },
+      })
+      if (!practitioner)
+        return reply.status(404).send({ success: false, message: 'Not found' })
+      const body = request.body as any
+      const data = await practitionerDashboardService.updateProfile(
+        practitioner.id,
+        body,
+      )
+      return reply.send({ success: true, data })
+    } catch (e: any) {
+      return reply.status(500).send({ success: false, message: e.message })
+    }
+  }
+
+  async getSubscription(request: FastifyRequest, reply: FastifyReply) {
+    try {
+      const user = request.user as { id: string }
+      const practitioner = await prisma.practitioner.findUnique({
+        where: { userId: user.id },
+        select: { id: true },
+      })
+      if (!practitioner)
+        return reply.status(404).send({ success: false, message: 'Not found' })
+      const data = await practitionerDashboardService.getSubscription(
+        practitioner.id,
+      )
+      return reply.send({ success: true, data })
+    } catch (e: any) {
+      return reply.status(500).send({ success: false, message: e.message })
+    }
+  }
+
+  async cancelSubscription(request: FastifyRequest, reply: FastifyReply) {
+    try {
+      const user = request.user as { id: string }
+      const practitioner = await prisma.practitioner.findUnique({
+        where: { userId: user.id },
+        select: { id: true },
+      })
+      if (!practitioner)
+        return reply.status(404).send({ success: false, message: 'Not found' })
+      const data = await practitionerDashboardService.cancelSubscription(
+        practitioner.id,
+      )
+      return reply.send({ success: true, data })
+    } catch (e: any) {
+      return reply.status(500).send({ success: false, message: e.message })
+    }
+  }
 }
 
 export const practitionerDashboardController =
