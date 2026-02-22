@@ -215,6 +215,9 @@ model Practitioner {
   staffMembers             Staff[]
   teleconsultationSessions TeleconsultationSession[]
   virtualQueueEntries      VirtualQueue[]
+  languages                String[]                  @default([])
+  photoUrl                 String?
+  subscription             Subscription?
 
   @@index([userId])
   @@index([licenseNumber])
@@ -1126,4 +1129,19 @@ enum ContactRequestStatus {
   APPROVED
   REJECTED
   CANCELLED
+}
+
+model Subscription {
+  id                String       @id @default(cuid())
+  practitionerId    String       @unique
+  plan              String       @default("PREMIUM")
+  status            String       @default("ACTIVE")
+  currentPeriodEnd  DateTime?
+  cancelAtPeriodEnd Boolean      @default(false)
+  createdAt         DateTime     @default(now())
+  updatedAt         DateTime     @updatedAt
+  practitioner      Practitioner @relation(fields: [practitionerId], references: [id], onDelete: Cascade)
+
+  @@index([practitionerId])
+  @@map("subscriptions")
 }
