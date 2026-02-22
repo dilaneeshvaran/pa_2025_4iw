@@ -19,6 +19,7 @@ export class SettingsService {
         email: true,
         emailVerified: true,
         twoFactorEnabled: true,
+        role: true,
         patient: {
           select: {
             id: true,
@@ -36,8 +37,8 @@ export class SettingsService {
       },
     })
 
-    if (!user || !user.patient) {
-      throw new Error('Profil patient introuvable')
+    if (!user) {
+      throw new Error('Utilisateur introuvable')
     }
 
     return {
@@ -45,10 +46,13 @@ export class SettingsService {
       email: user.email,
       emailVerified: !!user.emailVerified,
       twoFactorEnabled: user.twoFactorEnabled,
-      patient: {
-        ...user.patient,
-        dateOfBirth: user.patient.dateOfBirth.toISOString().split('T')[0],
-      },
+      role: user.role,
+      patient: user.patient
+        ? {
+            ...user.patient,
+            dateOfBirth: user.patient.dateOfBirth.toISOString().split('T')[0],
+          }
+        : null,
     }
   }
 
