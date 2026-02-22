@@ -5,6 +5,7 @@ import { practitionerDashboardController } from './practitioners-dashboard.contr
 import {
   createTodoSchema,
   updateBillingConfigSchema,
+  updatePractitionerProfileSchema,
 } from './practitioners-dashboard.schema'
 
 export async function practitionerDashboardRoutes(fastify: FastifyInstance) {
@@ -90,6 +91,41 @@ export async function practitionerDashboardRoutes(fastify: FastifyInstance) {
       },
     },
     practitionerDashboardController.updateBillingConfig.bind(
+      practitionerDashboardController,
+    ),
+  )
+
+  fastify.get(
+    '/profile',
+    { preHandler: [authenticate, authorize(['PRACTITIONER'])] },
+    practitionerDashboardController.getProfile.bind(
+      practitionerDashboardController,
+    ),
+  )
+
+  fastify.patch(
+    '/profile',
+    {
+      preHandler: [authenticate, authorize(['PRACTITIONER'])],
+      schema: { body: updatePractitionerProfileSchema },
+    },
+    practitionerDashboardController.updateProfile.bind(
+      practitionerDashboardController,
+    ),
+  )
+
+  fastify.get(
+    '/subscription',
+    { preHandler: [authenticate, authorize(['PRACTITIONER'])] },
+    practitionerDashboardController.getSubscription.bind(
+      practitionerDashboardController,
+    ),
+  )
+
+  fastify.post(
+    '/subscription/cancel',
+    { preHandler: [authenticate, authorize(['PRACTITIONER'])] },
+    practitionerDashboardController.cancelSubscription.bind(
       practitionerDashboardController,
     ),
   )
