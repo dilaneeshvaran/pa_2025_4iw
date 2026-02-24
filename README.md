@@ -46,6 +46,7 @@ This starts a PostgreSQL database container.
 ```bash
 cd backend
 npx prisma migrate dev
+npx prisma generate
 ```
 
 ### 5. Seed the Database (Optional)
