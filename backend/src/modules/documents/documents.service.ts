@@ -254,6 +254,7 @@ export class DocumentsService {
     return prisma.document.delete({ where: { id: documentId } })
   }
 
+  // for tab count indicator, search filters applied
   private async getReceivedCounts(patientId: string, search?: string) {
     const baseWhere: Prisma.DocumentWhereInput = {
       OR: [

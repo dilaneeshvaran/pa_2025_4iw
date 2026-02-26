@@ -423,7 +423,7 @@ const downloadPdf = async (invoiceId: string, invoiceNumber: string) => {
       },
     );
 
-    // create blob from response
+    // create blob from binary in response with file type detail to triger download
     const url = window.URL.createObjectURL(
       new Blob([response as Blob], { type: "application/pdf" }),
     );

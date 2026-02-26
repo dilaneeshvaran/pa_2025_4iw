@@ -9,6 +9,7 @@
         <div
           class="max-h-[90vh] w-full max-w-lg overflow-y-auto rounded-lg bg-white shadow-xl"
         >
+          <!-- for practitioner dash -->
           <!-- loading -->
           <div v-if="loading" class="p-6">
             <div class="animate-pulse space-y-4">

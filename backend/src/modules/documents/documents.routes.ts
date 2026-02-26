@@ -143,6 +143,7 @@ export async function documentsRoutes(fastify: FastifyInstance) {
           })
         }
 
+        //filesystem stream for performance = avoid loading entire file in memory
         const stream = fs.createReadStream(filePath)
         return reply
           .header('Content-Type', document.mimeType)

@@ -1,6 +1,9 @@
 import { FastifyInstance, FastifyRequest, FastifyReply } from 'fastify'
 import { messagesService } from './messages.service'
-import { authenticate } from '../../middleware/authenticate'
+import {
+  authenticate,
+  authenticateAttachmentRequest,
+} from '../../middleware/authenticate'
 import { authorize } from '../../middleware/authorize'
 import {
   sendMessageSchema,
@@ -15,28 +18,10 @@ import {
   FILE_CONSTRAINTS,
 } from '../../utils/file-upload'
 import { sendToUser } from '../../plugins/websocket'
+import { practitionersService } from '../practitioners/practitioners.service'
+import { patientsService } from '../patients/patients.service'
 import path from 'path'
 import fs from 'fs'
-
-async function authenticateAttachmentRequest(
-  request: FastifyRequest,
-  reply: FastifyReply,
-) {
-  const query = (request.query ?? {}) as { token?: string }
-  const token = query.token
-
-  if (
-    !request.headers.authorization &&
-    typeof token === 'string' &&
-    token.length > 0
-  ) {
-    ;(
-      request.headers as Record<string, string | string[] | undefined>
-    ).authorization = `Bearer ${token}`
-  }
-
-  return authenticate(request, reply)
-}
 
 export async function messagesRoutes(fastify: FastifyInstance) {
   fastify.get(
@@ -132,7 +117,7 @@ export async function messagesRoutes(fastify: FastifyInstance) {
         const user = request.user as { id: string }
         const body = startConversationSchema.parse(request.body)
 
-        const patientId = await messagesService.getPatientIdFromUserId(user.id)
+        const patientId = await patientsService.getPatientIdFromUserId(user.id)
         if (!patientId) {
           return reply.status(400).send({
             success: false,
@@ -202,7 +187,7 @@ export async function messagesRoutes(fastify: FastifyInstance) {
         const body = startConversationWithPatientSchema.parse(request.body)
 
         const practitionerId =
-          await messagesService.getPractitionerIdFromUserId(user.id)
+          await practitionersService.getPractitionerIdFromUserId(user.id)
         if (!practitionerId) {
           return reply.status(400).send({
             success: false,
@@ -262,7 +247,7 @@ export async function messagesRoutes(fastify: FastifyInstance) {
         const body = startConversationWithPractitionerSchema.parse(request.body)
 
         const practitionerId =
-          await messagesService.getPractitionerIdFromUserId(user.id)
+          await practitionersService.getPractitionerIdFromUserId(user.id)
         if (!practitionerId) {
           return reply.status(400).send({
             success: false,
@@ -437,7 +422,7 @@ export async function messagesRoutes(fastify: FastifyInstance) {
 
         // optional content from fields
         const contentField = (data.fields as any)?.content
-        const content = contentField?.value || '📎 Fichier joint'
+        const content = contentField?.value || 'Fichier joint'
 
         const attachment = {
           originalName: uploadedFile.originalName,
@@ -565,7 +550,7 @@ export async function messagesRoutes(fastify: FastifyInstance) {
     },
   )
 
-  // soft delete
+  // soft delete (todo:archive)
   fastify.delete(
     '/conversations/:id',
     { preHandler: [authenticate] },
@@ -640,7 +625,7 @@ export async function messagesRoutes(fastify: FastifyInstance) {
     },
   )
 
-  //  messageable practitioners (for PATIENT)
+  //  messageable practitioners (for patient)
   fastify.get(
     '/practitioners',
     { preHandler: [authenticate, authorize(['PATIENT'])] },

@@ -11,7 +11,12 @@ export default defineNuxtRouteMiddleware((to, _from) => {
     authStore.initAuth();
   }
 
-  // after initialization, if not authenticated, redirect to login
+  //todo : this is redirecting to login from dashboard after few hours of inactivity
+  // so the correct way is to :
+  // check if authenticated
+  // if not > try to refresh the token first
+  // if refresh succeeds > let through
+  // if refresh fails > redirect to login
   if (!authStore.isAuthenticated) {
     return navigateTo({
       path: "/auth/login",

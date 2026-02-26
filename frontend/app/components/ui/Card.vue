@@ -1,4 +1,5 @@
 <template>
+  <!-- practitioner public profil  -->
   <div :class="cn('rounded-lg border bg-white p-6 shadow-sm', className)">
     <slot />
   </div>

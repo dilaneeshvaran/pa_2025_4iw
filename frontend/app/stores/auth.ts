@@ -14,7 +14,7 @@ interface AuthState {
   refreshToken: string | null;
   isAuthenticated: boolean;
 }
-
+//pinia memory resets on page refresh so we use localstorage
 export const useAuthStore = defineStore("auth", {
   state: (): AuthState => ({
     user: null,

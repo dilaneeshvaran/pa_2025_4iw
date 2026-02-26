@@ -1,4 +1,5 @@
 <template>
+  <!-- practitioner photo -->
   <img
     v-if="!hasError"
     :src="src"

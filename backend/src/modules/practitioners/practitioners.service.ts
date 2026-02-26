@@ -628,6 +628,14 @@ export class PractitionersService {
     return (degrees * Math.PI) / 180
   }
 
+  async getPractitionerIdFromUserId(userId: string): Promise<string | null> {
+    const practitioner = await prisma.practitioner.findUnique({
+      where: { userId },
+      select: { id: true },
+    })
+    return practitioner?.id ?? null
+  }
+
   // statistics  practitioner
   async getStatistics(
     practitionerId: string,

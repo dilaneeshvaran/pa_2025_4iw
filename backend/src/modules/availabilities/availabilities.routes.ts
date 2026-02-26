@@ -1,8 +1,8 @@
 import { FastifyInstance } from 'fastify'
 import { availabilitiesService } from './availabilities.service'
+import { practitionersService } from '../practitioners/practitioners.service'
 import { authenticate } from '../../middleware/authenticate'
 import { authorize } from '../../middleware/authorize'
-import prisma from '../../config/database'
 import {
   upsertAvailabilitySchema,
   createAbsenceSchema,
@@ -11,19 +11,12 @@ import {
   createPractitionerAppointmentSchema,
 } from './availabilities.schema'
 
-async function getPractitionerId(userId: string): Promise<string | null> {
-  const p = await prisma.practitioner.findUnique({
-    where: { userId },
-    select: { id: true },
-  })
-  return p?.id || null
-}
-
 export async function availabilitiesRoutes(fastify: FastifyInstance) {
   const preHandler = [authenticate, authorize(['PRACTITIONER'])]
 
   fastify.get('/availabilities', { preHandler }, async (request, reply) => {
-    const practitionerId = await getPractitionerId(request.user!.id)
+    const practitionerId =
+      await practitionersService.getPractitionerIdFromUserId(request.user!.id)
     if (!practitionerId)
       return reply
         .status(404)
@@ -35,7 +28,8 @@ export async function availabilitiesRoutes(fastify: FastifyInstance) {
 
   fastify.post('/availabilities', { preHandler }, async (request, reply) => {
     try {
-      const practitionerId = await getPractitionerId(request.user!.id)
+      const practitionerId =
+        await practitionersService.getPractitionerIdFromUserId(request.user!.id)
       if (!practitionerId)
         return reply
           .status(404)
@@ -63,7 +57,10 @@ export async function availabilitiesRoutes(fastify: FastifyInstance) {
     { preHandler },
     async (request, reply) => {
       try {
-        const practitionerId = await getPractitionerId(request.user!.id)
+        const practitionerId =
+          await practitionersService.getPractitionerIdFromUserId(
+            request.user!.id,
+          )
         if (!practitionerId)
           return reply
             .status(404)
@@ -81,7 +78,8 @@ export async function availabilitiesRoutes(fastify: FastifyInstance) {
   )
 
   fastify.get('/absences', { preHandler }, async (request, reply) => {
-    const practitionerId = await getPractitionerId(request.user!.id)
+    const practitionerId =
+      await practitionersService.getPractitionerIdFromUserId(request.user!.id)
     if (!practitionerId)
       return reply
         .status(404)
@@ -93,7 +91,8 @@ export async function availabilitiesRoutes(fastify: FastifyInstance) {
 
   fastify.post('/absences', { preHandler }, async (request, reply) => {
     try {
-      const practitionerId = await getPractitionerId(request.user!.id)
+      const practitionerId =
+        await practitionersService.getPractitionerIdFromUserId(request.user!.id)
       if (!practitionerId)
         return reply
           .status(404)
@@ -118,7 +117,8 @@ export async function availabilitiesRoutes(fastify: FastifyInstance) {
 
   fastify.delete('/absences/:id', { preHandler }, async (request, reply) => {
     try {
-      const practitionerId = await getPractitionerId(request.user!.id)
+      const practitionerId =
+        await practitionersService.getPractitionerIdFromUserId(request.user!.id)
       if (!practitionerId)
         return reply
           .status(404)
@@ -137,7 +137,10 @@ export async function availabilitiesRoutes(fastify: FastifyInstance) {
     { preHandler },
     async (request, reply) => {
       try {
-        const practitionerId = await getPractitionerId(request.user!.id)
+        const practitionerId =
+          await practitionersService.getPractitionerIdFromUserId(
+            request.user!.id,
+          )
         if (!practitionerId)
           return reply
             .status(404)
@@ -162,7 +165,8 @@ export async function availabilitiesRoutes(fastify: FastifyInstance) {
   )
 
   fastify.get('/blocked-slots', { preHandler }, async (request, reply) => {
-    const practitionerId = await getPractitionerId(request.user!.id)
+    const practitionerId =
+      await practitionersService.getPractitionerIdFromUserId(request.user!.id)
     if (!practitionerId)
       return reply
         .status(404)
@@ -174,7 +178,8 @@ export async function availabilitiesRoutes(fastify: FastifyInstance) {
 
   fastify.post('/blocked-slots', { preHandler }, async (request, reply) => {
     try {
-      const practitionerId = await getPractitionerId(request.user!.id)
+      const practitionerId =
+        await practitionersService.getPractitionerIdFromUserId(request.user!.id)
       if (!practitionerId)
         return reply
           .status(404)
@@ -202,7 +207,10 @@ export async function availabilitiesRoutes(fastify: FastifyInstance) {
     { preHandler },
     async (request, reply) => {
       try {
-        const practitionerId = await getPractitionerId(request.user!.id)
+        const practitionerId =
+          await practitionersService.getPractitionerIdFromUserId(
+            request.user!.id,
+          )
         if (!practitionerId)
           return reply
             .status(404)
@@ -224,7 +232,8 @@ export async function availabilitiesRoutes(fastify: FastifyInstance) {
 
   fastify.get('/settings', { preHandler }, async (request, reply) => {
     try {
-      const practitionerId = await getPractitionerId(request.user!.id)
+      const practitionerId =
+        await practitionersService.getPractitionerIdFromUserId(request.user!.id)
       if (!practitionerId)
         return reply
           .status(404)
@@ -239,7 +248,8 @@ export async function availabilitiesRoutes(fastify: FastifyInstance) {
 
   fastify.patch('/settings', { preHandler }, async (request, reply) => {
     try {
-      const practitionerId = await getPractitionerId(request.user!.id)
+      const practitionerId =
+        await practitionersService.getPractitionerIdFromUserId(request.user!.id)
       if (!practitionerId)
         return reply
           .status(404)
@@ -264,7 +274,8 @@ export async function availabilitiesRoutes(fastify: FastifyInstance) {
 
   fastify.get('/appointments', { preHandler }, async (request, reply) => {
     try {
-      const practitionerId = await getPractitionerId(request.user!.id)
+      const practitionerId =
+        await practitionersService.getPractitionerIdFromUserId(request.user!.id)
       if (!practitionerId)
         return reply
           .status(404)
@@ -292,7 +303,8 @@ export async function availabilitiesRoutes(fastify: FastifyInstance) {
 
   fastify.get('/day-summary', { preHandler }, async (request, reply) => {
     try {
-      const practitionerId = await getPractitionerId(request.user!.id)
+      const practitionerId =
+        await practitionersService.getPractitionerIdFromUserId(request.user!.id)
       if (!practitionerId)
         return reply
           .status(404)
@@ -316,7 +328,8 @@ export async function availabilitiesRoutes(fastify: FastifyInstance) {
 
   fastify.post('/appointments', { preHandler }, async (request, reply) => {
     try {
-      const practitionerId = await getPractitionerId(request.user!.id)
+      const practitionerId =
+        await practitionersService.getPractitionerIdFromUserId(request.user!.id)
       if (!practitionerId)
         return reply
           .status(404)
@@ -341,7 +354,8 @@ export async function availabilitiesRoutes(fastify: FastifyInstance) {
 
   fastify.get('/patients/search', { preHandler }, async (request, reply) => {
     try {
-      const practitionerId = await getPractitionerId(request.user!.id)
+      const practitionerId =
+        await practitionersService.getPractitionerIdFromUserId(request.user!.id)
       if (!practitionerId)
         return reply
           .status(404)

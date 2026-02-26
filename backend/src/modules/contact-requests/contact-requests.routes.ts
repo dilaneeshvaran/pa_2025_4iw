@@ -8,6 +8,7 @@ import { authorize } from '../../middleware/authorize'
 const contactRequestsController = new ContactRequestsController()
 
 export async function contactRequestsRoutes(fastify: FastifyInstance) {
+  //instance of app with validation awareness
   const app = fastify.withTypeProvider<ZodTypeProvider>()
 
   // create contact request

@@ -8,12 +8,6 @@ export function generateToken(length: number = 32): string {
   return crypto.randomBytes(length).toString('hex')
 }
 
-export function generateVerificationCode(length: number = 6): string {
-  const max = Math.pow(10, length) - 1
-  const min = Math.pow(10, length - 1)
-  return Math.floor(Math.random() * (max - min + 1) + min).toString()
-}
-
 // encrypt sensitive data
 export function encrypt(text: string): string {
   const key = Buffer.from(ENCRYPTION_KEY.slice(0, 64), 'hex')
@@ -43,9 +37,4 @@ export function decrypt(encryptedData: string): string {
   decrypted += decipher.final('utf8')
 
   return decrypted
-}
-
-// hash a string using SHA-256
-export function hashSHA256(data: string): string {
-  return crypto.createHash('sha256').update(data).digest('hex')
 }

@@ -19,6 +19,8 @@ export class AppointmentsController {
         query.sort === 'asc' || query.sort === 'desc' ? query.sort : undefined
 
       // get patient id from user
+      // dynamic import to only load when needed
+      // also bcoz its also imported in other services and we want to avoid circular dependency
       const patient = await import('../../config/database').then((m) =>
         m.default.patient.findUnique({
           where: { userId: user.id },

@@ -15,6 +15,8 @@ interface SimpleBufferPolyfill {
   concat(list: Uint8Array[], totalLength?: number): Uint8Array;
 }
 
+//fake implementation of node buffer class using browser native api
+// for simple peer to work in browser
 export default defineNuxtPlugin(() => {
   if (import.meta.client && typeof window !== "undefined") {
     // check if global and process are available first

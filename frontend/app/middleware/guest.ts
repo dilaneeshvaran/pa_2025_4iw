@@ -11,7 +11,7 @@ export default defineNuxtRouteMiddleware((_to, _from) => {
     authStore.initAuth();
   }
 
-  // if already authenticated, redirect to home or appropriate dashboard
+  // prevent logged in user to see pages like login or register
   if (authStore.isAuthenticated) {
     const redirectPath =
       authStore.user?.role === "PATIENT" ? "/patient/dashboard" : "/";

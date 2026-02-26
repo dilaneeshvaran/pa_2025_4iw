@@ -1,4 +1,5 @@
 <template>
+  <!-- used in home page only -->
   <div class="relative w-full">
     <div
       v-if="icon"

@@ -612,22 +612,6 @@ export class MessagesService {
     }))
   }
 
-  async getPatientIdFromUserId(userId: string): Promise<string | null> {
-    const patient = await prisma.patient.findUnique({
-      where: { userId },
-      select: { id: true },
-    })
-    return patient?.id ?? null
-  }
-
-  async getPractitionerIdFromUserId(userId: string): Promise<string | null> {
-    const practitioner = await prisma.practitioner.findUnique({
-      where: { userId },
-      select: { id: true },
-    })
-    return practitioner?.id ?? null
-  }
-
   // mark all messages in a conversation as read for user
   async markConversationAsRead(
     conversationId: string,
