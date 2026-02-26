@@ -421,6 +421,8 @@ import {
 } from "lucide-vue-next";
 import CreateInvoiceModal from "~/components/practitioner/CreateInvoiceModal.vue";
 import { useAuthStore } from "~/stores/auth";
+import { formatDateLong as formatDate, formatRelativeTime } from "~/utils/date";
+import { getStatusVariant, getStatusLabel } from "~/utils/status";
 
 definePageMeta({
   layout: "practitioner",
@@ -604,61 +606,6 @@ const deleteTodo = async (todoId: string) => {
   } finally {
     deletingId.value = null;
   }
-};
-
-const formatDate = (dateStr: string) => {
-  if (!dateStr) return "";
-  const date = new Date(dateStr);
-  return date.toLocaleDateString("fr-FR", {
-    weekday: "long",
-    day: "numeric",
-    month: "long",
-    year: "numeric",
-  });
-};
-
-const formatRelativeTime = (dateStr: string) => {
-  const date = new Date(dateStr);
-  const now = new Date();
-  const diffMs = now.getTime() - date.getTime();
-  const diffMinutes = Math.floor(diffMs / (1000 * 60));
-  const diffHours = Math.floor(diffMs / (1000 * 60 * 60));
-  const diffDays = Math.floor(diffMs / (1000 * 60 * 60 * 24));
-
-  if (diffMinutes < 1) return "À l'instant";
-  if (diffMinutes < 60) return `${diffMinutes}min`;
-  if (diffHours < 24) return `${diffHours}h`;
-  if (diffDays === 1) return "Hier";
-  if (diffDays < 7) return `${diffDays}j`;
-  return date.toLocaleDateString("fr-FR", { day: "numeric", month: "short" });
-};
-
-const getStatusLabel = (status: string) => {
-  const map: Record<string, string> = {
-    PENDING: "En attente",
-    CONFIRMED: "Confirmé",
-    COMPLETED: "Terminé",
-    CANCELLED: "Annulé",
-    NO_SHOW: "Absent",
-    RESCHEDULED: "Reporté",
-  };
-  return map[status] || status;
-};
-
-const getStatusVariant = (
-  status: string,
-): "success" | "warning" | "danger" | "default" | "primary" => {
-  const map: Record<
-    string,
-    "success" | "warning" | "danger" | "default" | "primary"
-  > = {
-    PENDING: "warning",
-    CONFIRMED: "primary",
-    COMPLETED: "success",
-    CANCELLED: "danger",
-    NO_SHOW: "danger",
-  };
-  return map[status] || "default";
 };
 
 const isInvoiceModalOpen = ref(false);

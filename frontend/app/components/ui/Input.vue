@@ -24,7 +24,6 @@
 
 <script setup lang="ts">
 import { computed, type Component } from "vue";
-import { cn } from "~/utils/cn";
 
 interface Props {
   type?: string;
@@ -47,13 +46,15 @@ const emit = defineEmits<{
 }>();
 
 const inputClass = computed(() => {
-  return cn(
+  return [
     "w-full rounded-lg border border-gray-300 px-4 py-2.5 text-base transition-colors",
     "focus:border-[var(--color-primary)] focus:outline-none focus:ring-2 focus:ring-[var(--color-primary)] focus:ring-opacity-20",
     "disabled:cursor-not-allowed disabled:opacity-50 disabled:bg-gray-50",
     props.icon && "pl-10",
     props.className,
-  );
+  ]
+    .filter(Boolean)
+    .join(" ");
 });
 
 const handleInput = (event: Event) => {

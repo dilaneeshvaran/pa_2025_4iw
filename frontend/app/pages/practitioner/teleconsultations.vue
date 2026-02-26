@@ -766,6 +766,11 @@ import {
   AlertTriangle,
 } from "lucide-vue-next";
 import { useAuthStore } from "~/stores/auth";
+import { formatDateWithTime as formatDate } from "~/utils/date";
+import {
+  getTeleconsultationStatusLabel as getStatusLabel,
+  getTeleconsultationStatusBadgeVariant as getStatusBadgeVariant,
+} from "~/utils/status";
 
 definePageMeta({
   layout: "practitioner",
@@ -978,16 +983,6 @@ const refreshData = async () => {
   ]);
 };
 
-const formatDate = (dateStr: string) => {
-  return new Date(dateStr).toLocaleDateString("fr-FR", {
-    day: "numeric",
-    month: "short",
-    year: "numeric",
-    hour: "2-digit",
-    minute: "2-digit",
-  });
-};
-
 const formatWaitingTime = (joinedAt?: string) => {
   if (!joinedAt) return "quelques instants";
   const diff = Math.floor(
@@ -1031,47 +1026,6 @@ const getSessionIconColor = (status: string) => {
       return "text-red-600";
     default:
       return "text-gray-500";
-  }
-};
-
-const getStatusBadgeVariant = (
-  status: string,
-): "success" | "warning" | "danger" | "default" | "primary" => {
-  switch (status) {
-    case "IN_PROGRESS":
-      return "success";
-    case "WAITING":
-    case "SCHEDULED":
-      return "warning";
-    case "COMPLETED":
-      return "primary";
-    case "FAILED":
-    case "CANCELLED":
-    case "NO_SHOW":
-      return "danger";
-    default:
-      return "default";
-  }
-};
-
-const getStatusLabel = (status: string) => {
-  switch (status) {
-    case "SCHEDULED":
-      return "Planifiée";
-    case "WAITING":
-      return "En attente";
-    case "IN_PROGRESS":
-      return "En cours";
-    case "COMPLETED":
-      return "Terminée";
-    case "CANCELLED":
-      return "Annulée";
-    case "FAILED":
-      return "Échouée";
-    case "NO_SHOW":
-      return "Non présenté";
-    default:
-      return status;
   }
 };
 

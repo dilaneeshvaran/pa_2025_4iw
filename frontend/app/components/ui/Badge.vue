@@ -7,7 +7,6 @@
 
 <script setup lang="ts">
 import { computed } from "vue";
-import { cn } from "~/utils/cn";
 
 interface Props {
   variant?: "default" | "primary" | "success" | "warning" | "danger";
@@ -30,6 +29,8 @@ const badgeClass = computed(() => {
     danger: "bg-red-100 text-red-800",
   };
 
-  return cn(baseClass, variantClasses[props.variant], props.className);
+  return [baseClass, variantClasses[props.variant], props.className]
+    .filter(Boolean)
+    .join(" ");
 });
 </script>

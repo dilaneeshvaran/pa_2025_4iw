@@ -413,6 +413,8 @@ import {
   Pencil,
 } from "lucide-vue-next";
 import { useAuthStore } from "~/stores/auth";
+import { formatDate, formatNotificationTime } from "~/utils/date";
+import { getStatusVariant, getStatusLabel } from "~/utils/status";
 
 definePageMeta({
   layout: "patient",
@@ -596,33 +598,6 @@ const fetchNotifications = async () => {
   }
 };
 
-const formatDate = (dateStr: string) => {
-  if (!dateStr) return "";
-  const date = new Date(dateStr);
-  return date.toLocaleDateString("fr-FR", {
-    day: "numeric",
-    month: "long",
-    year: "numeric",
-  });
-};
-
-const formatNotificationTime = (dateStr: string) => {
-  const date = new Date(dateStr);
-  const now = new Date();
-  const diffMs = now.getTime() - date.getTime();
-  const diffDays = Math.floor(diffMs / (1000 * 60 * 60 * 24));
-
-  if (diffDays === 0) {
-    return "Aujourd'hui";
-  } else if (diffDays === 1) {
-    return "Hier";
-  } else if (diffDays < 7) {
-    return `Il y a ${diffDays} jours`;
-  } else {
-    return formatDate(dateStr);
-  }
-};
-
 const getNotificationIcon = (type: string) => {
   switch (type) {
     case "APPOINTMENT_REMINDER":
@@ -633,34 +608,6 @@ const getNotificationIcon = (type: string) => {
       return Activity;
     default:
       return Bell;
-  }
-};
-
-const getStatusVariant = (
-  status: string,
-): "success" | "warning" | "danger" | "default" => {
-  switch (status) {
-    case "COMPLETED":
-      return "success";
-    case "CANCELLED":
-      return "danger";
-    case "NO_SHOW":
-      return "warning";
-    default:
-      return "default";
-  }
-};
-
-const getStatusLabel = (status: string) => {
-  switch (status) {
-    case "COMPLETED":
-      return "Terminé";
-    case "CANCELLED":
-      return "Annulé";
-    case "NO_SHOW":
-      return "Absent";
-    default:
-      return status;
   }
 };
 

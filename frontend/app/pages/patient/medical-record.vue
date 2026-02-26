@@ -1113,6 +1113,12 @@ import {
   FolderOpen,
 } from "lucide-vue-next";
 import { useAuthStore } from "~/stores/auth";
+import { formatDate } from "~/utils/date";
+import {
+  getDocTypeLabel,
+  getDocTypeColor,
+  getDocTypeBadgeColor,
+} from "~/utils/docType";
 
 import type { Component } from "vue";
 
@@ -1401,15 +1407,6 @@ const formatGender = (gender: string) => {
   return map[gender] || gender;
 };
 
-const formatDate = (dateStr: string) => {
-  if (!dateStr) return "";
-  return new Date(dateStr).toLocaleDateString("fr-FR", {
-    day: "numeric",
-    month: "long",
-    year: "numeric",
-  });
-};
-
 const formatFileSize = (bytes: number) => {
   if (bytes < 1024) return `${bytes} o`;
   if (bytes < 1024 * 1024) return `${(bytes / 1024).toFixed(1)} Ko`;
@@ -1424,42 +1421,6 @@ const _parseMedications = (meds: Record<string, unknown>[] | string) => {
   } catch {
     return [];
   }
-};
-
-const getDocTypeLabel = (type: string) => {
-  const labels: Record<string, string> = {
-    PRESCRIPTION: "Ordonnance",
-    LAB_RESULT: "Résultat de laboratoire",
-    RADIOLOGY: "Imagerie médicale",
-    MEDICAL_REPORT: "Rapport médical",
-    CERTIFICATE: "Certificat",
-    OTHER: "Document",
-  };
-  return labels[type] || "Document";
-};
-
-const getDocTypeColor = (type: string) => {
-  const colors: Record<string, string> = {
-    PRESCRIPTION: "bg-blue-100 text-blue-600",
-    LAB_RESULT: "bg-green-100 text-green-600",
-    RADIOLOGY: "bg-cyan-100 text-cyan-600",
-    MEDICAL_REPORT: "bg-purple-100 text-purple-600",
-    CERTIFICATE: "bg-amber-100 text-amber-600",
-    OTHER: "bg-gray-100 text-gray-600",
-  };
-  return colors[type] || "bg-gray-100 text-gray-600";
-};
-
-const getDocTypeBadgeColor = (type: string) => {
-  const colors: Record<string, string> = {
-    PRESCRIPTION: "bg-blue-50 text-blue-700",
-    LAB_RESULT: "bg-green-50 text-green-700",
-    RADIOLOGY: "bg-cyan-50 text-cyan-700",
-    MEDICAL_REPORT: "bg-purple-50 text-purple-700",
-    CERTIFICATE: "bg-amber-50 text-amber-700",
-    OTHER: "bg-gray-50 text-gray-700",
-  };
-  return colors[type] || "bg-gray-50 text-gray-700";
 };
 
 const getDocTypeIcon = (type: string) => {
