@@ -18,6 +18,29 @@ declare module 'fastify' {
   }
 }
 
+// authenticate for download endpoints
+// bcoz browser go todownload url directly without token
+// pass token via ?token= URL param
+export async function authenticateAttachmentRequest(
+  request: FastifyRequest,
+  reply: FastifyReply,
+) {
+  const query = (request.query ?? {}) as { token?: string }
+  const token = query.token
+
+  if (
+    !request.headers.authorization &&
+    typeof token === 'string' &&
+    token.length > 0
+  ) {
+    ;(
+      request.headers as Record<string, string | string[] | undefined>
+    ).authorization = `Bearer ${token}`
+  }
+
+  return authenticate(request, reply)
+}
+
 export async function authenticate(
   request: FastifyRequest,
   reply: FastifyReply,

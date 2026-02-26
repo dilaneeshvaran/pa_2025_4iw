@@ -25,5 +25,6 @@ export const uploadDocumentSchema = z.object({
   description: z.string().optional(),
 })
 
+// export validated type as usable ts types for interface
 export type GetDocumentsQuery = z.infer<typeof getDocumentsQuerySchema>
 export type UploadDocumentInput = z.infer<typeof uploadDocumentSchema>

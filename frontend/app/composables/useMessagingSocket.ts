@@ -21,6 +21,7 @@ export function useMessagingSocket() {
     if (!token) return;
 
     // Build ws url from api basse
+    //create a connection per component, so if one closes other will have it if it needed
     const apiBase = config.public.apiBase as string;
     const wsBase = apiBase.replace(/^http/, "ws").replace(/\/api$/, "");
     const wsUrl = `${wsBase}/api/ws/messages?token=${encodeURIComponent(token)}`;

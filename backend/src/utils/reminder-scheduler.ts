@@ -61,6 +61,7 @@ export async function scheduleAppointmentReminders(
   }
 }
 
+// todo: call this from appointments service when appointment is cancelled
 // cancel scheduled reminders (when appointment is cancelled)
 export async function cancelAppointmentReminders(
   appointmentId: string,

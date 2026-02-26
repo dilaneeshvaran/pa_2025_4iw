@@ -2,10 +2,8 @@ import { defineStore } from "pinia";
 import { ref } from "vue";
 import { useAuthStore } from "~/stores/auth";
 
-/**
- * ws connection for everyone
- * many layout ( unread badge and messages pages).
- */
+// ws connection for everyone
+// many layout ( unread badge and messages pages).
 export const useMessagingStore = defineStore("messaging", () => {
   const config = useRuntimeConfig();
   const authStore = useAuthStore();

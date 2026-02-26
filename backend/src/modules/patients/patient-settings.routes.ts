@@ -1,15 +1,15 @@
 import { FastifyInstance, FastifyRequest, FastifyReply } from 'fastify'
-import { settingsService } from './settings.service'
+import { patientSettingsService } from './patient-settings.service'
 import { authenticate } from '../../middleware/authenticate'
 
-export async function settingsRoutes(fastify: FastifyInstance) {
+export async function patientSettingsRoutes(fastify: FastifyInstance) {
   fastify.get(
     '/profile',
     { preHandler: [authenticate] },
     async (request: FastifyRequest, reply: FastifyReply) => {
       try {
         const user = request.user as { id: string }
-        const profile = await settingsService.getProfile(user.id)
+        const profile = await patientSettingsService.getProfile(user.id)
 
         return reply.status(200).send({ success: true, data: profile })
       } catch (error: any) {
@@ -28,7 +28,10 @@ export async function settingsRoutes(fastify: FastifyInstance) {
       try {
         const user = request.user as { id: string }
         const body = request.body as Record<string, unknown>
-        const profile = await settingsService.updateProfile(user.id, body)
+        const profile = await patientSettingsService.updateProfile(
+          user.id,
+          body,
+        )
 
         return reply.status(200).send({ success: true, data: profile })
       } catch (error: any) {
@@ -55,7 +58,7 @@ export async function settingsRoutes(fastify: FastifyInstance) {
           })
         }
 
-        const result = await settingsService.updateEmail(user.id, body)
+        const result = await patientSettingsService.updateEmail(user.id, body)
         return reply.status(200).send({ success: true, data: result })
       } catch (error: any) {
         request.log.error(error)
@@ -92,7 +95,10 @@ export async function settingsRoutes(fastify: FastifyInstance) {
           })
         }
 
-        const result = await settingsService.updatePassword(user.id, body)
+        const result = await patientSettingsService.updatePassword(
+          user.id,
+          body,
+        )
         return reply.status(200).send({ success: true, data: result })
       } catch (error: any) {
         request.log.error(error)
@@ -119,7 +125,10 @@ export async function settingsRoutes(fastify: FastifyInstance) {
           })
         }
 
-        const result = await settingsService.toggle2FA(user.id, body.enabled)
+        const result = await patientSettingsService.toggle2FA(
+          user.id,
+          body.enabled,
+        )
         return reply.status(200).send({ success: true, data: result })
       } catch (error: any) {
         request.log.error(error)
@@ -136,7 +145,9 @@ export async function settingsRoutes(fastify: FastifyInstance) {
     async (request: FastifyRequest, reply: FastifyReply) => {
       try {
         const user = request.user as { id: string }
-        const prefs = await settingsService.getNotificationPreferences(user.id)
+        const prefs = await patientSettingsService.getNotificationPreferences(
+          user.id,
+        )
 
         return reply.status(200).send({ success: true, data: prefs })
       } catch (error: any) {
@@ -156,10 +167,11 @@ export async function settingsRoutes(fastify: FastifyInstance) {
       try {
         const user = request.user as { id: string }
         const body = request.body as Record<string, boolean>
-        const prefs = await settingsService.updateNotificationPreferences(
-          user.id,
-          body,
-        )
+        const prefs =
+          await patientSettingsService.updateNotificationPreferences(
+            user.id,
+            body,
+          )
 
         return reply.status(200).send({ success: true, data: prefs })
       } catch (error: any) {
@@ -178,7 +190,7 @@ export async function settingsRoutes(fastify: FastifyInstance) {
     async (request: FastifyRequest, reply: FastifyReply) => {
       try {
         const user = request.user as { id: string }
-        const consents = await settingsService.getConsents(user.id)
+        const consents = await patientSettingsService.getConsents(user.id)
 
         return reply.status(200).send({ success: true, data: consents })
       } catch (error: any) {
@@ -210,7 +222,7 @@ export async function settingsRoutes(fastify: FastifyInstance) {
           })
         }
 
-        const consent = await settingsService.upsertConsent(
+        const consent = await patientSettingsService.upsertConsent(
           user.id,
           body,
           request.ip,
@@ -234,7 +246,7 @@ export async function settingsRoutes(fastify: FastifyInstance) {
     async (request: FastifyRequest, reply: FastifyReply) => {
       try {
         const user = request.user as { id: string }
-        const result = await settingsService.requestDataExport(
+        const result = await patientSettingsService.requestDataExport(
           user.id,
           request.ip,
         )
@@ -257,7 +269,7 @@ export async function settingsRoutes(fastify: FastifyInstance) {
       try {
         const user = request.user as { id: string }
         const body = request.body as { reason?: string }
-        const result = await settingsService.requestAccountDeletion(
+        const result = await patientSettingsService.requestAccountDeletion(
           user.id,
           body?.reason,
           request.ip,

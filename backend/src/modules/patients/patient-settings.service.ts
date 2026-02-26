@@ -8,9 +8,9 @@ import {
   UpdatePasswordData,
   NotificationPreferences,
   ConsentInput,
-} from './settings.types'
+} from './patient-settings.types'
 
-export class SettingsService {
+export class PatientSettingsService {
   async getProfile(userId: string) {
     const user = await prisma.user.findUnique({
       where: { id: userId },
@@ -343,4 +343,4 @@ export class SettingsService {
   }
 }
 
-export const settingsService = new SettingsService()
+export const patientSettingsService = new PatientSettingsService()

@@ -328,6 +328,13 @@ export class PatientsService {
         : null,
     }
   }
+  async getPatientIdFromUserId(userId: string): Promise<string | null> {
+    const patient = await prisma.patient.findUnique({
+      where: { userId },
+      select: { id: true },
+    })
+    return patient?.id ?? null
+  }
 }
 
 export const patientsService = new PatientsService()

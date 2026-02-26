@@ -8,7 +8,7 @@ import { medicalRecordsRoutes } from './modules/medical-records/medical-records.
 import { documentsRoutes } from './modules/documents/documents.routes'
 import { messagesRoutes } from './modules/messages/messages.routes'
 import { paymentsRoutes } from './modules/payments/payments.routes'
-import { settingsRoutes } from './modules/settings/settings.routes'
+import { patientSettingsRoutes } from './modules/patients/patient-settings.routes'
 import { practitionerDashboardRoutes } from './modules/practitioners/practitioners-dashboard.routes'
 import { availabilitiesRoutes } from './modules/availabilities/availabilities.routes'
 import { practitionerPatientsRoutes } from './modules/patients/patients.routes'
@@ -24,7 +24,7 @@ export async function routes(fastify: FastifyInstance) {
   fastify.register(documentsRoutes, { prefix: '/api/documents' })
   fastify.register(messagesRoutes, { prefix: '/api/messages' })
   fastify.register(paymentsRoutes, { prefix: '/api/payments' })
-  fastify.register(settingsRoutes, { prefix: '/api/settings' })
+  fastify.register(patientSettingsRoutes, { prefix: '/api/settings' })
   fastify.register(practitionerDashboardRoutes, {
     prefix: '/api/practitioner/dashboard',
   })

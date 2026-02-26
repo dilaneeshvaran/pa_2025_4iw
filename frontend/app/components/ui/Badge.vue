@@ -1,4 +1,5 @@
 <template>
+  <!-- for doctor's info / search filter -->
   <span :class="badgeClass">
     <slot />
   </span>
