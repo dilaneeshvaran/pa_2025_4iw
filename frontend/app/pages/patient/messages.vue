@@ -584,6 +584,11 @@ import {
 } from "lucide-vue-next";
 import { useAuthStore } from "~/stores/auth";
 import { useMessagingStore } from "~/stores/messaging";
+import {
+  formatRelativeTime,
+  formatMessageTime,
+  formatDateLabel,
+} from "~/utils/date";
 
 definePageMeta({
   layout: "patient",
@@ -1065,48 +1070,6 @@ const scrollToBottom = () => {
   if (messagesContainer.value) {
     messagesContainer.value.scrollTop = messagesContainer.value.scrollHeight;
   }
-};
-
-const formatRelativeTime = (dateStr: string | null) => {
-  if (!dateStr) return "";
-  const date = new Date(dateStr);
-  const now = new Date();
-  const diffMs = now.getTime() - date.getTime();
-  const diffMin = Math.floor(diffMs / 60000);
-  const diffHours = Math.floor(diffMs / 3600000);
-  const diffDays = Math.floor(diffMs / 86400000);
-
-  if (diffMin < 1) return "maintenant";
-  if (diffMin < 60) return `${diffMin}min`;
-  if (diffHours < 24) return `${diffHours}h`;
-  if (diffDays < 7) return `${diffDays}j`;
-  return date.toLocaleDateString("fr-FR", {
-    day: "numeric",
-    month: "short",
-  });
-};
-
-const formatMessageTime = (dateStr: string) => {
-  const date = new Date(dateStr);
-  return date.toLocaleTimeString("fr-FR", {
-    hour: "2-digit",
-    minute: "2-digit",
-  });
-};
-
-const formatDateLabel = (date: Date) => {
-  const now = new Date();
-  const today = new Date(now.getFullYear(), now.getMonth(), now.getDate());
-  const msgDay = new Date(date.getFullYear(), date.getMonth(), date.getDate());
-  const diffDays = Math.floor((today.getTime() - msgDay.getTime()) / 86400000);
-
-  if (diffDays === 0) return "Aujourd'hui";
-  if (diffDays === 1) return "Hier";
-  return date.toLocaleDateString("fr-FR", {
-    weekday: "long",
-    day: "numeric",
-    month: "long",
-  });
 };
 
 // watch new conv modal

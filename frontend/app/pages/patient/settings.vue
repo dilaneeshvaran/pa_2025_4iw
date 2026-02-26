@@ -539,6 +539,7 @@ import {
   Trash2,
 } from "lucide-vue-next";
 import { useAuthStore } from "~/stores/auth";
+import { formatConsentDate } from "~/utils/date";
 
 definePageMeta({
   layout: "patient",
@@ -901,16 +902,6 @@ const fetchConsents = async () => {
   } finally {
     loadingConsents.value = false;
   }
-};
-
-const formatConsentDate = (dateStr: string) => {
-  return new Date(dateStr).toLocaleDateString("fr-FR", {
-    day: "numeric",
-    month: "long",
-    year: "numeric",
-    hour: "2-digit",
-    minute: "2-digit",
-  });
 };
 
 const requestDataExport = async () => {

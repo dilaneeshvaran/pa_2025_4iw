@@ -498,6 +498,7 @@
 import { ref, onMounted, computed, watch } from "vue";
 import { useRoute, navigateTo } from "#app";
 import { useAuthStore } from "~/stores/auth";
+import { formatDateLong as formatDate } from "~/utils/date";
 import {
   Star as IconStar,
   MapPin as IconMapPin,
@@ -766,16 +767,6 @@ const formatDateFull = (dateString: string) => {
     weekday: "long",
     day: "numeric",
     month: "long",
-  });
-};
-
-const formatDate = (dateString: string) => {
-  const date = new Date(dateString);
-  return date.toLocaleDateString("fr-FR", {
-    weekday: "long",
-    day: "numeric",
-    month: "long",
-    year: "numeric",
   });
 };
 

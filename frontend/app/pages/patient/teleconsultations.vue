@@ -464,6 +464,8 @@
 <script setup lang="ts">
 import { Video, Calendar, Clock, Camera, Mic, X } from "lucide-vue-next";
 import { useAuthStore } from "~/stores/auth";
+import { formatDateLong as formatDate } from "~/utils/date";
+import { getStatusVariant, getStatusLabel } from "~/utils/status";
 
 definePageMeta({
   layout: "patient",
@@ -593,53 +595,6 @@ const fetchTeleconsultations = async () => {
   } finally {
     loading.value = false;
   }
-};
-
-const getStatusVariant = (
-  status: string,
-): "success" | "warning" | "danger" | "default" | "primary" => {
-  switch (status) {
-    case "CONFIRMED":
-      return "primary";
-    case "COMPLETED":
-      return "success";
-    case "CANCELLED":
-      return "danger";
-    case "NO_SHOW":
-      return "warning";
-    case "PENDING":
-      return "default";
-    default:
-      return "default";
-  }
-};
-
-const getStatusLabel = (status: string) => {
-  switch (status) {
-    case "CONFIRMED":
-      return "Confirmé";
-    case "COMPLETED":
-      return "Terminé";
-    case "CANCELLED":
-      return "Annulé";
-    case "NO_SHOW":
-      return "Absent";
-    case "PENDING":
-      return "En attente";
-    default:
-      return status;
-  }
-};
-
-const formatDate = (dateStr: string) => {
-  if (!dateStr) return "";
-  const date = new Date(dateStr);
-  return date.toLocaleDateString("fr-FR", {
-    weekday: "long",
-    day: "numeric",
-    month: "long",
-    year: "numeric",
-  });
 };
 
 const canJoinTeleconsultation = (apt: Appointment): boolean => {

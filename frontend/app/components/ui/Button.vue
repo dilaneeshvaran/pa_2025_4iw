@@ -11,7 +11,6 @@
 
 <script setup lang="ts">
 import { computed } from "vue";
-import { cn } from "~/utils/cn";
 
 interface Props {
   variant?: "primary" | "secondary" | "outline" | "ghost" | "danger";
@@ -53,12 +52,14 @@ const buttonClass = computed(() => {
     lg: "px-6 py-3 text-lg",
   };
 
-  return cn(
+  return [
     baseClass,
     variantClasses[props.variant],
     sizeClasses[props.size],
     props.className,
-  );
+  ]
+    .filter(Boolean)
+    .join(" ");
 });
 
 const handleClick = (event: MouseEvent) => {

@@ -837,6 +837,8 @@ import {
   AlertTriangle,
 } from "lucide-vue-next";
 import { useAuthStore } from "~/stores/auth";
+import { formatDate } from "~/utils/date";
+import { getPaymentStatusVariant, getPaymentStatusLabel } from "~/utils/status";
 
 definePageMeta({
   layout: "patient",
@@ -1259,52 +1261,6 @@ const processPayment = async () => {
       (error as ApiError)?.data?.message || "Erreur lors du paiement";
   } finally {
     processingPayment.value = false;
-  }
-};
-
-const formatDate = (dateStr: string) => {
-  if (!dateStr) return "";
-  const date = new Date(dateStr);
-  return date.toLocaleDateString("fr-FR", {
-    day: "numeric",
-    month: "long",
-    year: "numeric",
-  });
-};
-
-const getPaymentStatusVariant = (
-  status: string,
-): "success" | "warning" | "danger" | "default" => {
-  switch (status) {
-    case "COMPLETED":
-      return "success";
-    case "PENDING":
-      return "warning";
-    case "REFUNDED":
-      return "warning";
-    case "FAILED":
-      return "danger";
-    case "CANCELLED":
-      return "danger";
-    default:
-      return "default";
-  }
-};
-
-const getPaymentStatusLabel = (status: string) => {
-  switch (status) {
-    case "COMPLETED":
-      return "Payé";
-    case "PENDING":
-      return "En attente";
-    case "REFUNDED":
-      return "Remboursé";
-    case "FAILED":
-      return "Échoué";
-    case "CANCELLED":
-      return "Annulé";
-    default:
-      return status;
   }
 };
 
