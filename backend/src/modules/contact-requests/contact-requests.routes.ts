@@ -11,7 +11,7 @@ export async function contactRequestsRoutes(fastify: FastifyInstance) {
   //instance of app with validation awareness
   const app = fastify.withTypeProvider<ZodTypeProvider>()
 
-  // create contact request
+  // create contact request (json = DEMO/INFO/SUPPORT)
   app.post(
     '/',
     {
@@ -22,6 +22,21 @@ export async function contactRequestsRoutes(fastify: FastifyInstance) {
       },
     },
     contactRequestsController.createContactRequest.bind(
+      contactRequestsController,
+    ),
+  )
+
+  // multi register for both practicioner and cabinet
+  app.post(
+    '/register',
+    {
+      schema: {
+        tags: ['Contact Requests'],
+        description:
+          'Submit a professional registration request with document uploads',
+      },
+    },
+    contactRequestsController.createRegistrationRequest.bind(
       contactRequestsController,
     ),
   )
@@ -67,6 +82,33 @@ export async function contactRequestsRoutes(fastify: FastifyInstance) {
     contactRequestsController.updateContactRequestStatus.bind(
       contactRequestsController,
     ),
+  )
+
+  // approve registration request
+  app.post(
+    '/:id/approve',
+    {
+      preHandler: [authenticate, authorize(['ADMIN'])],
+      schema: {
+        tags: ['Contact Requests'],
+        description:
+          'Approve a registration request and create the account (Admin only)',
+      },
+    },
+    contactRequestsController.approveRequest.bind(contactRequestsController),
+  )
+
+  // reject registration request
+  app.post(
+    '/:id/reject',
+    {
+      preHandler: [authenticate, authorize(['ADMIN'])],
+      schema: {
+        tags: ['Contact Requests'],
+        description: 'Reject a registration request with a reason (Admin only)',
+      },
+    },
+    contactRequestsController.rejectRequest.bind(contactRequestsController),
   )
 
   app.delete(
