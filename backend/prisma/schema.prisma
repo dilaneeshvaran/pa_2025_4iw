@@ -128,6 +128,11 @@ model Patient {
   insuranceNumber          String?
   noShowCount              Int                       @default(0)
   penaltyUntil             DateTime?
+  penaltyReason            String?
+  warningCount             Int                       @default(0)
+  lastWarningAt            DateTime?
+  bannedAt                 DateTime?
+  bannedById               String?
   createdAt                DateTime                  @default(now())
   updatedAt                DateTime                  @updatedAt
   height                   Decimal?                  @db.Decimal(5, 2)
@@ -193,6 +198,9 @@ model Practitioner {
   maxBookingAdvance        Int                       @default(60)
   minBookingNotice         Int                       @default(60)
   newPatientMaxPerDay      Int                       @default(0)
+  noShowThreshold          Int                       @default(3)
+  noShowPenaltyDays        Int                       @default(30)
+  noShowAutoBlock          Boolean                   @default(false)
   acceptedPaymentMethods   PaymentMethod[]
   bankInfo                 Json?
   emergencyFee             Decimal?                  @db.Decimal(10, 2)
@@ -1160,6 +1168,7 @@ enum TeleconsultationStatus {
   COMPLETED
   CANCELLED
   FAILED
+  NO_SHOW
 }
 
 enum QueueStatus {

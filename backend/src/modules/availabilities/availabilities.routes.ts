@@ -9,6 +9,8 @@ import {
   createBlockedSlotSchema,
   updateSettingsSchema,
   createPractitionerAppointmentSchema,
+  practitionerCancelAppointmentSchema,
+  practitionerModifyAppointmentSchema,
 } from './availabilities.schema'
 
 export async function availabilitiesRoutes(fastify: FastifyInstance) {
@@ -370,4 +372,220 @@ export async function availabilitiesRoutes(fastify: FastifyInstance) {
       return reply.status(500).send({ success: false, message: error.message })
     }
   })
+
+  // cancel appointment for practitioner
+  fastify.patch(
+    '/appointments/:id/cancel',
+    { preHandler },
+    async (request, reply) => {
+      try {
+        const practitionerId =
+          await practitionersService.getPractitionerIdFromUserId(
+            request.user!.id,
+          )
+        if (!practitionerId)
+          return reply
+            .status(404)
+            .send({ success: false, message: 'Profil praticien non trouvé' })
+
+        const { id } = request.params as { id: string }
+        const body = practitionerCancelAppointmentSchema.parse(request.body)
+        const data =
+          await availabilitiesService.cancelAppointmentByPractitioner(
+            practitionerId,
+            id,
+            body,
+          )
+        return reply.send({ success: true, data })
+      } catch (error: any) {
+        if (error.name === 'ZodError')
+          return reply.status(400).send({
+            success: false,
+            message: 'Validation error',
+            errors: error,
+          })
+        return reply
+          .status(400)
+          .send({ success: false, message: error.message || 'Erreur' })
+      }
+    },
+  )
+
+  // modify appointment by practitioner
+  fastify.patch(
+    '/appointments/:id/modify',
+    { preHandler },
+    async (request, reply) => {
+      try {
+        const practitionerId =
+          await practitionersService.getPractitionerIdFromUserId(
+            request.user!.id,
+          )
+        if (!practitionerId)
+          return reply
+            .status(404)
+            .send({ success: false, message: 'Profil praticien non trouvé' })
+
+        const { id } = request.params as { id: string }
+        const body = practitionerModifyAppointmentSchema.parse(request.body)
+        const data =
+          await availabilitiesService.modifyAppointmentByPractitioner(
+            practitionerId,
+            id,
+            body,
+          )
+        return reply.send({ success: true, data })
+      } catch (error: any) {
+        if (error.name === 'ZodError')
+          return reply.status(400).send({
+            success: false,
+            message: 'Validation error',
+            errors: error,
+          })
+        return reply
+          .status(400)
+          .send({ success: false, message: error.message || 'Erreur' })
+      }
+    },
+  )
+
+  // mark appointment as presenté
+  fastify.patch(
+    '/appointments/:id/attended',
+    { preHandler },
+    async (request, reply) => {
+      try {
+        const practitionerId =
+          await practitionersService.getPractitionerIdFromUserId(
+            request.user!.id,
+          )
+        if (!practitionerId)
+          return reply
+            .status(404)
+            .send({ success: false, message: 'Profil praticien non trouvé' })
+
+        const { id } = request.params as { id: string }
+        const data = await availabilitiesService.markAppointmentAttended(
+          practitionerId,
+          id,
+        )
+        return reply.send({ success: true, data })
+      } catch (error: any) {
+        return reply
+          .status(400)
+          .send({ success: false, message: error.message || 'Erreur' })
+      }
+    },
+  )
+
+  // mark as noshow
+  fastify.patch(
+    '/appointments/:id/no-show',
+    { preHandler },
+    async (request, reply) => {
+      try {
+        const practitionerId =
+          await practitionersService.getPractitionerIdFromUserId(
+            request.user!.id,
+          )
+        if (!practitionerId)
+          return reply
+            .status(404)
+            .send({ success: false, message: 'Profil praticien non trouvé' })
+
+        const { id } = request.params as { id: string }
+        const data = await availabilitiesService.markAppointmentNoShow(
+          practitionerId,
+          id,
+        )
+        return reply.send({ success: true, data })
+      } catch (error: any) {
+        return reply
+          .status(400)
+          .send({ success: false, message: error.message || 'Erreur' })
+      }
+    },
+  )
+
+  // get cabinet appointments with stats
+  fastify.get(
+    '/cabinet-appointments',
+    { preHandler },
+    async (request, reply) => {
+      try {
+        const practitionerId =
+          await practitionersService.getPractitionerIdFromUserId(
+            request.user!.id,
+          )
+        if (!practitionerId)
+          return reply
+            .status(404)
+            .send({ success: false, message: 'Profil praticien non trouvé' })
+
+        const query = request.query as { period?: string }
+        const period = (query.period as 'week' | 'month') || 'week'
+
+        const data = await availabilitiesService.getCabinetAppointments(
+          practitionerId,
+          period,
+        )
+        return reply.send({ success: true, data })
+      } catch (error: any) {
+        return reply
+          .status(500)
+          .send({ success: false, message: error.message })
+      }
+    },
+  )
+
+  fastify.get(
+    '/cabinet-appointments/history',
+    { preHandler },
+    async (request, reply) => {
+      try {
+        const practitionerId =
+          await practitionersService.getPractitionerIdFromUserId(
+            request.user!.id,
+          )
+        if (!practitionerId)
+          return reply
+            .status(404)
+            .send({ success: false, message: 'Profil praticien non trouvé' })
+
+        const query = request.query as {
+          page?: string
+          limit?: string
+          search?: string
+          status?: string
+          dateFrom?: string
+          dateTo?: string
+        }
+
+        const result = await availabilitiesService.getCabinetHistory(
+          practitionerId,
+          query.page ? parseInt(query.page, 10) : 1,
+          query.limit ? parseInt(query.limit, 10) : 20,
+          query.search,
+          query.status,
+          query.dateFrom,
+          query.dateTo,
+        )
+
+        return reply.send({
+          success: true,
+          data: result.data,
+          pagination: {
+            total: result.total,
+            page: result.page,
+            limit: result.limit,
+            totalPages: result.totalPages,
+          },
+        })
+      } catch (error: any) {
+        return reply
+          .status(500)
+          .send({ success: false, message: error.message })
+      }
+    },
+  )
 }

@@ -13,7 +13,7 @@ export const getDocTypeLabel = (type: string): string => {
   return labels[type] || "Document";
 };
 
-/** css for document type icon */
+// css for document type icon
 export const getDocTypeColor = (type: string): string => {
   const colors: Record<string, string> = {
     PRESCRIPTION: "bg-blue-100 text-blue-600",
@@ -28,7 +28,7 @@ export const getDocTypeColor = (type: string): string => {
   return colors[type] || "bg-gray-100 text-gray-600";
 };
 
-/** cs for document type badge */
+// css for document type badge
 export const getDocTypeBadgeColor = (type: string): string => {
   const colors: Record<string, string> = {
     PRESCRIPTION: "bg-blue-50 text-blue-700",

@@ -391,4 +391,94 @@ export class ContactRequestsController {
       })
     }
   }
+
+  // allowed document field names for contact requests
+  private static readonly DOCUMENT_FIELDS = [
+    'identityDocumentPath',
+    'diplomaPath',
+    'orderAttestationPath',
+    'cabinetRegDocPath',
+  ] as const
+
+  async downloadDocument(request: FastifyRequest, reply: FastifyReply) {
+    try {
+      const { id, field } = request.params as { id: string; field: string }
+
+      // validate field name
+      const allowedFields =
+        ContactRequestsController.DOCUMENT_FIELDS as readonly string[]
+      if (!allowedFields.includes(field)) {
+        return reply.status(400).send({
+          success: false,
+          message: 'Champ de document invalide',
+        })
+      }
+
+      const contactRequest =
+        await contactRequestsService.getContactRequestById(id)
+
+      if (!contactRequest) {
+        return reply.status(404).send({
+          success: false,
+          message: 'Demande de contact introuvable',
+        })
+      }
+
+      const relativePath = (contactRequest as any)[field] as string | null
+
+      if (!relativePath) {
+        return reply.status(404).send({
+          success: false,
+          message: 'Document non disponible',
+        })
+      }
+
+      // remove / to prevent it treated as absolute path and add the upload dir to it
+      const absolutePath = path.resolve(
+        path.join(__dirname, '../../..'),
+        relativePath.replace(/^\//, ''),
+      )
+      const resolvedUploadDir = path.resolve(
+        path.join(__dirname, '../../../uploads'),
+      )
+
+      if (!absolutePath.startsWith(resolvedUploadDir + path.sep)) {
+        return reply.status(403).send({
+          success: false,
+          message: 'Accès refusé',
+        })
+      }
+
+      if (!fs.existsSync(absolutePath)) {
+        return reply.status(404).send({
+          success: false,
+          message: 'Fichier introuvable sur le serveur',
+        })
+      }
+
+      const ext = path.extname(absolutePath).toLowerCase()
+      const mimeMap: Record<string, string> = {
+        '.pdf': 'application/pdf',
+        '.jpg': 'image/jpeg',
+        '.jpeg': 'image/jpeg',
+        '.png': 'image/png',
+      }
+      const contentType = mimeMap[ext] ?? 'application/octet-stream'
+      const filename = `document-${id}-${field}${ext}`
+
+      const fileStream = fs.createReadStream(absolutePath)
+      reply.header('Content-Type', contentType)
+      reply.header('Content-Disposition', `attachment; filename="${filename}"`)
+      return reply.send(fileStream)
+    } catch (error) {
+      const errorMessage =
+        error instanceof Error
+          ? error.message
+          : 'Erreur lors du téléchargement du document'
+      return reply.status(500).send({
+        success: false,
+        message: errorMessage,
+      })
+    }
+  }
 }

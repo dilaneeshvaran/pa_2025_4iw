@@ -1,6 +1,11 @@
 import prisma from '../../config/database'
 import { AppointmentStatus, AppointmentType, DayOfWeek } from '@prisma/client'
-import { sendEmail } from '../../utils/email'
+import {
+  sendEmail,
+  sendAppointmentCancelledByPractitionerEmail,
+  sendAppointmentModifiedByPractitionerEmail,
+  sendNoShowEmail,
+} from '../../utils/email'
 import type {
   AvailabilitySlot,
   AbsenceInfo,
@@ -15,6 +20,8 @@ import type {
   CreateBlockedSlotInput,
   UpdateSettingsInput,
   CreatePractitionerAppointmentInput,
+  PractitionerCancelAppointmentInput,
+  PractitionerModifyAppointmentInput,
 } from './availabilities.schema'
 
 export class AvailabilitiesService {
@@ -474,6 +481,9 @@ export class AvailabilitiesService {
       teleconsultationFee: p.teleconsultationFee
         ? Number(p.teleconsultationFee)
         : null,
+      noShowThreshold: p.noShowThreshold,
+      noShowPenaltyDays: p.noShowPenaltyDays,
+      noShowAutoBlock: p.noShowAutoBlock,
     }
   }
 
@@ -507,6 +517,12 @@ export class AvailabilitiesService {
       updateData.baseConsultationFee = data.baseConsultationFee
     if (data.teleconsultationFee !== undefined)
       updateData.teleconsultationFee = data.teleconsultationFee
+    if (data.noShowThreshold !== undefined)
+      updateData.noShowThreshold = data.noShowThreshold
+    if (data.noShowPenaltyDays !== undefined)
+      updateData.noShowPenaltyDays = data.noShowPenaltyDays
+    if (data.noShowAutoBlock !== undefined)
+      updateData.noShowAutoBlock = data.noShowAutoBlock
 
     const p = await prisma.practitioner.update({
       where: { id: practitionerId },
@@ -537,6 +553,9 @@ export class AvailabilitiesService {
       teleconsultationFee: p.teleconsultationFee
         ? Number(p.teleconsultationFee)
         : null,
+      noShowThreshold: p.noShowThreshold,
+      noShowPenaltyDays: p.noShowPenaltyDays,
+      noShowAutoBlock: p.noShowAutoBlock,
     }
   }
 
@@ -691,7 +710,7 @@ export class AvailabilitiesService {
     const randomStr = Math.random().toString(36).substring(2, 6).toUpperCase()
     const invoiceNumber = `INV-${dateStr}-${randomStr}`
 
-    // auto-generate a pendning payment record for this appointment
+    // autogenerate a pendning payment record for this appointment
     await prisma.payment.create({
       data: {
         appointmentId: appointment.id,
@@ -742,6 +761,499 @@ export class AvailabilitiesService {
       take: 10,
     })
     return patients
+  }
+
+  async cancelAppointmentByPractitioner(
+    practitionerId: string,
+    appointmentId: string,
+    data: PractitionerCancelAppointmentInput,
+  ) {
+    const appointment = await prisma.appointment.findUnique({
+      where: { id: appointmentId },
+      include: {
+        patient: {
+          select: { id: true, firstName: true, lastName: true, phone: true },
+        },
+        practitioner: {
+          select: { title: true, firstName: true, lastName: true },
+        },
+      },
+    })
+    if (!appointment) throw new Error('Rendez-vous non trouvé')
+    if (appointment.practitionerId !== practitionerId)
+      throw new Error('Non autorisé')
+    if (appointment.status === AppointmentStatus.CANCELLED)
+      throw new Error('Rendez-vous déjà annulé')
+
+    const updated = await prisma.appointment.update({
+      where: { id: appointmentId },
+      data: {
+        status: AppointmentStatus.CANCELLED,
+        cancelledAt: new Date(),
+        cancellationReason: data.reason || 'Annulé par le praticien',
+      },
+      include: {
+        patient: {
+          select: { id: true, firstName: true, lastName: true, phone: true },
+        },
+      },
+    })
+
+    // patient user email
+    const patientUser = await prisma.user.findFirst({
+      where: { patient: { id: appointment.patientId } },
+      select: { email: true },
+    })
+
+    if (patientUser?.email) {
+      await sendAppointmentCancelledByPractitionerEmail(patientUser.email, {
+        patientName: `${appointment.patient.firstName} ${appointment.patient.lastName}`,
+        practitionerTitle: appointment.practitioner.title ?? 'Dr.',
+        practitionerFirstName: appointment.practitioner.firstName,
+        practitionerLastName: appointment.practitioner.lastName,
+        appointmentDate:
+          appointment.appointmentDate.toLocaleDateString('fr-FR'),
+        appointmentTime: appointment.startTime,
+        reason: data.reason,
+      })
+    }
+
+    return updated
+  }
+
+  async modifyAppointmentByPractitioner(
+    practitionerId: string,
+    appointmentId: string,
+    data: PractitionerModifyAppointmentInput,
+  ) {
+    const appointment = await prisma.appointment.findUnique({
+      where: { id: appointmentId },
+      include: {
+        patient: {
+          select: { id: true, firstName: true, lastName: true, phone: true },
+        },
+        practitioner: {
+          select: { title: true, firstName: true, lastName: true },
+        },
+      },
+    })
+    if (!appointment) throw new Error('Rendez-vous non trouvé')
+    if (appointment.practitionerId !== practitionerId)
+      throw new Error('Non autorisé')
+    if (
+      appointment.status === AppointmentStatus.CANCELLED ||
+      appointment.status === AppointmentStatus.COMPLETED
+    )
+      throw new Error('Impossible de modifier ce rendez-vous')
+
+    const newDate = new Date(data.appointmentDate)
+    newDate.setHours(0, 0, 0, 0)
+
+    // conflicts check
+    const conflict = await prisma.appointment.findFirst({
+      where: {
+        practitionerId,
+        appointmentDate: newDate,
+        startTime: data.startTime,
+        status: {
+          in: [AppointmentStatus.PENDING, AppointmentStatus.CONFIRMED],
+        },
+        id: { not: appointmentId },
+      },
+    })
+    if (conflict) throw new Error("Ce créneau n'est plus disponible")
+
+    const duration = appointment.duration
+    const [hours, minutes] = data.startTime.split(':').map(Number)
+    const endMinutes = hours * 60 + minutes + duration
+    const endTime = `${Math.floor(endMinutes / 60)
+      .toString()
+      .padStart(2, '0')}:${(endMinutes % 60).toString().padStart(2, '0')}`
+
+    const oldDate = appointment.appointmentDate.toLocaleDateString('fr-FR')
+    const oldTime = appointment.startTime
+
+    const updated = await prisma.appointment.update({
+      where: { id: appointmentId },
+      data: {
+        appointmentDate: newDate,
+        startTime: data.startTime,
+        endTime,
+      },
+      include: {
+        patient: {
+          select: { id: true, firstName: true, lastName: true, phone: true },
+        },
+      },
+    })
+
+    // email notification
+    const patientUser = await prisma.user.findFirst({
+      where: { patient: { id: appointment.patientId } },
+      select: { email: true },
+    })
+
+    if (patientUser?.email) {
+      await sendAppointmentModifiedByPractitionerEmail(patientUser.email, {
+        patientName: `${appointment.patient.firstName} ${appointment.patient.lastName}`,
+        practitionerTitle: appointment.practitioner.title ?? 'Dr.',
+        practitionerFirstName: appointment.practitioner.firstName,
+        practitionerLastName: appointment.practitioner.lastName,
+        oldDate,
+        oldTime,
+        newDate: newDate.toLocaleDateString('fr-FR'),
+        newTime: data.startTime,
+      })
+    }
+
+    return updated
+  }
+
+  async markAppointmentAttended(practitionerId: string, appointmentId: string) {
+    const appointment = await prisma.appointment.findUnique({
+      where: { id: appointmentId },
+    })
+    if (!appointment) throw new Error('Rendez-vous non trouvé')
+    if (appointment.practitionerId !== practitionerId)
+      throw new Error('Non autorisé')
+
+    return prisma.appointment.update({
+      where: { id: appointmentId },
+      data: {
+        status: AppointmentStatus.COMPLETED,
+        markedAsNoShow: false,
+      },
+      include: {
+        patient: {
+          select: { id: true, firstName: true, lastName: true, phone: true },
+        },
+      },
+    })
+  }
+
+  async markAppointmentNoShow(practitionerId: string, appointmentId: string) {
+    const appointment = await prisma.appointment.findUnique({
+      where: { id: appointmentId },
+      include: {
+        patient: {
+          select: {
+            id: true,
+            firstName: true,
+            lastName: true,
+            phone: true,
+            noShowCount: true,
+          },
+        },
+        practitioner: {
+          select: { firstName: true, lastName: true },
+        },
+      },
+    })
+    if (!appointment) throw new Error('Rendez-vous non trouvé')
+    if (appointment.practitionerId !== practitionerId)
+      throw new Error('Non autorisé')
+
+    const practitioner = await prisma.practitioner.findUnique({
+      where: { id: practitionerId },
+    })
+    if (!practitioner) throw new Error('Praticien non trouvé')
+
+    const newNoShowCount = (appointment.patient.noShowCount || 0) + 1
+
+    // update appointment
+    const updated = await prisma.appointment.update({
+      where: { id: appointmentId },
+      data: {
+        status: AppointmentStatus.NO_SHOW,
+        markedAsNoShow: true,
+        noShowMarkedAt: new Date(),
+      },
+      include: {
+        patient: {
+          select: { id: true, firstName: true, lastName: true, phone: true },
+        },
+      },
+    })
+
+    // Increment patient noshow count and apply penalty if limit reached
+    const patientUpdate: any = { noShowCount: newNoShowCount }
+
+    if (
+      practitioner.noShowAutoBlock &&
+      newNoShowCount >= practitioner.noShowThreshold
+    ) {
+      const penaltyUntil = new Date()
+      penaltyUntil.setDate(
+        penaltyUntil.getDate() + practitioner.noShowPenaltyDays,
+      )
+      patientUpdate.penaltyUntil = penaltyUntil
+      patientUpdate.penaltyReason = `Bloqué automatiquement après ${newNoShowCount} absences non justifiées`
+    }
+
+    await prisma.patient.update({
+      where: { id: appointment.patientId },
+      data: patientUpdate,
+    })
+
+    // send noshow email
+    const patientUser = await prisma.user.findFirst({
+      where: { patient: { id: appointment.patientId } },
+      select: { email: true },
+    })
+
+    if (patientUser?.email) {
+      await sendNoShowEmail(patientUser.email, {
+        patientName: `${appointment.patient.firstName} ${appointment.patient.lastName}`,
+        practitionerTitle: practitioner.title || 'Dr.',
+        practitionerFirstName: appointment.practitioner.firstName,
+        practitionerLastName: appointment.practitioner.lastName,
+        appointmentDate:
+          appointment.appointmentDate.toLocaleDateString('fr-FR'),
+        appointmentTime: appointment.startTime,
+        noShowCount: newNoShowCount,
+      })
+    }
+
+    return updated
+  }
+
+  async getCabinetAppointments(
+    practitionerId: string,
+    period: 'week' | 'month' = 'week',
+  ) {
+    const now = new Date()
+    const todayStart = new Date(now)
+    todayStart.setHours(0, 0, 0, 0)
+    const todayEnd = new Date(now)
+    todayEnd.setHours(23, 59, 59, 999)
+
+    const weekStart = new Date(now)
+    const dayOfWeek = now.getDay() === 0 ? 7 : now.getDay() // mon=1
+    weekStart.setDate(now.getDate() - dayOfWeek + 1) // monday
+    weekStart.setHours(0, 0, 0, 0)
+
+    // determine past date range based on period
+    let pastStart: Date
+    if (period === 'month') {
+      pastStart = new Date(now.getFullYear(), now.getMonth(), 1)
+      pastStart.setHours(0, 0, 0, 0)
+    } else {
+      // week: monday of current week
+      pastStart = new Date(weekStart)
+    }
+
+    const patientSelect = {
+      id: true,
+      firstName: true,
+      lastName: true,
+      phone: true,
+    }
+
+    const [todayAppointments, todayCompletedOrNoShow, pastAppointments, stats] =
+      await Promise.all([
+        // todays active only cabinet appointments
+        prisma.appointment.findMany({
+          where: {
+            practitionerId,
+            type: AppointmentType.IN_PERSON,
+            appointmentDate: { gte: todayStart, lte: todayEnd },
+            status: {
+              notIn: [
+                AppointmentStatus.CANCELLED,
+                AppointmentStatus.COMPLETED,
+                AppointmentStatus.NO_SHOW,
+              ],
+            },
+          },
+          orderBy: [{ startTime: 'asc' }],
+          include: { patient: { select: patientSelect } },
+        }),
+        // todays completed&no-show cabinet appointments goes to past tab
+        prisma.appointment.findMany({
+          where: {
+            practitionerId,
+            type: AppointmentType.IN_PERSON,
+            appointmentDate: { gte: todayStart, lte: todayEnd },
+            status: {
+              in: [AppointmentStatus.COMPLETED, AppointmentStatus.NO_SHOW],
+            },
+          },
+          orderBy: [{ startTime: 'desc' }],
+          include: { patient: { select: patientSelect } },
+        }),
+        // past cabinet appointments for selected period (not todayà)
+        prisma.appointment.findMany({
+          where: {
+            practitionerId,
+            type: AppointmentType.IN_PERSON,
+            appointmentDate: {
+              gte: pastStart,
+              lt: todayStart,
+            },
+          },
+          orderBy: [{ appointmentDate: 'desc' }, { startTime: 'desc' }],
+          include: { patient: { select: patientSelect } },
+          take: 100,
+        }),
+        // stats
+        Promise.all([
+          // today total
+          prisma.appointment.count({
+            where: {
+              practitionerId,
+              type: AppointmentType.IN_PERSON,
+              appointmentDate: { gte: todayStart, lte: todayEnd },
+              status: { notIn: [AppointmentStatus.CANCELLED] },
+            },
+          }),
+          // en attente
+          prisma.appointment.count({
+            where: {
+              practitionerId,
+              type: AppointmentType.IN_PERSON,
+              appointmentDate: { gte: todayStart, lte: todayEnd },
+              status: {
+                in: [AppointmentStatus.PENDING, AppointmentStatus.CONFIRMED],
+              },
+            },
+          }),
+          // completed this week
+          prisma.appointment.count({
+            where: {
+              practitionerId,
+              type: AppointmentType.IN_PERSON,
+              appointmentDate: { gte: weekStart, lte: todayEnd },
+              status: AppointmentStatus.COMPLETED,
+            },
+          }),
+          // no shows this week
+          prisma.appointment.count({
+            where: {
+              practitionerId,
+              type: AppointmentType.IN_PERSON,
+              appointmentDate: { gte: weekStart, lte: todayEnd },
+              status: AppointmentStatus.NO_SHOW,
+            },
+          }),
+        ]),
+      ])
+
+    const mapApt = (apt: any) => ({
+      id: apt.id,
+      appointmentDate: apt.appointmentDate,
+      startTime: apt.startTime,
+      endTime: apt.endTime,
+      duration: apt.duration,
+      type: apt.type,
+      status: apt.status,
+      reason: apt.reason,
+      consultationFee: Number(apt.consultationFee),
+      patient: apt.patient,
+      markedAsNoShow: apt.markedAsNoShow,
+    })
+
+    // merge today completed/noshow into past appointments
+    const allPast = [...todayCompletedOrNoShow, ...pastAppointments]
+
+    return {
+      todayAppointments: todayAppointments.map(mapApt),
+      pastAppointments: allPast.map(mapApt),
+      stats: {
+        today: stats[0],
+        pending: stats[1],
+        completedThisWeek: stats[2],
+        noShowsThisWeek: stats[3],
+      },
+    }
+  }
+
+  async getCabinetHistory(
+    practitionerId: string,
+    page = 1,
+    limit = 20,
+    search?: string,
+    status?: string,
+    dateFrom?: string,
+    dateTo?: string,
+  ) {
+    const now = new Date()
+    const todayStart = new Date(now)
+    todayStart.setHours(0, 0, 0, 0)
+
+    const where: any = {
+      practitionerId,
+      type: AppointmentType.IN_PERSON,
+      // only past appointments
+      appointmentDate: { lt: todayStart },
+    }
+
+    if (status && status !== 'all') {
+      where.status = status as AppointmentStatus
+    }
+
+    if (dateFrom || dateTo) {
+      where.appointmentDate = where.appointmentDate ?? {}
+      if (dateFrom) {
+        const from = new Date(dateFrom)
+        from.setHours(0, 0, 0, 0)
+        where.appointmentDate.gte = from
+      }
+      if (dateTo) {
+        const to = new Date(dateTo)
+        to.setHours(23, 59, 59, 999)
+        where.appointmentDate.lte = to
+        delete where.appointmentDate.lt
+      }
+    }
+
+    if (search) {
+      where.patient = {
+        OR: [
+          { firstName: { contains: search, mode: 'insensitive' } },
+          { lastName: { contains: search, mode: 'insensitive' } },
+        ],
+      }
+    }
+
+    const skip = (page - 1) * limit
+    const patientSelect = {
+      id: true,
+      firstName: true,
+      lastName: true,
+      phone: true,
+    }
+
+    const [appointments, total] = await Promise.all([
+      prisma.appointment.findMany({
+        where,
+        skip,
+        take: limit,
+        orderBy: [{ appointmentDate: 'desc' }, { startTime: 'desc' }],
+        include: { patient: { select: patientSelect } },
+      }),
+      prisma.appointment.count({ where }),
+    ])
+
+    const data = appointments.map((apt) => ({
+      id: apt.id,
+      appointmentDate: apt.appointmentDate,
+      startTime: apt.startTime,
+      endTime: apt.endTime,
+      duration: apt.duration,
+      type: apt.type,
+      status: apt.status,
+      reason: apt.reason,
+      consultationFee: Number(apt.consultationFee),
+      patient: apt.patient,
+    }))
+
+    return {
+      data,
+      total,
+      page,
+      limit,
+      totalPages: Math.ceil(total / limit),
+    }
   }
 }
 

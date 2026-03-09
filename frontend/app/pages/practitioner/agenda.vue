@@ -170,6 +170,63 @@
             >
               Facturer
             </UiButton>
+            <!-- before appointment time: modifier / annuler -->
+            <template v-if="isBeforeAppointmentTime(apt)">
+              <UiButton
+                size="sm"
+                variant="outline"
+                class="ml-1 h-7 px-2 py-0 text-xs"
+                @click.stop="openAgendaModifyModal(apt)"
+              >
+                Modifier
+              </UiButton>
+              <UiButton
+                size="sm"
+                variant="danger"
+                class="ml-1 h-7 px-2 py-0 text-xs"
+                @click.stop="openAgendaCancelModal(apt)"
+              >
+                Annuler
+              </UiButton>
+            </template>
+            <!-- at or after appointment time: presenté / no show (cabinet) -->
+            <template
+              v-if="
+                isAtOrAfterAppointmentTime(apt) &&
+                apt.type !== 'TELECONSULTATION' &&
+                apt.status !== 'COMPLETED' &&
+                apt.status !== 'NO_SHOW' &&
+                apt.status !== 'CANCELLED'
+              "
+            >
+              <UiButton
+                size="sm"
+                class="ml-1 h-7 bg-green-600 px-2 py-0 text-xs hover:bg-green-700"
+                @click.stop="agendaMarkAttended(apt)"
+              >
+                Présentée
+              </UiButton>
+              <UiButton
+                size="sm"
+                variant="danger"
+                class="ml-1 h-7 px-2 py-0 text-xs"
+                @click.stop="agendaMarkNoShow(apt)"
+              >
+                No Show
+              </UiButton>
+            </template>
+            <span
+              v-if="
+                isAtOrAfterAppointmentTime(apt) &&
+                apt.type === 'TELECONSULTATION' &&
+                apt.status !== 'COMPLETED' &&
+                apt.status !== 'NO_SHOW' &&
+                apt.status !== 'CANCELLED'
+              "
+              class="ml-1 text-xs italic text-gray-400"
+            >
+              Absence détectée automatiquement
+            </span>
           </div>
         </div>
       </template>
@@ -728,6 +785,52 @@
             </div>
           </div>
 
+          <!-- Noshow configuration -->
+          <div class="space-y-4">
+            <h4 class="font-medium text-gray-900">
+              Gestion des absences (No Show)
+            </h4>
+            <div class="grid items-center gap-2 sm:grid-cols-3">
+              <label class="text-sm text-gray-700"
+                >Seuil de no-show (avant blocage)</label
+              >
+              <div class="flex items-center gap-2 sm:col-span-2">
+                <input
+                  v-model.number="settingsForm.noShowThreshold"
+                  type="number"
+                  min="1"
+                  max="20"
+                  class="w-24 rounded-lg border border-gray-300 px-3 py-2 text-sm"
+                />
+                <span class="text-sm text-gray-500">absences</span>
+              </div>
+            </div>
+            <div class="grid items-center gap-2 sm:grid-cols-3">
+              <label class="text-sm text-gray-700">Durée du blocage</label>
+              <div class="flex items-center gap-2 sm:col-span-2">
+                <input
+                  v-model.number="settingsForm.noShowPenaltyDays"
+                  type="number"
+                  min="1"
+                  max="365"
+                  class="w-24 rounded-lg border border-gray-300 px-3 py-2 text-sm"
+                />
+                <span class="text-sm text-gray-500">jours</span>
+              </div>
+            </div>
+            <label class="flex items-center gap-2">
+              <input
+                v-model="settingsForm.noShowAutoBlock"
+                type="checkbox"
+                class="h-4 w-4 rounded border-gray-300 text-blue-600 focus:ring-blue-500"
+              />
+              <span class="text-sm text-gray-700"
+                >Bloquer automatiquement les patients après le seuil de
+                no-show</span
+              >
+            </label>
+          </div>
+
           <div class="border-t pt-4">
             <UiButton @click="saveSettings" :disabled="savingSettings">
               {{
@@ -1038,6 +1141,247 @@
       @close="isInvoiceModalOpen = false"
       @success="handleInvoiceSuccess"
     />
+
+    <!-- cancel modal -->
+    <Teleport to="body">
+      <div
+        v-if="showAgendaCancelModal"
+        class="fixed inset-0 z-50 flex items-center justify-center bg-black/50"
+        @click.self="showAgendaCancelModal = false"
+      >
+        <div class="mx-4 w-full max-w-md rounded-xl bg-white p-6 shadow-2xl">
+          <div class="mb-4 flex items-center gap-3">
+            <div
+              class="flex h-10 w-10 items-center justify-center rounded-full bg-red-100"
+            >
+              <Ban class="h-5 w-5 text-red-600" />
+            </div>
+            <h3 class="text-lg font-semibold text-gray-900">
+              Annuler le rendez-vous
+            </h3>
+          </div>
+          <p class="mb-4 text-sm text-gray-600">
+            Êtes-vous sûr de vouloir annuler le rendez-vous de
+            <strong
+              >{{ agendaSelectedAppointment?.patient.firstName }}
+              {{ agendaSelectedAppointment?.patient.lastName }}</strong
+            >
+            à <strong>{{ agendaSelectedAppointment?.startTime }}</strong> ?
+          </p>
+          <p class="mb-4 rounded-lg bg-yellow-50 p-3 text-sm text-yellow-700">
+            Un email sera envoyé au patient pour l'informer de l'annulation.
+          </p>
+          <div class="mb-4">
+            <label class="mb-1 block text-sm font-medium text-gray-700"
+              >Raison (optionnel)</label
+            >
+            <textarea
+              v-model="agendaCancelReason"
+              class="w-full rounded-lg border border-gray-300 px-3 py-2 text-sm focus:border-blue-500 focus:outline-none focus:ring-1 focus:ring-blue-500"
+              rows="3"
+              placeholder="Raison de l'annulation..."
+            />
+          </div>
+          <div class="flex justify-end gap-3">
+            <UiButton variant="secondary" @click="showAgendaCancelModal = false"
+              >Retour</UiButton
+            >
+            <UiButton
+              variant="danger"
+              :disabled="agendaCancelLoading"
+              @click="confirmAgendaCancel"
+            >
+              {{
+                agendaCancelLoading ? "Annulation..." : "Confirmer l'annulation"
+              }}
+            </UiButton>
+          </div>
+        </div>
+      </div>
+    </Teleport>
+
+    <!-- modify modal -->
+    <Teleport to="body">
+      <div
+        v-if="showAgendaModifyModal"
+        class="fixed inset-0 z-50 flex items-center justify-center bg-black/50"
+        @click.self="showAgendaModifyModal = false"
+      >
+        <div class="mx-4 w-full max-w-md rounded-xl bg-white p-6 shadow-2xl">
+          <div class="mb-4 flex items-center gap-3">
+            <div
+              class="flex h-10 w-10 items-center justify-center rounded-full bg-blue-100"
+            >
+              <CalendarDays class="h-5 w-5 text-blue-600" />
+            </div>
+            <h3 class="text-lg font-semibold text-gray-900">
+              Modifier le rendez-vous
+            </h3>
+          </div>
+          <div
+            class="mb-4 flex items-start gap-2 rounded-lg border border-yellow-200 bg-yellow-50 p-3"
+          >
+            <Ban class="mt-0.5 h-5 w-5 flex-shrink-0 text-yellow-600" />
+            <p class="text-sm text-yellow-700">
+              Pensez à prévenir le patient avant la modification du rendez-vous.
+              Un email sera envoyé automatiquement avec les nouvelles
+              informations.
+            </p>
+          </div>
+          <p class="mb-4 text-sm text-gray-600">
+            Modifier le rendez-vous de
+            <strong
+              >{{ agendaSelectedAppointment?.patient.firstName }}
+              {{ agendaSelectedAppointment?.patient.lastName }}</strong
+            >
+          </p>
+          <div class="mb-4 space-y-3">
+            <div>
+              <label class="mb-1 block text-sm font-medium text-gray-700"
+                >Nouvelle date</label
+              >
+              <input
+                v-model="agendaModifyDate"
+                type="date"
+                class="w-full rounded-lg border border-gray-300 px-3 py-2 text-sm focus:border-blue-500 focus:outline-none focus:ring-1 focus:ring-blue-500"
+              />
+            </div>
+            <div>
+              <label class="mb-1 block text-sm font-medium text-gray-700"
+                >Nouvelle heure</label
+              >
+              <input
+                v-model="agendaModifyTime"
+                type="time"
+                class="w-full rounded-lg border border-gray-300 px-3 py-2 text-sm focus:border-blue-500 focus:outline-none focus:ring-1 focus:ring-blue-500"
+              />
+            </div>
+          </div>
+          <div class="flex justify-end gap-3">
+            <UiButton variant="secondary" @click="showAgendaModifyModal = false"
+              >Retour</UiButton
+            >
+            <UiButton
+              :disabled="
+                agendaModifyLoading || !agendaModifyDate || !agendaModifyTime
+              "
+              @click="confirmAgendaModify"
+            >
+              {{
+                agendaModifyLoading
+                  ? "Modification..."
+                  : "Confirmer la modification"
+              }}
+            </UiButton>
+          </div>
+        </div>
+      </div>
+    </Teleport>
+
+    <!-- attended confirmation modal -->
+    <Teleport to="body">
+      <div
+        v-if="showAgendaAttendedModal"
+        class="fixed inset-0 z-50 flex items-center justify-center bg-black/50"
+        @click.self="showAgendaAttendedModal = false"
+      >
+        <div class="w-full max-w-md rounded-xl bg-white p-6 shadow-xl">
+          <div class="mb-4 flex items-center gap-3">
+            <div
+              class="flex h-10 w-10 items-center justify-center rounded-full bg-green-100"
+            >
+              <CheckCircle2 class="h-5 w-5 text-green-600" />
+            </div>
+            <div>
+              <h2 class="text-lg font-bold text-gray-900">
+                Confirmer la présence
+              </h2>
+              <p v-if="agendaAttendedApt" class="text-sm text-gray-500">
+                {{ agendaAttendedApt.patient.firstName }}
+                {{ agendaAttendedApt.patient.lastName }}
+              </p>
+            </div>
+          </div>
+          <div class="mb-5 rounded-lg bg-blue-50 p-4 text-sm text-blue-800">
+            <p class="mb-1 font-medium">Veuillez confirmer :</p>
+            <ul class="list-inside list-disc space-y-1 text-blue-700">
+              <li>Le patient s'est bien présenté</li>
+              <li v-if="agendaAttendedApt?.type === 'IN_PERSON'">
+                Le paiement a été effectué à la réception
+              </li>
+            </ul>
+          </div>
+          <div class="flex justify-end gap-3">
+            <UiButton
+              variant="secondary"
+              @click="showAgendaAttendedModal = false"
+              >Annuler</UiButton
+            >
+            <UiButton
+              class="bg-green-600 hover:bg-green-700"
+              :disabled="agendaAttendedLoading"
+              @click="confirmAgendaAttended"
+            >
+              {{
+                agendaAttendedLoading
+                  ? "Enregistrement..."
+                  : "Confirmer la présence"
+              }}
+            </UiButton>
+          </div>
+        </div>
+      </div>
+    </Teleport>
+
+    <!-- noshow confirmation modal -->
+    <Teleport to="body">
+      <div
+        v-if="showAgendaNoShowModal"
+        class="fixed inset-0 z-50 flex items-center justify-center bg-black/50"
+        @click.self="showAgendaNoShowModal = false"
+      >
+        <div class="w-full max-w-md rounded-xl bg-white p-6 shadow-xl">
+          <div class="mb-4 flex items-center gap-3">
+            <div
+              class="flex h-10 w-10 items-center justify-center rounded-full bg-red-100"
+            >
+              <AlertTriangle class="h-5 w-5 text-red-600" />
+            </div>
+            <div>
+              <h2 class="text-lg font-bold text-gray-900">
+                Confirmer l'absence
+              </h2>
+              <p v-if="agendaNoShowApt" class="text-sm text-gray-500">
+                {{ agendaNoShowApt.patient.firstName }}
+                {{ agendaNoShowApt.patient.lastName }}
+              </p>
+            </div>
+          </div>
+          <p class="mb-5 text-sm text-gray-600">
+            Le patient sera marqué comme
+            <strong class="text-red-600">absent (No Show)</strong>. Un email de
+            notification lui sera automatiquement envoyé. Les absences répétées
+            peuvent entraîner des restrictions de réservation.
+          </p>
+          <div class="flex justify-end gap-3">
+            <UiButton variant="secondary" @click="showAgendaNoShowModal = false"
+              >Annuler</UiButton
+            >
+            <UiButton
+              variant="danger"
+              :disabled="agendaNoShowLoading"
+              @click="confirmAgendaNoShow"
+            >
+              {{
+                agendaNoShowLoading
+                  ? "Enregistrement..."
+                  : "Confirmer l'absence"
+              }}
+            </UiButton>
+          </div>
+        </div>
+      </div>
+    </Teleport>
   </div>
 </template>
 
@@ -1059,6 +1403,8 @@ import {
   User,
   Mail,
   Trash2,
+  CheckCircle2,
+  AlertTriangle,
 } from "lucide-vue-next";
 import CreateInvoiceModal from "~/components/practitioner/CreateInvoiceModal.vue";
 import { useAuthStore } from "~/stores/auth";
@@ -1139,6 +1485,9 @@ interface SettingsData {
   newPatientMaxPerDay: number;
   baseConsultationFee: number;
   teleconsultationFee: number | null;
+  noShowThreshold: number;
+  noShowPenaltyDays: number;
+  noShowAutoBlock: boolean;
 }
 
 const tabs = [
@@ -1194,6 +1543,9 @@ const settingsForm = ref<SettingsData>({
   newPatientMaxPerDay: 0,
   baseConsultationFee: 0,
   teleconsultationFee: null,
+  noShowThreshold: 3,
+  noShowPenaltyDays: 30,
+  noShowAutoBlock: false,
 });
 
 const showNewAppointmentModal = ref(false);
@@ -1879,4 +2231,156 @@ onMounted(() => {
     loadingAppointments.value = false;
   }
 });
+
+const showAgendaCancelModal = ref(false);
+const showAgendaModifyModal = ref(false);
+const agendaSelectedAppointment = ref<AgendaAppointment | null>(null);
+const agendaCancelReason = ref("");
+const agendaCancelLoading = ref(false);
+const agendaModifyDate = ref("");
+const agendaModifyTime = ref("");
+const agendaModifyLoading = ref(false);
+
+const showAgendaAttendedModal = ref(false);
+const showAgendaNoShowModal = ref(false);
+const agendaAttendedApt = ref<AgendaAppointment | null>(null);
+const agendaNoShowApt = ref<AgendaAppointment | null>(null);
+const agendaAttendedLoading = ref(false);
+const agendaNoShowLoading = ref(false);
+
+function isBeforeAppointmentTime(apt: AgendaAppointment): boolean {
+  if (
+    apt.status === "CANCELLED" ||
+    apt.status === "COMPLETED" ||
+    apt.status === "NO_SHOW"
+  )
+    return false;
+  const now = new Date();
+  const [h, m] = apt.startTime.split(":").map(Number);
+  const aptTime = new Date(apt.appointmentDate);
+  aptTime.setHours(h, m, 0, 0);
+  return now < aptTime;
+}
+
+function isAtOrAfterAppointmentTime(apt: AgendaAppointment): boolean {
+  const now = new Date();
+  const [h, m] = apt.startTime.split(":").map(Number);
+  const aptTime = new Date(apt.appointmentDate);
+  aptTime.setHours(h, m, 0, 0);
+  return now >= aptTime;
+}
+
+function openAgendaCancelModal(apt: AgendaAppointment) {
+  agendaSelectedAppointment.value = apt;
+  agendaCancelReason.value = "";
+  showAgendaCancelModal.value = true;
+}
+
+async function confirmAgendaCancel() {
+  if (!agendaSelectedAppointment.value) return;
+  agendaCancelLoading.value = true;
+  try {
+    await useAuthenticatedFetch(
+      `/practitioner/agenda/appointments/${agendaSelectedAppointment.value.id}/cancel`,
+      {
+        method: "PATCH",
+        body: { reason: agendaCancelReason.value || undefined },
+      },
+    );
+    showAgendaCancelModal.value = false;
+    showToast("Rendez-vous annulé", "success");
+    await fetchAppointments();
+    await fetchDaySummary();
+  } catch (e: any) {
+    showToast(e?.data?.message || "Erreur lors de l'annulation", "error");
+  } finally {
+    agendaCancelLoading.value = false;
+  }
+}
+
+function openAgendaModifyModal(apt: AgendaAppointment) {
+  agendaSelectedAppointment.value = apt;
+  const d = new Date(apt.appointmentDate);
+  agendaModifyDate.value = d.toISOString().slice(0, 10);
+  agendaModifyTime.value = apt.startTime;
+  showAgendaModifyModal.value = true;
+}
+
+async function confirmAgendaModify() {
+  if (
+    !agendaSelectedAppointment.value ||
+    !agendaModifyDate.value ||
+    !agendaModifyTime.value
+  )
+    return;
+  agendaModifyLoading.value = true;
+  try {
+    await useAuthenticatedFetch(
+      `/practitioner/agenda/appointments/${agendaSelectedAppointment.value.id}/modify`,
+      {
+        method: "PATCH",
+        body: {
+          appointmentDate: agendaModifyDate.value,
+          startTime: agendaModifyTime.value,
+        },
+      },
+    );
+    showAgendaModifyModal.value = false;
+    showToast("Rendez-vous modifié", "success");
+    await fetchAppointments();
+    await fetchDaySummary();
+  } catch (e: any) {
+    showToast(e?.data?.message || "Erreur lors de la modification", "error");
+  } finally {
+    agendaModifyLoading.value = false;
+  }
+}
+
+async function agendaMarkAttended(apt: AgendaAppointment) {
+  agendaAttendedApt.value = apt;
+  showAgendaAttendedModal.value = true;
+}
+
+async function confirmAgendaAttended() {
+  if (!agendaAttendedApt.value) return;
+  agendaAttendedLoading.value = true;
+  try {
+    await useAuthenticatedFetch(
+      `/practitioner/agenda/appointments/${agendaAttendedApt.value.id}/attended`,
+      { method: "PATCH" },
+    );
+    showAgendaAttendedModal.value = false;
+    showToast("Patient marqué comme présent", "success");
+    await fetchAppointments();
+    await fetchDaySummary();
+  } catch (e: any) {
+    showToast(e?.data?.message || "Erreur", "error");
+  } finally {
+    agendaAttendedLoading.value = false;
+  }
+}
+
+async function agendaMarkNoShow(apt: AgendaAppointment) {
+  agendaNoShowApt.value = apt;
+  showAgendaNoShowModal.value = true;
+}
+
+async function confirmAgendaNoShow() {
+  if (!agendaNoShowApt.value) return;
+  agendaNoShowLoading.value = true;
+  try {
+    await useAuthenticatedFetch(
+      `/practitioner/agenda/appointments/${agendaNoShowApt.value.id}/no-show`,
+      { method: "PATCH" },
+    );
+    showAgendaNoShowModal.value = false;
+    showToast("Patient marqué comme absent", "success");
+    await fetchAppointments();
+    await fetchDaySummary();
+  } catch (e: any) {
+    showToast(e?.data?.message || "Erreur", "error");
+  } finally {
+    agendaNoShowLoading.value = false;
+  }
+}
 </script>

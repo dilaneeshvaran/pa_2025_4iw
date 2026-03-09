@@ -2,7 +2,10 @@ import { FastifyInstance } from 'fastify'
 import { ZodTypeProvider } from 'fastify-type-provider-zod'
 import { ContactRequestsController } from './contact-requests.controller'
 import { createContactRequestSchema } from './contact-requests.schema'
-import { authenticate } from '../../middleware/authenticate'
+import {
+  authenticate,
+  authenticateAttachmentRequest,
+} from '../../middleware/authenticate'
 import { authorize } from '../../middleware/authorize'
 
 const contactRequestsController = new ContactRequestsController()
@@ -123,5 +126,23 @@ export async function contactRequestsRoutes(fastify: FastifyInstance) {
     contactRequestsController.deleteContactRequest.bind(
       contactRequestsController,
     ),
+  )
+
+  // download document attached to a request
+  // support ?token= query param to open in a new browser tab
+  app.get(
+    '/:id/documents/:field',
+    {
+      preHandler: [
+        authenticateAttachmentRequest,
+        authorize(['ADMIN', 'STAFF']),
+      ],
+      schema: {
+        tags: ['Contact Requests'],
+        description:
+          'Download a document attached to a registration request (Admin/Staff only)',
+      },
+    },
+    contactRequestsController.downloadDocument.bind(contactRequestsController),
   )
 }
