@@ -300,6 +300,39 @@
                 <FileText class="mr-1.5 h-4 w-4" />
                 Dossier
               </UiButton>
+
+              <!-- before appointment time: modifier / annuler -->
+              <template v-if="isTeleBeforeTime(session)">
+                <UiButton
+                  variant="outline"
+                  size="sm"
+                  @click="openTeleCancelModal(session)"
+                >
+                  <XCircle class="mr-1.5 h-4 w-4" />
+                  Annuler
+                </UiButton>
+                <UiButton
+                  variant="outline"
+                  size="sm"
+                  @click="openTeleModifyModal(session)"
+                >
+                  <Pencil class="mr-1.5 h-4 w-4" />
+                  Modifier
+                </UiButton>
+              </template>
+
+              <span
+                v-if="
+                  isTeleAtOrAfterTime(session) &&
+                  session.status !== 'COMPLETED' &&
+                  session.status !== 'NO_SHOW' &&
+                  session.status !== 'FAILED' &&
+                  session.status !== 'CANCELLED'
+                "
+                class="text-xs italic text-gray-400"
+              >
+                Absence détectée automatiquement
+              </span>
             </div>
           </div>
         </div>
@@ -748,6 +781,138 @@
         />
       </div>
     </Teleport>
+
+    <!-- tele cancel modal -->
+    <Teleport to="body">
+      <div
+        v-if="showTeleCancelModal"
+        class="fixed inset-0 z-50 flex items-center justify-center bg-black/50"
+        @click.self="showTeleCancelModal = false"
+      >
+        <div class="mx-4 w-full max-w-md rounded-xl bg-white p-6 shadow-2xl">
+          <div class="mb-4 flex items-center gap-3">
+            <div
+              class="flex h-10 w-10 items-center justify-center rounded-full bg-red-100"
+            >
+              <XCircle class="h-5 w-5 text-red-600" />
+            </div>
+            <h3 class="text-lg font-semibold text-gray-900">
+              Annuler la téléconsultation
+            </h3>
+          </div>
+          <p class="mb-4 text-sm text-gray-600">
+            Êtes-vous sûr de vouloir annuler la téléconsultation de
+            <strong>{{ teleSelectedSession?.patientName }}</strong>
+            à <strong>{{ teleSelectedSession?.startTime }}</strong> ?
+          </p>
+          <p class="mb-4 rounded-lg bg-yellow-50 p-3 text-sm text-yellow-700">
+            Un email sera envoyé au patient pour l'informer de l'annulation.
+          </p>
+          <div class="mb-4">
+            <label class="mb-1 block text-sm font-medium text-gray-700"
+              >Raison (optionnel)</label
+            >
+            <textarea
+              v-model="teleCancelReason"
+              class="w-full rounded-lg border border-gray-300 px-3 py-2 text-sm focus:border-blue-500 focus:outline-none focus:ring-1 focus:ring-blue-500"
+              rows="3"
+              placeholder="Raison de l'annulation..."
+            />
+          </div>
+          <div class="flex justify-end gap-3">
+            <UiButton variant="secondary" @click="showTeleCancelModal = false"
+              >Retour</UiButton
+            >
+            <UiButton
+              variant="danger"
+              :disabled="teleCancelLoading"
+              @click="confirmTeleCancel"
+            >
+              {{
+                teleCancelLoading ? "Annulation..." : "Confirmer l'annulation"
+              }}
+            </UiButton>
+          </div>
+        </div>
+      </div>
+    </Teleport>
+
+    <!-- tele modify modal -->
+    <Teleport to="body">
+      <div
+        v-if="showTeleModifyModal"
+        class="fixed inset-0 z-50 flex items-center justify-center bg-black/50"
+        @click.self="showTeleModifyModal = false"
+      >
+        <div class="mx-4 w-full max-w-md rounded-xl bg-white p-6 shadow-2xl">
+          <div class="mb-4 flex items-center gap-3">
+            <div
+              class="flex h-10 w-10 items-center justify-center rounded-full bg-blue-100"
+            >
+              <Pencil class="h-5 w-5 text-blue-600" />
+            </div>
+            <h3 class="text-lg font-semibold text-gray-900">
+              Modifier la téléconsultation
+            </h3>
+          </div>
+          <div
+            class="mb-4 flex items-start gap-2 rounded-lg border border-yellow-200 bg-yellow-50 p-3"
+          >
+            <AlertTriangle
+              class="mt-0.5 h-5 w-5 flex-shrink-0 text-yellow-600"
+            />
+            <p class="text-sm text-yellow-700">
+              Pensez à prévenir le patient avant la modification du rendez-vous.
+              Un email sera envoyé automatiquement avec les nouvelles
+              informations.
+            </p>
+          </div>
+          <p class="mb-4 text-sm text-gray-600">
+            Modifier la téléconsultation de
+            <strong>{{ teleSelectedSession?.patientName }}</strong>
+          </p>
+          <div class="mb-4 space-y-3">
+            <div>
+              <label class="mb-1 block text-sm font-medium text-gray-700"
+                >Nouvelle date</label
+              >
+              <input
+                v-model="teleModifyDate"
+                type="date"
+                class="w-full rounded-lg border border-gray-300 px-3 py-2 text-sm focus:border-blue-500 focus:outline-none focus:ring-1 focus:ring-blue-500"
+              />
+            </div>
+            <div>
+              <label class="mb-1 block text-sm font-medium text-gray-700"
+                >Nouvelle heure</label
+              >
+              <input
+                v-model="teleModifyTime"
+                type="time"
+                class="w-full rounded-lg border border-gray-300 px-3 py-2 text-sm focus:border-blue-500 focus:outline-none focus:ring-1 focus:ring-blue-500"
+              />
+            </div>
+          </div>
+          <div class="flex justify-end gap-3">
+            <UiButton variant="secondary" @click="showTeleModifyModal = false"
+              >Retour</UiButton
+            >
+            <UiButton
+              :disabled="
+                teleModifyLoading || !teleModifyDate || !teleModifyTime
+              "
+              @click="confirmTeleModify"
+            >
+              {{
+                teleModifyLoading
+                  ? "Modification..."
+                  : "Confirmer la modification"
+              }}
+            </UiButton>
+          </div>
+        </div>
+      </div>
+    </Teleport>
   </div>
 </template>
 
@@ -764,6 +929,8 @@ import {
   Mic,
   CheckCircle,
   AlertTriangle,
+  XCircle,
+  Pencil,
 } from "lucide-vue-next";
 import { useAuthStore } from "~/stores/auth";
 import { formatDateWithTime as formatDate } from "~/utils/date";
@@ -1243,4 +1410,96 @@ onUnmounted(() => {
   if (waitingRefresh) clearInterval(waitingRefresh);
   if (debounceTimer) clearTimeout(debounceTimer);
 });
+
+const showTeleCancelModal = ref(false);
+const showTeleModifyModal = ref(false);
+const teleSelectedSession = ref<SessionItem | null>(null);
+const teleCancelReason = ref("");
+const teleCancelLoading = ref(false);
+const teleModifyDate = ref("");
+const teleModifyTime = ref("");
+const teleModifyLoading = ref(false);
+
+function isTeleBeforeTime(session: SessionItem): boolean {
+  if (
+    session.status === "COMPLETED" ||
+    session.status === "NO_SHOW" ||
+    session.status === "FAILED" ||
+    session.status === "CANCELLED"
+  )
+    return false;
+  const now = new Date();
+  const scheduled = new Date(session.scheduledAt);
+  return now < scheduled;
+}
+
+function isTeleAtOrAfterTime(session: SessionItem): boolean {
+  const now = new Date();
+  const scheduled = new Date(session.scheduledAt);
+  return now >= scheduled;
+}
+
+function openTeleCancelModal(session: SessionItem) {
+  teleSelectedSession.value = session;
+  teleCancelReason.value = "";
+  showTeleCancelModal.value = true;
+}
+
+async function confirmTeleCancel() {
+  if (!teleSelectedSession.value) return;
+  teleCancelLoading.value = true;
+  try {
+    await useAuthenticatedFetch(
+      `/practitioner/agenda/appointments/${teleSelectedSession.value.appointmentId}/cancel`,
+      {
+        method: "PATCH",
+        body: { reason: teleCancelReason.value || undefined },
+      },
+    );
+    showTeleCancelModal.value = false;
+    await refreshData();
+  } catch (e: any) {
+    console.error("Error cancelling:", e);
+    alert(e?.data?.message || "Erreur lors de l'annulation");
+  } finally {
+    teleCancelLoading.value = false;
+  }
+}
+
+function openTeleModifyModal(session: SessionItem) {
+  teleSelectedSession.value = session;
+  const d = new Date(session.scheduledAt);
+  teleModifyDate.value = d.toISOString().slice(0, 10);
+  teleModifyTime.value = session.startTime;
+  showTeleModifyModal.value = true;
+}
+
+async function confirmTeleModify() {
+  if (
+    !teleSelectedSession.value ||
+    !teleModifyDate.value ||
+    !teleModifyTime.value
+  )
+    return;
+  teleModifyLoading.value = true;
+  try {
+    await useAuthenticatedFetch(
+      `/practitioner/agenda/appointments/${teleSelectedSession.value.appointmentId}/modify`,
+      {
+        method: "PATCH",
+        body: {
+          appointmentDate: teleModifyDate.value,
+          startTime: teleModifyTime.value,
+        },
+      },
+    );
+    showTeleModifyModal.value = false;
+    await refreshData();
+  } catch (e: any) {
+    console.error("Error modifying:", e);
+    alert(e?.data?.message || "Erreur lors de la modification");
+  } finally {
+    teleModifyLoading.value = false;
+  }
+}
 </script>

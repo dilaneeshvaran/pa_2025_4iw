@@ -56,6 +56,9 @@ export const updateSettingsSchema = z.object({
   newPatientMaxPerDay: z.number().int().min(0).optional(),
   baseConsultationFee: z.number().min(0).optional(),
   teleconsultationFee: z.number().min(0).nullable().optional(),
+  noShowThreshold: z.number().int().min(1).max(50).optional(),
+  noShowPenaltyDays: z.number().int().min(1).max(365).optional(),
+  noShowAutoBlock: z.boolean().optional(),
 })
 
 export const createPractitionerAppointmentSchema = z.object({
@@ -72,4 +75,20 @@ export type CreateBlockedSlotInput = z.infer<typeof createBlockedSlotSchema>
 export type UpdateSettingsInput = z.infer<typeof updateSettingsSchema>
 export type CreatePractitionerAppointmentInput = z.infer<
   typeof createPractitionerAppointmentSchema
+>
+
+export const practitionerCancelAppointmentSchema = z.object({
+  reason: z.string().max(500).optional(),
+})
+
+export const practitionerModifyAppointmentSchema = z.object({
+  appointmentDate: z.string().min(1, 'Date requise'),
+  startTime: z.string().regex(timeRegex, 'Format HH:mm requis'),
+})
+
+export type PractitionerCancelAppointmentInput = z.infer<
+  typeof practitionerCancelAppointmentSchema
+>
+export type PractitionerModifyAppointmentInput = z.infer<
+  typeof practitionerModifyAppointmentSchema
 >

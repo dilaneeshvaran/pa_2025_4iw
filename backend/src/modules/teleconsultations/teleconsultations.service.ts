@@ -5,6 +5,11 @@ import {
   AuditAction,
 } from '@prisma/client'
 import { randomUUID } from 'crypto'
+import {
+  sendNoShowEmail,
+  sendAutoNoShowPractitionerNotification,
+  sendPractitionerAbsentNotification,
+} from '../../utils/email'
 
 export class TeleconsultationsService {
   private formatSessionItem(session: any) {
@@ -255,9 +260,9 @@ export class TeleconsultationsService {
       },
     })
 
-    // do not mark the appointment as COMPLETED here.
-    // appointment stays CONFIRMED so both parties can rejoin
-    // within the time iof appoiontùent.  appointment will be marked COMPLETED
+    // do not mark the appointment as completed here.
+    // appointment stays confirmed so both parties can rejoin
+    // within the time iof appoiontùent.  appointment will be marked completed
     // when the time of appointment expires (via cleanupExpiredSessions).
 
     // audit
@@ -295,10 +300,13 @@ export class TeleconsultationsService {
       ? 'Patient absent (no-show)'
       : 'Praticien absent (no-show)'
 
+    // noshow status if patient is absent and failed status if practitioner absent
+    const sessionStatus = isPractitioner ? 'NO_SHOW' : 'FAILED'
+
     const updated = await prisma.teleconsultationSession.update({
       where: { id: sessionId },
       data: {
-        status: 'FAILED',
+        status: sessionStatus as TeleconsultationStatus,
         endedAt: new Date(),
         errorMessage: noShowMessage,
       },
@@ -439,7 +447,12 @@ export class TeleconsultationsService {
       practitionerId,
       scheduledAt: { gte: startDate, lte: now },
       status: {
-        in: ['COMPLETED', 'FAILED', 'CANCELLED'] as TeleconsultationStatus[],
+        in: [
+          'COMPLETED',
+          'FAILED',
+          'NO_SHOW',
+          'CANCELLED',
+        ] as TeleconsultationStatus[],
       },
     }
 
@@ -691,74 +704,220 @@ export class TeleconsultationsService {
   async cleanupExpiredSessions() {
     const now = new Date()
 
-    // find sessions that are still scheduled or waiting past grace period (15 min after scheduled time)
+    // find sessions that are still scheduled or waiting past the appointment end time
     const expiredSessions = await prisma.teleconsultationSession.findMany({
       where: {
         status: { in: ['SCHEDULED', 'WAITING'] },
-        scheduledAt: {
-          lt: new Date(now.getTime() - 15 * 60 * 1000), // 15 min grace
-        },
       },
       include: {
-        appointment: { select: { duration: true } },
-        patient: { include: { user: { select: { id: true } } } },
-        practitioner: { include: { user: { select: { id: true } } } },
+        appointment: {
+          select: {
+            id: true,
+            duration: true,
+            startTime: true,
+            endTime: true,
+            appointmentDate: true,
+          },
+        },
+        patient: {
+          select: {
+            id: true,
+            firstName: true,
+            lastName: true,
+            noShowCount: true,
+            user: { select: { id: true, email: true } },
+          },
+        },
+        practitioner: {
+          select: {
+            id: true,
+            firstName: true,
+            lastName: true,
+            title: true,
+            user: { select: { id: true, email: true } },
+          },
+        },
       },
     })
 
     for (const session of expiredSessions) {
-      const scheduledEnd = new Date(
-        session.scheduledAt.getTime() +
-          ((session.appointment?.duration || 30) + 30) * 60 * 1000, // duration + 30 min grace
+      // calculate appointment end time
+      const aptDate = new Date(
+        session.appointment?.appointmentDate || session.scheduledAt,
       )
+      const endTimeParts = (session.appointment?.endTime || '')
+        .split(':')
+        .map(Number)
+      const endH = endTimeParts[0] || 0
+      const endM = endTimeParts[1] || 0
+      aptDate.setHours(endH, endM, 0, 0)
 
-      // only auto-mark no-show after 15 minutes past scheduled start
+      // only process if appointment end time has passed
+      if (now <= aptDate) continue
+
       const patientJoined = !!session.patientJoinedAt
       const practitionerJoined = !!session.practitionerJoinedAt
 
       let errorMessage = ''
+      let sessionStatus: TeleconsultationStatus = 'FAILED'
+      let appointmentStatus: 'NO_SHOW' | 'CANCELLED' = 'NO_SHOW'
+      let isPatientNoShow = false
 
-      if (!patientJoined && !practitionerJoined) {
-        errorMessage = "Aucun participant ne s'est présenté (no-show)"
-      } else if (!patientJoined) {
-        errorMessage = 'Patient absent (no-show)'
-      } else if (!practitionerJoined) {
-        errorMessage = 'Praticien absent (no-show)'
+      if (!patientJoined && practitionerJoined) {
+        // patient didnt join but practitioner did so patient noshow
+        errorMessage =
+          'Patient absent — absence détectée automatiquement par le système'
+        sessionStatus = 'NO_SHOW'
+        appointmentStatus = 'NO_SHOW'
+        isPatientNoShow = true
+      } else if (patientJoined && !practitionerJoined) {
+        // practitioner didnt join so practitioner's fault, no patient noshow
+        errorMessage =
+          "Praticien absent — le praticien ne s'est pas connecté à la téléconsultation"
+        sessionStatus = 'FAILED'
+        appointmentStatus = 'CANCELLED'
+      } else if (!patientJoined && !practitionerJoined) {
+        // both didnt join so cancel
+        errorMessage =
+          "Aucun participant ne s'est connecté — consultation annulée automatiquement"
+        sessionStatus = 'FAILED'
+        appointmentStatus = 'CANCELLED'
       }
 
-      // mark as no show if 15+ min past scheduled time OR if session fully expired
-      if (errorMessage || now > scheduledEnd) {
-        await prisma.teleconsultationSession.update({
-          where: { id: session.id },
-          data: {
-            status: 'FAILED',
-            endedAt: now,
-            errorMessage: errorMessage || 'Session expirée - aucun participant',
-          },
+      if (!errorMessage) continue
+
+      await prisma.teleconsultationSession.update({
+        where: { id: session.id },
+        data: {
+          status: sessionStatus,
+          endedAt: now,
+          errorMessage,
+        },
+      })
+
+      // mark appointment status
+      await prisma.appointment.update({
+        where: { id: session.appointmentId },
+        data: {
+          status: appointmentStatus,
+          markedAsNoShow: isPatientNoShow,
+          noShowMarkedAt: isPatientNoShow ? now : null,
+        },
+      })
+
+      //  increment patient noshow count when patient is responsible
+      if (isPatientNoShow) {
+        const newNoShowCount = ((session.patient as any).noShowCount || 0) + 1
+        await prisma.patient.update({
+          where: { id: session.patient.id },
+          data: { noShowCount: { increment: 1 } },
         })
 
-        // mark appointment as noshow
-        await prisma.appointment.update({
-          where: { id: session.appointmentId },
-          data: {
-            status: 'NO_SHOW',
-            markedAsNoShow: true,
-            noShowMarkedAt: now,
-          },
-        })
+        // send noshow email
+        const patientEmail = (session.patient as any).user?.email
+        if (patientEmail) {
+          const practitioner = session.practitioner as any
+          try {
+            await sendNoShowEmail(patientEmail, {
+              patientName: `${(session.patient as any).firstName} ${(session.patient as any).lastName}`,
+              practitionerTitle: practitioner.title || 'Dr.',
+              practitionerFirstName: practitioner.firstName,
+              practitionerLastName: practitioner.lastName,
+              appointmentDate: new Date(session.scheduledAt).toLocaleDateString(
+                'fr-FR',
+              ),
+              appointmentTime: session.appointment?.startTime || '',
+              noShowCount: newNoShowCount,
+            })
+          } catch (e) {
+            console.error('Failed to send no-show email:', e)
+          }
+        }
+
+        //  notify practitioner about autodetected noshow
+        const practitionerEmail = (session.practitioner as any).user?.email
+        if (practitionerEmail) {
+          const practitioner = session.practitioner as any
+          try {
+            await sendAutoNoShowPractitionerNotification(practitionerEmail, {
+              practitionerName: `${practitioner.title || 'Dr.'} ${practitioner.firstName} ${practitioner.lastName}`,
+              patientFirstName: (session.patient as any).firstName,
+              patientLastName: (session.patient as any).lastName,
+              appointmentDate: new Date(session.scheduledAt).toLocaleDateString(
+                'fr-FR',
+              ),
+              appointmentTime: session.appointment?.startTime || '',
+              noShowCount: newNoShowCount,
+            })
+          } catch (e) {
+            console.error(
+              'Failed to send practitioner no-show notification:',
+              e,
+            )
+          }
+        }
+      }
+
+      // notify patient when practitioner didnt show up
+      if (!isPatientNoShow && appointmentStatus === 'CANCELLED') {
+        const patientEmail = (session.patient as any).user?.email
+        if (patientEmail) {
+          const practitioner = session.practitioner as any
+          try {
+            await sendPractitionerAbsentNotification(patientEmail, {
+              patientName: `${(session.patient as any).firstName} ${(session.patient as any).lastName}`,
+              practitionerTitle: practitioner.title || 'Dr.',
+              practitionerFirstName: practitioner.firstName,
+              practitionerLastName: practitioner.lastName,
+              appointmentDate: new Date(session.scheduledAt).toLocaleDateString(
+                'fr-FR',
+              ),
+              appointmentTime: session.appointment?.startTime || '',
+            })
+          } catch (e) {
+            console.error('Failed to send practitioner-absent notification:', e)
+          }
+        }
       }
     }
 
-    // finalize COMPLETED sessions whose rejoin time window has expired
+    // finalize completed sessions of which the appointment end time has passed
     // these are sessions where endSession was called but appointment was kept CONFIRMED
-    // so users could rejoin. now that the time window is over, mark appointment as COMPLETED.
+    // so users could rejoin. now check if patient actually joined.
     const completedSessions = await prisma.teleconsultationSession.findMany({
       where: {
         status: 'COMPLETED',
         endedAt: { not: null },
       },
       include: {
-        appointment: { select: { id: true, status: true, duration: true } },
+        appointment: {
+          select: {
+            id: true,
+            status: true,
+            duration: true,
+            startTime: true,
+            endTime: true,
+            appointmentDate: true,
+          },
+        },
+        patient: {
+          select: {
+            id: true,
+            firstName: true,
+            lastName: true,
+            noShowCount: true,
+            user: { select: { id: true, email: true } },
+          },
+        },
+        practitioner: {
+          select: {
+            id: true,
+            firstName: true,
+            lastName: true,
+            title: true,
+            user: { select: { id: true, email: true } },
+          },
+        },
       },
     })
 
@@ -770,17 +929,93 @@ export class TeleconsultationsService {
       )
         continue
 
-      const scheduledEnd = new Date(
-        session.scheduledAt.getTime() +
-          ((session.appointment?.duration || 30) + 30) * 60 * 1000,
+      //  appointment end time
+      const aptDate = new Date(
+        session.appointment?.appointmentDate || session.scheduledAt,
       )
+      const endTimeParts = (session.appointment?.endTime || '')
+        .split(':')
+        .map(Number)
+      const endH = endTimeParts[0] || 0
+      const endM = endTimeParts[1] || 0
+      aptDate.setHours(endH, endM, 0, 0)
 
-      // If past the rejoin window, finalize the appointment as COMPLETED
-      if (now > scheduledEnd) {
-        await prisma.appointment.update({
-          where: { id: session.appointmentId },
-          data: { status: 'COMPLETED' },
-        })
+      // if past the appointment end time, finalize
+      if (now > aptDate) {
+        // if patient never joined but practitioner did and ended session > patient noshow
+        if (!session.patientJoinedAt && session.practitionerJoinedAt) {
+          await prisma.teleconsultationSession.update({
+            where: { id: session.id },
+            data: {
+              status: 'NO_SHOW',
+              errorMessage:
+                'Patient absent — absence détectée automatiquement par le système',
+            },
+          })
+
+          const newNoShowCount = ((session.patient as any).noShowCount || 0) + 1
+          await prisma.appointment.update({
+            where: { id: session.appointmentId },
+            data: {
+              status: 'NO_SHOW',
+              markedAsNoShow: true,
+              noShowMarkedAt: now,
+            },
+          })
+
+          await prisma.patient.update({
+            where: { id: session.patient.id },
+            data: { noShowCount: { increment: 1 } },
+          })
+
+          // send noshow email to patient
+          const patientEmail = (session.patient as any).user?.email
+          if (patientEmail) {
+            try {
+              await sendNoShowEmail(patientEmail, {
+                patientName: `${(session.patient as any).firstName} ${(session.patient as any).lastName}`,
+                practitionerTitle: (session.practitioner as any).title || 'Dr.',
+                practitionerFirstName: (session.practitioner as any).firstName,
+                practitionerLastName: (session.practitioner as any).lastName,
+                appointmentDate: new Date(
+                  session.scheduledAt,
+                ).toLocaleDateString('fr-FR'),
+                appointmentTime: session.appointment?.startTime || '',
+                noShowCount: newNoShowCount,
+              })
+            } catch (e) {
+              console.error('Failed to send no-show email:', e)
+            }
+          }
+
+          // also notify practitioner
+          const practitionerEmail = (session.practitioner as any).user?.email
+          if (practitionerEmail) {
+            try {
+              await sendAutoNoShowPractitionerNotification(practitionerEmail, {
+                practitionerName: `${(session.practitioner as any).title || 'Dr.'} ${(session.practitioner as any).firstName} ${(session.practitioner as any).lastName}`,
+                patientFirstName: (session.patient as any).firstName,
+                patientLastName: (session.patient as any).lastName,
+                appointmentDate: new Date(
+                  session.scheduledAt,
+                ).toLocaleDateString('fr-FR'),
+                appointmentTime: session.appointment?.startTime || '',
+                noShowCount: newNoShowCount,
+              })
+            } catch (e) {
+              console.error(
+                'Failed to send practitioner no-show notification:',
+                e,
+              )
+            }
+          }
+        } else {
+          // both joined and session was completed normally > mark completed
+          await prisma.appointment.update({
+            where: { id: session.appointmentId },
+            data: { status: 'COMPLETED' },
+          })
+        }
       }
     }
   }

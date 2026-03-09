@@ -352,3 +352,268 @@ export async function sendInvoiceEmail(
     throw new Error('Failed to send invoice email')
   }
 }
+
+interface AppointmentCancellationEmailData {
+  patientName: string
+  practitionerTitle: string
+  practitionerFirstName: string
+  practitionerLastName: string
+  appointmentDate: string
+  appointmentTime: string
+  reason?: string
+}
+
+export async function sendAppointmentCancelledByPractitionerEmail(
+  to: string,
+  data: AppointmentCancellationEmailData,
+): Promise<void> {
+  const html = `
+    <!DOCTYPE html>
+    <html>
+      <head>
+        <meta charset="utf-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1.0">
+        <title>Annulation de votre rendez-vous</title>
+      </head>
+      <body style="font-family: Arial, sans-serif; line-height: 1.6; color: #333; max-width: 600px; margin: 0 auto; padding: 20px;">
+        <div style="background-color: #0066cc; color: white; padding: 20px; text-align: center; border-radius: 5px 5px 0 0;">
+          <h1 style="margin: 0;">MediCôte</h1>
+        </div>
+        <div style="background-color: #f9f9f9; padding: 30px; border-radius: 0 0 5px 5px;">
+          <h2 style="color: #cc0000; margin-top: 0;">Rendez-vous annulé</h2>
+          <p>Bonjour ${data.patientName},</p>
+          <p>Nous vous informons que votre rendez-vous a été annulé par votre praticien.</p>
+          
+          <div style="background-color: white; border: 1px solid #e0e0e0; border-radius: 8px; padding: 20px; margin: 20px 0;">
+            <p style="margin: 8px 0;"><strong>Praticien :</strong> ${data.practitionerTitle} ${data.practitionerFirstName} ${data.practitionerLastName}</p>
+            <p style="margin: 8px 0;"><strong>Date :</strong> ${data.appointmentDate}</p>
+            <p style="margin: 8px 0;"><strong>Heure :</strong> ${data.appointmentTime}</p>
+            ${data.reason ? `<p style="margin: 8px 0;"><strong>Raison :</strong> ${data.reason}</p>` : ''}
+          </div>
+
+          <p>Nous vous invitons à reprogrammer votre rendez-vous à une date qui vous convient.</p>
+
+          <div style="text-align: center; margin: 30px 0;">
+            <a href="${APP_URL}/patient/appointments" style="background-color: #0066cc; color: white; padding: 12px 30px; text-decoration: none; border-radius: 5px; display: inline-block; font-weight: bold;">Reprendre rendez-vous</a>
+          </div>
+          
+          <p style="color: #666; font-size: 14px; margin-top: 30px;">
+            Nous nous excusons pour ce désagrément.
+          </p>
+        </div>
+        <div style="text-align: center; margin-top: 20px; color: #999; font-size: 12px;">
+          <p>© ${new Date().getFullYear()} MediCôte. Tous droits réservés.</p>
+        </div>
+      </body>
+    </html>
+  `
+
+  await sendEmail(to, 'Annulation de votre rendez-vous - MediCôte', html)
+}
+
+interface AppointmentModifiedEmailData {
+  patientName: string
+  practitionerTitle: string
+  practitionerFirstName: string
+  practitionerLastName: string
+  oldDate: string
+  oldTime: string
+  newDate: string
+  newTime: string
+}
+
+export async function sendAppointmentModifiedByPractitionerEmail(
+  to: string,
+  data: AppointmentModifiedEmailData,
+): Promise<void> {
+  const html = `
+    <!DOCTYPE html>
+    <html>
+      <head>
+        <meta charset="utf-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1.0">
+        <title>Modification de votre rendez-vous</title>
+      </head>
+      <body style="font-family: Arial, sans-serif; line-height: 1.6; color: #333; max-width: 600px; margin: 0 auto; padding: 20px;">
+        <div style="background-color: #0066cc; color: white; padding: 20px; text-align: center; border-radius: 5px 5px 0 0;">
+          <h1 style="margin: 0;">MediCôte</h1>
+        </div>
+        <div style="background-color: #f9f9f9; padding: 30px; border-radius: 0 0 5px 5px;">
+          <h2 style="color: #e67e00; margin-top: 0;">Rendez-vous modifié</h2>
+          <p>Bonjour ${data.patientName},</p>
+          <p>Votre rendez-vous avec ${data.practitionerTitle} ${data.practitionerFirstName} ${data.practitionerLastName} a été modifié.</p>
+          
+          <div style="background-color: white; border: 1px solid #e0e0e0; border-radius: 8px; padding: 20px; margin: 20px 0;">
+            <p style="margin: 8px 0; color: #cc0000; text-decoration: line-through;"><strong>Ancien :</strong> ${data.oldDate} à ${data.oldTime}</p>
+            <p style="margin: 8px 0; color: #009900;"><strong>Nouveau :</strong> ${data.newDate} à ${data.newTime}</p>
+          </div>
+
+          <p>Veuillez vérifier votre disponibilité pour le nouveau créneau. Si ce créneau ne vous convient pas, vous pouvez annuler et reprendre un autre rendez-vous.</p>
+
+          <div style="text-align: center; margin: 30px 0;">
+            <a href="${APP_URL}/patient/appointments" style="background-color: #0066cc; color: white; padding: 12px 30px; text-decoration: none; border-radius: 5px; display: inline-block; font-weight: bold;">Voir mes rendez-vous</a>
+          </div>
+        </div>
+        <div style="text-align: center; margin-top: 20px; color: #999; font-size: 12px;">
+          <p>© ${new Date().getFullYear()} MediCôte. Tous droits réservés.</p>
+        </div>
+      </body>
+    </html>
+  `
+
+  await sendEmail(to, 'Modification de votre rendez-vous - MediCôte', html)
+}
+
+export async function sendNoShowEmail(
+  to: string,
+  data: {
+    patientName: string
+    practitionerTitle: string
+    practitionerFirstName: string
+    practitionerLastName: string
+    appointmentDate: string
+    appointmentTime: string
+    noShowCount: number
+  },
+): Promise<void> {
+  const html = `
+    <!DOCTYPE html>
+    <html>
+      <head>
+        <meta charset="utf-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1.0">
+        <title>Absence à votre rendez-vous</title>
+      </head>
+      <body style="font-family: Arial, sans-serif; line-height: 1.6; color: #333; max-width: 600px; margin: 0 auto; padding: 20px;">
+        <div style="background-color: #0066cc; color: white; padding: 20px; text-align: center; border-radius: 5px 5px 0 0;">
+          <h1 style="margin: 0;">MediCôte</h1>
+        </div>
+        <div style="background-color: #f9f9f9; padding: 30px; border-radius: 0 0 5px 5px;">
+          <h2 style="color: #cc0000; margin-top: 0;">Vous étiez absent à votre rendez-vous</h2>
+          <p>Bonjour ${data.patientName},</p>
+          <p>Nous avons constaté votre absence lors de votre rendez-vous prévu :</p>
+          
+          <div style="background-color: white; border: 1px solid #e0e0e0; border-radius: 8px; padding: 20px; margin: 20px 0;">
+            <p style="margin: 8px 0;"><strong>Praticien :</strong> ${data.practitionerTitle} ${data.practitionerFirstName} ${data.practitionerLastName}</p>
+            <p style="margin: 8px 0;"><strong>Date :</strong> ${data.appointmentDate}</p>
+            <p style="margin: 8px 0;"><strong>Heure :</strong> ${data.appointmentTime}</p>
+          </div>
+
+          <p>Vous avez actuellement <strong>${data.noShowCount} absence(s)</strong> enregistrée(s).</p>
+          <p style="color: #cc0000;">Les absences répétées peuvent entraîner des restrictions sur la prise de rendez-vous.</p>
+          
+          <p>Si cette absence n'est pas de votre fait, veuillez contacter votre praticien.</p>
+
+          <div style="text-align: center; margin: 30px 0;">
+            <a href="${APP_URL}/patient/appointments" style="background-color: #0066cc; color: white; padding: 12px 30px; text-decoration: none; border-radius: 5px; display: inline-block; font-weight: bold;">Reprendre rendez-vous</a>
+          </div>
+        </div>
+        <div style="text-align: center; margin-top: 20px; color: #999; font-size: 12px;">
+          <p>© ${new Date().getFullYear()} MediCôte. Tous droits réservés.</p>
+        </div>
+      </body>
+    </html>
+  `
+
+  await sendEmail(to, 'Absence à votre rendez-vous - MediCôte', html)
+}
+
+export async function sendAutoNoShowPractitionerNotification(
+  to: string,
+  data: {
+    practitionerName: string
+    patientFirstName: string
+    patientLastName: string
+    appointmentDate: string
+    appointmentTime: string
+    noShowCount: number
+  },
+): Promise<void> {
+  const html = `
+    <!DOCTYPE html>
+    <html>
+      <head>
+        <meta charset="utf-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1.0">
+        <title>Absence patient détectée automatiquement</title>
+      </head>
+      <body style="font-family: Arial, sans-serif; line-height: 1.6; color: #333; max-width: 600px; margin: 0 auto; padding: 20px;">
+        <div style="background-color: #0066cc; color: white; padding: 20px; text-align: center; border-radius: 5px 5px 0 0;">
+          <h1 style="margin: 0;">MediCôte</h1>
+        </div>
+        <div style="background-color: #f9f9f9; padding: 30px; border-radius: 0 0 5px 5px;">
+          <h2 style="color: #cc6600; margin-top: 0;">Absence patient détectée automatiquement</h2>
+          <p>Bonjour ${data.practitionerName},</p>
+          <p>Le système a automatiquement détecté l'absence du patient suivant lors de votre téléconsultation :</p>
+          
+          <div style="background-color: white; border: 1px solid #e0e0e0; border-radius: 8px; padding: 20px; margin: 20px 0;">
+            <p style="margin: 8px 0;"><strong>Patient :</strong> ${data.patientFirstName} ${data.patientLastName}</p>
+            <p style="margin: 8px 0;"><strong>Date :</strong> ${data.appointmentDate}</p>
+            <p style="margin: 8px 0;"><strong>Heure :</strong> ${data.appointmentTime}</p>
+          </div>
+
+          <div style="background-color: #fff3cd; border: 1px solid #ffc107; border-radius: 8px; padding: 15px; margin: 20px 0;">
+            <p style="margin: 0; color: #856404;"><strong>Note :</strong> Cette absence a été détectée automatiquement car le patient ne s'est pas connecté à la téléconsultation avant la fin du créneau. Le patient a été notifié et son compteur d'absences a été mis à jour (${data.noShowCount} absence(s) au total).</p>
+          </div>
+        </div>
+        <div style="text-align: center; margin-top: 20px; color: #999; font-size: 12px;">
+          <p>© ${new Date().getFullYear()} MediCôte. Tous droits réservés.</p>
+        </div>
+      </body>
+    </html>
+  `
+
+  await sendEmail(to, 'Absence patient détectée - MediCôte', html)
+}
+
+export async function sendPractitionerAbsentNotification(
+  to: string,
+  data: {
+    patientName: string
+    practitionerTitle: string
+    practitionerFirstName: string
+    practitionerLastName: string
+    appointmentDate: string
+    appointmentTime: string
+  },
+): Promise<void> {
+  const html = `
+    <!DOCTYPE html>
+    <html>
+      <head>
+        <meta charset="utf-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1.0">
+        <title>Votre téléconsultation n'a pas pu avoir lieu</title>
+      </head>
+      <body style="font-family: Arial, sans-serif; line-height: 1.6; color: #333; max-width: 600px; margin: 0 auto; padding: 20px;">
+        <div style="background-color: #0066cc; color: white; padding: 20px; text-align: center; border-radius: 5px 5px 0 0;">
+          <h1 style="margin: 0;">MediCôte</h1>
+        </div>
+        <div style="background-color: #f9f9f9; padding: 30px; border-radius: 0 0 5px 5px;">
+          <h2 style="color: #cc6600; margin-top: 0;">Votre téléconsultation n'a pas pu avoir lieu</h2>
+          <p>Bonjour ${data.patientName},</p>
+          <p>Nous sommes désolés de vous informer que votre praticien n'a pas pu se connecter à la téléconsultation prévue :</p>
+          
+          <div style="background-color: white; border: 1px solid #e0e0e0; border-radius: 8px; padding: 20px; margin: 20px 0;">
+            <p style="margin: 8px 0;"><strong>Praticien :</strong> ${data.practitionerTitle} ${data.practitionerFirstName} ${data.practitionerLastName}</p>
+            <p style="margin: 8px 0;"><strong>Date :</strong> ${data.appointmentDate}</p>
+            <p style="margin: 8px 0;"><strong>Heure :</strong> ${data.appointmentTime}</p>
+          </div>
+
+          <div style="background-color: #d4edda; border: 1px solid #28a745; border-radius: 8px; padding: 15px; margin: 20px 0;">
+            <p style="margin: 0; color: #155724;"><strong>Aucune absence ne vous est comptabilisée.</strong> Cette annulation n'est pas de votre fait. Vous pouvez reprendre un nouveau rendez-vous.</p>
+          </div>
+
+          <div style="text-align: center; margin: 30px 0;">
+            <a href="${APP_URL}/patient/appointments" style="background-color: #0066cc; color: white; padding: 12px 30px; text-decoration: none; border-radius: 5px; display: inline-block; font-weight: bold;">Reprendre rendez-vous</a>
+          </div>
+        </div>
+        <div style="text-align: center; margin-top: 20px; color: #999; font-size: 12px;">
+          <p>© ${new Date().getFullYear()} MediCôte. Tous droits réservés.</p>
+        </div>
+      </body>
+    </html>
+  `
+
+  await sendEmail(to, 'Téléconsultation annulée - MediCôte', html)
+}

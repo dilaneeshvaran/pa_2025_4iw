@@ -43,6 +43,9 @@ export interface PractitionerSettings {
   newPatientMaxPerDay: number
   baseConsultationFee: number
   teleconsultationFee: number | null
+  noShowThreshold: number
+  noShowPenaltyDays: number
+  noShowAutoBlock: boolean
 }
 
 export interface AgendaAppointment {

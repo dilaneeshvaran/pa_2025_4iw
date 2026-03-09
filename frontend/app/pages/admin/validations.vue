@@ -301,64 +301,95 @@
               <div class="space-y-2">
                 <div
                   v-if="selectedRequest.identityDocumentPath"
-                  class="flex items-center gap-2"
+                  class="flex items-center justify-between rounded-lg border border-gray-200 bg-gray-50 px-3 py-2"
                 >
-                  <svg
-                    class="h-4 w-4 text-green-500"
-                    fill="none"
-                    stroke="currentColor"
-                    viewBox="0 0 24 24"
-                  >
-                    <path
-                      stroke-linecap="round"
-                      stroke-linejoin="round"
-                      stroke-width="2"
-                      d="M5 13l4 4L19 7"
-                    />
-                  </svg>
                   <span class="text-sm text-gray-700"
                     >Carte d'identité / Passeport</span
                   >
+                  <button
+                    type="button"
+                    class="flex items-center gap-1 rounded bg-blue-600 px-3 py-1 text-xs font-medium text-white hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-500"
+                    @click="
+                      downloadDocument(
+                        selectedRequest.id,
+                        'identityDocumentPath',
+                      )
+                    "
+                  >
+                    <svg
+                      class="h-3.5 w-3.5"
+                      fill="none"
+                      stroke="currentColor"
+                      viewBox="0 0 24 24"
+                    >
+                      <path
+                        stroke-linecap="round"
+                        stroke-linejoin="round"
+                        stroke-width="2"
+                        d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4"
+                      />
+                    </svg>
+                    Télécharger
+                  </button>
                 </div>
                 <div
                   v-if="selectedRequest.diplomaPath"
-                  class="flex items-center gap-2"
+                  class="flex items-center justify-between rounded-lg border border-gray-200 bg-gray-50 px-3 py-2"
                 >
-                  <svg
-                    class="h-4 w-4 text-green-500"
-                    fill="none"
-                    stroke="currentColor"
-                    viewBox="0 0 24 24"
-                  >
-                    <path
-                      stroke-linecap="round"
-                      stroke-linejoin="round"
-                      stroke-width="2"
-                      d="M5 13l4 4L19 7"
-                    />
-                  </svg>
                   <span class="text-sm text-gray-700">Diplôme d'État</span>
+                  <button
+                    type="button"
+                    class="flex items-center gap-1 rounded bg-blue-600 px-3 py-1 text-xs font-medium text-white hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-500"
+                    @click="downloadDocument(selectedRequest.id, 'diplomaPath')"
+                  >
+                    <svg
+                      class="h-3.5 w-3.5"
+                      fill="none"
+                      stroke="currentColor"
+                      viewBox="0 0 24 24"
+                    >
+                      <path
+                        stroke-linecap="round"
+                        stroke-linejoin="round"
+                        stroke-width="2"
+                        d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4"
+                      />
+                    </svg>
+                    Télécharger
+                  </button>
                 </div>
                 <div
                   v-if="selectedRequest.orderAttestationPath"
-                  class="flex items-center gap-2"
+                  class="flex items-center justify-between rounded-lg border border-gray-200 bg-gray-50 px-3 py-2"
                 >
-                  <svg
-                    class="h-4 w-4 text-green-500"
-                    fill="none"
-                    stroke="currentColor"
-                    viewBox="0 0 24 24"
-                  >
-                    <path
-                      stroke-linecap="round"
-                      stroke-linejoin="round"
-                      stroke-width="2"
-                      d="M5 13l4 4L19 7"
-                    />
-                  </svg>
                   <span class="text-sm text-gray-700"
                     >Attestation de l'Ordre</span
                   >
+                  <button
+                    type="button"
+                    class="flex items-center gap-1 rounded bg-blue-600 px-3 py-1 text-xs font-medium text-white hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-500"
+                    @click="
+                      downloadDocument(
+                        selectedRequest.id,
+                        'orderAttestationPath',
+                      )
+                    "
+                  >
+                    <svg
+                      class="h-3.5 w-3.5"
+                      fill="none"
+                      stroke="currentColor"
+                      viewBox="0 0 24 24"
+                    >
+                      <path
+                        stroke-linecap="round"
+                        stroke-linejoin="round"
+                        stroke-width="2"
+                        d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4"
+                      />
+                    </svg>
+                    Télécharger
+                  </button>
                 </div>
               </div>
             </div>
@@ -424,24 +455,33 @@
               <h3 class="mb-3 text-lg font-semibold text-gray-900">Document</h3>
               <div
                 v-if="selectedRequest.cabinetRegDocPath"
-                class="flex items-center gap-2"
+                class="flex items-center justify-between rounded-lg border border-gray-200 bg-gray-50 px-3 py-2"
               >
-                <svg
-                  class="h-4 w-4 text-green-500"
-                  fill="none"
-                  stroke="currentColor"
-                  viewBox="0 0 24 24"
-                >
-                  <path
-                    stroke-linecap="round"
-                    stroke-linejoin="round"
-                    stroke-width="2"
-                    d="M5 13l4 4L19 7"
-                  />
-                </svg>
                 <span class="text-sm text-gray-700"
                   >RCCM / Document d'enregistrement</span
                 >
+                <button
+                  type="button"
+                  class="flex items-center gap-1 rounded bg-blue-600 px-3 py-1 text-xs font-medium text-white hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-500"
+                  @click="
+                    downloadDocument(selectedRequest.id, 'cabinetRegDocPath')
+                  "
+                >
+                  <svg
+                    class="h-3.5 w-3.5"
+                    fill="none"
+                    stroke="currentColor"
+                    viewBox="0 0 24 24"
+                  >
+                    <path
+                      stroke-linecap="round"
+                      stroke-linejoin="round"
+                      stroke-width="2"
+                      d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4"
+                    />
+                  </svg>
+                  Télécharger
+                </button>
               </div>
             </div>
           </template>
@@ -543,6 +583,7 @@
 
 <script setup lang="ts">
 import { useAuthenticatedFetch } from "~/composables/useAuthenticatedFetch";
+import { useAuthStore } from "~/stores/auth";
 
 definePageMeta({
   layout: "admin",
@@ -724,4 +765,14 @@ async function submitReject() {
 onMounted(() => {
   fetchRequests();
 });
+
+const authStore = useAuthStore();
+const config = useRuntimeConfig();
+
+function downloadDocument(requestId: string, field: string) {
+  const token = authStore.accessToken;
+  const base = (config.public.apiBase as string).replace(/\/$/, "");
+  const url = `${base}/contact-requests/${requestId}/documents/${field}?token=${encodeURIComponent(token ?? "")}`;
+  window.open(url, "_blank", "noopener");
+}
 </script>
