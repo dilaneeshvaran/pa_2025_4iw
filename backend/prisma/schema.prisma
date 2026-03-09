@@ -178,9 +178,6 @@ model Practitioner {
   teleconsultationEnabled  Boolean                   @default(false)
   baseConsultationFee      Decimal                   @db.Decimal(10, 2)
   teleconsultationFee      Decimal?                  @db.Decimal(10, 2)
-  emergencyFee             Decimal?                  @db.Decimal(10, 2)
-  acceptedPaymentMethods   PaymentMethod[]
-  bankInfo                 Json?
   acceptsInsurance         Boolean                   @default(false)
   averageRating            Decimal?                  @db.Decimal(3, 2)
   totalReviews             Int                       @default(0)
@@ -196,6 +193,11 @@ model Practitioner {
   maxBookingAdvance        Int                       @default(60)
   minBookingNotice         Int                       @default(60)
   newPatientMaxPerDay      Int                       @default(0)
+  acceptedPaymentMethods   PaymentMethod[]
+  bankInfo                 Json?
+  emergencyFee             Decimal?                  @db.Decimal(10, 2)
+  languages                String[]                  @default([])
+  photoUrl                 String?
   absences                 Absence[]
   appointments             Appointment[]
   availabilities           Availability[]
@@ -213,11 +215,10 @@ model Practitioner {
   reviews                  Review[]
   sharedRecordsAccess      SharedMedicalRecord[]
   staffMembers             Staff[]
+  subscription             Subscription?
   teleconsultationSessions TeleconsultationSession[]
   virtualQueueEntries      VirtualQueue[]
-  languages                String[]                  @default([])
-  photoUrl                 String?
-  subscription             Subscription?
+  cabinets                 CabinetPractitioner[]
 
   @@index([userId])
   @@index([licenseNumber])
@@ -890,27 +891,77 @@ model VaccinationRecord {
 }
 
 model ContactRequest {
-  id            String               @id @default(cuid())
-  requestType   ContactRequestType
-  status        ContactRequestStatus @default(PENDING)
-  firstName     String
-  lastName      String
-  email         String
-  phone         String
-  postalCode    String
-  specialty     String
-  adminNotes    String?
-  processedBy   String?
-  processedAt   DateTime?
-  createdUserId String?
-  createdAt     DateTime             @default(now())
-  updatedAt     DateTime             @updatedAt
+  id                   String               @id @default(cuid())
+  requestType          ContactRequestType
+  status               ContactRequestStatus @default(PENDING)
+  firstName            String
+  lastName             String
+  email                String
+  phone                String
+  postalCode           String?
+  specialty            String?
+  adminNotes           String?
+  processedBy          String?
+  processedAt          DateTime?
+  createdUserId        String?
+  rejectionReason      String?
+  // Practitioner-specific
+  identityDocumentPath String?
+  diplomaPath          String?
+  orderAttestationPath String?
+  orderNumber          String?
+  clinicAddress        String?
+  // Cabinet-specific
+  cabinetName          String?
+  cabinetAddress       String?
+  cabinetRccm          String?
+  adminContactName     String?
+  adminContactEmail    String?
+  adminContactPhone    String?
+  cabinetRegDocPath    String?
+  createdAt            DateTime             @default(now())
+  updatedAt            DateTime             @updatedAt
 
   @@index([email])
   @@index([status])
   @@index([requestType])
   @@index([createdAt])
   @@map("contact_requests")
+}
+
+model Cabinet {
+  id                  String    @id @default(cuid())
+  name                String
+  address             String
+  rccm                String?
+  adminContactName    String
+  adminContactEmail   String
+  adminContactPhone   String
+  registrationDocPath String?
+  isVerified          Boolean   @default(false)
+  verifiedAt          DateTime?
+  contactRequestId    String?   @unique
+  createdAt           DateTime  @default(now())
+  updatedAt           DateTime  @updatedAt
+  practitioners       CabinetPractitioner[]
+
+  @@index([name])
+  @@map("cabinets")
+}
+
+model CabinetPractitioner {
+  id             String       @id @default(cuid())
+  cabinetId      String
+  practitionerId String
+  joinedAt       DateTime     @default(now())
+  leftAt         DateTime?
+  cabinet        Cabinet      @relation(fields: [cabinetId], references: [id], onDelete: Cascade)
+  practitioner   Practitioner @relation(fields: [practitionerId], references: [id], onDelete: Cascade)
+
+  @@unique([cabinetId, practitionerId])
+  @@index([cabinetId])
+  @@index([practitionerId])
+  @@map("cabinet_practitioners")
 }
 
 model PractitionerTodo {
@@ -957,6 +1008,21 @@ model NotificationPreference {
 
   @@index([userId])
   @@map("notification_preferences")
+}
+
+model Subscription {
+  id                String       @id @default(cuid())
+  practitionerId    String       @unique
+  plan              String       @default("PREMIUM")
+  status            String       @default("ACTIVE")
+  currentPeriodEnd  DateTime?
+  cancelAtPeriodEnd Boolean      @default(false)
+  createdAt         DateTime     @default(now())
+  updatedAt         DateTime     @updatedAt
+  practitioner      Practitioner @relation(fields: [practitionerId], references: [id], onDelete: Cascade)
+
+  @@index([practitionerId])
+  @@map("subscriptions")
 }
 
 enum UserRole {
@@ -1121,6 +1187,8 @@ enum ContactRequestType {
   DEMO
   INFO
   SUPPORT
+  PRACTITIONER
+  CABINET
 }
 
 enum ContactRequestStatus {
@@ -1129,19 +1197,4 @@ enum ContactRequestStatus {
   APPROVED
   REJECTED
   CANCELLED
-}
-
-model Subscription {
-  id                String       @id @default(cuid())
-  practitionerId    String       @unique
-  plan              String       @default("PREMIUM")
-  status            String       @default("ACTIVE")
-  currentPeriodEnd  DateTime?
-  cancelAtPeriodEnd Boolean      @default(false)
-  createdAt         DateTime     @default(now())
-  updatedAt         DateTime     @updatedAt
-  practitioner      Practitioner @relation(fields: [practitionerId], references: [id], onDelete: Cascade)
-
-  @@index([practitionerId])
-  @@map("subscriptions")
 }

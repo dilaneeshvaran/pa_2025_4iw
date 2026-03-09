@@ -1,17 +1,58 @@
 import { FastifyReply, FastifyRequest } from 'fastify'
 import { ContactRequestStatus } from '@prisma/client'
 import { ContactRequestsService } from './contact-requests.service'
-import { CreateContactRequestInput } from './contact-requests.schema'
+import {
+  createPractitionerRequestSchema,
+  createCabinetRequestSchema,
+  createContactRequestSchema,
+} from './contact-requests.schema'
+import path from 'path'
+import fs from 'fs'
+import crypto from 'crypto'
 
 const contactRequestsService = new ContactRequestsService()
 
+const UPLOAD_DIR = path.join(__dirname, '../../../uploads/contact-requests')
+const ALLOWED_MIME_TYPES = ['application/pdf', 'image/jpeg', 'image/png']
+const MAX_FILE_SIZE = 5 * 1024 * 1024 // 5 mb
+
+function ensureUploadDir() {
+  if (!fs.existsSync(UPLOAD_DIR)) {
+    fs.mkdirSync(UPLOAD_DIR, { recursive: true })
+  }
+}
+
+async function saveUploadedFile(
+  fileBuffer: Buffer,
+  originalName: string,
+  mimeType: string,
+): Promise<string> {
+  ensureUploadDir()
+
+  if (!ALLOWED_MIME_TYPES.includes(mimeType)) {
+    throw new Error(
+      'Type de fichier non autorisé. Formats acceptés : PDF, JPG, PNG',
+    )
+  }
+
+  if (fileBuffer.length > MAX_FILE_SIZE) {
+    throw new Error('Le fichier est trop volumineux. Taille maximale : 5 MB')
+  }
+
+  const ext = path.extname(originalName).toLowerCase() || '.bin'
+  const uniqueName = `${crypto.randomUUID()}${ext}`
+  const filePath = path.join(UPLOAD_DIR, uniqueName)
+
+  await fs.promises.writeFile(filePath, fileBuffer)
+
+  return `/uploads/contact-requests/${uniqueName}`
+}
+
 export class ContactRequestsController {
-  async createContactRequest(
-    request: FastifyRequest<{ Body: CreateContactRequestInput }>,
-    reply: FastifyReply,
-  ) {
+  // json endpoint (DEMO/INFO/SUPPORT)
+  async createContactRequest(request: FastifyRequest, reply: FastifyReply) {
     try {
-      const data = request.body
+      const data = request.body as any
 
       const result = await contactRequestsService.createContactRequest(data)
 
@@ -21,6 +62,150 @@ export class ContactRequestsController {
           'Votre demande a été envoyée avec succès. Nous vous contacterons bientôt.',
         data: result,
       })
+    } catch (error) {
+      const errorMessage =
+        error instanceof Error
+          ? error.message
+          : "Erreur lors de l'envoi de la demande"
+      return reply.status(400).send({
+        success: false,
+        message: errorMessage,
+      })
+    }
+  }
+
+  // endpoint for practitioenr and cabinet registration
+  async createRegistrationRequest(
+    request: FastifyRequest,
+    reply: FastifyReply,
+  ) {
+    try {
+      const parts = (request as any).parts()
+      const fields: Record<string, string> = {}
+      const files: Record<
+        string,
+        { buffer: Buffer; filename: string; mimetype: string }
+      > = {}
+
+      for await (const part of parts) {
+        if (part.type === 'file') {
+          const chunks: Buffer[] = []
+          for await (const chunk of part.file) {
+            chunks.push(chunk)
+          }
+          const buffer = Buffer.concat(chunks)
+          if (buffer.length > 0) {
+            files[part.fieldname] = {
+              buffer,
+              filename: part.filename,
+              mimetype: part.mimetype,
+            }
+          }
+        } else {
+          fields[part.fieldname] = (part as any).value as string
+        }
+      }
+
+      const requestType = fields.requestType
+
+      if (requestType === 'PRACTITIONER') {
+        // validate fields
+        const parsed = createPractitionerRequestSchema.safeParse(fields)
+        if (!parsed.success) {
+          const errors = parsed.error.issues
+            .map((e: { message: string }) => e.message)
+            .join(', ')
+          return reply.status(400).send({ success: false, message: errors })
+        }
+
+        // require identity docs and diploma
+        if (!files.identityDocument) {
+          return reply.status(400).send({
+            success: false,
+            message: "La carte d'identité / passeport est requis",
+          })
+        }
+        if (!files.diploma) {
+          return reply.status(400).send({
+            success: false,
+            message: "Le diplôme d'État est requis",
+          })
+        }
+
+        // save files
+        const identityDocumentPath = await saveUploadedFile(
+          files.identityDocument.buffer,
+          files.identityDocument.filename,
+          files.identityDocument.mimetype,
+        )
+        const diplomaPath = await saveUploadedFile(
+          files.diploma.buffer,
+          files.diploma.filename,
+          files.diploma.mimetype,
+        )
+        let orderAttestationPath: string | undefined
+        if (files.orderAttestation) {
+          orderAttestationPath = await saveUploadedFile(
+            files.orderAttestation.buffer,
+            files.orderAttestation.filename,
+            files.orderAttestation.mimetype,
+          )
+        }
+
+        const result = await contactRequestsService.createContactRequest({
+          ...parsed.data,
+          identityDocumentPath,
+          diplomaPath,
+          orderAttestationPath,
+        })
+
+        return reply.status(201).send({
+          success: true,
+          message: "Votre demande d'inscription a été envoyée avec succès.",
+          data: result,
+        })
+      } else if (requestType === 'CABINET') {
+        const parsed = createCabinetRequestSchema.safeParse(fields)
+        if (!parsed.success) {
+          const errors = parsed.error.issues
+            .map((e: { message: string }) => e.message)
+            .join(', ')
+          return reply.status(400).send({ success: false, message: errors })
+        }
+
+        if (!files.cabinetRegDoc) {
+          return reply.status(400).send({
+            success: false,
+            message:
+              "Le document d'enregistrement du cabinet (RCCM) est requis",
+          })
+        }
+
+        const cabinetRegDocPath = await saveUploadedFile(
+          files.cabinetRegDoc.buffer,
+          files.cabinetRegDoc.filename,
+          files.cabinetRegDoc.mimetype,
+        )
+
+        const result = await contactRequestsService.createContactRequest({
+          ...parsed.data,
+          cabinetRccm: fields.cabinetRccm || null,
+          cabinetRegDocPath,
+        })
+
+        return reply.status(201).send({
+          success: true,
+          message:
+            "Votre demande d'inscription cabinet a été envoyée avec succès.",
+          data: result,
+        })
+      } else {
+        return reply.status(400).send({
+          success: false,
+          message:
+            'Type de demande invalide. Utilisez PRACTITIONER ou CABINET.',
+        })
+      }
     } catch (error) {
       const errorMessage =
         error instanceof Error
@@ -102,7 +287,7 @@ export class ContactRequestsController {
         status: ContactRequestStatus
         adminNotes?: string
       }
-      const userId = (request as any).user?.id // get from auth middleware
+      const userId = (request as any).user?.id
 
       const contactRequest =
         await contactRequestsService.updateContactRequestStatus(
@@ -123,6 +308,62 @@ export class ContactRequestsController {
           ? error.message
           : 'Erreur lors de la mise à jour du statut'
       return reply.status(500).send({
+        success: false,
+        message: errorMessage,
+      })
+    }
+  }
+
+  async approveRequest(request: FastifyRequest, reply: FastifyReply) {
+    try {
+      const { id } = request.params as { id: string }
+      const userId = (request as any).user?.id
+
+      const result = await contactRequestsService.approveRequest(id, userId)
+
+      return reply.status(200).send({
+        success: true,
+        message: 'Demande approuvée. Un email a été envoyé au demandeur.',
+        data: result,
+      })
+    } catch (error) {
+      const errorMessage =
+        error instanceof Error ? error.message : "Erreur lors de l'approbation"
+      return reply.status(400).send({
+        success: false,
+        message: errorMessage,
+      })
+    }
+  }
+
+  async rejectRequest(request: FastifyRequest, reply: FastifyReply) {
+    try {
+      const { id } = request.params as { id: string }
+      const { rejectionReason } = request.body as { rejectionReason: string }
+      const userId = (request as any).user?.id
+
+      if (!rejectionReason || rejectionReason.trim().length < 10) {
+        return reply.status(400).send({
+          success: false,
+          message: 'Le motif de rejet doit contenir au moins 10 caractères',
+        })
+      }
+
+      const result = await contactRequestsService.rejectRequest(
+        id,
+        rejectionReason.trim(),
+        userId,
+      )
+
+      return reply.status(200).send({
+        success: true,
+        message: 'Demande rejetée. Un email a été envoyé au demandeur.',
+        data: result,
+      })
+    } catch (error) {
+      const errorMessage =
+        error instanceof Error ? error.message : 'Erreur lors du rejet'
+      return reply.status(400).send({
         success: false,
         message: errorMessage,
       })

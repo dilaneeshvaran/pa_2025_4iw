@@ -1,9 +1,7 @@
 import { z } from 'zod'
 
-export const createContactRequestSchema = z.object({
-  requestType: z.enum(['DEMO', 'INFO', 'SUPPORT'], {
-    message: 'Type de demande invalide',
-  }),
+// shared by practitioner and cabinet requests
+const baseContactFields = {
   firstName: z
     .string()
     .min(2, 'Le prénom doit contenir au moins 2 caractères')
@@ -19,6 +17,42 @@ export const createContactRequestSchema = z.object({
       /^\+?[0-9]{10,15}$/,
       'Numéro de téléphone invalide (format: +225XXXXXXXXXX)',
     ),
+}
+
+export const createPractitionerRequestSchema = z.object({
+  ...baseContactFields,
+  requestType: z.literal('PRACTITIONER'),
+  orderNumber: z
+    .string()
+    .min(2, "Le numéro d'inscription à l'Ordre est requis")
+    .max(50),
+  specialty: z.string().max(100).optional(),
+  clinicAddress: z.string().min(5, "L'adresse du cabinet est requise").max(255),
+})
+
+export const createCabinetRequestSchema = z.object({
+  ...baseContactFields,
+  requestType: z.literal('CABINET'),
+  cabinetName: z.string().min(2, 'Le nom du cabinet est requis').max(200),
+  cabinetAddress: z
+    .string()
+    .min(5, "L'adresse du cabinet est requise")
+    .max(255),
+  adminContactName: z
+    .string()
+    .min(2, 'Le nom du responsable administratif est requis')
+    .max(100),
+  adminContactEmail: z.string().email("L'email du responsable est invalide"),
+  adminContactPhone: z
+    .string()
+    .regex(/^\+?[0-9]{10,15}$/, 'Numéro du responsable invalide'),
+})
+
+export const createContactRequestSchema = z.object({
+  requestType: z.enum(['DEMO', 'INFO', 'SUPPORT'], {
+    message: 'Type de demande invalide',
+  }),
+  ...baseContactFields,
   postalCode: z
     .string()
     .min(2, 'Le code postal doit contenir au moins 2 caractères')
@@ -31,4 +65,10 @@ export const createContactRequestSchema = z.object({
 
 export type CreateContactRequestInput = z.infer<
   typeof createContactRequestSchema
+>
+export type CreatePractitionerRequestInput = z.infer<
+  typeof createPractitionerRequestSchema
+>
+export type CreateCabinetRequestInput = z.infer<
+  typeof createCabinetRequestSchema
 >
