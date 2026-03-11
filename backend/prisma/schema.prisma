@@ -227,6 +227,7 @@ model Practitioner {
   teleconsultationSessions TeleconsultationSession[]
   virtualQueueEntries      VirtualQueue[]
   cabinets                 CabinetPractitioner[]
+  campaignRecipients       CampaignRecipient[]
 
   @@index([userId])
   @@index([licenseNumber])
@@ -622,22 +623,30 @@ model Review {
 }
 
 model Campaign {
-  id                String              @id @default(cuid())
-  title             String
-  description       String
-  message           String
-  status            CampaignStatus      @default(DRAFT)
-  targetType        CampaignTargetType
-  targetAgeMin      Int?
-  targetAgeMax      Int?
-  targetLocations   String[]
-  targetPathologies String[]
-  scheduledAt       DateTime?
-  sentAt            DateTime?
-  createdBy         String
-  createdAt         DateTime            @default(now())
-  updatedAt         DateTime            @updatedAt
-  recipients        CampaignRecipient[]
+  id                  String              @id @default(cuid())
+  title               String
+  description         String
+  message             String
+  messageType         String              @default("INFO")
+  status              CampaignStatus      @default(DRAFT)
+  targetType          CampaignTargetType
+  targetUserTypes     String[]            @default([])
+  targetAgeMin        Int?
+  targetAgeMax        Int?
+  targetLocations     String[]
+  targetPathologies   String[]
+  targetRegisteredFrom DateTime?
+  targetRegisteredTo   DateTime?
+  channels            String[]            @default(["EMAIL"])
+  scheduledAt         DateTime?
+  sentAt              DateTime?
+  totalRecipients     Int                 @default(0)
+  sentCount           Int                 @default(0)
+  failedCount         Int                 @default(0)
+  createdBy           String
+  createdAt           DateTime            @default(now())
+  updatedAt           DateTime            @updatedAt
+  recipients          CampaignRecipient[]
 
   @@index([status])
   @@index([scheduledAt])
@@ -645,21 +654,26 @@ model Campaign {
 }
 
 model CampaignRecipient {
-  id          String    @id @default(cuid())
-  campaignId  String
-  patientId   String
-  sent        Boolean   @default(false)
-  sentAt      DateTime?
-  delivered   Boolean   @default(false)
-  deliveredAt DateTime?
-  opened      Boolean   @default(false)
-  openedAt    DateTime?
-  campaign    Campaign  @relation(fields: [campaignId], references: [id], onDelete: Cascade)
-  patient     Patient   @relation(fields: [patientId], references: [id], onDelete: Cascade)
+  id             String        @id @default(cuid())
+  campaignId     String
+  patientId      String?
+  practitionerId String?
+  email          String
+  sent           Boolean       @default(false)
+  sentAt         DateTime?
+  delivered      Boolean       @default(false)
+  deliveredAt    DateTime?
+  opened         Boolean       @default(false)
+  openedAt       DateTime?
+  error          String?
+  campaign       Campaign      @relation(fields: [campaignId], references: [id], onDelete: Cascade)
+  patient        Patient?      @relation(fields: [patientId], references: [id], onDelete: Cascade)
+  practitioner   Practitioner? @relation(fields: [practitionerId], references: [id], onDelete: Cascade)
 
-  @@unique([campaignId, patientId])
+  @@unique([campaignId, email])
   @@index([campaignId])
   @@index([patientId])
+  @@index([practitionerId])
   @@map("campaign_recipients")
 }
 
@@ -1155,10 +1169,13 @@ enum CampaignStatus {
 }
 
 enum CampaignTargetType {
+  ALL_PATIENTS
+  ALL_PRACTITIONERS
+  ALL_USERS
+  CUSTOM
   AGE_GROUP
   LOCATION
   PATHOLOGY
-  ALL_PATIENTS
 }
 
 enum TeleconsultationStatus {

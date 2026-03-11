@@ -15,6 +15,7 @@ import { practitionerPatientsRoutes } from './modules/patients/patients.routes'
 import { teleconsultationsRoutes } from './modules/teleconsultations/teleconsultations.routes'
 import { adminDashboardRoutes } from './modules/admin/admin-dashboard.routes'
 import { adminNoShowsRoutes } from './modules/admin/admin-no-shows.routes'
+import { campaignsRoutes } from './modules/campaigns/campaigns.routes'
 
 export async function routes(fastify: FastifyInstance) {
   fastify.register(authRoutes, { prefix: '/api/auth' })
@@ -44,6 +45,9 @@ export async function routes(fastify: FastifyInstance) {
   })
   fastify.register(adminNoShowsRoutes, {
     prefix: '/api/admin/no-shows',
+  })
+  fastify.register(campaignsRoutes, {
+    prefix: '/api/admin/campaigns',
   })
 
   fastify.get('/health', async () => {
