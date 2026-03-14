@@ -19,3 +19,11 @@ COPY --chown=medicote-user:appgroup tailwind.config.cjs .
 USER medicote-user
 
 RUN npm ci
+
+
+# stage 3: builder (builds Nuxt app for production)
+FROM deps AS builder
+
+COPY --chown=medicote-user:appgroup . .
+
+RUN NODE_OPTIONS="--max-old-space-size=4096" npm run build
