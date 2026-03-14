@@ -32,3 +32,8 @@ COPY src ./src
 EXPOSE 3001
 
 CMD ["npm", "run", "dev"]
+
+# stage 3b: builder (compiles TypeScript for production)
+FROM development AS builder
+
+RUN npm run build
