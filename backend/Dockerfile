@@ -19,3 +19,16 @@ COPY prisma.config.ts .
 COPY prisma ./prisma
 
 RUN npm ci && npx prisma generate
+
+
+#stage 3: development
+FROM base AS development
+
+WORKDIR /app
+
+COPY --from=deps /app .
+COPY src ./src
+
+EXPOSE 3001
+
+CMD ["npm", "run", "dev"]
