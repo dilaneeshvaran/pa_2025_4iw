@@ -37,3 +37,28 @@ CMD ["npm", "run", "dev"]
 FROM development AS builder
 
 RUN npm run build
+
+
+# stage 4: production
+FROM base AS production
+
+WORKDIR /app
+
+COPY --from=deps /app/package.json .
+COPY --from=deps /app/node_modules ./node_modules
+COPY --from=builder /app/dist ./dist
+COPY --from=deps /app/prisma ./prisma
+COPY --from=deps /app/prisma.config.ts .
+COPY --from=deps /app/tsconfig.json .
+
+COPY .env .
+
+USER medicote-user
+
+ENV NODE_ENV=production
+
+EXPOSE 3001
+
+HEALTHCHECK --interval=30s --timeout=3s --start-period=10s --retries=3 CMD wget --no-verbose --spider http://localhost:3001/health || exit 1
+
+CMD ["node", "dist/server.js"]
