@@ -27,3 +27,18 @@ FROM deps AS builder
 COPY --chown=medicote-user:appgroup . .
 
 RUN NODE_OPTIONS="--max-old-space-size=4096" npm run build
+
+
+#stage 4: development
+FROM base AS development
+
+WORKDIR /app
+
+COPY --from=deps /app .
+COPY --chown=appuser:appgroup . .
+
+USER medicote-user
+
+EXPOSE 3000
+
+CMD ["npm", "run", "dev"]
