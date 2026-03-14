@@ -655,25 +655,96 @@ export class AvailabilitiesService {
     const appointmentDate = new Date(data.appointmentDate)
     appointmentDate.setHours(0, 0, 0, 0)
 
-    // check for existing appointment at same time
-    const existing = await prisma.appointment.findFirst({
+    const duration = practitioner.consultationDuration
+    const [hours, minutes] = data.startTime.split(':').map(Number)
+    const newStartMin = hours * 60 + minutes
+    const newEndMin = newStartMin + duration
+    const endTime = `${Math.floor(newEndMin / 60)
+      .toString()
+      .padStart(2, '0')}:${(newEndMin % 60).toString().padStart(2, '0')}`
+
+    // practitioner conflict + proximity checks
+    const practitionerDayApts = await prisma.appointment.findMany({
       where: {
         practitionerId,
         appointmentDate,
-        startTime: data.startTime,
         status: {
           in: [AppointmentStatus.PENDING, AppointmentStatus.CONFIRMED],
         },
       },
     })
-    if (existing) throw new Error("Ce créneau n'est plus disponible")
 
-    const duration = practitioner.consultationDuration
-    const [hours, minutes] = data.startTime.split(':').map(Number)
-    const endMinutes = hours * 60 + minutes + duration
-    const endTime = `${Math.floor(endMinutes / 60)
-      .toString()
-      .padStart(2, '0')}:${(endMinutes % 60).toString().padStart(2, '0')}`
+    const breakBuffer = practitioner.backToBack
+      ? 0
+      : practitioner.breakBetweenSlots || 0
+
+    for (const apt of practitionerDayApts) {
+      const [aptH, aptM] = apt.startTime.split(':').map(Number)
+      const [aptEndH, aptEndM] = apt.endTime.split(':').map(Number)
+      const aptStartMin = aptH * 60 + aptM
+      const aptEndMin = aptEndH * 60 + aptEndM
+
+      // overlap
+      if (newStartMin < aptEndMin && newEndMin > aptStartMin) {
+        throw new Error(
+          `Ce créneau est déjà occupé (${apt.startTime}–${apt.endTime})`,
+        )
+      }
+
+      // proximity based on practitioner breakBetweenSlots
+      if (breakBuffer > 0) {
+        if (newStartMin >= aptEndMin && newStartMin - aptEndMin < breakBuffer) {
+          throw new Error(
+            `Un délai de ${breakBuffer} min est requis entre les rendez-vous du praticien`,
+          )
+        }
+        if (newEndMin <= aptStartMin && aptStartMin - newEndMin < breakBuffer) {
+          throw new Error(
+            `Un délai de ${breakBuffer} min est requis entre les rendez-vous du praticien`,
+          )
+        }
+      }
+    }
+
+    // patient conflict + proximity checks
+    const patientDayApts = await prisma.appointment.findMany({
+      where: {
+        patientId: data.patientId,
+        appointmentDate,
+        status: {
+          in: [AppointmentStatus.PENDING, AppointmentStatus.CONFIRMED],
+        },
+      },
+    })
+
+    // minimum gap between appointments for the same patient (30 min)
+    const patientBuffer = 30
+
+    for (const apt of patientDayApts) {
+      const [aptH, aptM] = apt.startTime.split(':').map(Number)
+      const [aptEndH, aptEndM] = apt.endTime.split(':').map(Number)
+      const aptStartMin = aptH * 60 + aptM
+      const aptEndMin = aptEndH * 60 + aptEndM
+
+      // overlap
+      if (newStartMin < aptEndMin && newEndMin > aptStartMin) {
+        throw new Error(
+          `Ce patient a déjà un rendez-vous à cette heure (${apt.startTime}–${apt.endTime})`,
+        )
+      }
+
+      // proximity
+      if (newStartMin >= aptEndMin && newStartMin - aptEndMin < patientBuffer) {
+        throw new Error(
+          `Ce rendez-vous est trop proche d'un autre rendez-vous du patient (${patientBuffer} min minimum entre les rendez-vous)`,
+        )
+      }
+      if (newEndMin <= aptStartMin && aptStartMin - newEndMin < patientBuffer) {
+        throw new Error(
+          `Ce rendez-vous est trop proche d'un autre rendez-vous du patient (${patientBuffer} min minimum entre les rendez-vous)`,
+        )
+      }
+    }
 
     const consultationFee =
       data.type === 'TELECONSULTATION' && practitioner.teleconsultationFee
