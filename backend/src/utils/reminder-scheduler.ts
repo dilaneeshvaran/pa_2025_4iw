@@ -27,16 +27,23 @@ export async function scheduleAppointmentReminders(
   appointmentDate: Date,
   startTime: string,
 ): Promise<void> {
-  // parse appointment datetime
+  //  appointment datetime in utc.
+  // appointmentDate is stored as utc midnight
+  // startTime is "HH:MM" in the local timezone (africa/abidjan = UTC+0 = UTC).
+  // using setUTCHours avoids server timezone drift when the host is not in UTC+0.
   const [hours, minutes] = startTime.split(':').map(Number)
   const appointmentDateTime = new Date(appointmentDate)
-  appointmentDateTime.setHours(hours, minutes, 0, 0)
+  appointmentDateTime.setUTCHours(hours, minutes, 0, 0)
 
   const now = new Date()
 
+  //  millisecond arithmetic instead of setHours(getHours() - N) to avoid
+  // server timezone issues with local time hour subtraction.
+
   // Schedule 24h reminder
-  const reminder24hTime = new Date(appointmentDateTime)
-  reminder24hTime.setHours(reminder24hTime.getHours() - 24)
+  const reminder24hTime = new Date(
+    appointmentDateTime.getTime() - 24 * 60 * 60 * 1000,
+  )
 
   if (reminder24hTime > now) {
     const delay = reminder24hTime.getTime() - now.getTime()
@@ -48,8 +55,9 @@ export async function scheduleAppointmentReminders(
   }
 
   // schedule 1h reminder
-  const reminder1hTime = new Date(appointmentDateTime)
-  reminder1hTime.setHours(reminder1hTime.getHours() - 1)
+  const reminder1hTime = new Date(
+    appointmentDateTime.getTime() - 60 * 60 * 1000,
+  )
 
   if (reminder1hTime > now) {
     const delay = reminder1hTime.getTime() - now.getTime()
@@ -118,7 +126,8 @@ export function startReminderWorker(): Worker {
         return
       }
 
-      // format date for email
+      // format date for email - pin to utc so the displayed date matches the
+      // stored utc midnight value regardless of server host timezone.
       const formattedDate = new Date(
         appointment.appointmentDate,
       ).toLocaleDateString('fr-FR', {
@@ -126,6 +135,7 @@ export function startReminderWorker(): Worker {
         day: 'numeric',
         month: 'long',
         year: 'numeric',
+        timeZone: 'UTC',
       })
 
       // send reminder email
