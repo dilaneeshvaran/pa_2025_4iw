@@ -20,7 +20,7 @@ export class AppointmentsService {
     sort?: 'asc' | 'desc',
   ): Promise<PatientAppointmentsResult> {
     const today = new Date()
-    today.setHours(0, 0, 0, 0)
+    today.setUTCHours(0, 0, 0, 0)
     const now = new Date()
     const skip = (page - 1) * limit
 
@@ -91,11 +91,11 @@ export class AppointmentsService {
     if (status === 'upcoming') {
       filteredAppointments = appointments.filter((apt) => {
         const aptDate = new Date(apt.appointmentDate)
-        aptDate.setHours(0, 0, 0, 0)
+        aptDate.setUTCHours(0, 0, 0, 0)
         if (aptDate.getTime() === today.getTime()) {
           const [hours, minutes] = apt.startTime.split(':').map(Number)
           const appointmentTime = new Date(today)
-          appointmentTime.setHours(hours, minutes, 0, 0)
+          appointmentTime.setUTCHours(hours, minutes, 0, 0)
           return appointmentTime > now
         }
         return true
@@ -142,7 +142,7 @@ export class AppointmentsService {
   ): Promise<PatientAppointment | null> {
     const now = new Date()
     const today = new Date()
-    today.setHours(0, 0, 0, 0)
+    today.setUTCHours(0, 0, 0, 0)
 
     // fetch potential next appointments starting from today
     // checking a reasonable number to find the first valid one
@@ -176,7 +176,7 @@ export class AppointmentsService {
       if (aptDate.getTime() === today.getTime()) {
         const [hours, minutes] = apt.startTime.split(':').map(Number)
         const appointmentTime = new Date(today)
-        appointmentTime.setHours(hours, minutes, 0, 0)
+        appointmentTime.setUTCHours(hours, minutes, 0, 0)
         return appointmentTime > now
       }
       return true // future date
@@ -215,7 +215,7 @@ export class AppointmentsService {
     limit = 5,
   ): Promise<PatientAppointment[]> {
     const today = new Date()
-    today.setHours(0, 0, 0, 0)
+    today.setUTCHours(0, 0, 0, 0)
     const now = new Date()
 
     // fetch slightly more to filter in memory
@@ -262,7 +262,7 @@ export class AppointmentsService {
       if (aptDate.getTime() === today.getTime()) {
         const [hours, minutes] = apt.startTime.split(':').map(Number)
         const appointmentTime = new Date(today)
-        appointmentTime.setHours(hours, minutes, 0, 0)
+        appointmentTime.setUTCHours(hours, minutes, 0, 0)
         return appointmentTime < now
       }
 
@@ -338,12 +338,16 @@ export class AppointmentsService {
       )
     }
 
+    // parse date as utc midnight. "YYYY-MM-DD" strings are interpreted by
+    // js as utc, but setHours(0,0,0,0) would then reapply local
+    // midnight, drifting the utc timestamp when the server is not at utc+0.
+    // setUTCHours keeps it pinned to utc midnight unconditionally.
     const appointmentDate = new Date(data.appointmentDate)
-    appointmentDate.setHours(0, 0, 0, 0)
+    appointmentDate.setUTCHours(0, 0, 0, 0)
 
     const now = new Date()
     const today = new Date(now)
-    today.setHours(0, 0, 0, 0)
+    today.setUTCHours(0, 0, 0, 0)
 
     if (appointmentDate < today) {
       throw new Error('La date du rendez-vous ne peut pas être dans le passé')
@@ -363,7 +367,7 @@ export class AppointmentsService {
     const minNoticeMinutes = practitioner.minBookingNotice || 60
     const [requestHours, requestMinutes] = data.startTime.split(':').map(Number)
     const requestedAppointmentTime = new Date(appointmentDate)
-    requestedAppointmentTime.setHours(requestHours, requestMinutes, 0, 0)
+    requestedAppointmentTime.setUTCHours(requestHours, requestMinutes, 0, 0)
 
     const earliestBookable = new Date(
       now.getTime() + minNoticeMinutes * 60 * 1000,
@@ -476,11 +480,11 @@ export class AppointmentsService {
     for (const apt of dayAppointments) {
       const [aptHours, aptMinutes] = apt.startTime.split(':').map(Number)
       const aptStartTime = new Date(appointmentDate)
-      aptStartTime.setHours(aptHours, aptMinutes, 0, 0)
+      aptStartTime.setUTCHours(aptHours, aptMinutes, 0, 0)
 
       const [aptEndHours, aptEndMinutes] = apt.endTime.split(':').map(Number)
       const aptEndTime = new Date(appointmentDate)
-      aptEndTime.setHours(aptEndHours, aptEndMinutes, 0, 0)
+      aptEndTime.setUTCHours(aptEndHours, aptEndMinutes, 0, 0)
 
       // buffer time (60 minutes)
       const bufferMs = 60 * 60 * 1000
@@ -576,6 +580,7 @@ export class AppointmentsService {
       day: 'numeric',
       month: 'long',
       year: 'numeric',
+      timeZone: 'UTC',
     })
 
     try {
@@ -667,7 +672,7 @@ export class AppointmentsService {
     const now = new Date()
     const aptDate = new Date(appointment.appointmentDate)
     const [hours, minutes] = appointment.startTime.split(':').map(Number)
-    aptDate.setHours(hours, minutes, 0, 0)
+    aptDate.setUTCHours(hours, minutes, 0, 0)
 
     if (aptDate <= now) {
       throw new Error('Vous ne pouvez pas annuler un rendez-vous passé')
@@ -733,7 +738,7 @@ export class AppointmentsService {
     const now = new Date()
     const aptDate = new Date(appointment.appointmentDate)
     const [hours, minutes] = appointment.startTime.split(':').map(Number)
-    aptDate.setHours(hours, minutes, 0, 0)
+    aptDate.setUTCHours(hours, minutes, 0, 0)
     const diffMs = aptDate.getTime() - now.getTime()
     const diffHours = diffMs / (1000 * 60 * 60)
 
