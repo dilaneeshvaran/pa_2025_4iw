@@ -1,0 +1,16 @@
+services:
+  postgres-db:
+    image: postgres:16-alpine
+    container_name: postgresdb-dev
+    environment:
+      POSTGRES_DB: ${BACKEND_POSTGRES_DB}
+      POSTGRES_USER: ${BACKEND_POSTGRES_USER}
+      POSTGRES_PASSWORD: ${BACKEND_POSTGRES_PASSWORD}
+    ports:
+      - "${BACKEND_POSTGRES_PORT}:5432"
+    volumes:
+      - postgres-data-dev:/var/lib/postgresql/data
+    networks:
+      - pgnetwork
+
+
