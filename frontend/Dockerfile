@@ -42,3 +42,26 @@ USER medicote-user
 EXPOSE 3000
 
 CMD ["npm", "run", "dev"]
+
+
+#stage 5: production
+FROM base AS production
+
+WORKDIR /app
+
+COPY --from=builder /app/package.json .
+COPY --from=builder /app/node_modules ./node_modules
+COPY --from=builder /app/.output ./.output
+COPY --from=builder /app/nuxt.config.ts .
+COPY --from=builder /app/tailwind.config.cjs .
+COPY --from=builder /app/tsconfig.json .
+
+USER medicote-user
+
+ENV NODE_ENV=production
+
+EXPOSE 3000
+
+HEALTHCHECK --interval=30s --timeout=3s --start-period=10s --retries=3 CMD wget --no-verbose --spider http://localhost:3000 || exit 1
+
+CMD ["node", ".output/server/index.mjs"]
