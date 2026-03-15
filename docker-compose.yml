@@ -1,7 +1,7 @@
 services:
   postgres-db:
     image: postgres:16-alpine
-    container_name: postgresdb
+    container_name: postgresdb-dev
     environment:
       POSTGRES_DB: ${BACKEND_POSTGRES_DB}
       POSTGRES_USER: ${BACKEND_POSTGRES_USER}
@@ -9,19 +9,68 @@ services:
     ports:
       - "${BACKEND_POSTGRES_PORT}:5432"
     volumes:
-      - postgres-data:/var/lib/postgresql/data
-    restart: unless-stopped
+      - postgres-data-dev:/var/lib/postgresql/data
     networks:
       - pgnetwork
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U ${BACKEND_POSTGRES_USER} -d ${BACKEND_POSTGRES_DB}"]
+      interval: 5s
+      timeout: 5s
+      retries: 10
+      start_period: 10s
 
   redis-db:
     image: redis:7-alpine
-    container_name: redisdb
+    container_name: redisdb-dev
     ports:
       - "6379:6379"
     volumes:
-      - redis-data:/data
-    restart: unless-stopped
+      - redis-data-dev:/data
+    networks:
+      - pgnetwork
+    healthcheck:
+      test: ["CMD", "redis-cli", "ping"]
+      interval: 5s
+      timeout: 3s
+      retries: 5
+
+  backend:
+    build:
+      context: ./backend
+      target: development
+    container_name: backend-dev
+    env_file:
+      - ./backend/.env
+    command: sh -c "npx prisma db push && npm run dev"
+    ports:
+      - "3001:3001"
+    volumes:
+      - ./backend/src:/app/src
+      - ./backend/prisma:/app/prisma
+      - /app/node_modules
+    depends_on:
+      postgres-db:
+        condition: service_healthy
+      redis-db:
+        condition: service_healthy
+    networks:
+      - pgnetwork
+
+  frontend:
+    build:
+      context: ./frontend
+      target: development
+    container_name: frontend-dev
+    ports:
+      - "3000:3000"
+    environment:
+      NUXT_PUBLIC_API_BASE: http://localhost:3001/api
+    volumes:
+      - ./frontend:/app
+      - /app/node_modules
+      - /app/.nuxt
+    depends_on:
+      - backend
     networks:
       - pgnetwork
 
@@ -30,7 +79,7 @@ networks:
     driver: bridge
 
 volumes:
-  postgres-data:
+  postgres-data-dev:
     driver: local
-  redis-data:
+  redis-data-dev:
     driver: local
