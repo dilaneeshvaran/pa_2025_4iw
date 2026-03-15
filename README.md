@@ -33,13 +33,13 @@ This will install dependencies for backend, frontend and shared.
 
 Ask for the .env files for backend and frontend from your project lead.
 
-### 3. Start the Database
+### 3. Start the Database (Development)
 
 ```bash
-docker-compose up -d
+docker compose -f docker-compose.dev.yml up -d
 ```
 
-This starts a PostgreSQL database container.
+This starts the PostgreSQL database container for development.
 
 ### 4. Run Database Migrations
 
