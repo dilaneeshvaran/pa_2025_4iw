@@ -21,4 +21,23 @@ services:
         - redis-data-dev:/data
       networks:
         - pgnetwork
+  backend:
+    build:
+      context: ./backend
+      target: development
+    container_name: backend-dev
+    env_file:
+      - ./backend/.env
+    command: sh -c "npx prisma db push --accept-data-loss && npm run dev"
+    ports:
+      - "3001:3001"
+    volumes:
+      - ./backend/src:/app/src
+      - ./backend/prisma:/app/prisma
+      - /app/node_modules
+    depends_on:
+      - postgres-db
+      - redis-db
+    networks:
+      - pgnetwork
 
