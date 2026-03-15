@@ -63,4 +63,8 @@ networks:
   pgnetwork:
     driver: bridge
 
-
+volumes:
+  postgres-data-dev:
+    driver: local
+  redis-data-dev:
+    driver: local
