@@ -12,5 +12,13 @@ services:
       - postgres-data-dev:/var/lib/postgresql/data
     networks:
       - pgnetwork
-
+  redis-db:
+      image: redis:7-alpine
+      container_name: redisdb-dev
+      ports:
+        - "6379:6379"
+      volumes:
+        - redis-data-dev:/data
+      networks:
+        - pgnetwork
 
