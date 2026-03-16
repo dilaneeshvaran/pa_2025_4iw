@@ -3,6 +3,7 @@ import { z } from 'zod'
 export const searchPractitionersSchema = z.object({
   search: z.string().optional(),
   specialtyId: z.string().optional(),
+  cabinetId: z.string().optional(),
   city: z.string().optional(),
   teleconsultationEnabled: z.coerce.boolean().optional(),
   availableToday: z.coerce.boolean().optional(),
@@ -18,6 +19,10 @@ export const searchPractitionersSchema = z.object({
 })
 
 export const getPractitionerByIdSchema = z.object({
+  id: z.string(),
+})
+
+export const getCabinetByIdSchema = z.object({
   id: z.string(),
 })
 
@@ -39,6 +44,7 @@ export const getPractitionerStatisticsSchema = z.object({
 
 export type SearchPractitionersInput = z.infer<typeof searchPractitionersSchema>
 export type GetPractitionerByIdInput = z.infer<typeof getPractitionerByIdSchema>
+export type GetCabinetByIdInput = z.infer<typeof getCabinetByIdSchema>
 export type GetAvailableSlotsInput = z.infer<typeof getAvailableSlotsSchema>
 export type GetPractitionerStatisticsInput = z.infer<
   typeof getPractitionerStatisticsSchema

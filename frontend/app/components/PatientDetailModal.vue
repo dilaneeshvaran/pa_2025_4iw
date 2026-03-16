@@ -68,7 +68,7 @@
                     </UiBadge>
                   </div>
                   <p class="text-sm text-gray-500">
-                    {{ getAge(patient.dateOfBirth) }} ans —
+                    {{ getAge(patient.dateOfBirth) }} ans -
                     {{ getGenderLabel(patient.gender) }}
                   </p>
                 </div>
@@ -134,7 +134,7 @@
                   {{
                     patient.firstAppointmentDate
                       ? formatMonthYear(patient.firstAppointmentDate)
-                      : "—"
+                      : "-"
                   }}
                 </p>
               </div>

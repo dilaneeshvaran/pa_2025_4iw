@@ -280,6 +280,7 @@
     <CreateInvoiceModal
       :is-open="showInvoiceDetailsModal"
       :appointment="selectedAppointment"
+      :practitioner-id="practitionerId"
       @close="showInvoiceDetailsModal = false"
       @success="onInvoiceCreated"
     />
@@ -287,9 +288,13 @@
 </template>
 
 <script setup lang="ts">
-import { ref, onMounted } from "vue";
+import { ref, onMounted, watch } from "vue";
 import { Download, ChevronLeft, ChevronRight } from "lucide-vue-next";
 import CreateInvoiceModal from "./CreateInvoiceModal.vue";
+
+const props = defineProps<{
+  practitionerId?: string;
+}>();
 
 const loading = ref(true);
 const invoices = ref<any[]>([]);
@@ -323,6 +328,9 @@ const fetchInvoices = async (page = 1) => {
 
     if (filters.value.search) {
       query.append("search", filters.value.search);
+    }
+    if (props.practitionerId) {
+      query.append("practitionerId", props.practitionerId);
     }
 
     const {
@@ -386,12 +394,18 @@ const getStatusLabel = (status: string) => {
 const openCreateInvoiceModal = async () => {
   showSelectAppointmentModal.value = true;
   loadingAppointments.value = true;
+  unpaidAppointments.value = [];
 
   try {
+    const query = new URLSearchParams()
+    if (props.practitionerId) {
+      query.append('practitionerId', props.practitionerId)
+    }
+    
     const response = await useAuthenticatedFetch<{
       success: boolean;
       data: any[];
-    }>("/payments/practitioner/unpaid-appointments");
+    }>(`/payments/practitioner/unpaid-appointments?${query.toString()}`);
     if (response.success) {
       unpaidAppointments.value = response.data;
     }
@@ -416,8 +430,13 @@ const onInvoiceCreated = (invoice: any) => {
 
 const downloadPdf = async (invoiceId: string, invoiceNumber: string) => {
   try {
+    const query = new URLSearchParams()
+    if (props.practitionerId) {
+      query.append('practitionerId', props.practitionerId)
+    }
+
     const response = await useAuthenticatedFetch<Blob>(
-      `/payments/practitioner/invoices/${invoiceId}/download`,
+      `/payments/practitioner/invoices/${invoiceId}/download?${query.toString()}`,
       {
         responseType: "blob",
       },
@@ -439,6 +458,10 @@ const downloadPdf = async (invoiceId: string, invoiceNumber: string) => {
     alert("Erreur lors du téléchargement de la facture");
   }
 };
+
+watch(() => props.practitionerId, () => {
+  fetchInvoices(1);
+});
 
 onMounted(() => {
   fetchInvoices(1);

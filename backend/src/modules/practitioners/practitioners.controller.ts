@@ -6,6 +6,7 @@ import type {
   GetPractitionerByIdInput,
   GetAvailableSlotsInput,
   GetPractitionerStatisticsInput,
+  GetCabinetByIdInput,
 } from './practitioners.schema'
 
 export class PractitionersController {
@@ -117,6 +118,52 @@ export class PractitionersController {
       return reply.status(500).send({
         success: false,
         message: 'Failed to get specialties',
+      })
+    }
+  }
+
+  async getCabinets(request: FastifyRequest, reply: FastifyReply) {
+    try {
+      const cabinets = await practitionersService.getCabinets()
+
+      return reply.status(200).send({
+        success: true,
+        data: cabinets,
+      })
+    } catch (error) {
+      request.log.error(error)
+      return reply.status(500).send({
+        success: false,
+        message: 'Failed to get cabinets',
+      })
+    }
+  }
+
+  async getCabinetById(
+    request: FastifyRequest<{ Params: GetCabinetByIdInput }>,
+    reply: FastifyReply,
+  ) {
+    try {
+      const { id } = request.params
+
+      const cabinet = await practitionersService.getCabinetById(id)
+
+      if (!cabinet) {
+        return reply.status(404).send({
+          success: false,
+          message: 'Cabinet not found',
+        })
+      }
+
+      return reply.status(200).send({
+        success: true,
+        data: cabinet,
+      })
+    } catch (error) {
+      request.log.error(error)
+      return reply.status(500).send({
+        success: false,
+        message: 'Failed to get cabinet',
       })
     }
   }
