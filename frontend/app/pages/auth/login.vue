@@ -144,8 +144,18 @@ const handleLogin = async () => {
     let redirectTo = route.query.redirect as string;
     if (!redirectTo) {
       // role based default redirects
-      redirectTo =
-        response.data.user.role === "PATIENT" ? "/patient/dashboard" : "/";
+      const role = response.data.user.role;
+      if (role === "CABINET_ADMIN") {
+        redirectTo = "/cabinet/dashboard";
+      } else if (role === "STAFF") {
+        redirectTo = "/staff/dashboard";
+      } else if (role === "PRACTITIONER") {
+        redirectTo = "/practitioner/dashboard";
+      } else if (role === "ADMIN") {
+        redirectTo = "/admin/dashboard";
+      } else {
+        redirectTo = "/patient/dashboard";
+      }
     }
     await router.push(redirectTo);
   } catch (error: unknown) {

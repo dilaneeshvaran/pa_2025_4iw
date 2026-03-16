@@ -159,8 +159,8 @@
             <td class="whitespace-nowrap px-6 py-4 text-sm text-gray-600">
               {{
                 req.requestType === "PRACTITIONER"
-                  ? req.specialty || "—"
-                  : req.cabinetName || "—"
+                  ? req.specialty || "-"
+                  : req.cabinetName || "-"
               }}
             </td>
             <td class="whitespace-nowrap px-6 py-4 text-sm text-gray-600">
@@ -170,7 +170,7 @@
               v-if="activeTab !== 'pending'"
               class="whitespace-nowrap px-6 py-4 text-sm text-gray-600"
             >
-              {{ req.processedAt ? formatDate(req.processedAt) : "—" }}
+              {{ req.processedAt ? formatDate(req.processedAt) : "-" }}
             </td>
             <td class="whitespace-nowrap px-6 py-4">
               <div class="flex items-center gap-2">
@@ -273,7 +273,7 @@
                     >N° d'Ordre (ONMCI)</span
                   >
                   <p class="text-gray-900">
-                    {{ selectedRequest.orderNumber || "—" }}
+                    {{ selectedRequest.orderNumber || "-" }}
                   </p>
                 </div>
                 <div>
@@ -281,7 +281,7 @@
                     >Spécialité</span
                   >
                   <p class="text-gray-900">
-                    {{ selectedRequest.specialty || "—" }}
+                    {{ selectedRequest.specialty || "-" }}
                   </p>
                 </div>
                 <div class="md:col-span-2">
@@ -289,7 +289,7 @@
                     >Adresse du cabinet</span
                   >
                   <p class="text-gray-900">
-                    {{ selectedRequest.clinicAddress || "—" }}
+                    {{ selectedRequest.clinicAddress || "-" }}
                   </p>
                 </div>
               </div>
@@ -407,19 +407,19 @@
                     >Nom du cabinet</span
                   >
                   <p class="text-gray-900">
-                    {{ selectedRequest.cabinetName || "—" }}
+                    {{ selectedRequest.cabinetName || "-" }}
                   </p>
                 </div>
                 <div>
                   <span class="text-sm font-medium text-gray-500">RCCM</span>
                   <p class="text-gray-900">
-                    {{ selectedRequest.cabinetRccm || "—" }}
+                    {{ selectedRequest.cabinetRccm || "-" }}
                   </p>
                 </div>
                 <div class="md:col-span-2">
                   <span class="text-sm font-medium text-gray-500">Adresse</span>
                   <p class="text-gray-900">
-                    {{ selectedRequest.cabinetAddress || "—" }}
+                    {{ selectedRequest.cabinetAddress || "-" }}
                   </p>
                 </div>
               </div>
@@ -432,13 +432,13 @@
                 <div>
                   <span class="text-sm font-medium text-gray-500">Nom</span>
                   <p class="text-gray-900">
-                    {{ selectedRequest.adminContactName || "—" }}
+                    {{ selectedRequest.adminContactName || "-" }}
                   </p>
                 </div>
                 <div>
                   <span class="text-sm font-medium text-gray-500">Email</span>
                   <p class="text-gray-900">
-                    {{ selectedRequest.adminContactEmail || "—" }}
+                    {{ selectedRequest.adminContactEmail || "-" }}
                   </p>
                 </div>
                 <div>
@@ -446,7 +446,7 @@
                     >Téléphone</span
                   >
                   <p class="text-gray-900">
-                    {{ selectedRequest.adminContactPhone || "—" }}
+                    {{ selectedRequest.adminContactPhone || "-" }}
                   </p>
                 </div>
               </div>
@@ -723,7 +723,7 @@ async function approveRequest(id: string) {
     await useAuthenticatedFetch(`/contact-requests/${id}/approve`, {
       method: "POST",
     });
-    showToast("Demande approuvée — compte créé et email envoyé");
+    showToast("Demande approuvée - compte créé et email envoyé");
     await fetchRequests();
   } catch (error: unknown) {
     const err = error as { data?: { message?: string } };
@@ -752,7 +752,7 @@ async function submitReject() {
       },
     );
     showRejectModal.value = false;
-    showToast("Demande rejetée — email de notification envoyé");
+    showToast("Demande rejetée - email de notification envoyé");
     await fetchRequests();
   } catch (error: unknown) {
     const err = error as { data?: { message?: string } };

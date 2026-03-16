@@ -58,7 +58,37 @@
         </div>
       </Card>
 
-      <div class="grid gap-6 lg:grid-cols-4">
+      <div class="mb-6 border-b border-gray-200">
+        <nav class="-mb-px flex gap-6" aria-label="Tabs">
+          <button
+            @click="activeTab = 'practitioners'"
+            :class="[
+              activeTab === 'practitioners'
+                ? 'border-[var(--color-primary)] font-bold text-[var(--color-primary)]'
+                : 'border-transparent font-medium text-gray-500 hover:border-gray-300 hover:text-gray-700',
+              'whitespace-nowrap border-b-2 px-1 py-4 text-sm transition-colors',
+            ]"
+          >
+            Praticiens
+          </button>
+          <button
+            @click="activeTab = 'cabinets'"
+            :class="[
+              activeTab === 'cabinets'
+                ? 'border-[var(--color-primary)] font-bold text-[var(--color-primary)]'
+                : 'border-transparent font-medium text-gray-500 hover:border-gray-300 hover:text-gray-700',
+              'whitespace-nowrap border-b-2 px-1 py-4 text-sm transition-colors',
+            ]"
+          >
+            Cabinets
+          </button>
+        </nav>
+      </div>
+
+      <div
+        v-if="activeTab === 'practitioners'"
+        class="grid gap-6 lg:grid-cols-4"
+      >
         <aside class="lg:col-span-1">
           <Card>
             <div class="mb-6 flex items-center gap-2">
@@ -82,6 +112,27 @@
                   :value="specialty.id"
                 >
                   {{ specialty.name }}
+                </option>
+              </select>
+            </div>
+
+            <div class="mb-6">
+              <label class="mb-2 block text-sm font-medium text-gray-700">
+                Cabinet
+              </label>
+              <select
+                v-model="filters.cabinetId"
+                class="w-full rounded-lg border border-gray-300 px-4 py-2.5 focus:border-[var(--color-primary)] focus:outline-none focus:ring-2 focus:ring-[var(--color-primary)]"
+                @change="searchPractitioners"
+              >
+                <option value="">Tous les cabinets</option>
+                <option
+                  v-for="cabinet in cabinets"
+                  :key="cabinet.id"
+                  :value="cabinet.id"
+                >
+                  {{ cabinet.name }}
+                  {{ cabinet.city ? `(${cabinet.city})` : "" }}
                 </option>
               </select>
             </div>
@@ -333,6 +384,57 @@
           </div>
         </div>
       </div>
+
+      <!-- cabinets vue -->
+      <div v-else class="space-y-4">
+        <div class="mb-4 flex items-center justify-between">
+          <p class="text-gray-600">
+            {{ cabinets.length }} cabinet{{
+              cabinets.length > 1 ? "s" : ""
+            }}
+            trouvé{{ cabinets.length > 1 ? "s" : "" }}
+          </p>
+        </div>
+
+        <div v-if="cabinets.length === 0" class="py-12 text-center">
+          <p class="text-lg text-gray-500">Aucun cabinet trouvé.</p>
+        </div>
+
+        <div v-else class="grid gap-6 md:grid-cols-2 lg:grid-cols-3">
+          <Card
+            v-for="cabinet in cabinets"
+            :key="cabinet.id"
+            class="flex flex-col justify-between transition-shadow hover:shadow-lg"
+          >
+            <div>
+              <h3 class="mb-2 text-xl font-semibold">{{ cabinet.name }}</h3>
+              <div class="mb-2 flex items-center gap-1 text-sm text-gray-600">
+                <IconMapPin class="h-4 w-4" />
+                {{ cabinet.city || "Ville non renseignée" }}
+              </div>
+              <p class="mb-4 text-sm text-gray-500">
+                {{ cabinet.address || "" }}
+              </p>
+            </div>
+
+            <div
+              class="mt-4 flex items-center justify-between border-t border-gray-100 pt-4"
+            >
+              <span class="text-sm font-medium text-gray-600">
+                {{ cabinet.practitionersCount }} praticien{{
+                  cabinet.practitionersCount > 1 ? "s" : ""
+                }}
+              </span>
+              <Button
+                variant="outline"
+                @click="navigateTo(`/cabinet/${cabinet.id}`)"
+              >
+                Voir le cabinet
+              </Button>
+            </div>
+          </Card>
+        </div>
+      </div>
     </div>
   </div>
 </template>
@@ -365,6 +467,16 @@ interface Specialty {
   description?: string;
 }
 
+interface Cabinet {
+  id: string;
+  name: string;
+  city?: string | null;
+  address?: string | null;
+  practitionersCount: number;
+}
+
+const activeTab = ref<"practitioners" | "cabinets">("practitioners");
+
 interface Practitioner {
   id: string;
   firstName: string;
@@ -380,11 +492,13 @@ interface Practitioner {
   acceptsInsurance: boolean;
   availableToday?: boolean;
   specialties: Array<{ id: string; name: string; isPrimary: boolean }>;
+  cabinets: Array<{ id: string; name: string; city?: string | null }>;
 }
 
 const filters = reactive({
   search: "",
   specialtyId: "",
+  cabinetId: "",
   city: "",
   teleconsultationEnabled: false,
   availableToday: false,
@@ -398,6 +512,7 @@ const filters = reactive({
 
 const practitioners = ref<Practitioner[]>([]);
 const specialties = ref<Specialty[]>([]);
+const cabinets = ref<Cabinet[]>([]);
 const loading = ref(false);
 const pagination = reactive({
   total: 0,
@@ -425,6 +540,7 @@ const searchPractitioners = async () => {
     if (filters.search) queryParams.append("search", filters.search);
     if (filters.specialtyId)
       queryParams.append("specialtyId", filters.specialtyId);
+    if (filters.cabinetId) queryParams.append("cabinetId", filters.cabinetId);
     if (filters.city) queryParams.append("city", filters.city);
     if (filters.teleconsultationEnabled)
       queryParams.append("teleconsultationEnabled", "true");
@@ -481,6 +597,23 @@ const loadSpecialties = async () => {
   }
 };
 
+const loadCabinets = async () => {
+  try {
+    const response = await $fetch<{
+      success: boolean;
+      data: Cabinet[];
+    }>("/practitioners/cabinets", {
+      baseURL: config.public.apiBase,
+    });
+
+    if (response.success) {
+      cabinets.value = response.data;
+    }
+  } catch (error) {
+    console.error("Error loading cabinets:", error);
+  }
+};
+
 const changePage = (page: number) => {
   filters.page = page;
   searchPractitioners();
@@ -496,6 +629,7 @@ const handleReserve = (practitioner: Practitioner) => {
 onMounted(() => {
   authStore.initAuth();
   loadSpecialties();
+  loadCabinets();
   searchPractitioners();
 });
 

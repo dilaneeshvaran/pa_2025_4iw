@@ -14,6 +14,7 @@ export class PractitionersService {
     const {
       search,
       specialtyId,
+      cabinetId,
       city,
       teleconsultationEnabled,
       availableToday,
@@ -54,6 +55,19 @@ export class PractitionersService {
       }
     }
 
+    if (cabinetId) {
+      where.cabinets = {
+        some: {
+          cabinetId,
+          leftAt: null,
+          isPaused: false,
+          cabinet: {
+            isVerified: true,
+          },
+        },
+      }
+    }
+
     if (city) {
       where.city = { contains: city, mode: 'insensitive' }
     }
@@ -90,6 +104,25 @@ export class PractitionersService {
         specialties: {
           include: {
             specialty: true,
+          },
+        },
+        cabinets: {
+          where: {
+            leftAt: null,
+            isPaused: false,
+            cabinet: {
+              isVerified: true,
+            },
+          },
+          include: {
+            cabinet: {
+              select: {
+                id: true,
+                name: true,
+                address: true,
+                city: true,
+              },
+            },
           },
         },
         user: {
@@ -136,6 +169,9 @@ export class PractitionersService {
           }
         }
 
+        const activeCabinet =
+          p.cabinets.length > 0 ? p.cabinets[0].cabinet : null
+
         return {
           id: p.id,
           firstName: p.firstName,
@@ -143,9 +179,10 @@ export class PractitionersService {
           title: p.title,
           phone: p.phone,
           bio: p.bio,
-          clinicName: p.clinicName,
-          address: p.address,
-          city: p.city,
+          clinicName: activeCabinet ? activeCabinet.name : p.clinicName,
+          address: activeCabinet ? activeCabinet.address : p.address,
+          city:
+            activeCabinet && activeCabinet.city ? activeCabinet.city : p.city,
           latitude: p.latitude,
           longitude: p.longitude,
           baseConsultationFee: Number(p.baseConsultationFee),
@@ -161,6 +198,10 @@ export class PractitionersService {
             id: ps.specialty.id,
             name: ps.specialty.name,
             isPrimary: ps.isPrimary,
+          })),
+          cabinets: p.cabinets.map((cp) => ({
+            id: cp.cabinet.id,
+            name: cp.cabinet.name,
           })),
           availableToday: availableToday_result,
           nextAvailableSlot,
@@ -184,6 +225,76 @@ export class PractitionersService {
     }
   }
 
+  async getCabinets() {
+    const cabinets = await prisma.cabinet.findMany({
+      where: {
+        isVerified: true,
+        practitioners: {
+          some: {
+            leftAt: null,
+            practitioner: {
+              user: {
+                status: 'ACTIVE',
+              },
+              acceptsNewPatients: true,
+            },
+          },
+        },
+      },
+      select: {
+        id: true,
+        name: true,
+        city: true,
+        address: true,
+      },
+      orderBy: [{ name: 'asc' }],
+    })
+
+    const cabinetsWithCounts = await Promise.all(
+      cabinets.map(async (cabinet) => {
+        const practitionersCount = await prisma.cabinetPractitioner.count({
+          where: {
+            cabinetId: cabinet.id,
+            leftAt: null,
+            practitioner: {
+              user: {
+                status: 'ACTIVE',
+              },
+              acceptsNewPatients: true,
+            },
+          },
+        })
+
+        return {
+          id: cabinet.id,
+          name: cabinet.name,
+          city: cabinet.city,
+          address: cabinet.address,
+          practitionersCount,
+        }
+      }),
+    )
+
+    return cabinetsWithCounts
+  }
+
+  async getCabinetById(id: string) {
+    const cabinet = await prisma.cabinet.findUnique({
+      where: { id },
+      select: {
+        id: true,
+        name: true,
+        city: true,
+        address: true,
+        phone: true,
+        openHours: true,
+        isVerified: true,
+      },
+    })
+
+    return cabinet
+  }
+
   async getPractitionerById(
     id: string,
   ): Promise<PractitionerDetailResponse | null> {
@@ -204,6 +315,18 @@ export class PractitionersService {
             title: true,
             institution: true,
             yearObtained: true,
+          },
+        },
+        cabinets: {
+          where: {
+            leftAt: null,
+            isPaused: false,
+            cabinet: {
+              isVerified: true,
+            },
+          },
+          include: {
+            cabinet: true,
           },
         },
         user: {
@@ -232,6 +355,11 @@ export class PractitionersService {
       return null
     }
 
+    const activeCabinet =
+      practitioner.cabinets && practitioner.cabinets.length > 0
+        ? practitioner.cabinets[0].cabinet
+        : null
+
     // temp empty arrays for languages and photos : to add in schema later
     return {
       id: practitioner.id,
@@ -240,9 +368,12 @@ export class PractitionersService {
       title: practitioner.title,
       phone: practitioner.phone,
       bio: practitioner.bio,
-      clinicName: practitioner.clinicName,
-      address: practitioner.address,
-      city: practitioner.city,
+      clinicName: activeCabinet ? activeCabinet.name : practitioner.clinicName,
+      address: activeCabinet ? activeCabinet.address : practitioner.address,
+      city:
+        activeCabinet && activeCabinet.city
+          ? activeCabinet.city
+          : practitioner.city,
       latitude: practitioner.latitude,
       longitude: practitioner.longitude,
       baseConsultationFee: Number(practitioner.baseConsultationFee),
@@ -371,6 +502,24 @@ export class PractitionersService {
       },
     })
 
+    // fetch active cabinet membership (nonpaused, nonqiuit, verified cabinet)
+    const activeCabinetMembership = await prisma.cabinetPractitioner.findFirst({
+      where: {
+        practitionerId,
+        leftAt: null,
+        isPaused: false,
+        cabinet: { isVerified: true },
+      },
+      include: {
+        cabinet: { select: { openHours: true } },
+      },
+    })
+
+    const cabinetOpenHours = activeCabinetMembership?.cabinet?.openHours as
+      | Record<string, { open?: string; close?: string; closed?: boolean }>
+      | null
+      | undefined
+
     // earliest bookable time = now + minBookingNotice
     const earliestBookable = new Date(
       now.getTime() + minBookingNotice * 60 * 1000,
@@ -446,10 +595,19 @@ export class PractitionersService {
           slots.push(...availableSlots)
         }
 
-        if (slots.length > 0) {
+        // if practitioner has an active cabinet, only show slots on days the cabinet is open
+        let finalSlots = slots
+        if (cabinetOpenHours) {
+          const dayHours = cabinetOpenHours[dayOfWeek]
+          if (dayHours?.closed) {
+            finalSlots = []
+          }
+        }
+
+        if (finalSlots.length > 0) {
           result.push({
             date: dateStr,
-            slots: slots.sort(),
+            slots: finalSlots.sort(),
           })
         }
       }
@@ -500,6 +658,32 @@ export class PractitionersService {
         startTime: true,
       },
     })
+
+    // fetch active cabinet membership for open hours filtering
+    const activeCabinetMembership = await prisma.cabinetPractitioner.findFirst({
+      where: {
+        practitionerId,
+        leftAt: null,
+        isPaused: false,
+        cabinet: { isVerified: true },
+      },
+      include: {
+        cabinet: { select: { openHours: true } },
+      },
+    })
+
+    const cabinetOpenHours = activeCabinetMembership?.cabinet?.openHours as
+      | Record<string, { open?: string; close?: string; closed?: boolean }>
+      | null
+      | undefined
+
+    // if cabinet is closed on this day, no slots available
+    if (cabinetOpenHours) {
+      const dayHours = cabinetOpenHours[dayOfWeek]
+      if (dayHours?.closed) {
+        return []
+      }
+    }
 
     const bookedSlots = appointments.map((a) => a.startTime)
     const slots: string[] = []

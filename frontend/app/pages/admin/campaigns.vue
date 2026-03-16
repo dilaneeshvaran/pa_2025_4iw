@@ -128,7 +128,7 @@
                   type="date"
                   class="w-full rounded-lg border border-gray-300 px-3 py-2 text-sm focus:border-red-500 focus:ring-red-500"
                 />
-                <span class="text-gray-400">—</span>
+                <span class="text-gray-400">-</span>
                 <input
                   v-model="customDateTo"
                   type="date"
@@ -439,7 +439,7 @@
           class="flex items-center justify-between border-t border-gray-200 bg-gray-50 px-4 py-3"
         >
           <p class="text-sm text-gray-600">
-            Page {{ historyPage }} / {{ historyTotalPages }} —
+            Page {{ historyPage }} / {{ historyTotalPages }} -
             {{ historyTotal }} résultat{{ historyTotal > 1 ? "s" : "" }}
           </p>
           <div class="flex gap-2">
@@ -529,7 +529,7 @@
           <div>
             <h4 class="mb-1 text-sm font-medium text-gray-500">Canaux</h4>
             <p class="text-sm text-gray-900">
-              {{ (selectedCampaign.channels || []).join(", ") || "—" }}
+              {{ (selectedCampaign.channels || []).join(", ") || "-" }}
             </p>
           </div>
 
@@ -973,11 +973,11 @@ function recipientName(r: any): string {
   if (r.patient) return `${r.patient.firstName} ${r.patient.lastName}`;
   if (r.practitioner)
     return `${r.practitioner.firstName} ${r.practitioner.lastName}`;
-  return "—";
+  return "-";
 }
 
 function formatDate(dateStr: string) {
-  if (!dateStr) return "—";
+  if (!dateStr) return "-";
   return new Date(dateStr).toLocaleDateString("fr-FR", {
     day: "numeric",
     month: "short",

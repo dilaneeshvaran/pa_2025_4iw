@@ -617,3 +617,86 @@ export async function sendPractitionerAbsentNotification(
 
   await sendEmail(to, 'Téléconsultation annulée - MediCôte', html)
 }
+
+export async function sendStaffAccountCreatedEmail(
+  to: string,
+  firstName: string,
+  generatedPassword: string,
+): Promise<void> {
+  const html = `
+    <!DOCTYPE html>
+    <html>
+      <head>
+        <meta charset="utf-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1.0">
+        <title>Votre compte personnel MediCôte</title>
+      </head>
+      <body style="font-family: Arial, sans-serif; line-height: 1.6; color: #333; max-width: 600px; margin: 0 auto; padding: 20px;">
+        <div style="background-color: #0066cc; color: white; padding: 20px; text-align: center; border-radius: 5px 5px 0 0;">
+          <h1 style="margin: 0;">MediCôte</h1>
+        </div>
+        <div style="background-color: #f9f9f9; padding: 30px; border-radius: 0 0 5px 5px;">
+          <h2 style="color: #0066cc; margin-top: 0;">Bienvenue ${firstName} !</h2>
+          <p>Un compte personnel a été créé pour vous sur MediCôte.</p>
+          <p>Voici vos identifiants de connexion :</p>
+
+          <div style="background-color: white; border: 1px solid #e0e0e0; border-radius: 8px; padding: 20px; margin: 20px 0;">
+            <p style="margin: 8px 0;"><strong>Email :</strong> ${to}</p>
+            <p style="margin: 8px 0;"><strong>Mot de passe temporaire :</strong> ${generatedPassword}</p>
+          </div>
+
+          <div style="background-color: #fff3cd; border: 1px solid #ffc107; border-radius: 8px; padding: 15px; margin: 20px 0;">
+            <p style="margin: 0; color: #856404;"><strong>Important :</strong> Nous vous recommandons de changer votre mot de passe dès votre première connexion.</p>
+          </div>
+
+          <div style="text-align: center; margin: 30px 0;">
+            <a href="${APP_URL}/auth/login" style="background-color: #0066cc; color: white; padding: 12px 30px; text-decoration: none; border-radius: 5px; display: inline-block; font-weight: bold;">Se connecter</a>
+          </div>
+        </div>
+        <div style="text-align: center; margin-top: 20px; color: #999; font-size: 12px;">
+          <p>© ${new Date().getFullYear()} MediCôte. Tous droits réservés.</p>
+        </div>
+      </body>
+    </html>
+  `
+
+  await sendEmail(to, 'Votre compte personnel MediCôte', html)
+}
+
+export async function sendCabinetInvitationEmail(
+  to: string,
+  cabinetName: string,
+): Promise<void> {
+  const html = `
+    <!DOCTYPE html>
+    <html>
+      <head>
+        <meta charset="utf-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1.0">
+        <title>Invitation à rejoindre un cabinet</title>
+      </head>
+      <body style="font-family: Arial, sans-serif; line-height: 1.6; color: #333; max-width: 600px; margin: 0 auto; padding: 20px;">
+        <div style="background-color: #0066cc; color: white; padding: 20px; text-align: center; border-radius: 5px 5px 0 0;">
+          <h1 style="margin: 0;">MediCôte</h1>
+        </div>
+        <div style="background-color: #f9f9f9; padding: 30px; border-radius: 0 0 5px 5px;">
+          <h2 style="color: #0066cc; margin-top: 0;">Invitation à rejoindre un cabinet</h2>
+          <p>Bonjour,</p>
+          <p>Le cabinet <strong>${cabinetName}</strong> vous invite à rejoindre leur équipe sur MediCôte.</p>
+
+          <div style="text-align: center; margin: 30px 0;">
+            <a href="${APP_URL}/auth/login" style="background-color: #0066cc; color: white; padding: 12px 30px; text-decoration: none; border-radius: 5px; display: inline-block; font-weight: bold;">Voir l'invitation</a>
+          </div>
+
+          <p style="color: #666; font-size: 14px; margin-top: 30px;">Cette invitation expirera dans 7 jours.</p>
+          <p style="color: #666; font-size: 14px;">Si vous ne souhaitez pas rejoindre ce cabinet, vous pouvez ignorer cet email.</p>
+        </div>
+        <div style="text-align: center; margin-top: 20px; color: #999; font-size: 12px;">
+          <p>© ${new Date().getFullYear()} MediCôte. Tous droits réservés.</p>
+        </div>
+      </body>
+    </html>
+  `
+
+  await sendEmail(to, `Invitation à rejoindre ${cabinetName} - MediCôte`, html)
+}

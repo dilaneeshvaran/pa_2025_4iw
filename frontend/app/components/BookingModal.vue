@@ -584,6 +584,7 @@ interface AvailableSlot {
 interface Props {
   isOpen: boolean;
   practitioner: Practitioner | null;
+  cabinetId?: string;
   preselectedDate?: string | null;
   preselectedTime?: string | null;
 }
@@ -989,6 +990,7 @@ const handleSubmit = async () => {
       method: "POST",
       body: {
         practitionerId: props.practitioner.id,
+        cabinetId: props.cabinetId,
         appointmentDate: selectedDate.value,
         startTime: selectedTime.value,
         type: appointmentType.value,
