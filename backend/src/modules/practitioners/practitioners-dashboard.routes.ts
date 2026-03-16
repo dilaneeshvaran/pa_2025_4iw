@@ -7,6 +7,7 @@ import {
   updateBillingConfigSchema,
   updatePractitionerProfileSchema,
 } from './practitioners-dashboard.schema'
+import { createStaffSchema, updateStaffSchema } from '../cabinet/cabinet.schema'
 
 export async function practitionerDashboardRoutes(fastify: FastifyInstance) {
   fastify.get(
@@ -126,6 +127,57 @@ export async function practitionerDashboardRoutes(fastify: FastifyInstance) {
     '/subscription/cancel',
     { preHandler: [authenticate, authorize(['PRACTITIONER'])] },
     practitionerDashboardController.cancelSubscription.bind(
+      practitionerDashboardController,
+    ),
+  )
+
+  //staff management for practicien
+  fastify.get(
+    '/staff',
+    {
+      preHandler: [authenticate, authorize(['PRACTITIONER'])],
+      schema: { tags: ['practitioner-dashboard'] },
+    },
+    practitionerDashboardController.getStaff.bind(
+      practitionerDashboardController,
+    ),
+  )
+
+  fastify.post(
+    '/staff',
+    {
+      preHandler: [authenticate, authorize(['PRACTITIONER'])],
+      schema: {
+        body: createStaffSchema,
+        tags: ['practitioner-dashboard'],
+      },
+    },
+    practitionerDashboardController.createStaff.bind(
+      practitionerDashboardController,
+    ),
+  )
+
+  fastify.patch(
+    '/staff/:id',
+    {
+      preHandler: [authenticate, authorize(['PRACTITIONER'])],
+      schema: {
+        body: updateStaffSchema,
+        tags: ['practitioner-dashboard'],
+      },
+    },
+    practitionerDashboardController.updateStaff.bind(
+      practitionerDashboardController,
+    ),
+  )
+
+  fastify.delete(
+    '/staff/:id',
+    {
+      preHandler: [authenticate, authorize(['PRACTITIONER'])],
+      schema: { tags: ['practitioner-dashboard'] },
+    },
+    practitionerDashboardController.removeStaff.bind(
       practitionerDashboardController,
     ),
   )

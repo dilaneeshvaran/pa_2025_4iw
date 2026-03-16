@@ -5,6 +5,7 @@ import {
   createTodoSchema,
   updateBillingConfigSchema,
 } from './practitioners-dashboard.schema'
+import { cabinetService } from '../cabinet/cabinet.service'
 
 export class PractitionerDashboardController {
   async getDashboard(request: FastifyRequest, reply: FastifyReply) {
@@ -69,7 +70,6 @@ export class PractitionerDashboardController {
     } catch (error) {
       request.log.error(error)
 
-      // handle zod
       if (error instanceof Error && error.name === 'ZodError') {
         return reply.status(400).send({
           success: false,
@@ -302,6 +302,123 @@ export class PractitionerDashboardController {
         practitioner.id,
       )
       return reply.send({ success: true, data })
+    } catch (e: any) {
+      return reply.status(500).send({ success: false, message: e.message })
+    }
+  }
+
+  //staff management
+  async getStaff(request: FastifyRequest, reply: FastifyReply) {
+    try {
+      const user = request.user as { id: string }
+      const practitioner = await prisma.practitioner.findUnique({
+        where: { userId: user.id },
+        select: { id: true },
+      })
+      if (!practitioner)
+        return reply.status(404).send({ success: false, message: 'Not found' })
+
+      const staff = await prisma.staff.findMany({
+        where: { practitionerId: practitioner.id },
+        include: {
+          user: { select: { email: true, status: true } },
+        },
+      })
+
+      return reply.send({ success: true, data: staff })
+    } catch (e: any) {
+      return reply.status(500).send({ success: false, message: e.message })
+    }
+  }
+
+  async createStaff(request: FastifyRequest, reply: FastifyReply) {
+    try {
+      const user = request.user as { id: string }
+      const practitioner = await prisma.practitioner.findUnique({
+        where: { userId: user.id },
+        select: { id: true },
+      })
+      if (!practitioner)
+        return reply.status(404).send({ success: false, message: 'Not found' })
+
+      const body = request.body as {
+        email: string
+        firstName: string
+        lastName: string
+        phone: string
+        position: string
+      }
+
+      const data = await cabinetService.createStaff(
+        user.id,
+        body,
+        false,
+        practitioner.id,
+      )
+
+      return reply.status(201).send({ success: true, data })
+    } catch (e: any) {
+      return reply.status(400).send({ success: false, message: e.message })
+    }
+  }
+
+  async updateStaff(request: FastifyRequest, reply: FastifyReply) {
+    try {
+      const user = request.user as { id: string }
+      const { id: staffId } = request.params as { id: string }
+      const { position } = request.body as { position: string }
+      const practitioner = await prisma.practitioner.findUnique({
+        where: { userId: user.id },
+        select: { id: true },
+      })
+      if (!practitioner)
+        return reply.status(404).send({ success: false, message: 'Not found' })
+
+      const staff = await prisma.staff.findFirst({
+        where: { id: staffId, practitionerId: practitioner.id },
+      })
+      if (!staff)
+        return reply
+          .status(404)
+          .send({ success: false, message: 'Staff not found' })
+
+      const updated = await prisma.staff.update({
+        where: { id: staffId },
+        data: { position },
+        include: {
+          user: { select: { email: true, status: true } },
+        },
+      })
+
+      return reply.send({ success: true, data: updated })
+    } catch (e: any) {
+      return reply.status(400).send({ success: false, message: e.message })
+    }
+  }
+
+  async removeStaff(request: FastifyRequest, reply: FastifyReply) {
+    try {
+      const user = request.user as { id: string }
+      const { id: staffId } = request.params as { id: string }
+      const practitioner = await prisma.practitioner.findUnique({
+        where: { userId: user.id },
+        select: { id: true },
+      })
+      if (!practitioner)
+        return reply.status(404).send({ success: false, message: 'Not found' })
+
+      const staff = await prisma.staff.findFirst({
+        where: { id: staffId, practitionerId: practitioner.id },
+      })
+      if (!staff)
+        return reply
+          .status(404)
+          .send({ success: false, message: 'Staff not found' })
+
+      await prisma.staff.delete({ where: { id: staffId } })
+      await prisma.user.delete({ where: { id: staff.userId } })
+
+      return reply.send({ success: true, message: 'Personnel supprimé' })
     } catch (e: any) {
       return reply.status(500).send({ success: false, message: e.message })
     }

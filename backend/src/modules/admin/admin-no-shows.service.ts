@@ -302,7 +302,7 @@ export class AdminNoShowsService {
             <h1 style="margin: 0;">MediCôte</h1>
           </div>
           <div style="background-color: #f9f9f9; padding: 30px; border-radius: 0 0 5px 5px;">
-            <h2 style="color: #e65100; margin-top: 0;">⚠️ Avertissement — Absences répétées</h2>
+            <h2 style="color: #e65100; margin-top: 0;">⚠️ Avertissement - Absences répétées</h2>
             <p>Bonjour ${patient.firstName} ${patient.lastName},</p>
             <p>Nous avons constaté que vous avez accumulé <strong>${patient.noShowCount} absence(s)</strong> à vos rendez-vous sur MediCôte.</p>
             <p>Les absences non justifiées ont un impact sur l'organisation des praticiens et empêchent d'autres patients de bénéficier de créneaux disponibles.</p>
@@ -321,7 +321,7 @@ export class AdminNoShowsService {
 
     await sendEmail(
       patient.user.email,
-      'Avertissement — Absences répétées - MediCôte',
+      'Avertissement - Absences répétées - MediCôte',
       html,
     )
 

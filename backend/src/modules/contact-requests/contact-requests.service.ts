@@ -3,13 +3,19 @@ import { ContactRequestStatus, UserRole, UserStatus } from '@prisma/client'
 import { hashPassword } from '../../utils/bcrypt'
 import { generateToken } from '../../utils/crypto'
 import { sendEmail, sendPasswordResetEmail } from '../../utils/email'
+import { normalizeEmail } from '../../utils/normalize-email'
 import crypto from 'crypto'
 
 export class ContactRequestsService {
   async createContactRequest(data: Record<string, any>) {
+    const normalizedEmail = normalizeEmail(data.email)
+    const normalizedAdminContactEmail = data.adminContactEmail
+      ? normalizeEmail(data.adminContactEmail)
+      : null
+
     const existingRequest = await prisma.contactRequest.findFirst({
       where: {
-        email: data.email,
+        email: normalizedEmail,
         status: {
           in: ['PENDING', 'CONTACTED'],
         },
@@ -22,8 +28,8 @@ export class ContactRequestsService {
       )
     }
 
-    const existingUser = await prisma.user.findUnique({
-      where: { email: data.email },
+    const existingUser = await prisma.user.findFirst({
+      where: { email: { equals: normalizedEmail, mode: 'insensitive' } },
     })
 
     if (existingUser) {
@@ -37,7 +43,7 @@ export class ContactRequestsService {
         requestType: data.requestType,
         firstName: data.firstName,
         lastName: data.lastName,
-        email: data.email,
+        email: normalizedEmail,
         phone: data.phone,
         postalCode: data.postalCode || null,
         specialty: data.specialty || null,
@@ -50,7 +56,7 @@ export class ContactRequestsService {
         cabinetAddress: data.cabinetAddress || null,
         cabinetRccm: data.cabinetRccm || null,
         adminContactName: data.adminContactName || null,
-        adminContactEmail: data.adminContactEmail || null,
+        adminContactEmail: normalizedAdminContactEmail,
         adminContactPhone: data.adminContactPhone || null,
         cabinetRegDocPath: data.cabinetRegDocPath || null,
         status: 'PENDING',
@@ -124,8 +130,13 @@ export class ContactRequestsService {
       throw new Error('Cette demande a déjà été traitée')
     }
 
-    const existingUser = await prisma.user.findUnique({
-      where: { email: request.email },
+    const normalizedRequestEmail = normalizeEmail(request.email)
+    const normalizedAdminContactEmail = request.adminContactEmail
+      ? normalizeEmail(request.adminContactEmail)
+      : normalizedRequestEmail
+
+    const existingUser = await prisma.user.findFirst({
+      where: { email: { equals: normalizedRequestEmail, mode: 'insensitive' } },
     })
     if (existingUser) {
       throw new Error('Un compte existe déjà avec cet email')
@@ -139,7 +150,7 @@ export class ContactRequestsService {
       // create user + practitioner profile
       const user = await prisma.user.create({
         data: {
-          email: request.email,
+          email: normalizedRequestEmail,
           password: hashedPassword,
           role: UserRole.PRACTITIONER,
           status: UserStatus.ACTIVE,
@@ -197,6 +208,17 @@ export class ContactRequestsService {
 
       return { success: true, userId: user.id }
     } else if (request.requestType === 'CABINET') {
+      // create admin user for cabinet
+      const user = await prisma.user.create({
+        data: {
+          email: normalizedAdminContactEmail,
+          password: hashedPassword,
+          role: UserRole.CABINET_ADMIN,
+          status: UserStatus.ACTIVE,
+          emailVerified: new Date(),
+        },
+      })
+
       // create cabinet entry for cabinet
       const cabinet = await prisma.cabinet.create({
         data: {
@@ -206,23 +228,15 @@ export class ContactRequestsService {
           adminContactName:
             request.adminContactName ||
             request.firstName + ' ' + request.lastName,
-          adminContactEmail: request.adminContactEmail || request.email,
+          adminContactEmail: normalizedAdminContactEmail,
           adminContactPhone: request.adminContactPhone || request.phone,
           registrationDocPath: request.cabinetRegDocPath || null,
           isVerified: true,
           verifiedAt: new Date(),
           contactRequestId: id,
-        },
-      })
-
-      // create admin user for cabinet
-      const user = await prisma.user.create({
-        data: {
-          email: request.adminContactEmail || request.email,
-          password: hashedPassword,
-          role: UserRole.STAFF,
-          status: UserStatus.ACTIVE,
-          emailVerified: new Date(),
+          adminUser: {
+            connect: { id: user.id },
+          },
         },
       })
 
@@ -249,7 +263,7 @@ export class ContactRequestsService {
       })
 
       await this.sendApprovalEmail(
-        request.adminContactEmail || request.email,
+        normalizedAdminContactEmail,
         request.adminContactName || request.firstName,
         tempPassword,
         resetToken,

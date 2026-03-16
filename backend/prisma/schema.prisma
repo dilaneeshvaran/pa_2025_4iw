@@ -37,6 +37,7 @@ model User {
   refreshTokens           RefreshToken[]
   sessions                Session[]
   staff                   Staff?
+  adminOfCabinet          Cabinet?                 @relation("CabinetAdmin")
 
   @@index([email])
   @@index([googleId])
@@ -227,6 +228,7 @@ model Practitioner {
   teleconsultationSessions TeleconsultationSession[]
   virtualQueueEntries      VirtualQueue[]
   cabinets                 CabinetPractitioner[]
+  cabinetInvitations       CabinetInvitation[]
   campaignRecipients       CampaignRecipient[]
 
   @@index([userId])
@@ -265,23 +267,26 @@ model PractitionerSpecialty {
 }
 
 model Staff {
-  id                    String       @id @default(cuid())
-  userId                String       @unique
-  practitionerId        String
+  id                    String        @id @default(cuid())
+  userId                String        @unique
+  practitionerId        String?
+  cabinetId             String?
   firstName             String
   lastName              String
   phone                 String
   position              String
-  canManageAppointments Boolean      @default(true)
-  canViewMedicalRecords Boolean      @default(false)
-  canManagePayments     Boolean      @default(false)
-  createdAt             DateTime     @default(now())
-  updatedAt             DateTime     @updatedAt
-  practitioner          Practitioner @relation(fields: [practitionerId], references: [id], onDelete: Cascade)
-  user                  User         @relation(fields: [userId], references: [id], onDelete: Cascade)
+  canManageAppointments Boolean       @default(true)
+  canViewMedicalRecords Boolean       @default(false)
+  canManagePayments     Boolean       @default(false)
+  createdAt             DateTime      @default(now())
+  updatedAt             DateTime      @updatedAt
+  practitioner          Practitioner? @relation(fields: [practitionerId], references: [id], onDelete: Cascade)
+  cabinet               Cabinet?      @relation(fields: [cabinetId], references: [id], onDelete: Cascade)
+  user                  User          @relation(fields: [userId], references: [id], onDelete: Cascade)
 
   @@index([userId])
   @@index([practitionerId])
+  @@index([cabinetId])
   @@map("staff")
 }
 
@@ -343,6 +348,7 @@ model Appointment {
   id                      String                   @id @default(cuid())
   patientId               String
   practitionerId          String
+  cabinetId               String?
   appointmentDate         DateTime
   startTime               String
   endTime                 String
@@ -363,12 +369,14 @@ model Appointment {
   updatedAt               DateTime                 @updatedAt
   patient                 Patient                  @relation(fields: [patientId], references: [id], onDelete: Cascade)
   practitioner            Practitioner             @relation(fields: [practitionerId], references: [id], onDelete: Cascade)
+  cabinet                 Cabinet?                 @relation(fields: [cabinetId], references: [id])
   medicalRecord           MedicalRecord?
   payment                 Payment?
   teleconsultationSession TeleconsultationSession?
 
   @@index([patientId])
   @@index([practitionerId])
+  @@index([cabinetId])
   @@index([appointmentDate])
   @@index([status])
   @@index([type])
@@ -623,30 +631,30 @@ model Review {
 }
 
 model Campaign {
-  id                  String              @id @default(cuid())
-  title               String
-  description         String
-  message             String
-  messageType         String              @default("INFO")
-  status              CampaignStatus      @default(DRAFT)
-  targetType          CampaignTargetType
-  targetUserTypes     String[]            @default([])
-  targetAgeMin        Int?
-  targetAgeMax        Int?
-  targetLocations     String[]
-  targetPathologies   String[]
+  id                   String              @id @default(cuid())
+  title                String
+  description          String
+  message              String
+  messageType          String              @default("INFO")
+  status               CampaignStatus      @default(DRAFT)
+  targetType           CampaignTargetType
+  targetUserTypes      String[]            @default([])
+  targetAgeMin         Int?
+  targetAgeMax         Int?
+  targetLocations      String[]
+  targetPathologies    String[]
   targetRegisteredFrom DateTime?
   targetRegisteredTo   DateTime?
-  channels            String[]            @default(["EMAIL"])
-  scheduledAt         DateTime?
-  sentAt              DateTime?
-  totalRecipients     Int                 @default(0)
-  sentCount           Int                 @default(0)
-  failedCount         Int                 @default(0)
-  createdBy           String
-  createdAt           DateTime            @default(now())
-  updatedAt           DateTime            @updatedAt
-  recipients          CampaignRecipient[]
+  channels             String[]            @default(["EMAIL"])
+  scheduledAt          DateTime?
+  sentAt               DateTime?
+  totalRecipients      Int                 @default(0)
+  sentCount            Int                 @default(0)
+  failedCount          Int                 @default(0)
+  createdBy            String
+  createdAt            DateTime            @default(now())
+  updatedAt            DateTime            @updatedAt
+  recipients           CampaignRecipient[]
 
   @@index([status])
   @@index([scheduledAt])
@@ -952,22 +960,32 @@ model ContactRequest {
 }
 
 model Cabinet {
-  id                  String    @id @default(cuid())
+  id                  String                @id @default(cuid())
   name                String
   address             String
+  city                String?
+  country             String                @default("Côte d'Ivoire")
+  phone               String?
   rccm                String?
+  adminUserId         String?               @unique
   adminContactName    String
   adminContactEmail   String
   adminContactPhone   String
   registrationDocPath String?
-  isVerified          Boolean   @default(false)
+  openHours           Json?
+  isVerified          Boolean               @default(false)
   verifiedAt          DateTime?
-  contactRequestId    String?   @unique
-  createdAt           DateTime  @default(now())
-  updatedAt           DateTime  @updatedAt
+  contactRequestId    String?               @unique
+  createdAt           DateTime              @default(now())
+  updatedAt           DateTime              @updatedAt
   practitioners       CabinetPractitioner[]
+  staffMembers        Staff[]
+  invitations         CabinetInvitation[]
+  appointments        Appointment[]
+  adminUser           User?                 @relation("CabinetAdmin", fields: [adminUserId], references: [id])
 
   @@index([name])
+  @@index([adminUserId])
   @@map("cabinets")
 }
 
@@ -975,6 +993,7 @@ model CabinetPractitioner {
   id             String       @id @default(cuid())
   cabinetId      String
   practitionerId String
+  isPaused       Boolean      @default(false)
   joinedAt       DateTime     @default(now())
   leftAt         DateTime?
   cabinet        Cabinet      @relation(fields: [cabinetId], references: [id], onDelete: Cascade)
@@ -984,6 +1003,25 @@ model CabinetPractitioner {
   @@index([cabinetId])
   @@index([practitionerId])
   @@map("cabinet_practitioners")
+}
+
+model CabinetInvitation {
+  id             String       @id @default(cuid())
+  cabinetId      String
+  practitionerId String
+  email          String
+  status         String       @default("PENDING")
+  invitedAt      DateTime     @default(now())
+  respondedAt    DateTime?
+  expiresAt      DateTime
+  cabinet        Cabinet      @relation(fields: [cabinetId], references: [id], onDelete: Cascade)
+  practitioner   Practitioner @relation(fields: [practitionerId], references: [id], onDelete: Cascade)
+
+  @@unique([cabinetId, practitionerId])
+  @@index([cabinetId])
+  @@index([practitionerId])
+  @@index([email])
+  @@map("cabinet_invitations")
 }
 
 model PractitionerTodo {
@@ -1051,6 +1089,7 @@ enum UserRole {
   PATIENT
   PRACTITIONER
   STAFF
+  CABINET_ADMIN
   ADMIN
 }
 
