@@ -474,7 +474,7 @@
                 </p>
                 <p v-if="item.consent" class="mt-1 text-xs text-gray-500">
                   Accepté le
-                  {{ formatConsentDate(item.consent.acceptedAt) }} — Version
+                  {{ formatConsentDate(item.consent.acceptedAt) }} - Version
                   {{ item.consent.version }}
                 </p>
                 <p v-else class="mt-1 text-xs text-amber-600">
@@ -502,7 +502,7 @@
                   class="mt-1 text-xs text-gray-500"
                 >
                   Accepté le
-                  {{ formatConsentDate(dataProcessingConsent.acceptedAt) }} —
+                  {{ formatConsentDate(dataProcessingConsent.acceptedAt) }} -
                   Version
                   {{ dataProcessingConsent.version }}
                 </p>

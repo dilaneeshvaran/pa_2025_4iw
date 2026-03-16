@@ -91,7 +91,7 @@ export const formatRelativeTime = (dateStr: string | null): string => {
   });
 };
 
-// "aujourdhui", "Hier", or "lundi 1 janvier" — for message group headers
+// "aujourdhui", "Hier", or "lundi 1 janvier" - for message group headers
 export const formatDateLabel = (date: Date): string => {
   const now = new Date();
   const today = new Date(now.getFullYear(), now.getMonth(), now.getDate());
@@ -107,7 +107,7 @@ export const formatDateLabel = (date: Date): string => {
   });
 };
 
-// "aujourdhui", "hier", "il y a x jours", or formatted date — for notifications
+// "aujourdhui", "hier", "il y a x jours", or formatted date - for notifications
 export const formatNotificationTime = (dateStr: string): string => {
   const date = new Date(dateStr);
   const now = new Date();

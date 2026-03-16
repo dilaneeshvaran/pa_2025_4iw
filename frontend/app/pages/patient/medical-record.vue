@@ -59,25 +59,25 @@
               :value="
                 profile.dateOfBirth
                   ? calculateAge(profile.dateOfBirth) + ' ans'
-                  : '—'
+                  : '-'
               "
             />
             <InfoField label="Sexe" :value="formatGender(profile.gender)" />
             <InfoField
               label="Taille"
-              :value="profile.height ? `${profile.height} cm` : '—'"
+              :value="profile.height ? `${profile.height} cm` : '-'"
             />
             <InfoField
               label="Poids"
-              :value="profile.weight ? `${profile.weight} kg` : '—'"
+              :value="profile.weight ? `${profile.weight} kg` : '-'"
             />
             <InfoField
               label="Groupe sanguin"
-              :value="profile.bloodType || '—'"
+              :value="profile.bloodType || '-'"
             />
             <InfoField label="Téléphone" :value="profile.phone" />
-            <InfoField label="Ville" :value="profile.city || '—'" />
-            <InfoField label="Adresse" :value="profile.address || '—'" />
+            <InfoField label="Ville" :value="profile.city || '-'" />
+            <InfoField label="Adresse" :value="profile.address || '-'" />
           </div>
         </div>
 

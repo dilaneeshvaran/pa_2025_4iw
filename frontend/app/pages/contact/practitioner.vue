@@ -392,7 +392,7 @@
                   Documents requis
                 </h3>
                 <p class="mb-4 text-sm text-gray-600">
-                  Formats acceptés : PDF, JPG, PNG — Max 5 Mo par fichier
+                  Formats acceptés : PDF, JPG, PNG - Max 5 Mo par fichier
                 </p>
                 <div class="space-y-4">
                   <div>
@@ -651,7 +651,7 @@
                   Document d'enregistrement
                 </h3>
                 <p class="mb-4 text-sm text-gray-600">
-                  Formats acceptés : PDF, JPG, PNG — Max 5 Mo par fichier
+                  Formats acceptés : PDF, JPG, PNG - Max 5 Mo par fichier
                 </p>
                 <div>
                   <label class="mb-2 block text-sm font-medium text-gray-700">

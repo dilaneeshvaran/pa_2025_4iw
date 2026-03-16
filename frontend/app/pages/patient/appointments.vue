@@ -156,15 +156,16 @@
 
                 <!-- address for in person -->
                 <div
-                  v-if="apt.type === 'IN_PERSON' && apt.practitioner.address"
+                  v-if="apt.type === 'IN_PERSON' && (apt.cabinet?.address || apt.practitioner.address)"
                   class="mt-2 flex items-start gap-1.5 text-sm text-gray-500"
                 >
                   <MapPin class="mt-0.5 h-4 w-4 flex-shrink-0 text-gray-400" />
                   <span>
-                    {{ apt.practitioner.address }}
-                    <template v-if="apt.practitioner.city"
-                      >, {{ apt.practitioner.city }}</template
+                    {{ apt.cabinet?.address || apt.practitioner.address }}
+                    <template v-if="apt.cabinet?.city || apt.practitioner.city"
+                      >, {{ apt.cabinet?.city || apt.practitioner.city }}</template
                     >
+                    <span v-if="apt.cabinet" class="ml-1 text-xs font-medium text-blue-600">({{ apt.cabinet.name }})</span>
                   </span>
                 </div>
               </div>
@@ -601,6 +602,12 @@ interface Appointment {
   reason: string | null;
   consultationFee: number;
   practitioner: Practitioner;
+  cabinet?: {
+    id: string;
+    name: string;
+    address: string;
+    city: string | null;
+  } | null;
   teleconsultationSession?: {
     id: string;
     roomId: string;
