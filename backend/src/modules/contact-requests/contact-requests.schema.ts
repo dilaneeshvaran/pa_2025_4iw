@@ -10,7 +10,7 @@ const baseContactFields = {
     .string()
     .min(2, 'Le nom doit contenir au moins 2 caractères')
     .max(100, 'Le nom ne peut pas dépasser 100 caractères'),
-  email: z.string().email('Email invalide'),
+  email: z.string().trim().toLowerCase().email('Email invalide'),
   phone: z
     .string()
     .regex(
@@ -42,7 +42,11 @@ export const createCabinetRequestSchema = z.object({
     .string()
     .min(2, 'Le nom du responsable administratif est requis')
     .max(100),
-  adminContactEmail: z.string().email("L'email du responsable est invalide"),
+  adminContactEmail: z
+    .string()
+    .trim()
+    .toLowerCase()
+    .email("L'email du responsable est invalide"),
   adminContactPhone: z
     .string()
     .regex(/^\+?[0-9]{10,15}$/, 'Numéro du responsable invalide'),

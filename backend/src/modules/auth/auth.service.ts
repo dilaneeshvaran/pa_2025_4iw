@@ -12,12 +12,15 @@ import {
   sendPasswordResetEmail,
   sendWelcomeEmail,
 } from '../../utils/email'
+import { normalizeEmail } from '../../utils/normalize-email'
 import { CreateUserData, AuthResponse, AuthTokens } from './auth.types'
 
 export class AuthService {
   async signup(data: CreateUserData): Promise<AuthResponse> {
-    const existingUser = await prisma.user.findUnique({
-      where: { email: data.email },
+    const normalizedEmail = normalizeEmail(data.email)
+
+    const existingUser = await prisma.user.findFirst({
+      where: { email: { equals: normalizedEmail, mode: 'insensitive' } },
     })
 
     if (existingUser) {
@@ -29,7 +32,7 @@ export class AuthService {
     // Force PATIENT role for public signup
     const user = await prisma.user.create({
       data: {
-        email: data.email,
+        email: normalizedEmail,
         password: hashedPassword,
         role: UserRole.PATIENT, // Always PATIENT for public signup
         status: UserStatus.PENDING_VERIFICATION,
@@ -78,8 +81,10 @@ export class AuthService {
   }
 
   async login(email: string, password: string): Promise<AuthResponse> {
-    const user = await prisma.user.findUnique({
-      where: { email },
+    const normalizedEmail = normalizeEmail(email)
+
+    const user = await prisma.user.findFirst({
+      where: { email: { equals: normalizedEmail, mode: 'insensitive' } },
     })
 
     if (!user || !user.password) {
@@ -196,8 +201,10 @@ export class AuthService {
   }
 
   async resendVerificationEmail(email: string): Promise<void> {
-    const user = await prisma.user.findUnique({
-      where: { email },
+    const normalizedEmail = normalizeEmail(email)
+
+    const user = await prisma.user.findFirst({
+      where: { email: { equals: normalizedEmail, mode: 'insensitive' } },
     })
 
     if (!user) {
@@ -234,8 +241,10 @@ export class AuthService {
   }
 
   async requestPasswordReset(email: string): Promise<void> {
-    const user = await prisma.user.findUnique({
-      where: { email },
+    const normalizedEmail = normalizeEmail(email)
+
+    const user = await prisma.user.findFirst({
+      where: { email: { equals: normalizedEmail, mode: 'insensitive' } },
     })
 
     // dont reveal if user exists or not for security

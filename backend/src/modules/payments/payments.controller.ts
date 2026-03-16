@@ -3,6 +3,48 @@ import { paymentsService } from './payments.service'
 import prisma from '../../config/database'
 
 export class PaymentsController {
+  private async resolvePractitionerId(request: FastifyRequest, reply: FastifyReply, fallbackPractitionerId?: string): Promise<string | null> {
+    const user = request.user as { id: string; role: string }
+
+    if (user.role === 'STAFF') {
+      const staff = await prisma.staff.findUnique({
+        where: { userId: user.id },
+        include: { cabinet: { include: { practitioners: true } } }
+      })
+
+      if (!staff || !staff.canManagePayments) {
+        reply.status(403).send({ success: false, message: 'Accès non autorisé' })
+        return null
+      }
+
+      if (staff.practitionerId) {
+        return staff.practitionerId
+      } else if (staff.cabinetId) {
+        if (!fallbackPractitionerId) {
+          reply.status(400).send({ success: false, message: 'ID du praticien requis' })
+          return null
+        }
+        const isAssociated = staff.cabinet?.practitioners.some(p => p.practitionerId === fallbackPractitionerId && !p.isPaused)
+        if (!isAssociated) {
+          reply.status(403).send({ success: false, message: 'Praticien non associé au cabinet' })
+          return null
+        }
+        return fallbackPractitionerId
+      }
+    } else {
+      const practitioner = await prisma.practitioner.findUnique({
+        where: { userId: user.id },
+        select: { id: true },
+      })
+      if (!practitioner) {
+        reply.status(404).send({ success: false, message: 'Profil praticien non trouvé' })
+        return null
+      }
+      return practitioner.id
+    }
+    return null
+  }
+
   async getPatientPayments(request: FastifyRequest, reply: FastifyReply) {
     try {
       const user = request.user as { id: string; role: string }
@@ -367,22 +409,14 @@ export class PaymentsController {
         limit?: string
         search?: string // allow search by patient name
         status?: string
+        practitionerId?: string
       }
 
-      const practitioner = await prisma.practitioner.findUnique({
-        where: { userId: user.id },
-        select: { id: true },
-      })
-
-      if (!practitioner) {
-        return reply.status(404).send({
-          success: false,
-          message: 'Profil praticien non trouvé',
-        })
-      }
+      const practitionerId = await this.resolvePractitionerId(request, reply, query.practitionerId)
+      if (!practitionerId) return
 
       const result = await paymentsService.getPractitionerInvoices(
-        practitioner.id,
+        practitionerId,
         parseInt(query.page || '1'),
         parseInt(query.limit || '10'),
         query.search,
@@ -404,20 +438,11 @@ export class PaymentsController {
       const user = request.user as { id: string; role: string }
       const body = request.body as any
 
-      const practitioner = await prisma.practitioner.findUnique({
-        where: { userId: user.id },
-        select: { id: true },
-      })
-
-      if (!practitioner) {
-        return reply.status(404).send({
-          success: false,
-          message: 'Profil praticien non trouvé',
-        })
-      }
+      const practitionerId = await this.resolvePractitionerId(request, reply, body.practitionerId)
+      if (!practitionerId) return
 
       const payment = await paymentsService.createCabinetPayment(
-        practitioner.id,
+        practitionerId,
         body.appointmentId,
         body.method,
       )
@@ -442,20 +467,13 @@ export class PaymentsController {
     try {
       const user = request.user as { id: string; role: string }
 
-      const practitioner = await prisma.practitioner.findUnique({
-        where: { userId: user.id },
-        select: { id: true },
-      })
+      const query = request.query as { practitionerId?: string }
 
-      if (!practitioner) {
-        return reply.status(404).send({
-          success: false,
-          message: 'Profil praticien non trouvé',
-        })
-      }
+      const practitionerId = await this.resolvePractitionerId(request, reply, query.practitionerId)
+      if (!practitionerId) return
 
       const appointments =
-        await paymentsService.getPractitionerUnpaidAppointments(practitioner.id)
+        await paymentsService.getPractitionerUnpaidAppointments(practitionerId)
 
       return reply.send({ success: true, data: appointments })
     } catch (error) {
@@ -475,22 +493,14 @@ export class PaymentsController {
     try {
       const user = request.user as { id: string; role: string }
       const { invoiceId } = request.params as { invoiceId: string }
+      const query = request.query as { practitionerId?: string }
 
-      const practitioner = await prisma.practitioner.findUnique({
-        where: { userId: user.id },
-        select: { id: true },
-      })
-
-      if (!practitioner) {
-        return reply.status(404).send({
-          success: false,
-          message: 'Profil praticien non trouvé',
-        })
-      }
+      const practitionerId = await this.resolvePractitionerId(request, reply, query.practitionerId)
+      if (!practitionerId) return
 
       const invoice = await paymentsService.getPractitionerInvoiceDetail(
         invoiceId,
-        practitioner.id,
+        practitionerId,
       )
 
       return reply.send({ success: true, data: invoice })
@@ -511,22 +521,14 @@ export class PaymentsController {
     try {
       const user = request.user as { id: string; role: string }
       const { invoiceId } = request.params as { invoiceId: string }
+      const query = request.query as { practitionerId?: string }
 
-      const practitioner = await prisma.practitioner.findUnique({
-        where: { userId: user.id },
-        select: { id: true },
-      })
-
-      if (!practitioner) {
-        return reply.status(404).send({
-          success: false,
-          message: 'Profil praticien non trouvé',
-        })
-      }
+      const practitionerId = await this.resolvePractitionerId(request, reply, query.practitionerId)
+      if (!practitionerId) return
 
       const pdfBuffer = await paymentsService.generatePractitionerInvoicePdf(
         invoiceId,
-        practitioner.id,
+        practitionerId,
       )
 
       const invoice = await prisma.invoice.findUnique({

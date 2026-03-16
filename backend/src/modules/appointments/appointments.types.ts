@@ -18,6 +18,12 @@ export interface PatientAppointment {
     city: string | null
     cancellationNotice: number
   }
+  cabinet?: {
+    id: string
+    name: string
+    address: string
+    city: string | null
+  } | null
   teleconsultationSession?: {
     id: string
     roomId: string
@@ -41,6 +47,7 @@ export interface PatientAppointmentsResult {
 export interface CreateAppointmentData {
   practitionerId: string
   patientId: string
+  cabinetId?: string
   appointmentDate: string
   startTime: string
   type: 'IN_PERSON' | 'TELECONSULTATION'
