@@ -10,12 +10,15 @@ import { messagesRoutes } from './modules/messages/messages.routes'
 import { paymentsRoutes } from './modules/payments/payments.routes'
 import { patientSettingsRoutes } from './modules/patients/patient-settings.routes'
 import { practitionerDashboardRoutes } from './modules/practitioners/practitioners-dashboard.routes'
+import { practitionerCabinetsRoutes } from './modules/practitioners/practitioner-cabinets.routes'
 import { availabilitiesRoutes } from './modules/availabilities/availabilities.routes'
 import { practitionerPatientsRoutes } from './modules/patients/patients.routes'
 import { teleconsultationsRoutes } from './modules/teleconsultations/teleconsultations.routes'
 import { adminDashboardRoutes } from './modules/admin/admin-dashboard.routes'
 import { adminNoShowsRoutes } from './modules/admin/admin-no-shows.routes'
 import { campaignsRoutes } from './modules/campaigns/campaigns.routes'
+import { cabinetRoutes } from './modules/cabinet/cabinet.routes'
+import { staffRoutes } from './modules/staff/staff.routes'
 
 export async function routes(fastify: FastifyInstance) {
   fastify.register(authRoutes, { prefix: '/api/auth' })
@@ -30,6 +33,9 @@ export async function routes(fastify: FastifyInstance) {
   fastify.register(patientSettingsRoutes, { prefix: '/api/settings' })
   fastify.register(practitionerDashboardRoutes, {
     prefix: '/api/practitioner/dashboard',
+  })
+  fastify.register(practitionerCabinetsRoutes, {
+    prefix: '/api/practitioner/cabinets',
   })
   fastify.register(availabilitiesRoutes, {
     prefix: '/api/practitioner/agenda',
@@ -48,6 +54,12 @@ export async function routes(fastify: FastifyInstance) {
   })
   fastify.register(campaignsRoutes, {
     prefix: '/api/admin/campaigns',
+  })
+  fastify.register(cabinetRoutes, {
+    prefix: '/api/cabinet',
+  })
+  fastify.register(staffRoutes, {
+    prefix: '/api/staff',
   })
 
   fastify.get('/health', async () => {

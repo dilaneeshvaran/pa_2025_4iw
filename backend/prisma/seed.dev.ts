@@ -893,6 +893,7 @@ async function main() {
     data: {
       campaignId: campaign.id,
       patientId: patients[1].id, // Aya Koné (age 40+)
+      email: patientUsers[1].email,
       sent: true,
       sentAt: new Date(),
       delivered: true,

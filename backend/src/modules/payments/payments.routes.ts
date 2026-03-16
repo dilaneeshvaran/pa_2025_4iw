@@ -53,13 +53,13 @@ export async function paymentsRoutes(fastify: FastifyInstance) {
 
   fastify.get(
     '/practitioner/invoices',
-    { preHandler: [authenticate, authorize(['PRACTITIONER'])] },
+    { preHandler: [authenticate, authorize(['PRACTITIONER', 'STAFF'])] },
     paymentsController.getPractitionerInvoices.bind(paymentsController),
   )
 
   fastify.get(
     '/practitioner/unpaid-appointments',
-    { preHandler: [authenticate, authorize(['PRACTITIONER'])] },
+    { preHandler: [authenticate, authorize(['PRACTITIONER', 'STAFF'])] },
     paymentsController.getPractitionerUnpaidAppointments.bind(
       paymentsController,
     ),
@@ -67,7 +67,7 @@ export async function paymentsRoutes(fastify: FastifyInstance) {
 
   fastify.post(
     '/practitioner/cabinet-payment',
-    { preHandler: [authenticate, authorize(['PRACTITIONER'])] },
+    { preHandler: [authenticate, authorize(['PRACTITIONER', 'STAFF'])] },
     async (request, reply) => {
       try {
         createCabinetPaymentSchema.parse(request.body)
@@ -83,13 +83,13 @@ export async function paymentsRoutes(fastify: FastifyInstance) {
 
   fastify.get(
     '/practitioner/invoices/:invoiceId',
-    { preHandler: [authenticate, authorize(['PRACTITIONER'])] },
+    { preHandler: [authenticate, authorize(['PRACTITIONER', 'STAFF'])] },
     paymentsController.getPractitionerInvoiceDetail.bind(paymentsController),
   )
 
   fastify.get(
     '/practitioner/invoices/:invoiceId/download',
-    { preHandler: [authenticate, authorize(['PRACTITIONER'])] },
+    { preHandler: [authenticate, authorize(['PRACTITIONER', 'STAFF'])] },
     paymentsController.downloadPractitionerInvoicePdf.bind(paymentsController),
   )
 

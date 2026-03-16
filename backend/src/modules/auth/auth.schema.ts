@@ -1,7 +1,7 @@
 import { z } from 'zod'
 
 export const signupSchema = z.object({
-  email: z.string().email('Email invalide'),
+  email: z.string().trim().toLowerCase().email('Email invalide'),
   password: z
     .string()
     .min(8, 'Le mot de passe doit contenir au moins 8 caractères')
@@ -22,14 +22,14 @@ export const signupSchema = z.object({
 export type SignupInput = z.infer<typeof signupSchema>
 
 export const loginSchema = z.object({
-  email: z.string().email('Email invalide'),
+  email: z.string().trim().toLowerCase().email('Email invalide'),
   password: z.string().min(1, 'Le mot de passe est requis'),
 })
 
 export type LoginInput = z.infer<typeof loginSchema>
 
 export const requestPasswordResetSchema = z.object({
-  email: z.string().email('Email invalide'),
+  email: z.string().trim().toLowerCase().email('Email invalide'),
 })
 
 export type RequestPasswordResetInput = z.infer<
@@ -65,7 +65,7 @@ export const refreshTokenSchema = z.object({
 export type RefreshTokenInput = z.infer<typeof refreshTokenSchema>
 
 export const resendVerificationSchema = z.object({
-  email: z.string().email('Email invalide'),
+  email: z.string().trim().toLowerCase().email('Email invalide'),
 })
 
 export type ResendVerificationInput = z.infer<typeof resendVerificationSchema>

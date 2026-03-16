@@ -65,7 +65,14 @@ export class AppointmentsService {
                 include: { specialty: true },
                 take: 1,
               },
+              cabinets: {
+                where: { leftAt: null, isPaused: false, cabinet: { isVerified: true } },
+                include: { cabinet: true },
+              },
             },
+          },
+          cabinet: {
+            select: { id: true, name: true, address: true, city: true }
           },
           teleconsultationSession: {
             select: {
@@ -105,28 +112,35 @@ export class AppointmentsService {
       adjustedTotal = Math.max(0, total - removedCount)
     }
 
-    const data: PatientAppointment[] = filteredAppointments.map((apt) => ({
-      id: apt.id,
-      appointmentDate: apt.appointmentDate,
-      startTime: apt.startTime,
-      endTime: apt.endTime,
-      type: apt.type,
-      status: apt.status,
-      reason: apt.reason,
-      consultationFee: Number(apt.consultationFee),
-      practitioner: {
-        id: apt.practitioner.id,
-        firstName: apt.practitioner.firstName,
-        lastName: apt.practitioner.lastName,
-        title: apt.practitioner.title,
-        specialty: apt.practitioner.specialties[0]?.specialty.name || null,
-        photo: null,
-        address: apt.practitioner.address || null,
-        city: apt.practitioner.city || null,
-        cancellationNotice: apt.practitioner.cancellationNotice,
-      },
-      teleconsultationSession: apt.teleconsultationSession || null,
-    }))
+    const data: PatientAppointment[] = filteredAppointments.map((apt) => {
+      const activeCabinet = apt.practitioner.cabinets && apt.practitioner.cabinets.length > 0 
+        ? apt.practitioner.cabinets[0].cabinet 
+        : null;
+
+      return {
+        id: apt.id,
+        appointmentDate: apt.appointmentDate,
+        startTime: apt.startTime,
+        endTime: apt.endTime,
+        type: apt.type,
+        status: apt.status,
+        reason: apt.reason,
+        consultationFee: Number(apt.consultationFee),
+        practitioner: {
+          id: apt.practitioner.id,
+          firstName: apt.practitioner.firstName,
+          lastName: apt.practitioner.lastName,
+          title: apt.practitioner.title,
+          specialty: apt.practitioner.specialties[0]?.specialty.name || null,
+          photo: null,
+          address: activeCabinet ? activeCabinet.address : apt.practitioner.address || null,
+          city: activeCabinet ? activeCabinet.city : apt.practitioner.city || null,
+          cancellationNotice: apt.practitioner.cancellationNotice,
+        },
+        cabinet: apt.cabinet || null,
+        teleconsultationSession: apt.teleconsultationSession || null,
+      };
+    })
 
     return {
       data,
@@ -164,7 +178,14 @@ export class AppointmentsService {
               include: { specialty: true },
               take: 1,
             },
+            cabinets: {
+              where: { leftAt: null, isPaused: false, cabinet: { isVerified: true } },
+              include: { cabinet: true },
+            },
           },
+        },
+        cabinet: {
+          select: { id: true, name: true, address: true, city: true },
         },
       },
     })
@@ -186,6 +207,10 @@ export class AppointmentsService {
       return null
     }
 
+    const activeCabinet = nextAppointment.practitioner.cabinets && nextAppointment.practitioner.cabinets.length > 0 
+      ? nextAppointment.practitioner.cabinets[0].cabinet 
+      : null;
+
     return {
       id: nextAppointment.id,
       appointmentDate: nextAppointment.appointmentDate,
@@ -203,10 +228,11 @@ export class AppointmentsService {
         specialty:
           nextAppointment.practitioner.specialties[0]?.specialty.name || null,
         photo: null,
-        address: nextAppointment.practitioner.address || null,
-        city: nextAppointment.practitioner.city || null,
+        address: activeCabinet ? activeCabinet.address : nextAppointment.practitioner.address || null,
+        city: activeCabinet ? activeCabinet.city : nextAppointment.practitioner.city || null,
         cancellationNotice: nextAppointment.practitioner.cancellationNotice,
       },
+      cabinet: nextAppointment.cabinet || null,
     }
   }
 
@@ -242,7 +268,14 @@ export class AppointmentsService {
               include: { specialty: true },
               take: 1,
             },
+            cabinets: {
+              where: { leftAt: null, isPaused: false, cabinet: { isVerified: true } },
+              include: { cabinet: true },
+            },
           },
+        },
+        cabinet: {
+          select: { id: true, name: true, address: true, city: true },
         },
       },
     })
@@ -270,27 +303,34 @@ export class AppointmentsService {
     })
 
     // slice to limit
-    return filtered.slice(0, limit).map((apt) => ({
-      id: apt.id,
-      appointmentDate: apt.appointmentDate,
-      startTime: apt.startTime,
-      endTime: apt.endTime,
-      type: apt.type,
-      status: apt.status,
-      reason: apt.reason,
-      consultationFee: Number(apt.consultationFee),
-      practitioner: {
-        id: apt.practitioner.id,
-        firstName: apt.practitioner.firstName,
-        lastName: apt.practitioner.lastName,
-        title: apt.practitioner.title,
-        specialty: apt.practitioner.specialties[0]?.specialty.name || null,
-        photo: null,
-        address: apt.practitioner.address || null,
-        city: apt.practitioner.city || null,
-        cancellationNotice: apt.practitioner.cancellationNotice,
-      },
-    }))
+    return filtered.slice(0, limit).map((apt) => {
+      const activeCabinet = apt.practitioner.cabinets && apt.practitioner.cabinets.length > 0 
+        ? apt.practitioner.cabinets[0].cabinet 
+        : null;
+
+      return {
+        id: apt.id,
+        appointmentDate: apt.appointmentDate,
+        startTime: apt.startTime,
+        endTime: apt.endTime,
+        type: apt.type,
+        status: apt.status,
+        reason: apt.reason,
+        consultationFee: Number(apt.consultationFee),
+        practitioner: {
+          id: apt.practitioner.id,
+          firstName: apt.practitioner.firstName,
+          lastName: apt.practitioner.lastName,
+          title: apt.practitioner.title,
+          specialty: apt.practitioner.specialties[0]?.specialty.name || null,
+          photo: null,
+          address: activeCabinet ? activeCabinet.address : apt.practitioner.address || null,
+          city: activeCabinet ? activeCabinet.city : apt.practitioner.city || null,
+          cancellationNotice: apt.practitioner.cancellationNotice,
+        },
+        cabinet: apt.cabinet || null,
+      };
+    })
   }
 
   async createAppointment(
@@ -558,6 +598,7 @@ export class AppointmentsService {
       data: {
         patientId: data.patientId,
         practitionerId: data.practitionerId,
+        cabinetId: data.cabinetId || null,
         appointmentDate,
         startTime: data.startTime,
         endTime,

@@ -2,6 +2,7 @@ import prisma from '../../config/database'
 import { hashPassword, comparePassword } from '../../utils/bcrypt'
 import { generateToken } from '../../utils/crypto'
 import { sendVerificationEmail } from '../../utils/email'
+import { normalizeEmail } from '../../utils/normalize-email'
 import {
   UpdateProfileData,
   UpdateEmailData,
@@ -88,6 +89,8 @@ export class PatientSettingsService {
   }
 
   async updateEmail(userId: string, data: UpdateEmailData) {
+    const normalizedEmail = normalizeEmail(data.newEmail)
+
     const user = await prisma.user.findUnique({ where: { id: userId } })
     if (!user || !user.password) {
       throw new Error('Utilisateur introuvable')
@@ -98,8 +101,8 @@ export class PatientSettingsService {
       throw new Error('Mot de passe incorrect')
     }
 
-    const existing = await prisma.user.findUnique({
-      where: { email: data.newEmail },
+    const existing = await prisma.user.findFirst({
+      where: { email: { equals: normalizedEmail, mode: 'insensitive' } },
     })
     if (existing && existing.id !== userId) {
       throw new Error('Cet email est déjà utilisé')
@@ -113,7 +116,7 @@ export class PatientSettingsService {
     await prisma.emailVerificationToken.create({
       data: {
         userId,
-        email: data.newEmail,
+        email: normalizedEmail,
         token: verificationToken,
         expiresAt,
       },
@@ -123,12 +126,12 @@ export class PatientSettingsService {
     await prisma.user.update({
       where: { id: userId },
       data: {
-        email: data.newEmail,
+        email: normalizedEmail,
         emailVerified: null,
       },
     })
 
-    await sendVerificationEmail(data.newEmail, verificationToken)
+    await sendVerificationEmail(normalizedEmail, verificationToken)
 
     return {
       message: 'Un email de vérification a été envoyé à votre nouvelle adresse',
