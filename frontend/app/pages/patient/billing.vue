@@ -127,7 +127,7 @@
               >
                 Remboursé : {{ payment.refundedAmount.toLocaleString() }} FCFA
                 <span v-if="payment.refundReason"
-                  >— {{ payment.refundReason }}</span
+                  >- {{ payment.refundReason }}</span
                 >
               </div>
             </div>

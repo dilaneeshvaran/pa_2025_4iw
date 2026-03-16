@@ -486,6 +486,7 @@
     <BookingModal
       :is-open="isBookingModalOpen"
       :practitioner="practitioner"
+      :cabinet-id="route.query.cabinetId as string"
       :preselected-date="preselectedDate"
       :preselected-time="preselectedTime"
       @close="isBookingModalOpen = false"

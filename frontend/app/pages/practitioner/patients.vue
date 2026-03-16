@@ -374,7 +374,7 @@
     <!-- pagination -->
     <div v-if="totalPages > 1" class="flex items-center justify-between">
       <p class="text-sm text-gray-600">
-        Page {{ currentPage }} sur {{ totalPages }} — {{ total }} résultat{{
+        Page {{ currentPage }} sur {{ totalPages }} - {{ total }} résultat{{
           total !== 1 ? "s" : ""
         }}
       </p>
