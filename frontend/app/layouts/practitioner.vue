@@ -96,7 +96,9 @@ import {
   Settings,
   Heart,
   Stethoscope,
+  Building,
   LogOut,
+  UserPlus,
 } from "lucide-vue-next";
 import { useAuthStore } from "~/stores/auth";
 import { useMessagingStore } from "~/stores/messaging";
@@ -141,6 +143,8 @@ const menuItems = [
     icon: Video,
   },
   { path: "/practitioner/patients", label: "Patients", icon: Users },
+  { path: "/practitioner/cabinets", label: "Mes Cabinets", icon: Building },
+  { path: "/practitioner/staff", label: "Mon personnel", icon: UserPlus },
   { path: "/practitioner/messages", label: "Messages", icon: MessageSquare },
   { path: "/practitioner/billing", label: "Facturation", icon: CreditCard },
   { path: "/practitioner/statistics", label: "Statistiques", icon: BarChart3 },
@@ -148,9 +152,12 @@ const menuItems = [
   { path: "/practitioner/settings", label: "Paramètres", icon: Settings },
 ];
 
+const route = useRoute();
 const isActive = (path: string) => {
-  const route = useRoute();
-  return route.path === path;
+  if (path === "/practitioner/dashboard") {
+    return route.path === path;
+  }
+  return route.path.startsWith(path);
 };
 
 const handleLogout = async () => {

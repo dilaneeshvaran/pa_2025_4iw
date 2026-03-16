@@ -123,6 +123,7 @@ import { X as XIcon } from "lucide-vue-next";
 const props = defineProps<{
   isOpen: boolean;
   appointment: any;
+  practitionerId?: string;
 }>();
 
 const emit = defineEmits<{
@@ -175,6 +176,7 @@ const submitPayment = async () => {
         amount: form.value.amount,
         method: form.value.method,
         notes: form.value.notes,
+        ...(props.practitionerId && { practitionerId: props.practitionerId }),
       },
     });
 

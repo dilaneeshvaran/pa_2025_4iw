@@ -766,20 +766,20 @@ export class TeleconsultationsService {
       if (!patientJoined && practitionerJoined) {
         // patient didnt join but practitioner did so patient noshow
         errorMessage =
-          'Patient absent — absence détectée automatiquement par le système'
+          'Patient absent - absence détectée automatiquement par le système'
         sessionStatus = 'NO_SHOW'
         appointmentStatus = 'NO_SHOW'
         isPatientNoShow = true
       } else if (patientJoined && !practitionerJoined) {
         // practitioner didnt join so practitioner's fault, no patient noshow
         errorMessage =
-          "Praticien absent — le praticien ne s'est pas connecté à la téléconsultation"
+          "Praticien absent - le praticien ne s'est pas connecté à la téléconsultation"
         sessionStatus = 'FAILED'
         appointmentStatus = 'CANCELLED'
       } else if (!patientJoined && !practitionerJoined) {
         // both didnt join so cancel
         errorMessage =
-          "Aucun participant ne s'est connecté — consultation annulée automatiquement"
+          "Aucun participant ne s'est connecté - consultation annulée automatiquement"
         sessionStatus = 'FAILED'
         appointmentStatus = 'CANCELLED'
       }
@@ -949,7 +949,7 @@ export class TeleconsultationsService {
             data: {
               status: 'NO_SHOW',
               errorMessage:
-                'Patient absent — absence détectée automatiquement par le système',
+                'Patient absent - absence détectée automatiquement par le système',
             },
           })
 

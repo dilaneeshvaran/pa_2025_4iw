@@ -3,6 +3,7 @@ import { practitionersController } from './practitioners.controller'
 import {
   searchPractitionersSchema,
   getPractitionerByIdSchema,
+  getCabinetByIdSchema,
   getAvailableSlotsSchema,
   getPractitionerStatisticsSchema,
 } from './practitioners.schema'
@@ -31,6 +32,29 @@ export async function practitionersRoutes(fastify: FastifyInstance) {
       },
     },
     practitionersController.getSpecialties.bind(practitionersController),
+  )
+
+  fastify.get(
+    '/cabinets',
+    {
+      schema: {
+        tags: ['practitioners'],
+        description: 'Get verified cabinets that have active practitioners',
+      },
+    },
+    practitionersController.getCabinets.bind(practitionersController),
+  )
+
+  fastify.get(
+    '/cabinets/:id',
+    {
+      schema: {
+        params: getCabinetByIdSchema,
+        tags: ['practitioners'],
+        description: 'Get cabinet details by id (public endpoint)',
+      },
+    },
+    practitionersController.getCabinetById.bind(practitionersController),
   )
 
   fastify.get(

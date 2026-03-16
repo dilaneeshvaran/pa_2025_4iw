@@ -1,6 +1,7 @@
 export interface PractitionerSearchFilters {
   search?: string
   specialtyId?: string
+  cabinetId?: string
   city?: string
   teleconsultationEnabled?: boolean
   availableToday?: boolean
@@ -36,6 +37,11 @@ export interface PractitionerSearchResult {
     id: string
     name: string
     isPrimary: boolean
+  }>
+  cabinets?: Array<{
+    id: string
+    name: string
+    city?: string | null
   }>
   availableToday?: boolean
   nextAvailableSlot?: string | null

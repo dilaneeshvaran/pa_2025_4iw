@@ -339,28 +339,28 @@ const loading = ref(true);
 const kpiCards = computed(() => [
   {
     label: "Nouveaux patients ce mois",
-    value: dashboard.value?.newPatientsThisMonth ?? "—",
+    value: dashboard.value?.newPatientsThisMonth ?? "-",
     icon: Users,
     bgColor: "bg-blue-100",
     iconColor: "text-blue-600",
   },
   {
     label: "Nouveaux praticiens ce mois",
-    value: dashboard.value?.newPractitionersThisMonth ?? "—",
+    value: dashboard.value?.newPractitionersThisMonth ?? "-",
     icon: Stethoscope,
     bgColor: "bg-green-100",
     iconColor: "text-green-600",
   },
   {
     label: "RDV ce mois",
-    value: dashboard.value?.appointmentStats.total ?? "—",
+    value: dashboard.value?.appointmentStats.total ?? "-",
     icon: Calendar,
     bgColor: "bg-purple-100",
     iconColor: "text-purple-600",
   },
   {
     label: "Abonnements impayés",
-    value: dashboard.value?.unpaidSubscriptions.length ?? "—",
+    value: dashboard.value?.unpaidSubscriptions.length ?? "-",
     icon: TrendingUp,
     bgColor: "bg-red-100",
     iconColor: "text-red-600",

@@ -2,7 +2,7 @@
   <div>
     <h1 class="mb-2 text-2xl font-bold text-gray-900">Gestion des No-Shows</h1>
     <p class="mb-6 text-gray-600">
-      Patients avec absences répétées — avertissements et sanctions
+      Patients avec absences répétées - avertissements et sanctions
     </p>
 
     <div class="mb-6 rounded-lg border border-gray-200 bg-white p-4">
@@ -295,7 +295,7 @@
       >
         <div class="mb-4 flex items-center justify-between">
           <h2 class="text-lg font-bold text-gray-900">
-            Historique —
+            Historique -
             {{ historyData?.patient.firstName }}
             {{ historyData?.patient.lastName }}
           </h2>
@@ -351,7 +351,7 @@
               <strong>Banni jusqu'au :</strong>
               {{ formatDate(historyData.patient.penaltyUntil) }}
               <span v-if="historyData.patient.penaltyReason">
-                — {{ historyData.patient.penaltyReason }}
+                - {{ historyData.patient.penaltyReason }}
               </span>
             </div>
           </div>
