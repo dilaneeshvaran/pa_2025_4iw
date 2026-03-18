@@ -941,7 +941,7 @@ import {
 
 definePageMeta({
   layout: "practitioner",
-  middleware: "auth",
+  middleware: "practitioner-only",
 });
 
 const authStore = useAuthStore();

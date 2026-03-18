@@ -368,7 +368,7 @@ import type { Component } from "vue";
 
 definePageMeta({
   layout: "patient",
-  middleware: "auth",
+  middleware: "patient-only",
 });
 
 const authStore = useAuthStore();

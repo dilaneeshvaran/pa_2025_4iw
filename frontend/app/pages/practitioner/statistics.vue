@@ -145,7 +145,7 @@ ChartJS.register(
   Filler,
 );
 
-definePageMeta({ layout: "practitioner", middleware: "auth" });
+definePageMeta({ layout: "practitioner", middleware: "practitioner-only" });
 
 const loading = ref(true);
 const selectedPeriod = ref("mois");

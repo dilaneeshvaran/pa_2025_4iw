@@ -282,7 +282,7 @@ import { useAuthStore } from "~/stores/auth";
 
 definePageMeta({
   layout: "admin",
-  middleware: "auth",
+  middleware: "admin-only",
 });
 
 const authStore = useAuthStore();

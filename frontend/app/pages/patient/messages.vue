@@ -592,7 +592,7 @@ import {
 
 definePageMeta({
   layout: "patient",
-  middleware: "auth",
+  middleware: "patient-only",
 });
 
 // state

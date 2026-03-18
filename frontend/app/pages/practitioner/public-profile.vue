@@ -243,7 +243,7 @@ import { useToast } from "vue-toastification";
 
 definePageMeta({
   layout: "practitioner",
-  middleware: "auth",
+  middleware: "practitioner-only",
 });
 
 const toast = useToast();
