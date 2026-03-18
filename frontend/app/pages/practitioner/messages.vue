@@ -756,7 +756,7 @@ import { useMessagingStore } from "~/stores/messaging";
 
 definePageMeta({
   layout: "practitioner",
-  middleware: "auth",
+  middleware: "practitioner-only",
 });
 
 const authStore = useAuthStore();

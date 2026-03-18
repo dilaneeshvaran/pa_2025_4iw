@@ -587,7 +587,7 @@ import { useAuthStore } from "~/stores/auth";
 
 definePageMeta({
   layout: "admin",
-  middleware: "auth",
+  middleware: "admin-only",
 });
 
 interface ContactRequest {

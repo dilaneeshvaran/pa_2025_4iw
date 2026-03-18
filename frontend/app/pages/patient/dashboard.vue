@@ -418,7 +418,7 @@ import { getStatusVariant, getStatusLabel } from "~/utils/status";
 
 definePageMeta({
   layout: "patient",
-  middleware: "auth",
+  middleware: "patient-only",
 });
 
 const authStore = useAuthStore();

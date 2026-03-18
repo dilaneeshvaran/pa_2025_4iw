@@ -48,7 +48,7 @@ import PractitionerBillingConfiguration from "~/components/practitioner/BillingC
 
 definePageMeta({
   layout: "practitioner",
-  middleware: "auth",
+  middleware: "practitioner-only",
 });
 
 const activeTab = ref("received");
