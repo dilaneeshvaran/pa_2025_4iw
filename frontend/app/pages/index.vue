@@ -164,4 +164,8 @@ const handleSearch = () => {
 onMounted(() => {
   authStore.initAuth();
 });
+
+definePageMeta({
+  layout: 'default',
+});
 </script>

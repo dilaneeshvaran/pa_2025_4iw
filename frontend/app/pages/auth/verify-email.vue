@@ -156,6 +156,10 @@ const resendEmail = ref("");
 const resendLoading = ref(false);
 const resendEmailSent = ref(false);
 
+definePageMeta({
+  layout: 'default',
+});
+
 onMounted(async () => {
   // get token from url query parameter
   const token = (route.query.token as string) || "";
