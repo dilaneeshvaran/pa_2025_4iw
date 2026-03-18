@@ -856,7 +856,7 @@ import { getStatusVariant, getStatusLabel } from "~/utils/status";
 
 definePageMeta({
   layout: "practitioner",
-  middleware: "auth",
+  middleware: "practitioner-only",
 });
 
 interface CabinetAppointment {

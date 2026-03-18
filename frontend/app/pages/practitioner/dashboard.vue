@@ -426,7 +426,7 @@ import { getStatusVariant, getStatusLabel } from "~/utils/status";
 
 definePageMeta({
   layout: "practitioner",
-  middleware: "auth",
+  middleware: "practitioner-only",
 });
 
 const authStore = useAuthStore();

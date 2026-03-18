@@ -432,7 +432,7 @@ import PatientDetailModal from "~/components/PatientDetailModal.vue";
 
 definePageMeta({
   layout: "practitioner",
-  middleware: "auth",
+  middleware: "practitioner-only",
 });
 
 interface AppointmentBrief {

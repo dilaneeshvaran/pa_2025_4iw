@@ -574,7 +574,7 @@ import {
 
 definePageMeta({
   layout: "admin",
-  middleware: "auth",
+  middleware: "admin-only",
 });
 
 interface PatientNoShow {

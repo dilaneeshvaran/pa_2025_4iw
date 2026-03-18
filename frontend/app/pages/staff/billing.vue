@@ -71,7 +71,7 @@ import PractitionerBillingReceived from "~/components/practitioner/BillingReceiv
 
 definePageMeta({
   layout: "staff",
-  middleware: "auth",
+  middleware: "staff-only",
 });
 
 const loading = ref(true);

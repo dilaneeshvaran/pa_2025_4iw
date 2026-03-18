@@ -652,7 +652,7 @@ import { useAuthenticatedFetch } from "~/composables/useAuthenticatedFetch";
 
 definePageMeta({
   layout: "admin",
-  middleware: "auth",
+  middleware: "admin-only",
 });
 
 const activeTab = ref<"compose" | "history">("compose");
