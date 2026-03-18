@@ -792,6 +792,11 @@ onMounted(async () => {
     }
   }
 });
+
+definePageMeta({
+  layout: false,
+  middleware: "patient-only",
+});
 </script>
 
 <style scoped></style>

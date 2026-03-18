@@ -1,4 +1,5 @@
-export default defineNuxtRouteMiddleware((_to, _from) => {
+export default defineNuxtRouteMiddleware((to, _from) => {
+  // skip during ssr - we cant access localstorage on the server
   if (import.meta.server) {
     return;
   }
@@ -10,10 +11,18 @@ export default defineNuxtRouteMiddleware((_to, _from) => {
     authStore.initAuth();
   }
 
-  if (authStore.isAuthenticated) {
-    // redirect to dashboard based on role
+  // redirect to login if not authenticated
+  if (!authStore.isAuthenticated) {
+    return navigateTo({
+      path: "/auth/login",
+      query: { redirect: to.fullPath },
+    });
+  }
+
+  // block practitioners, staff, cabinet admins, admins from accessing patient only pages
+  if (authStore.user?.role !== "PATIENT") {
+    // redirect to their appropriate dashboard
     const dashboardMap: Record<string, string> = {
-      PATIENT: "/patient/dashboard",
       PRACTITIONER: "/practitioner/dashboard",
       STAFF: "/staff/dashboard",
       CABINET_ADMIN: "/cabinet/dashboard",
