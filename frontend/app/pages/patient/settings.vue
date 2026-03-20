@@ -14,7 +14,7 @@
           :class="[
             'flex items-center gap-2 border-b-2 px-1 py-3 text-sm font-medium transition-colors',
             activeTab === tab.id
-              ? 'border-blue-600 text-blue-600'
+              ? 'border-orange-600 text-orange-600'
               : 'border-transparent text-gray-500 hover:border-gray-300 hover:text-gray-700',
           ]"
           @click="activeTab = tab.id"
@@ -67,7 +67,7 @@
               >
               <select
                 v-model="profile.gender"
-                class="w-full rounded-lg border border-gray-300 px-4 py-2.5 text-base transition-colors focus:border-blue-500 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-opacity-20"
+                class="w-full rounded-lg border border-gray-300 px-4 py-2.5 text-base transition-colors focus:border-orange-500 focus:outline-none focus:ring-2 focus:ring-orange-500 focus:ring-opacity-20"
               >
                 <option value="MALE">Homme</option>
                 <option value="FEMALE">Femme</option>
@@ -243,8 +243,8 @@
           </div>
           <button
             :class="[
-              'relative inline-flex h-6 w-11 shrink-0 cursor-pointer rounded-full border-2 border-transparent transition-colors duration-200 ease-in-out focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2',
-              twoFactorEnabled ? 'bg-blue-600' : 'bg-gray-200',
+              'relative inline-flex h-6 w-11 shrink-0 cursor-pointer rounded-full border-2 border-transparent transition-colors duration-200 ease-in-out focus:outline-none focus:ring-2 focus:ring-orange-500 focus:ring-offset-2',
+              twoFactorEnabled ? 'bg-orange-500' : 'bg-gray-200',
             ]"
             :disabled="toggling2FA"
             @click="toggleTwoFactor"
@@ -294,9 +294,9 @@
             </div>
             <button
               :class="[
-                'relative inline-flex h-6 w-11 shrink-0 cursor-pointer rounded-full border-2 border-transparent transition-colors duration-200 ease-in-out focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2',
+                'relative inline-flex h-6 w-11 shrink-0 cursor-pointer rounded-full border-2 border-transparent transition-colors duration-200 ease-in-out focus:outline-none focus:ring-2 focus:ring-orange-500 focus:ring-offset-2',
                 notifPrefs[pref.key as keyof typeof notifPrefs]
-                  ? 'bg-blue-600'
+                  ? 'bg-orange-500'
                   : 'bg-gray-200',
               ]"
               :disabled="savingNotifPrefs"
@@ -333,9 +333,9 @@
       <UiCard>
         <div class="flex items-start gap-4">
           <div
-            class="flex h-10 w-10 shrink-0 items-center justify-center rounded-lg bg-blue-100"
+            class="flex h-10 w-10 shrink-0 items-center justify-center rounded-lg bg-orange-100"
           >
-            <Download class="h-5 w-5 text-blue-600" />
+            <Download class="h-5 w-5 text-orange-600" />
           </div>
           <div class="flex-1">
             <h3 class="text-lg font-semibold text-gray-900">

@@ -6,7 +6,7 @@
         <div v-if="loading" class="space-y-4">
           <div class="flex justify-center">
             <svg
-              class="h-16 w-16 animate-spin text-blue-600"
+              class="h-16 w-16 animate-spin text-orange-600"
               xmlns="http://www.w3.org/2000/svg"
               fill="none"
               viewBox="0 0 24 24"
@@ -58,7 +58,7 @@
           <div v-if="!isLoggedIn" class="pt-4">
             <NuxtLink
               to="/auth/login?verified=true"
-              class="inline-flex items-center justify-center rounded-md border border-transparent bg-blue-600 px-6 py-3 text-base font-medium text-white shadow-sm transition-colors hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2"
+              class="inline-flex items-center justify-center rounded-md border border-transparent bg-orange-500 px-6 py-3 text-base font-medium text-white shadow-sm transition-colors hover:bg-orange-600 focus:outline-none focus:ring-2 focus:ring-orange-500 focus:ring-offset-2"
             >
               Se connecter
             </NuxtLink>
@@ -107,12 +107,12 @@
                   type="email"
                   required
                   placeholder="Entrez votre email"
-                  class="block w-full rounded-md border border-gray-300 px-3 py-2 placeholder-gray-400 shadow-sm focus:border-blue-500 focus:outline-none focus:ring-2 focus:ring-blue-500"
+                  class="block w-full rounded-md border border-gray-300 px-3 py-2 placeholder-gray-400 shadow-sm focus:border-orange-500 focus:outline-none focus:ring-2 focus:ring-orange-500"
                 />
                 <button
                   type="submit"
                   :disabled="resendLoading"
-                  class="flex w-full justify-center rounded-md border border-transparent bg-blue-600 px-4 py-2 text-sm font-medium text-white shadow-sm transition-colors hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50"
+                  class="flex w-full justify-center rounded-md border border-transparent bg-orange-500 px-4 py-2 text-sm font-medium text-white shadow-sm transition-colors hover:bg-orange-600 focus:outline-none focus:ring-2 focus:ring-orange-500 focus:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50"
                 >
                   <span v-if="resendLoading">Envoi en cours...</span>
                   <span v-else>Renvoyer l'email de vérification</span>
@@ -130,7 +130,7 @@
 
             <NuxtLink
               to="/auth/login"
-              class="inline-block text-sm font-medium text-blue-600 hover:text-blue-500"
+              class="inline-block text-sm font-medium text-orange-600 hover:text-orange-500"
             >
               ← Retour à la connexion
             </NuxtLink>

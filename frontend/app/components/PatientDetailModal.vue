@@ -47,9 +47,9 @@
             >
               <div class="flex items-center gap-4">
                 <div
-                  class="flex h-16 w-16 flex-shrink-0 items-center justify-center rounded-full bg-blue-100"
+                  class="flex h-16 w-16 flex-shrink-0 items-center justify-center rounded-full bg-orange-100"
                 >
-                  <span class="text-lg font-bold text-blue-600">
+                  <span class="text-lg font-bold text-orange-600">
                     {{ patient.firstName.charAt(0)
                     }}{{ patient.lastName.charAt(0) }}
                   </span>
@@ -95,14 +95,14 @@
                 </p>
               </div>
 
-              <div class="rounded-lg bg-blue-50 p-3">
+              <div class="rounded-lg bg-orange-50 p-3">
                 <div class="flex items-center gap-2">
-                  <CalendarCheck class="h-4 w-4 text-blue-500" />
-                  <span class="text-xs font-medium text-blue-700"
+                  <CalendarCheck class="h-4 w-4 text-orange-500" />
+                  <span class="text-xs font-medium text-orange-700"
                     >Dernier RDV</span
                   >
                 </div>
-                <p class="mt-1 text-sm font-bold text-blue-900">
+                <p class="mt-1 text-sm font-bold text-orange-800">
                   {{
                     patient.lastAppointment
                       ? formatShortDate(patient.lastAppointment.appointmentDate)
@@ -196,10 +196,10 @@
                 Prochain rendez-vous
               </h3>
               <div
-                class="flex items-center gap-2 rounded-lg bg-blue-50 px-3 py-2 text-sm"
+                class="flex items-center gap-2 rounded-lg bg-orange-50 px-3 py-2 text-sm"
               >
-                <Calendar class="h-4 w-4 text-blue-500" />
-                <span class="font-medium text-blue-800">
+                <Calendar class="h-4 w-4 text-orange-500" />
+                <span class="font-medium text-orange-800">
                   {{ formatShortDate(patient.nextAppointment.appointmentDate) }}
                   à {{ patient.nextAppointment.startTime }}
                 </span>

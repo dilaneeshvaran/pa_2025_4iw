@@ -24,7 +24,7 @@
         <label class="text-sm font-medium text-gray-700">Période :</label>
         <select
           v-model="selectedPeriod"
-          class="rounded-lg border-gray-300 py-2 pl-3 pr-10 text-sm focus:border-blue-500 focus:outline-none focus:ring-1 focus:ring-blue-500"
+          class="rounded-lg border-gray-300 py-2 pl-3 pr-10 text-sm focus:border-orange-500 focus:outline-none focus:ring-1 focus:ring-orange-500"
         >
           <option value="semaine">Cette semaine</option>
           <option value="mois">Ce mois</option>
@@ -39,13 +39,13 @@
           <input
             type="date"
             v-model="startDate"
-            class="rounded-lg border-gray-300 px-3 py-2 text-sm focus:border-blue-500 focus:outline-none focus:ring-1 focus:ring-blue-500"
+            class="rounded-lg border-gray-300 px-3 py-2 text-sm focus:border-orange-500 focus:outline-none focus:ring-1 focus:ring-orange-500"
           />
           <span class="text-gray-500">à</span>
           <input
             type="date"
             v-model="endDate"
-            class="rounded-lg border-gray-300 px-3 py-2 text-sm focus:border-blue-500 focus:outline-none focus:ring-1 focus:ring-blue-500"
+            class="rounded-lg border-gray-300 px-3 py-2 text-sm focus:border-orange-500 focus:outline-none focus:ring-1 focus:ring-orange-500"
           />
           <UiButton size="sm" @click="fetchStats" :disabled="loading"
             >Appliquer</UiButton
@@ -166,8 +166,8 @@ const kpiCards = computed(() => [
     label: "Consultations",
     value: stats.value?.totalConsultations ?? 0,
     icon: Users,
-    bgColor: "bg-blue-100",
-    iconColor: "text-blue-600",
+    bgColor: "bg-orange-100",
+    iconColor: "text-orange-600",
   },
   {
     label: "Taux de présence",

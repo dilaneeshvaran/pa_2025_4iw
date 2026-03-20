@@ -4,7 +4,7 @@
       <div class="mb-6">
         <NuxtLink
           to="/"
-          class="inline-flex items-center text-blue-600 hover:text-blue-700"
+          class="inline-flex items-center text-orange-600 hover:text-orange-700"
         >
           <svg
             class="mr-2 h-5 w-5"
@@ -30,15 +30,15 @@
           <div class="space-y-4">
             <!-- healthcare professional -->
             <button
-              class="group w-full rounded-lg border-2 border-gray-200 p-6 text-left transition-all hover:border-blue-600 hover:bg-blue-50"
+              class="group w-full rounded-lg border-2 border-gray-200 p-6 text-left transition-all hover:border-orange-600 hover:bg-orange-50"
               @click="selectedType = 'healthcare'"
             >
               <div class="flex items-start gap-4">
                 <div
-                  class="flex h-12 w-12 flex-shrink-0 items-center justify-center rounded-lg bg-blue-100 transition-colors group-hover:bg-blue-600"
+                  class="flex h-12 w-12 flex-shrink-0 items-center justify-center rounded-lg bg-orange-100 transition-colors group-hover:bg-orange-500"
                 >
                   <svg
-                    class="h-6 w-6 text-blue-600 group-hover:text-white"
+                    class="h-6 w-6 text-orange-600 group-hover:text-white"
                     fill="none"
                     stroke="currentColor"
                     viewBox="0 0 24 24"
@@ -136,7 +136,7 @@
         <!--   choose sub-type for healthcare professional -->
         <div v-else-if="selectedType === 'healthcare'">
           <button
-            class="mb-4 inline-flex items-center text-blue-600 hover:text-blue-700"
+            class="mb-4 inline-flex items-center text-orange-600 hover:text-orange-700"
             @click="
               selectedType = null;
               registrationType = null;
@@ -165,14 +165,14 @@
             </h3>
             <div class="grid gap-4 md:grid-cols-2">
               <button
-                class="group rounded-lg border-2 border-gray-200 p-6 text-left transition-all hover:border-blue-600 hover:bg-blue-50"
+                class="group rounded-lg border-2 border-gray-200 p-6 text-left transition-all hover:border-orange-600 hover:bg-orange-50"
                 @click="registrationType = 'PRACTITIONER'"
               >
                 <div
-                  class="mb-3 flex h-12 w-12 items-center justify-center rounded-lg bg-blue-100 transition-colors group-hover:bg-blue-600"
+                  class="mb-3 flex h-12 w-12 items-center justify-center rounded-lg bg-orange-100 transition-colors group-hover:bg-orange-500"
                 >
                   <svg
-                    class="h-6 w-6 text-blue-600 group-hover:text-white"
+                    class="h-6 w-6 text-orange-600 group-hover:text-white"
                     fill="none"
                     stroke="currentColor"
                     viewBox="0 0 24 24"
@@ -227,7 +227,7 @@
           <!-- practitcien form -->
           <div v-else-if="registrationType === 'PRACTITIONER'">
             <button
-              class="mb-4 inline-flex items-center text-blue-600 hover:text-blue-700"
+              class="mb-4 inline-flex items-center text-orange-600 hover:text-orange-700"
               @click="registrationType = null"
             >
               <svg
@@ -261,7 +261,7 @@
                       <input
                         v-model="practitionerForm.firstName"
                         type="text"
-                        class="w-full rounded-lg border border-gray-300 px-4 py-2.5 focus:outline-none focus:ring-2 focus:ring-blue-600"
+                        class="w-full rounded-lg border border-gray-300 px-4 py-2.5 focus:outline-none focus:ring-2 focus:ring-orange-500"
                         required
                       />
                     </div>
@@ -273,7 +273,7 @@
                       <input
                         v-model="practitionerForm.lastName"
                         type="text"
-                        class="w-full rounded-lg border border-gray-300 px-4 py-2.5 focus:outline-none focus:ring-2 focus:ring-blue-600"
+                        class="w-full rounded-lg border border-gray-300 px-4 py-2.5 focus:outline-none focus:ring-2 focus:ring-orange-500"
                         required
                       />
                     </div>
@@ -285,7 +285,7 @@
                     <input
                       v-model="practitionerForm.email"
                       type="email"
-                      class="w-full rounded-lg border border-gray-300 px-4 py-2.5 focus:outline-none focus:ring-2 focus:ring-blue-600"
+                      class="w-full rounded-lg border border-gray-300 px-4 py-2.5 focus:outline-none focus:ring-2 focus:ring-orange-500"
                       required
                     />
                   </div>
@@ -297,7 +297,7 @@
                       v-model="practitionerForm.phone"
                       type="tel"
                       placeholder="+225 XX XX XX XX XX"
-                      class="w-full rounded-lg border border-gray-300 px-4 py-2.5 focus:outline-none focus:ring-2 focus:ring-blue-600"
+                      class="w-full rounded-lg border border-gray-300 px-4 py-2.5 focus:outline-none focus:ring-2 focus:ring-orange-500"
                       required
                     />
                   </div>
@@ -316,7 +316,7 @@
                     <input
                       v-model="practitionerForm.orderNumber"
                       type="text"
-                      class="w-full rounded-lg border border-gray-300 px-4 py-2.5 focus:outline-none focus:ring-2 focus:ring-blue-600"
+                      class="w-full rounded-lg border border-gray-300 px-4 py-2.5 focus:outline-none focus:ring-2 focus:ring-orange-500"
                       required
                     />
                   </div>
@@ -327,7 +327,7 @@
                     <input
                       v-model="practitionerForm.clinicAddress"
                       type="text"
-                      class="w-full rounded-lg border border-gray-300 px-4 py-2.5 focus:outline-none focus:ring-2 focus:ring-blue-600"
+                      class="w-full rounded-lg border border-gray-300 px-4 py-2.5 focus:outline-none focus:ring-2 focus:ring-orange-500"
                       required
                     />
                   </div>
@@ -345,7 +345,7 @@
                         v-model="specialtySearch"
                         type="text"
                         placeholder="Rechercher une spécialité..."
-                        class="w-full rounded-lg border border-gray-300 px-4 py-2.5 pr-10 focus:outline-none focus:ring-2 focus:ring-blue-600"
+                        class="w-full rounded-lg border border-gray-300 px-4 py-2.5 pr-10 focus:outline-none focus:ring-2 focus:ring-orange-500"
                         @focus="showSpecialtyDropdown = true"
                         @input="showSpecialtyDropdown = true"
                       />
@@ -373,7 +373,7 @@
                           v-for="sp in filteredSpecialties"
                           :key="sp"
                           type="button"
-                          class="w-full rounded px-4 py-2 text-left transition-colors hover:bg-blue-50"
+                          class="w-full rounded px-4 py-2 text-left transition-colors hover:bg-orange-50"
                           @click="selectSpecialty(sp)"
                         >
                           {{ sp }}
@@ -402,7 +402,7 @@
                     <input
                       type="file"
                       accept=".pdf,.jpg,.jpeg,.png"
-                      class="w-full rounded-lg border border-gray-300 px-4 py-2 text-sm file:mr-4 file:rounded file:border-0 file:bg-blue-50 file:px-4 file:py-2 file:text-sm file:font-medium file:text-blue-700 hover:file:bg-blue-100"
+                      class="w-full rounded-lg border border-gray-300 px-4 py-2 text-sm file:mr-4 file:rounded file:border-0 file:bg-orange-50 file:px-4 file:py-2 file:text-sm file:font-medium file:text-orange-700 hover:file:bg-orange-100"
                       @change="
                         (e: Event) => handleFileChange(e, 'identityDocument')
                       "
@@ -422,7 +422,7 @@
                     <input
                       type="file"
                       accept=".pdf,.jpg,.jpeg,.png"
-                      class="w-full rounded-lg border border-gray-300 px-4 py-2 text-sm file:mr-4 file:rounded file:border-0 file:bg-blue-50 file:px-4 file:py-2 file:text-sm file:font-medium file:text-blue-700 hover:file:bg-blue-100"
+                      class="w-full rounded-lg border border-gray-300 px-4 py-2 text-sm file:mr-4 file:rounded file:border-0 file:bg-orange-50 file:px-4 file:py-2 file:text-sm file:font-medium file:text-orange-700 hover:file:bg-orange-100"
                       @change="(e: Event) => handleFileChange(e, 'diploma')"
                       required
                     />
@@ -440,7 +440,7 @@
                     <input
                       type="file"
                       accept=".pdf,.jpg,.jpeg,.png"
-                      class="w-full rounded-lg border border-gray-300 px-4 py-2 text-sm file:mr-4 file:rounded file:border-0 file:bg-blue-50 file:px-4 file:py-2 file:text-sm file:font-medium file:text-blue-700 hover:file:bg-blue-100"
+                      class="w-full rounded-lg border border-gray-300 px-4 py-2 text-sm file:mr-4 file:rounded file:border-0 file:bg-orange-50 file:px-4 file:py-2 file:text-sm file:font-medium file:text-orange-700 hover:file:bg-orange-100"
                       @change="
                         (e: Event) => handleFileChange(e, 'orderAttestation')
                       "
@@ -475,7 +475,7 @@
                 <button
                   type="submit"
                   :disabled="isSubmitting"
-                  class="w-full rounded-lg bg-blue-600 px-4 py-4 text-lg font-medium text-white transition-colors hover:bg-blue-700 disabled:cursor-not-allowed disabled:opacity-50"
+                  class="w-full rounded-lg bg-orange-500 px-4 py-4 text-lg font-medium text-white transition-colors hover:bg-orange-600 disabled:cursor-not-allowed disabled:opacity-50"
                 >
                   <span v-if="isSubmitting">Envoi en cours...</span>
                   <span v-else>Soumettre ma demande d'inscription</span>
@@ -487,7 +487,7 @@
           <!-- form cabinet -->
           <div v-else-if="registrationType === 'CABINET'">
             <button
-              class="mb-4 inline-flex items-center text-blue-600 hover:text-blue-700"
+              class="mb-4 inline-flex items-center text-orange-600 hover:text-orange-700"
               @click="registrationType = null"
             >
               <svg
@@ -677,7 +677,7 @@
               <div class="border-t pt-6">
                 <p class="mb-4 text-sm text-gray-600">* Champs obligatoires</p>
                 <div
-                  class="mb-4 rounded-lg border border-blue-200 bg-blue-50 p-4 text-sm text-blue-800"
+                  class="mb-4 rounded-lg border border-orange-200 bg-orange-50 p-4 text-sm text-orange-800"
                 >
                   <strong>Note :</strong> Chaque praticien doit s'inscrire
                   individuellement et être vérifié avec son compte personnel.
@@ -715,7 +715,7 @@
         <!-- client Type -->
         <div v-else-if="selectedType === 'client'">
           <button
-            class="mb-4 inline-flex items-center text-blue-600 hover:text-blue-700"
+            class="mb-4 inline-flex items-center text-orange-600 hover:text-orange-700"
             @click="selectedType = null"
           >
             <svg
@@ -739,7 +739,7 @@
             </h3>
             <p class="text-gray-600">
               Pour toute assistance, veuillez contacter notre support à
-              <a href="mailto:support@medicote.ci" class="text-blue-600">
+              <a href="mailto:support@medicote.ci" class="text-orange-600">
                 support@medicote.ci
               </a>
             </p>
@@ -749,7 +749,7 @@
         <!-- patient Type -->
         <div v-else-if="selectedType === 'patient'">
           <button
-            class="mb-4 inline-flex items-center text-blue-600 hover:text-blue-700"
+            class="mb-4 inline-flex items-center text-orange-600 hover:text-orange-700"
             @click="selectedType = null"
           >
             <svg
@@ -777,7 +777,7 @@
             </p>
             <NuxtLink
               to="/auth/register"
-              class="inline-block rounded-lg bg-blue-600 px-8 py-3 text-lg font-medium text-white transition-colors hover:bg-blue-700"
+              class="inline-block rounded-lg bg-orange-500 px-8 py-3 text-lg font-medium text-white transition-colors hover:bg-orange-600"
             >
               Créer un compte patient
             </NuxtLink>

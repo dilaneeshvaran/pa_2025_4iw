@@ -298,18 +298,18 @@ export class AdminNoShowsService {
           <title>Avertissement - Absences répétées</title>
         </head>
         <body style="font-family: Arial, sans-serif; line-height: 1.6; color: #333; max-width: 600px; margin: 0 auto; padding: 20px;">
-          <div style="background-color: #0066cc; color: white; padding: 20px; text-align: center; border-radius: 5px 5px 0 0;">
+          <div style="background-color: #FF8200; color: white; padding: 20px; text-align: center; border-radius: 5px 5px 0 0;">
             <h1 style="margin: 0;">MediCôte</h1>
           </div>
           <div style="background-color: #f9f9f9; padding: 30px; border-radius: 0 0 5px 5px;">
-            <h2 style="color: #e65100; margin-top: 0;">⚠️ Avertissement - Absences répétées</h2>
+            <h2 style="color: #FF8200; margin-top: 0;">⚠️ Avertissement - Absences répétées</h2>
             <p>Bonjour ${patient.firstName} ${patient.lastName},</p>
             <p>Nous avons constaté que vous avez accumulé <strong>${patient.noShowCount} absence(s)</strong> à vos rendez-vous sur MediCôte.</p>
             <p>Les absences non justifiées ont un impact sur l'organisation des praticiens et empêchent d'autres patients de bénéficier de créneaux disponibles.</p>
             <p><strong>Ceci est un avertissement officiel.</strong> En cas de récidive, votre compte pourrait être temporairement suspendu.</p>
             <p>Si vous pensez qu'il s'agit d'une erreur, merci de nous contacter.</p>
             <div style="text-align: center; margin: 30px 0;">
-              <a href="${APP_URL}/patient/appointments" style="background-color: #0066cc; color: white; padding: 12px 30px; text-decoration: none; border-radius: 5px; display: inline-block; font-weight: bold;">Voir mes rendez-vous</a>
+              <a href="${APP_URL}/patient/appointments" style="background-color: #FF8200; color: white; padding: 12px 30px; text-decoration: none; border-radius: 5px; display: inline-block; font-weight: bold;">Voir mes rendez-vous</a>
             </div>
           </div>
           <div style="text-align: center; margin-top: 20px; color: #999; font-size: 12px;">
@@ -370,7 +370,7 @@ export class AdminNoShowsService {
           <title>Suspension de compte</title>
         </head>
         <body style="font-family: Arial, sans-serif; line-height: 1.6; color: #333; max-width: 600px; margin: 0 auto; padding: 20px;">
-          <div style="background-color: #0066cc; color: white; padding: 20px; text-align: center; border-radius: 5px 5px 0 0;">
+          <div style="background-color: #FF8200; color: white; padding: 20px; text-align: center; border-radius: 5px 5px 0 0;">
             <h1 style="margin: 0;">MediCôte</h1>
           </div>
           <div style="background-color: #f9f9f9; padding: 30px; border-radius: 0 0 5px 5px;">
@@ -434,17 +434,17 @@ export class AdminNoShowsService {
           <title>Levée de suspension</title>
         </head>
         <body style="font-family: Arial, sans-serif; line-height: 1.6; color: #333; max-width: 600px; margin: 0 auto; padding: 20px;">
-          <div style="background-color: #0066cc; color: white; padding: 20px; text-align: center; border-radius: 5px 5px 0 0;">
+          <div style="background-color: #FF8200; color: white; padding: 20px; text-align: center; border-radius: 5px 5px 0 0;">
             <h1 style="margin: 0;">MediCôte</h1>
           </div>
           <div style="background-color: #f9f9f9; padding: 30px; border-radius: 0 0 5px 5px;">
-            <h2 style="color: #2e7d32; margin-top: 0;">✅ Suspension levée</h2>
+            <h2 style="color: #009A44; margin-top: 0;">✅ Suspension levée</h2>
             <p>Bonjour ${patient.firstName} ${patient.lastName},</p>
             <p>Nous vous informons que la suspension de votre compte a été levée.</p>
             <p>Vous pouvez désormais reprendre vos rendez-vous sur MediCôte.</p>
             <p>Nous vous encourageons à honorer vos futurs rendez-vous pour éviter de nouvelles sanctions.</p>
             <div style="text-align: center; margin: 30px 0;">
-              <a href="${APP_URL}/patient/appointments" style="background-color: #0066cc; color: white; padding: 12px 30px; text-decoration: none; border-radius: 5px; display: inline-block; font-weight: bold;">Prendre un rendez-vous</a>
+              <a href="${APP_URL}/patient/appointments" style="background-color: #FF8200; color: white; padding: 12px 30px; text-decoration: none; border-radius: 5px; display: inline-block; font-weight: bold;">Prendre un rendez-vous</a>
             </div>
           </div>
           <div style="text-align: center; margin-top: 20px; color: #999; font-size: 12px;">

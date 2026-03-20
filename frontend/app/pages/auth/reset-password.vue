@@ -41,7 +41,7 @@
               type="password"
               required
               autocomplete="new-password"
-              class="mt-1 block w-full rounded-md border border-gray-300 px-3 py-2 placeholder-gray-400 shadow-sm focus:border-blue-500 focus:outline-none focus:ring-2 focus:ring-blue-500"
+              class="mt-1 block w-full rounded-md border border-gray-300 px-3 py-2 placeholder-gray-400 shadow-sm focus:border-orange-500 focus:outline-none focus:ring-2 focus:ring-orange-500"
               placeholder="••••••••"
             />
             <p class="mt-1 text-xs text-gray-500">
@@ -63,7 +63,7 @@
               type="password"
               required
               autocomplete="new-password"
-              class="mt-1 block w-full rounded-md border border-gray-300 px-3 py-2 placeholder-gray-400 shadow-sm focus:border-blue-500 focus:outline-none focus:ring-2 focus:ring-blue-500"
+              class="mt-1 block w-full rounded-md border border-gray-300 px-3 py-2 placeholder-gray-400 shadow-sm focus:border-orange-500 focus:outline-none focus:ring-2 focus:ring-orange-500"
               placeholder="••••••••"
             />
           </div>
@@ -72,7 +72,7 @@
             <button
               type="submit"
               :disabled="loading"
-              class="flex w-full justify-center rounded-md border border-transparent bg-blue-600 px-4 py-3 text-sm font-medium text-white shadow-sm transition-colors hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50"
+              class="flex w-full justify-center rounded-md border border-transparent bg-orange-500 px-4 py-3 text-sm font-medium text-white shadow-sm transition-colors hover:bg-orange-600 focus:outline-none focus:ring-2 focus:ring-orange-500 focus:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50"
             >
               <span v-if="loading">Réinitialisation en cours...</span>
               <span v-else>Réinitialiser le mot de passe</span>
@@ -105,7 +105,7 @@
           </p>
           <NuxtLink
             to="/auth/login"
-            class="inline-block text-sm font-medium text-blue-600 hover:text-blue-500"
+            class="inline-block text-sm font-medium text-orange-600 hover:text-orange-500"
           >
             Se connecter →
           </NuxtLink>
@@ -114,7 +114,7 @@
         <div class="text-center">
           <NuxtLink
             to="/auth/login"
-            class="text-sm font-medium text-blue-600 hover:text-blue-500"
+            class="text-sm font-medium text-orange-600 hover:text-orange-500"
           >
             ← Retour à la connexion
           </NuxtLink>

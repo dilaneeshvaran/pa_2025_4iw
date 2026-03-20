@@ -15,7 +15,7 @@
           :class="[
             'border-b-2 pb-3 text-sm font-medium transition-colors',
             activeTab === tab.key
-              ? 'border-blue-600 text-blue-600'
+              ? 'border-orange-600 text-orange-600'
               : 'border-transparent text-gray-500 hover:text-gray-700',
           ]"
           @click="activeTab = tab.key"
@@ -31,7 +31,7 @@
       <div class="mb-4 flex flex-wrap items-center gap-3">
         <select
           v-model="statusFilter"
-          class="rounded-lg border border-gray-300 px-3 py-2 text-sm focus:border-blue-600 focus:outline-none"
+          class="rounded-lg border border-gray-300 px-3 py-2 text-sm focus:border-orange-600 focus:outline-none"
         >
           <option value="all">Tous les statuts</option>
           <option value="COMPLETED">Payé</option>
@@ -157,7 +157,7 @@
                 </button>
                 <button
                   v-if="payment.status === 'PENDING'"
-                  class="flex items-center gap-1 rounded-lg bg-blue-600 px-3 py-1.5 text-xs font-medium text-white transition-colors hover:bg-blue-700"
+                  class="flex items-center gap-1 rounded-lg bg-orange-500 px-3 py-1.5 text-xs font-medium text-white transition-colors hover:bg-orange-600"
                   @click="openPaymentModal(payment)"
                 >
                   <CreditCard class="h-3.5 w-3.5" />
@@ -256,7 +256,7 @@
                   'flex h-12 w-12 items-center justify-center rounded-full text-xl',
                   method.type === 'MOBILE_MONEY'
                     ? 'bg-orange-100'
-                    : 'bg-blue-100',
+                    : 'bg-orange-100',
                 ]"
               >
                 {{ getMethodIcon(method) }}
@@ -296,7 +296,7 @@
             <div class="flex items-center gap-2">
               <button
                 v-if="!method.isVerified"
-                class="rounded-lg border border-blue-200 px-3 py-1.5 text-xs text-blue-600 transition-colors hover:bg-blue-50"
+                class="rounded-lg border border-orange-200 px-3 py-1.5 text-xs text-orange-600 transition-colors hover:bg-orange-50"
                 @click="openVerifyModal(method)"
               >
                 Vérifier
@@ -363,7 +363,7 @@
                 class="flex flex-col items-center gap-2 rounded-lg border-2 p-4 transition-all"
                 :class="[
                   newMethodType === 'CARD'
-                    ? 'border-blue-500 bg-blue-50'
+                    ? 'border-orange-500 bg-orange-50'
                     : 'border-gray-200 hover:border-gray-300',
                 ]"
                 @click="newMethodType = 'CARD'"
@@ -420,7 +420,7 @@
                 type="text"
                 placeholder="4XXX XXXX XXXX XXXX"
                 maxlength="19"
-                class="mt-1 w-full rounded-lg border border-gray-300 px-4 py-2.5 focus:border-blue-600 focus:outline-none focus:ring-2 focus:ring-blue-600"
+                class="mt-1 w-full rounded-lg border border-gray-300 px-4 py-2.5 focus:border-orange-600 focus:outline-none focus:ring-2 focus:ring-orange-600"
               />
             </div>
             <div class="grid grid-cols-3 gap-3">
@@ -428,7 +428,7 @@
                 <label class="text-sm font-medium text-gray-700">Mois</label>
                 <select
                   v-model="newCardExpMonth"
-                  class="mt-1 w-full rounded-lg border border-gray-300 px-3 py-2.5 focus:border-blue-600 focus:outline-none"
+                  class="mt-1 w-full rounded-lg border border-gray-300 px-3 py-2.5 focus:border-orange-600 focus:outline-none"
                 >
                   <option v-for="m in 12" :key="m" :value="m">
                     {{ String(m).padStart(2, "0") }}
@@ -439,7 +439,7 @@
                 <label class="text-sm font-medium text-gray-700">Année</label>
                 <select
                   v-model="newCardExpYear"
-                  class="mt-1 w-full rounded-lg border border-gray-300 px-3 py-2.5 focus:border-blue-600 focus:outline-none"
+                  class="mt-1 w-full rounded-lg border border-gray-300 px-3 py-2.5 focus:border-orange-600 focus:outline-none"
                 >
                   <option v-for="y in 10" :key="y" :value="2025 + y">
                     {{ 2025 + y }}
@@ -453,7 +453,7 @@
                   type="text"
                   placeholder="XXX"
                   maxlength="4"
-                  class="mt-1 w-full rounded-lg border border-gray-300 px-4 py-2.5 focus:border-blue-600 focus:outline-none"
+                  class="mt-1 w-full rounded-lg border border-gray-300 px-4 py-2.5 focus:border-orange-600 focus:outline-none"
                 />
               </div>
             </div>
@@ -465,7 +465,7 @@
               <input
                 v-model="newMethodIsDefault"
                 type="checkbox"
-                class="h-4 w-4 rounded border-gray-300 text-blue-600 focus:ring-blue-500"
+                class="h-4 w-4 rounded border-gray-300 text-orange-600 focus:ring-orange-500"
               />
               Définir comme moyen de paiement par défaut
             </label>
@@ -519,7 +519,7 @@
             type="text"
             placeholder="Code à 4-6 chiffres"
             maxlength="8"
-            class="mb-4 w-full rounded-lg border border-gray-300 px-4 py-2.5 text-center text-lg tracking-widest focus:border-blue-600 focus:outline-none focus:ring-2 focus:ring-blue-600"
+            class="mb-4 w-full rounded-lg border border-gray-300 px-4 py-2.5 text-center text-lg tracking-widest focus:border-orange-600 focus:outline-none focus:ring-2 focus:ring-orange-600"
           />
           <div
             v-if="verifyError"
@@ -638,7 +638,7 @@
               v-model="refundReason"
               rows="2"
               placeholder="Décrivez la raison du remboursement..."
-              class="mt-1 w-full rounded-lg border border-gray-300 px-4 py-2.5 focus:border-blue-600 focus:outline-none focus:ring-2 focus:ring-blue-600"
+              class="mt-1 w-full rounded-lg border border-gray-300 px-4 py-2.5 focus:border-orange-600 focus:outline-none focus:ring-2 focus:ring-orange-600"
             ></textarea>
           </div>
 
@@ -723,7 +723,7 @@
                 class="flex cursor-pointer items-center justify-between rounded-lg border p-4 transition-colors hover:bg-gray-50"
                 :class="
                   selectedPaymentMethod === method.id
-                    ? 'border-blue-500 bg-blue-50 ring-1 ring-blue-500 hover:bg-blue-50'
+                    ? 'border-orange-500 bg-orange-50 ring-1 ring-orange-500 hover:bg-orange-50'
                     : 'border-gray-200'
                 "
               >
@@ -733,14 +733,14 @@
                     name="paymentMethod"
                     :value="method.id"
                     v-model="selectedPaymentMethod"
-                    class="h-4 w-4 border-gray-300 text-blue-600 focus:ring-blue-500"
+                    class="h-4 w-4 border-gray-300 text-orange-600 focus:ring-orange-500"
                   />
                   <div
                     class="flex h-8 w-8 items-center justify-center rounded-full text-sm"
                     :class="
                       method.type === 'MOBILE_MONEY'
                         ? 'bg-orange-100'
-                        : 'bg-blue-100'
+                        : 'bg-orange-100'
                     "
                   >
                     {{ getMethodIcon(method) }}
@@ -777,7 +777,7 @@
                 Aucun moyen de paiement vérifié.
                 <button
                   type="button"
-                  class="mt-2 block w-full text-blue-600 hover:underline"
+                  class="mt-2 block w-full text-orange-600 hover:underline"
                   @click="
                     showPaymentModal = false;
                     activeTab = 'methods';

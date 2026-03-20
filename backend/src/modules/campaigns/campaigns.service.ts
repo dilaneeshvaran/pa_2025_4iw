@@ -361,10 +361,10 @@ class CampaignsService {
       string,
       { bg: string; border: string; text: string }
     > = {
-      INFO: { bg: '#EBF5FB', border: '#3498DB', text: '#2C3E50' },
-      WARNING: { bg: '#FEF9E7', border: '#F39C12', text: '#7D6608' },
+      INFO: { bg: '#E6F5EB', border: '#009A44', text: '#006B30' },
+      WARNING: { bg: '#FFF5E6', border: '#FF8200', text: '#B35900' },
       URGENT: { bg: '#FDEDEC', border: '#E74C3C', text: '#922B21' },
-      MAINTENANCE: { bg: '#F4ECF7', border: '#8E44AD', text: '#6C3483' },
+      MAINTENANCE: { bg: '#FFF5E6', border: '#FF8200', text: '#B35900' },
     }
     const colors = typeColors[messageType] || typeColors.INFO
 
@@ -390,7 +390,7 @@ class CampaignsService {
         </head>
         <body style="margin: 0; padding: 0; font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; background-color: #f5f5f5;">
           <div style="max-width: 600px; margin: 0 auto; background-color: white; border-radius: 8px; overflow: hidden; box-shadow: 0 2px 10px rgba(0,0,0,0.1);">
-            <div style="background-color: #0066cc; padding: 30px; text-align: center;">
+            <div style="background-color: #FF8200; padding: 30px; text-align: center;">
               <h1 style="color: white; margin: 0; font-size: 24px;">MediCôte</h1>
             </div>
             <div style="padding: 30px;">

@@ -21,7 +21,7 @@
           :class="[
             'flex items-center gap-1.5 rounded-md px-3 py-1.5 text-sm font-medium transition-colors',
             viewMode === 'card'
-              ? 'bg-blue-600 text-white shadow-sm'
+              ? 'bg-orange-500 text-white shadow-sm'
               : 'text-gray-600 hover:bg-gray-100',
           ]"
           @click="viewMode = 'card'"
@@ -33,7 +33,7 @@
           :class="[
             'flex items-center gap-1.5 rounded-md px-3 py-1.5 text-sm font-medium transition-colors',
             viewMode === 'list'
-              ? 'bg-blue-600 text-white shadow-sm'
+              ? 'bg-orange-500 text-white shadow-sm'
               : 'text-gray-600 hover:bg-gray-100',
           ]"
           @click="viewMode = 'list'"
@@ -58,7 +58,7 @@
               v-model="searchQuery"
               type="text"
               placeholder="Nom, téléphone ou email..."
-              class="w-full rounded-lg border border-gray-300 py-2 pl-10 pr-4 text-sm focus:border-blue-500 focus:outline-none focus:ring-1 focus:ring-blue-500"
+              class="w-full rounded-lg border border-gray-300 py-2 pl-10 pr-4 text-sm focus:border-orange-500 focus:outline-none focus:ring-1 focus:ring-orange-500"
               @input="debouncedSearch"
             />
             <button
@@ -77,7 +77,7 @@
           >
           <select
             v-model="filterValue"
-            class="w-full rounded-lg border border-gray-300 px-3 py-2 text-sm focus:border-blue-500 focus:outline-none focus:ring-1 focus:ring-blue-500"
+            class="w-full rounded-lg border border-gray-300 px-3 py-2 text-sm focus:border-orange-500 focus:outline-none focus:ring-1 focus:ring-orange-500"
             @change="resetAndFetch"
           >
             <option value="all">Tous les patients</option>
@@ -93,7 +93,7 @@
           >
           <select
             v-model="genderFilter"
-            class="w-full rounded-lg border border-gray-300 px-3 py-2 text-sm focus:border-blue-500 focus:outline-none focus:ring-1 focus:ring-blue-500"
+            class="w-full rounded-lg border border-gray-300 px-3 py-2 text-sm focus:border-orange-500 focus:outline-none focus:ring-1 focus:ring-orange-500"
             @change="resetAndFetch"
           >
             <option value="">Tous</option>
@@ -109,7 +109,7 @@
           >
           <select
             v-model="sortValue"
-            class="w-full rounded-lg border border-gray-300 px-3 py-2 text-sm focus:border-blue-500 focus:outline-none focus:ring-1 focus:ring-blue-500"
+            class="w-full rounded-lg border border-gray-300 px-3 py-2 text-sm focus:border-orange-500 focus:outline-none focus:ring-1 focus:ring-orange-500"
             @change="resetAndFetch"
           >
             <option value="name-asc">Nom (A-Z)</option>
@@ -185,14 +185,14 @@
       <div
         v-for="patient in patients"
         :key="patient.id"
-        class="cursor-pointer rounded-lg border border-gray-200 bg-white p-5 shadow-sm transition-all hover:border-blue-300 hover:shadow-md"
+        class="cursor-pointer rounded-lg border border-gray-200 bg-white p-5 shadow-sm transition-all hover:border-orange-300 hover:shadow-md"
         @click="openPatientDetail(patient.id)"
       >
         <div class="mb-3 flex items-start gap-3">
           <div
-            class="flex h-12 w-12 flex-shrink-0 items-center justify-center rounded-full bg-blue-100"
+            class="flex h-12 w-12 flex-shrink-0 items-center justify-center rounded-full bg-orange-100"
           >
-            <span class="text-sm font-semibold text-blue-600">
+            <span class="text-sm font-semibold text-orange-600">
               {{ patient.firstName.charAt(0) }}{{ patient.lastName.charAt(0) }}
             </span>
           </div>
@@ -220,7 +220,7 @@
             v-if="patient.nextAppointment"
             class="flex items-center gap-2 text-sm"
           >
-            <Calendar class="h-3.5 w-3.5 flex-shrink-0 text-blue-500" />
+            <Calendar class="h-3.5 w-3.5 flex-shrink-0 text-orange-500" />
             <span class="text-gray-700">
               Prochain :
               {{ formatShortDate(patient.nextAppointment.appointmentDate) }},
@@ -299,9 +299,9 @@
               <td class="whitespace-nowrap px-4 py-3">
                 <div class="flex items-center gap-3">
                   <div
-                    class="flex h-9 w-9 flex-shrink-0 items-center justify-center rounded-full bg-blue-100"
+                    class="flex h-9 w-9 flex-shrink-0 items-center justify-center rounded-full bg-orange-100"
                   >
-                    <span class="text-xs font-semibold text-blue-600">
+                    <span class="text-xs font-semibold text-orange-600">
                       {{ patient.firstName.charAt(0)
                       }}{{ patient.lastName.charAt(0) }}
                     </span>
@@ -331,7 +331,7 @@
                   v-if="patient.nextAppointment"
                   class="flex items-center gap-1.5 text-sm"
                 >
-                  <Calendar class="h-3.5 w-3.5 text-blue-500" />
+                  <Calendar class="h-3.5 w-3.5 text-orange-500" />
                   <span class="text-gray-700">
                     {{
                       formatShortDate(patient.nextAppointment.appointmentDate)

@@ -51,18 +51,18 @@ export async function sendVerificationEmail(
         <title>Vérification de votre email</title>
       </head>
       <body style="font-family: Arial, sans-serif; line-height: 1.6; color: #333; max-width: 600px; margin: 0 auto; padding: 20px;">
-        <div style="background-color: #0066cc; color: white; padding: 20px; text-align: center; border-radius: 5px 5px 0 0;">
-          <h1 style="margin: 0;">MediCôte</h1>
+        <div style="background: linear-gradient(135deg, #FF8200 0%, #009A44 100%); color: white; padding: 20px; text-align: center; border-radius: 5px 5px 0 0;">
+          <h1 style="margin: 0;"><span style="color: #FF8200; background: white; padding: 2px 6px; border-radius: 3px;">Medi</span><span style="color: #009A44; background: white; padding: 2px 6px; border-radius: 3px;">côte</span></h1>
         </div>
         <div style="background-color: #f9f9f9; padding: 30px; border-radius: 0 0 5px 5px;">
-          <h2 style="color: #0066cc; margin-top: 0;">Vérification de votre email</h2>
+          <h2 style="color: #FF8200; margin-top: 0;">Vérification de votre email</h2>
           <p>Bonjour,</p>
           <p>Merci de vous être inscrit sur MediCôte. Pour activer votre compte, veuillez cliquer sur le bouton ci-dessous :</p>
           <div style="text-align: center; margin: 30px 0;">
-            <a href="${verificationUrl}" style="background-color: #0066cc; color: white; padding: 12px 30px; text-decoration: none; border-radius: 5px; display: inline-block; font-weight: bold;">Vérifier mon email</a>
+            <a href="${verificationUrl}" style="background-color: #FF8200; color: white; padding: 12px 30px; text-decoration: none; border-radius: 5px; display: inline-block; font-weight: bold;">Vérifier mon email</a>
           </div>
           <p>Si le bouton ne fonctionne pas, copiez et collez ce lien dans votre navigateur :</p>
-          <p style="word-break: break-all; color: #0066cc;">${verificationUrl}</p>
+          <p style="word-break: break-all; color: #FF8200;">${verificationUrl}</p>
           <p style="color: #666; font-size: 14px; margin-top: 30px;">Ce lien expirera dans 24 heures.</p>
           <p style="color: #666; font-size: 14px;">Si vous n'avez pas créé de compte, vous pouvez ignorer cet email.</p>
         </div>
@@ -91,18 +91,18 @@ export async function sendPasswordResetEmail(
         <title>Réinitialisation de votre mot de passe</title>
       </head>
       <body style="font-family: Arial, sans-serif; line-height: 1.6; color: #333; max-width: 600px; margin: 0 auto; padding: 20px;">
-        <div style="background-color: #0066cc; color: white; padding: 20px; text-align: center; border-radius: 5px 5px 0 0;">
-          <h1 style="margin: 0;">MediCôte</h1>
+        <div style="background: linear-gradient(135deg, #FF8200 0%, #009A44 100%); color: white; padding: 20px; text-align: center; border-radius: 5px 5px 0 0;">
+          <h1 style="margin: 0;"><span style="color: #FF8200; background: white; padding: 2px 6px; border-radius: 3px;">Medi</span><span style="color: #009A44; background: white; padding: 2px 6px; border-radius: 3px;">côte</span></h1>
         </div>
         <div style="background-color: #f9f9f9; padding: 30px; border-radius: 0 0 5px 5px;">
-          <h2 style="color: #0066cc; margin-top: 0;">Réinitialisation de mot de passe</h2>
+          <h2 style="color: #FF8200; margin-top: 0;">Réinitialisation de mot de passe</h2>
           <p>Bonjour,</p>
           <p>Vous avez demandé à réinitialiser votre mot de passe. Cliquez sur le bouton ci-dessous pour continuer :</p>
           <div style="text-align: center; margin: 30px 0;">
-            <a href="${resetUrl}" style="background-color: #0066cc; color: white; padding: 12px 30px; text-decoration: none; border-radius: 5px; display: inline-block; font-weight: bold;">Réinitialiser mon mot de passe</a>
+            <a href="${resetUrl}" style="background-color: #FF8200; color: white; padding: 12px 30px; text-decoration: none; border-radius: 5px; display: inline-block; font-weight: bold;">Réinitialiser mon mot de passe</a>
           </div>
           <p>Si le bouton ne fonctionne pas, copiez et collez ce lien dans votre navigateur :</p>
-          <p style="word-break: break-all; color: #0066cc;">${resetUrl}</p>
+          <p style="word-break: break-all; color: #FF8200;">${resetUrl}</p>
           <p style="color: #666; font-size: 14px; margin-top: 30px;">Ce lien expirera dans 1 heure.</p>
           <p style="color: #666; font-size: 14px;">Si vous n'avez pas demandé de réinitialisation, vous pouvez ignorer cet email. Votre mot de passe restera inchangé.</p>
         </div>
@@ -129,11 +129,11 @@ export async function sendWelcomeEmail(
         <title>Bienvenue sur MediCôte</title>
       </head>
       <body style="font-family: Arial, sans-serif; line-height: 1.6; color: #333; max-width: 600px; margin: 0 auto; padding: 20px;">
-        <div style="background-color: #0066cc; color: white; padding: 20px; text-align: center; border-radius: 5px 5px 0 0;">
-          <h1 style="margin: 0;">MediCôte</h1>
+        <div style="background: linear-gradient(135deg, #FF8200 0%, #009A44 100%); color: white; padding: 20px; text-align: center; border-radius: 5px 5px 0 0;">
+          <h1 style="margin: 0;"><span style="color: #FF8200; background: white; padding: 2px 6px; border-radius: 3px;">Medi</span><span style="color: #009A44; background: white; padding: 2px 6px; border-radius: 3px;">côte</span></h1>
         </div>
         <div style="background-color: #f9f9f9; padding: 30px; border-radius: 0 0 5px 5px;">
-          <h2 style="color: #0066cc; margin-top: 0;">Bienvenue ${firstName} !</h2>
+          <h2 style="color: #FF8200; margin-top: 0;">Bienvenue ${firstName} !</h2>
           <p>Nous sommes ravis de vous accueillir sur MediCôte, votre plateforme de santé en ligne.</p>
           <p>Vous pouvez désormais :</p>
           <ul>
@@ -143,7 +143,7 @@ export async function sendWelcomeEmail(
             <li>Gérer vos documents médicaux</li>
           </ul>
           <div style="text-align: center; margin: 30px 0;">
-            <a href="${APP_URL}" style="background-color: #0066cc; color: white; padding: 12px 30px; text-decoration: none; border-radius: 5px; display: inline-block; font-weight: bold;">Accéder à mon compte</a>
+            <a href="${APP_URL}" style="background-color: #FF8200; color: white; padding: 12px 30px; text-decoration: none; border-radius: 5px; display: inline-block; font-weight: bold;">Accéder à mon compte</a>
           </div>
           <p style="color: #666; font-size: 14px; margin-top: 30px;">Si vous avez des questions, n'hésitez pas à nous contacter.</p>
         </div>
@@ -192,11 +192,11 @@ export async function sendAppointmentConfirmationEmail(
         <title>Confirmation de rendez-vous</title>
       </head>
       <body style="font-family: Arial, sans-serif; line-height: 1.6; color: #333; max-width: 600px; margin: 0 auto; padding: 20px;">
-        <div style="background-color: #0066cc; color: white; padding: 20px; text-align: center; border-radius: 5px 5px 0 0;">
-          <h1 style="margin: 0;">MediCôte</h1>
+        <div style="background: linear-gradient(135deg, #FF8200 0%, #009A44 100%); color: white; padding: 20px; text-align: center; border-radius: 5px 5px 0 0;">
+          <h1 style="margin: 0;"><span style="color: #FF8200; background: white; padding: 2px 6px; border-radius: 3px;">Medi</span><span style="color: #009A44; background: white; padding: 2px 6px; border-radius: 3px;">côte</span></h1>
         </div>
         <div style="background-color: #f9f9f9; padding: 30px; border-radius: 0 0 5px 5px;">
-          <h2 style="color: #0066cc; margin-top: 0;">Rendez-vous confirmé ✓</h2>
+          <h2 style="color: #FF8200; margin-top: 0;">Rendez-vous confirmé ✓</h2>
           <p>Bonjour ${data.patientName},</p>
           <p>Votre rendez-vous a été confirmé avec succès. Voici les détails :</p>
           
@@ -211,7 +211,7 @@ export async function sendAppointmentConfirmationEmail(
           </div>
 
           <div style="text-align: center; margin: 30px 0;">
-            <a href="${APP_URL}/patient/appointments" style="background-color: #0066cc; color: white; padding: 12px 30px; text-decoration: none; border-radius: 5px; display: inline-block; font-weight: bold;">Voir mes rendez-vous</a>
+            <a href="${APP_URL}/patient/appointments" style="background-color: #FF8200; color: white; padding: 12px 30px; text-decoration: none; border-radius: 5px; display: inline-block; font-weight: bold;">Voir mes rendez-vous</a>
           </div>
           
           <p style="color: #666; font-size: 14px; margin-top: 30px;">
@@ -255,11 +255,11 @@ export async function sendAppointmentReminderEmail(
         <title>Rappel de rendez-vous</title>
       </head>
       <body style="font-family: Arial, sans-serif; line-height: 1.6; color: #333; max-width: 600px; margin: 0 auto; padding: 20px;">
-        <div style="background-color: #0066cc; color: white; padding: 20px; text-align: center; border-radius: 5px 5px 0 0;">
-          <h1 style="margin: 0;">MediCôte</h1>
+        <div style="background: linear-gradient(135deg, #FF8200 0%, #009A44 100%); color: white; padding: 20px; text-align: center; border-radius: 5px 5px 0 0;">
+          <h1 style="margin: 0;"><span style="color: #FF8200; background: white; padding: 2px 6px; border-radius: 3px;">Medi</span><span style="color: #009A44; background: white; padding: 2px 6px; border-radius: 3px;">côte</span></h1>
         </div>
         <div style="background-color: #f9f9f9; padding: 30px; border-radius: 0 0 5px 5px;">
-          <h2 style="color: #0066cc; margin-top: 0;">⏰ Rappel : Rendez-vous ${reminderLabel}</h2>
+          <h2 style="color: #FF8200; margin-top: 0;">⏰ Rappel : Rendez-vous ${reminderLabel}</h2>
           <p>Bonjour ${data.patientName},</p>
           <p>Nous vous rappelons que vous avez un rendez-vous ${reminderLabel}.</p>
           
@@ -273,7 +273,7 @@ export async function sendAppointmentReminderEmail(
           </div>
 
           <div style="text-align: center; margin: 30px 0;">
-            <a href="${APP_URL}/patient/appointments" style="background-color: #0066cc; color: white; padding: 12px 30px; text-decoration: none; border-radius: 5px; display: inline-block; font-weight: bold;">Voir mes rendez-vous</a>
+            <a href="${APP_URL}/patient/appointments" style="background-color: #FF8200; color: white; padding: 12px 30px; text-decoration: none; border-radius: 5px; display: inline-block; font-weight: bold;">Voir mes rendez-vous</a>
           </div>
         </div>
         <div style="text-align: center; margin-top: 20px; color: #999; font-size: 12px;">
@@ -310,16 +310,16 @@ export async function sendInvoiceEmail(
         <title>Votre facture MediCôte</title>
       </head>
       <body style="font-family: Arial, sans-serif; line-height: 1.6; color: #333; max-width: 600px; margin: 0 auto; padding: 20px;">
-        <div style="background-color: #0066cc; color: white; padding: 20px; text-align: center; border-radius: 5px 5px 0 0;">
-          <h1 style="margin: 0;">MediCôte</h1>
+        <div style="background: linear-gradient(135deg, #FF8200 0%, #009A44 100%); color: white; padding: 20px; text-align: center; border-radius: 5px 5px 0 0;">
+          <h1 style="margin: 0;"><span style="color: #FF8200; background: white; padding: 2px 6px; border-radius: 3px;">Medi</span><span style="color: #009A44; background: white; padding: 2px 6px; border-radius: 3px;">côte</span></h1>
         </div>
         <div style="background-color: #f9f9f9; padding: 30px; border-radius: 0 0 5px 5px;">
-          <h2 style="color: #0066cc; margin-top: 0;">Votre facture est disponible</h2>
+          <h2 style="color: #FF8200; margin-top: 0;">Votre facture est disponible</h2>
           <p>Bonjour ${data.patientName},</p>
           <p>Veuillez trouver ci-joint votre facture <strong>${data.invoiceNumber}</strong> du ${data.date} pour un montant de <strong>${data.amount.toLocaleString('fr-FR')} FCFA</strong>.</p>
           
           <div style="text-align: center; margin: 30px 0;">
-            <a href="${APP_URL}/patient/billing" style="background-color: #0066cc; color: white; padding: 12px 30px; text-decoration: none; border-radius: 5px; display: inline-block; font-weight: bold;">Voir mes factures</a>
+            <a href="${APP_URL}/patient/billing" style="background-color: #FF8200; color: white; padding: 12px 30px; text-decoration: none; border-radius: 5px; display: inline-block; font-weight: bold;">Voir mes factures</a>
           </div>
           
           <p style="color: #666; font-size: 14px; margin-top: 30px;">
@@ -376,8 +376,8 @@ export async function sendAppointmentCancelledByPractitionerEmail(
         <title>Annulation de votre rendez-vous</title>
       </head>
       <body style="font-family: Arial, sans-serif; line-height: 1.6; color: #333; max-width: 600px; margin: 0 auto; padding: 20px;">
-        <div style="background-color: #0066cc; color: white; padding: 20px; text-align: center; border-radius: 5px 5px 0 0;">
-          <h1 style="margin: 0;">MediCôte</h1>
+        <div style="background: linear-gradient(135deg, #FF8200 0%, #009A44 100%); color: white; padding: 20px; text-align: center; border-radius: 5px 5px 0 0;">
+          <h1 style="margin: 0;"><span style="color: #FF8200; background: white; padding: 2px 6px; border-radius: 3px;">Medi</span><span style="color: #009A44; background: white; padding: 2px 6px; border-radius: 3px;">côte</span></h1>
         </div>
         <div style="background-color: #f9f9f9; padding: 30px; border-radius: 0 0 5px 5px;">
           <h2 style="color: #cc0000; margin-top: 0;">Rendez-vous annulé</h2>
@@ -394,7 +394,7 @@ export async function sendAppointmentCancelledByPractitionerEmail(
           <p>Nous vous invitons à reprogrammer votre rendez-vous à une date qui vous convient.</p>
 
           <div style="text-align: center; margin: 30px 0;">
-            <a href="${APP_URL}/patient/appointments" style="background-color: #0066cc; color: white; padding: 12px 30px; text-decoration: none; border-radius: 5px; display: inline-block; font-weight: bold;">Reprendre rendez-vous</a>
+            <a href="${APP_URL}/patient/appointments" style="background-color: #FF8200; color: white; padding: 12px 30px; text-decoration: none; border-radius: 5px; display: inline-block; font-weight: bold;">Reprendre rendez-vous</a>
           </div>
           
           <p style="color: #666; font-size: 14px; margin-top: 30px;">
@@ -435,23 +435,23 @@ export async function sendAppointmentModifiedByPractitionerEmail(
         <title>Modification de votre rendez-vous</title>
       </head>
       <body style="font-family: Arial, sans-serif; line-height: 1.6; color: #333; max-width: 600px; margin: 0 auto; padding: 20px;">
-        <div style="background-color: #0066cc; color: white; padding: 20px; text-align: center; border-radius: 5px 5px 0 0;">
-          <h1 style="margin: 0;">MediCôte</h1>
+        <div style="background: linear-gradient(135deg, #FF8200 0%, #009A44 100%); color: white; padding: 20px; text-align: center; border-radius: 5px 5px 0 0;">
+          <h1 style="margin: 0;"><span style="color: #FF8200; background: white; padding: 2px 6px; border-radius: 3px;">Medi</span><span style="color: #009A44; background: white; padding: 2px 6px; border-radius: 3px;">côte</span></h1>
         </div>
         <div style="background-color: #f9f9f9; padding: 30px; border-radius: 0 0 5px 5px;">
-          <h2 style="color: #e67e00; margin-top: 0;">Rendez-vous modifié</h2>
+          <h2 style="color: #FF8200; margin-top: 0;">Rendez-vous modifié</h2>
           <p>Bonjour ${data.patientName},</p>
           <p>Votre rendez-vous avec ${data.practitionerTitle} ${data.practitionerFirstName} ${data.practitionerLastName} a été modifié.</p>
           
           <div style="background-color: white; border: 1px solid #e0e0e0; border-radius: 8px; padding: 20px; margin: 20px 0;">
             <p style="margin: 8px 0; color: #cc0000; text-decoration: line-through;"><strong>Ancien :</strong> ${data.oldDate} à ${data.oldTime}</p>
-            <p style="margin: 8px 0; color: #009900;"><strong>Nouveau :</strong> ${data.newDate} à ${data.newTime}</p>
+            <p style="margin: 8px 0; color: #009A44;"><strong>Nouveau :</strong> ${data.newDate} à ${data.newTime}</p>
           </div>
 
           <p>Veuillez vérifier votre disponibilité pour le nouveau créneau. Si ce créneau ne vous convient pas, vous pouvez annuler et reprendre un autre rendez-vous.</p>
 
           <div style="text-align: center; margin: 30px 0;">
-            <a href="${APP_URL}/patient/appointments" style="background-color: #0066cc; color: white; padding: 12px 30px; text-decoration: none; border-radius: 5px; display: inline-block; font-weight: bold;">Voir mes rendez-vous</a>
+            <a href="${APP_URL}/patient/appointments" style="background-color: #FF8200; color: white; padding: 12px 30px; text-decoration: none; border-radius: 5px; display: inline-block; font-weight: bold;">Voir mes rendez-vous</a>
           </div>
         </div>
         <div style="text-align: center; margin-top: 20px; color: #999; font-size: 12px;">
@@ -485,8 +485,8 @@ export async function sendNoShowEmail(
         <title>Absence à votre rendez-vous</title>
       </head>
       <body style="font-family: Arial, sans-serif; line-height: 1.6; color: #333; max-width: 600px; margin: 0 auto; padding: 20px;">
-        <div style="background-color: #0066cc; color: white; padding: 20px; text-align: center; border-radius: 5px 5px 0 0;">
-          <h1 style="margin: 0;">MediCôte</h1>
+        <div style="background: linear-gradient(135deg, #FF8200 0%, #009A44 100%); color: white; padding: 20px; text-align: center; border-radius: 5px 5px 0 0;">
+          <h1 style="margin: 0;"><span style="color: #FF8200; background: white; padding: 2px 6px; border-radius: 3px;">Medi</span><span style="color: #009A44; background: white; padding: 2px 6px; border-radius: 3px;">côte</span></h1>
         </div>
         <div style="background-color: #f9f9f9; padding: 30px; border-radius: 0 0 5px 5px;">
           <h2 style="color: #cc0000; margin-top: 0;">Vous étiez absent à votre rendez-vous</h2>
@@ -505,7 +505,7 @@ export async function sendNoShowEmail(
           <p>Si cette absence n'est pas de votre fait, veuillez contacter votre praticien.</p>
 
           <div style="text-align: center; margin: 30px 0;">
-            <a href="${APP_URL}/patient/appointments" style="background-color: #0066cc; color: white; padding: 12px 30px; text-decoration: none; border-radius: 5px; display: inline-block; font-weight: bold;">Reprendre rendez-vous</a>
+            <a href="${APP_URL}/patient/appointments" style="background-color: #FF8200; color: white; padding: 12px 30px; text-decoration: none; border-radius: 5px; display: inline-block; font-weight: bold;">Reprendre rendez-vous</a>
           </div>
         </div>
         <div style="text-align: center; margin-top: 20px; color: #999; font-size: 12px;">
@@ -538,11 +538,11 @@ export async function sendAutoNoShowPractitionerNotification(
         <title>Absence patient détectée automatiquement</title>
       </head>
       <body style="font-family: Arial, sans-serif; line-height: 1.6; color: #333; max-width: 600px; margin: 0 auto; padding: 20px;">
-        <div style="background-color: #0066cc; color: white; padding: 20px; text-align: center; border-radius: 5px 5px 0 0;">
-          <h1 style="margin: 0;">MediCôte</h1>
+        <div style="background: linear-gradient(135deg, #FF8200 0%, #009A44 100%); color: white; padding: 20px; text-align: center; border-radius: 5px 5px 0 0;">
+          <h1 style="margin: 0;"><span style="color: #FF8200; background: white; padding: 2px 6px; border-radius: 3px;">Medi</span><span style="color: #009A44; background: white; padding: 2px 6px; border-radius: 3px;">côte</span></h1>
         </div>
         <div style="background-color: #f9f9f9; padding: 30px; border-radius: 0 0 5px 5px;">
-          <h2 style="color: #cc6600; margin-top: 0;">Absence patient détectée automatiquement</h2>
+          <h2 style="color: #FF8200; margin-top: 0;">Absence patient détectée automatiquement</h2>
           <p>Bonjour ${data.practitionerName},</p>
           <p>Le système a automatiquement détecté l'absence du patient suivant lors de votre téléconsultation :</p>
           
@@ -552,8 +552,8 @@ export async function sendAutoNoShowPractitionerNotification(
             <p style="margin: 8px 0;"><strong>Heure :</strong> ${data.appointmentTime}</p>
           </div>
 
-          <div style="background-color: #fff3cd; border: 1px solid #ffc107; border-radius: 8px; padding: 15px; margin: 20px 0;">
-            <p style="margin: 0; color: #856404;"><strong>Note :</strong> Cette absence a été détectée automatiquement car le patient ne s'est pas connecté à la téléconsultation avant la fin du créneau. Le patient a été notifié et son compteur d'absences a été mis à jour (${data.noShowCount} absence(s) au total).</p>
+          <div style="background-color: #FFF5E6; border: 1px solid #FF8200; border-radius: 8px; padding: 15px; margin: 20px 0;">
+            <p style="margin: 0; color: #B35900;"><strong>Note :</strong> Cette absence a été détectée automatiquement car le patient ne s'est pas connecté à la téléconsultation avant la fin du créneau. Le patient a été notifié et son compteur d'absences a été mis à jour (${data.noShowCount} absence(s) au total).</p>
           </div>
         </div>
         <div style="text-align: center; margin-top: 20px; color: #999; font-size: 12px;">
@@ -586,11 +586,11 @@ export async function sendPractitionerAbsentNotification(
         <title>Votre téléconsultation n'a pas pu avoir lieu</title>
       </head>
       <body style="font-family: Arial, sans-serif; line-height: 1.6; color: #333; max-width: 600px; margin: 0 auto; padding: 20px;">
-        <div style="background-color: #0066cc; color: white; padding: 20px; text-align: center; border-radius: 5px 5px 0 0;">
-          <h1 style="margin: 0;">MediCôte</h1>
+        <div style="background: linear-gradient(135deg, #FF8200 0%, #009A44 100%); color: white; padding: 20px; text-align: center; border-radius: 5px 5px 0 0;">
+          <h1 style="margin: 0;"><span style="color: #FF8200; background: white; padding: 2px 6px; border-radius: 3px;">Medi</span><span style="color: #009A44; background: white; padding: 2px 6px; border-radius: 3px;">côte</span></h1>
         </div>
         <div style="background-color: #f9f9f9; padding: 30px; border-radius: 0 0 5px 5px;">
-          <h2 style="color: #cc6600; margin-top: 0;">Votre téléconsultation n'a pas pu avoir lieu</h2>
+          <h2 style="color: #FF8200; margin-top: 0;">Votre téléconsultation n'a pas pu avoir lieu</h2>
           <p>Bonjour ${data.patientName},</p>
           <p>Nous sommes désolés de vous informer que votre praticien n'a pas pu se connecter à la téléconsultation prévue :</p>
           
@@ -600,12 +600,12 @@ export async function sendPractitionerAbsentNotification(
             <p style="margin: 8px 0;"><strong>Heure :</strong> ${data.appointmentTime}</p>
           </div>
 
-          <div style="background-color: #d4edda; border: 1px solid #28a745; border-radius: 8px; padding: 15px; margin: 20px 0;">
-            <p style="margin: 0; color: #155724;"><strong>Aucune absence ne vous est comptabilisée.</strong> Cette annulation n'est pas de votre fait. Vous pouvez reprendre un nouveau rendez-vous.</p>
+          <div style="background-color: #E6F5EB; border: 1px solid #009A44; border-radius: 8px; padding: 15px; margin: 20px 0;">
+            <p style="margin: 0; color: #006B30;"><strong>Aucune absence ne vous est comptabilisée.</strong> Cette annulation n'est pas de votre fait. Vous pouvez reprendre un nouveau rendez-vous.</p>
           </div>
 
           <div style="text-align: center; margin: 30px 0;">
-            <a href="${APP_URL}/patient/appointments" style="background-color: #0066cc; color: white; padding: 12px 30px; text-decoration: none; border-radius: 5px; display: inline-block; font-weight: bold;">Reprendre rendez-vous</a>
+            <a href="${APP_URL}/patient/appointments" style="background-color: #FF8200; color: white; padding: 12px 30px; text-decoration: none; border-radius: 5px; display: inline-block; font-weight: bold;">Reprendre rendez-vous</a>
           </div>
         </div>
         <div style="text-align: center; margin-top: 20px; color: #999; font-size: 12px;">
@@ -632,11 +632,11 @@ export async function sendStaffAccountCreatedEmail(
         <title>Votre compte personnel MediCôte</title>
       </head>
       <body style="font-family: Arial, sans-serif; line-height: 1.6; color: #333; max-width: 600px; margin: 0 auto; padding: 20px;">
-        <div style="background-color: #0066cc; color: white; padding: 20px; text-align: center; border-radius: 5px 5px 0 0;">
-          <h1 style="margin: 0;">MediCôte</h1>
+        <div style="background: linear-gradient(135deg, #FF8200 0%, #009A44 100%); color: white; padding: 20px; text-align: center; border-radius: 5px 5px 0 0;">
+          <h1 style="margin: 0;"><span style="color: #FF8200; background: white; padding: 2px 6px; border-radius: 3px;">Medi</span><span style="color: #009A44; background: white; padding: 2px 6px; border-radius: 3px;">côte</span></h1>
         </div>
         <div style="background-color: #f9f9f9; padding: 30px; border-radius: 0 0 5px 5px;">
-          <h2 style="color: #0066cc; margin-top: 0;">Bienvenue ${firstName} !</h2>
+          <h2 style="color: #FF8200; margin-top: 0;">Bienvenue ${firstName} !</h2>
           <p>Un compte personnel a été créé pour vous sur MediCôte.</p>
           <p>Voici vos identifiants de connexion :</p>
 
@@ -645,12 +645,12 @@ export async function sendStaffAccountCreatedEmail(
             <p style="margin: 8px 0;"><strong>Mot de passe temporaire :</strong> ${generatedPassword}</p>
           </div>
 
-          <div style="background-color: #fff3cd; border: 1px solid #ffc107; border-radius: 8px; padding: 15px; margin: 20px 0;">
-            <p style="margin: 0; color: #856404;"><strong>Important :</strong> Nous vous recommandons de changer votre mot de passe dès votre première connexion.</p>
+          <div style="background-color: #FFF5E6; border: 1px solid #FF8200; border-radius: 8px; padding: 15px; margin: 20px 0;">
+            <p style="margin: 0; color: #B35900;"><strong>Important :</strong> Nous vous recommandons de changer votre mot de passe dès votre première connexion.</p>
           </div>
 
           <div style="text-align: center; margin: 30px 0;">
-            <a href="${APP_URL}/auth/login" style="background-color: #0066cc; color: white; padding: 12px 30px; text-decoration: none; border-radius: 5px; display: inline-block; font-weight: bold;">Se connecter</a>
+            <a href="${APP_URL}/auth/login" style="background-color: #FF8200; color: white; padding: 12px 30px; text-decoration: none; border-radius: 5px; display: inline-block; font-weight: bold;">Se connecter</a>
           </div>
         </div>
         <div style="text-align: center; margin-top: 20px; color: #999; font-size: 12px;">
@@ -676,16 +676,16 @@ export async function sendCabinetInvitationEmail(
         <title>Invitation à rejoindre un cabinet</title>
       </head>
       <body style="font-family: Arial, sans-serif; line-height: 1.6; color: #333; max-width: 600px; margin: 0 auto; padding: 20px;">
-        <div style="background-color: #0066cc; color: white; padding: 20px; text-align: center; border-radius: 5px 5px 0 0;">
-          <h1 style="margin: 0;">MediCôte</h1>
+        <div style="background: linear-gradient(135deg, #FF8200 0%, #009A44 100%); color: white; padding: 20px; text-align: center; border-radius: 5px 5px 0 0;">
+          <h1 style="margin: 0;"><span style="color: #FF8200; background: white; padding: 2px 6px; border-radius: 3px;">Medi</span><span style="color: #009A44; background: white; padding: 2px 6px; border-radius: 3px;">côte</span></h1>
         </div>
         <div style="background-color: #f9f9f9; padding: 30px; border-radius: 0 0 5px 5px;">
-          <h2 style="color: #0066cc; margin-top: 0;">Invitation à rejoindre un cabinet</h2>
+          <h2 style="color: #FF8200; margin-top: 0;">Invitation à rejoindre un cabinet</h2>
           <p>Bonjour,</p>
           <p>Le cabinet <strong>${cabinetName}</strong> vous invite à rejoindre leur équipe sur MediCôte.</p>
 
           <div style="text-align: center; margin: 30px 0;">
-            <a href="${APP_URL}/auth/login" style="background-color: #0066cc; color: white; padding: 12px 30px; text-decoration: none; border-radius: 5px; display: inline-block; font-weight: bold;">Voir l'invitation</a>
+            <a href="${APP_URL}/auth/login" style="background-color: #FF8200; color: white; padding: 12px 30px; text-decoration: none; border-radius: 5px; display: inline-block; font-weight: bold;">Voir l'invitation</a>
           </div>
 
           <p style="color: #666; font-size: 14px; margin-top: 30px;">Cette invitation expirera dans 7 jours.</p>
@@ -723,8 +723,8 @@ export async function sendAppointmentCancelledByPatientEmail(
         <title>Annulation de rendez-vous par un patient</title>
       </head>
       <body style="font-family: Arial, sans-serif; line-height: 1.6; color: #333; max-width: 600px; margin: 0 auto; padding: 20px;">
-        <div style="background-color: #0066cc; color: white; padding: 20px; text-align: center; border-radius: 5px 5px 0 0;">
-          <h1 style="margin: 0;">MediCôte</h1>
+        <div style="background: linear-gradient(135deg, #FF8200 0%, #009A44 100%); color: white; padding: 20px; text-align: center; border-radius: 5px 5px 0 0;">
+          <h1 style="margin: 0;"><span style="color: #FF8200; background: white; padding: 2px 6px; border-radius: 3px;">Medi</span><span style="color: #009A44; background: white; padding: 2px 6px; border-radius: 3px;">côte</span></h1>
         </div>
         <div style="background-color: #f9f9f9; padding: 30px; border-radius: 0 0 5px 5px;">
           <h2 style="color: #cc0000; margin-top: 0;">Rendez-vous annulé par le patient</h2>
@@ -741,7 +741,7 @@ export async function sendAppointmentCancelledByPatientEmail(
           <p>Le créneau est maintenant disponible pour d'autres patients.</p>
 
           <div style="text-align: center; margin: 30px 0;">
-            <a href="${APP_URL}/practitioner/agenda" style="background-color: #0066cc; color: white; padding: 12px 30px; text-decoration: none; border-radius: 5px; display: inline-block; font-weight: bold;">Voir mon agenda</a>
+            <a href="${APP_URL}/practitioner/agenda" style="background-color: #FF8200; color: white; padding: 12px 30px; text-decoration: none; border-radius: 5px; display: inline-block; font-weight: bold;">Voir mon agenda</a>
           </div>
         </div>
         <div style="text-align: center; margin-top: 20px; color: #999; font-size: 12px;">
@@ -777,22 +777,22 @@ export async function sendAppointmentModifiedByPatientEmail(
         <title>Modification de rendez-vous par un patient</title>
       </head>
       <body style="font-family: Arial, sans-serif; line-height: 1.6; color: #333; max-width: 600px; margin: 0 auto; padding: 20px;">
-        <div style="background-color: #0066cc; color: white; padding: 20px; text-align: center; border-radius: 5px 5px 0 0;">
-          <h1 style="margin: 0;">MediCôte</h1>
+        <div style="background: linear-gradient(135deg, #FF8200 0%, #009A44 100%); color: white; padding: 20px; text-align: center; border-radius: 5px 5px 0 0;">
+          <h1 style="margin: 0;"><span style="color: #FF8200; background: white; padding: 2px 6px; border-radius: 3px;">Medi</span><span style="color: #009A44; background: white; padding: 2px 6px; border-radius: 3px;">côte</span></h1>
         </div>
         <div style="background-color: #f9f9f9; padding: 30px; border-radius: 0 0 5px 5px;">
-          <h2 style="color: #e67e00; margin-top: 0;">Rendez-vous modifié par le patient</h2>
+          <h2 style="color: #FF8200; margin-top: 0;">Rendez-vous modifié par le patient</h2>
           <p>Bonjour ${data.practitionerName},</p>
           <p>Un patient a modifié son rendez-vous. Voici les détails :</p>
           
           <div style="background-color: white; border: 1px solid #e0e0e0; border-radius: 8px; padding: 20px; margin: 20px 0;">
             <p style="margin: 8px 0;"><strong>Patient :</strong> ${data.patientFirstName} ${data.patientLastName}</p>
             <p style="margin: 8px 0; color: #cc0000; text-decoration: line-through;"><strong>Ancien :</strong> ${data.oldDate} à ${data.oldTime}</p>
-            <p style="margin: 8px 0; color: #009900;"><strong>Nouveau :</strong> ${data.newDate} à ${data.newTime}</p>
+            <p style="margin: 8px 0; color: #009A44;"><strong>Nouveau :</strong> ${data.newDate} à ${data.newTime}</p>
           </div>
 
           <div style="text-align: center; margin: 30px 0;">
-            <a href="${APP_URL}/practitioner/agenda" style="background-color: #0066cc; color: white; padding: 12px 30px; text-decoration: none; border-radius: 5px; display: inline-block; font-weight: bold;">Voir mon agenda</a>
+            <a href="${APP_URL}/practitioner/agenda" style="background-color: #FF8200; color: white; padding: 12px 30px; text-decoration: none; border-radius: 5px; display: inline-block; font-weight: bold;">Voir mon agenda</a>
           </div>
         </div>
         <div style="text-align: center; margin-top: 20px; color: #999; font-size: 12px;">
@@ -839,11 +839,11 @@ export async function sendAppointmentBookedByPractitionerEmail(
         <title>Nouveau rendez-vous programmé</title>
       </head>
       <body style="font-family: Arial, sans-serif; line-height: 1.6; color: #333; max-width: 600px; margin: 0 auto; padding: 20px;">
-        <div style="background-color: #0066cc; color: white; padding: 20px; text-align: center; border-radius: 5px 5px 0 0;">
-          <h1 style="margin: 0;">MediCôte</h1>
+        <div style="background: linear-gradient(135deg, #FF8200 0%, #009A44 100%); color: white; padding: 20px; text-align: center; border-radius: 5px 5px 0 0;">
+          <h1 style="margin: 0;"><span style="color: #FF8200; background: white; padding: 2px 6px; border-radius: 3px;">Medi</span><span style="color: #009A44; background: white; padding: 2px 6px; border-radius: 3px;">côte</span></h1>
         </div>
         <div style="background-color: #f9f9f9; padding: 30px; border-radius: 0 0 5px 5px;">
-          <h2 style="color: #0066cc; margin-top: 0;">Rendez-vous programmé pour vous ✓</h2>
+          <h2 style="color: #FF8200; margin-top: 0;">Rendez-vous programmé pour vous ✓</h2>
           <p>Bonjour ${data.patientName},</p>
           <p>Votre praticien a programmé un rendez-vous pour vous. Voici les détails :</p>
           
@@ -858,7 +858,7 @@ export async function sendAppointmentBookedByPractitionerEmail(
           </div>
 
           <div style="text-align: center; margin: 30px 0;">
-            <a href="${APP_URL}/patient/appointments" style="background-color: #0066cc; color: white; padding: 12px 30px; text-decoration: none; border-radius: 5px; display: inline-block; font-weight: bold;">Voir mes rendez-vous</a>
+            <a href="${APP_URL}/patient/appointments" style="background-color: #FF8200; color: white; padding: 12px 30px; text-decoration: none; border-radius: 5px; display: inline-block; font-weight: bold;">Voir mes rendez-vous</a>
           </div>
           
           <p style="color: #666; font-size: 14px; margin-top: 30px;">

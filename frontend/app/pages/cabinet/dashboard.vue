@@ -14,9 +14,9 @@
       <div class="rounded-xl border border-gray-200 bg-white p-6 shadow-sm">
         <div class="flex items-center gap-4">
           <div
-            class="flex h-12 w-12 items-center justify-center rounded-lg bg-indigo-100"
+            class="flex h-12 w-12 items-center justify-center rounded-lg bg-orange-100"
           >
-            <Users class="h-6 w-6 text-indigo-600" />
+            <Users class="h-6 w-6 text-orange-600" />
           </div>
           <div>
             <p class="text-sm text-gray-500">Praticiens</p>
@@ -54,9 +54,9 @@
       <div class="rounded-xl border border-gray-200 bg-white p-6 shadow-sm">
         <div class="flex items-center gap-4">
           <div
-            class="flex h-12 w-12 items-center justify-center rounded-lg bg-blue-100"
+            class="flex h-12 w-12 items-center justify-center rounded-lg bg-orange-100"
           >
-            <Calendar class="h-6 w-6 text-blue-600" />
+            <Calendar class="h-6 w-6 text-orange-600" />
           </div>
           <div>
             <p class="text-sm text-gray-500">RDV aujourd'hui</p>
@@ -80,7 +80,7 @@
         </h3>
         <button
           @click="navigateTo('/cabinet/practitioners')"
-          class="text-sm font-medium text-indigo-600 hover:text-indigo-800"
+          class="text-sm font-medium text-orange-600 hover:text-orange-800"
         >
           Voir tout →
         </button>
@@ -98,7 +98,7 @@
         <p class="text-gray-500">Aucun praticien dans ce cabinet</p>
         <button
           @click="navigateTo('/cabinet/practitioners')"
-          class="mt-3 text-sm font-medium text-indigo-600 hover:text-indigo-800"
+          class="mt-3 text-sm font-medium text-orange-600 hover:text-orange-800"
         >
           Inviter un praticien
         </button>
@@ -112,9 +112,9 @@
         >
           <div class="flex items-center gap-3">
             <div
-              class="flex h-10 w-10 items-center justify-center rounded-full bg-indigo-100"
+              class="flex h-10 w-10 items-center justify-center rounded-full bg-orange-100"
             >
-              <span class="text-sm font-bold text-indigo-600">
+              <span class="text-sm font-bold text-orange-600">
                 {{ prac.firstName[0] }}{{ prac.lastName[0] }}
               </span>
             </div>

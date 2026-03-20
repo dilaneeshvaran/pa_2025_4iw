@@ -22,7 +22,7 @@
           <select
             v-model="filters.status"
             @change="fetchInvoices(1)"
-            class="block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500 sm:text-sm"
+            class="block w-full rounded-md border-gray-300 shadow-sm focus:border-orange-500 focus:ring-orange-500 sm:text-sm"
           >
             <option value="all">Tous les statuts</option>
             <option value="COMPLETED">Payé</option>
@@ -146,7 +146,7 @@
                   @click="
                     downloadPdf(invoice.invoice.id, invoice.invoiceNumber)
                   "
-                  class="text-blue-600 hover:text-blue-900 focus:outline-none"
+                  class="text-orange-600 hover:text-orange-600 focus:outline-none"
                   title="Télécharger"
                 >
                   <Download class="h-5 w-5" />
@@ -226,7 +226,7 @@
             <button
               v-for="apt in unpaidAppointments"
               :key="apt.id"
-              class="flex w-full items-center justify-between rounded-lg border border-gray-200 p-4 text-left transition-colors hover:border-blue-500 hover:bg-blue-50"
+              class="flex w-full items-center justify-between rounded-lg border border-gray-200 p-4 text-left transition-colors hover:border-orange-500 hover:bg-orange-50"
               @click="proceedToInvoiceDetails(apt)"
             >
               <div>
@@ -257,7 +257,7 @@
                 >
                 <span
                   v-else
-                  class="ml-2 inline-flex rounded-full bg-blue-100 px-2 font-semibold text-blue-800"
+                  class="ml-2 inline-flex rounded-full bg-orange-100 px-2 font-semibold text-orange-800"
                   >Passé</span
                 >
               </div>
