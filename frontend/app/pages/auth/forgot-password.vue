@@ -106,7 +106,7 @@ import { useAuth } from "~/composables/useAuth";
 
 definePageMeta({
   middleware: "guest",
-  layout: 'default',
+  layout: "default",
 });
 
 const auth = useAuth();

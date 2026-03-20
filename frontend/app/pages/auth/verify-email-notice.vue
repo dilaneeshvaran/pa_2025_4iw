@@ -2,14 +2,17 @@
   <div class="flex min-h-screen items-center justify-center px-4 py-12">
     <div class="w-full max-w-md space-y-8 rounded-lg bg-white p-8 shadow-lg">
       <div class="text-center">
-        <div class="mx-auto flex h-16 w-16 items-center justify-center rounded-full bg-yellow-100">
+        <div
+          class="mx-auto flex h-16 w-16 items-center justify-center rounded-full bg-yellow-100"
+        >
           <Icon name="lucide:mail" class="h-8 w-8 text-yellow-600" />
         </div>
         <h2 class="mt-6 text-3xl font-bold text-gray-900">
           Vérifiez votre email
         </h2>
         <p class="mt-4 text-sm text-gray-600">
-          Votre compte a été créé avec succès, mais vous devez vérifier votre adresse email avant d'accéder au tableau de bord.
+          Votre compte a été créé avec succès, mais vous devez vérifier votre
+          adresse email avant d'accéder au tableau de bord.
         </p>
       </div>
 
@@ -20,8 +23,10 @@
           </div>
           <div class="ml-3">
             <p class="text-sm text-orange-700">
-              Un email de vérification a été envoyé à <strong>{{ userEmail }}</strong>. 
-              Veuillez cliquer sur le lien dans l'email pour activer votre compte.
+              Un email de vérification a été envoyé à
+              <strong>{{ userEmail }}</strong
+              >. Veuillez cliquer sur le lien dans l'email pour activer votre
+              compte.
             </p>
           </div>
         </div>
@@ -64,7 +69,8 @@
 
       <div class="text-center">
         <p class="text-xs text-gray-500">
-          Vous n'avez pas reçu l'email ? Vérifiez votre dossier spam ou cliquez sur "Renvoyer l'email de vérification".
+          Vous n'avez pas reçu l'email ? Vérifiez votre dossier spam ou cliquez
+          sur "Renvoyer l'email de vérification".
         </p>
       </div>
     </div>
@@ -78,7 +84,7 @@ import { useAuth } from "~/composables/useAuth";
 
 definePageMeta({
   middleware: "auth",
-  layout: 'default',
+  layout: "default",
 });
 
 const router = useRouter();

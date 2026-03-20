@@ -53,7 +53,12 @@
             Email vérifié avec succès !
           </h2>
           <p class="text-gray-600">
-            Votre adresse email a été vérifiée. {{ isLoggedIn ? 'Vous allez être redirigé vers votre tableau de bord.' : 'Vous pouvez maintenant vous connecter à votre compte.' }}
+            Votre adresse email a été vérifiée.
+            {{
+              isLoggedIn
+                ? "Vous allez être redirigé vers votre tableau de bord."
+                : "Vous pouvez maintenant vous connecter à votre compte."
+            }}
           </p>
           <div v-if="!isLoggedIn" class="pt-4">
             <NuxtLink
@@ -159,14 +164,14 @@ const resendEmailSent = ref(false);
 const isLoggedIn = ref(false);
 
 definePageMeta({
-  layout: 'default',
+  layout: "default",
 });
 
 onMounted(async () => {
   const authStore = useAuthStore();
   authStore.initAuth();
   isLoggedIn.value = authStore.isAuthenticated;
-  
+
   // get token from url query parameter
   const token = (route.query.token as string) || "";
 
@@ -180,11 +185,11 @@ onMounted(async () => {
   try {
     await auth.verifyEmail({ token });
     verified.value = true;
-    
+
     // if user is logged in, update their emailVerified status and redirect to dashboard
     if (authStore.isAuthenticated && authStore.user) {
-      authStore.updateUser({ emailVerified: true, status: 'ACTIVE' });
-      
+      authStore.updateUser({ emailVerified: true, status: "ACTIVE" });
+
       // redirect to appropriate dashboard after a short delay
       setTimeout(() => {
         const role = authStore.user?.role;

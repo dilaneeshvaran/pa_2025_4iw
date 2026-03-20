@@ -204,7 +204,7 @@ import type { Gender } from "~/types/auth";
 
 definePageMeta({
   middleware: "guest",
-  layout: 'default',
+  layout: "default",
 });
 
 const router = useRouter();
