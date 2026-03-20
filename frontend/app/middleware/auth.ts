@@ -11,16 +11,29 @@ export default defineNuxtRouteMiddleware((to, _from) => {
     authStore.initAuth();
   }
 
-  //todo : this is redirecting to login from dashboard after few hours of inactivity
-  // so the correct way is to :
-  // check if authenticated
-  // if not > try to refresh the token first
-  // if refresh succeeds > let through
-  // if refresh fails > redirect to login
+  // check if token is expired
+  if (authStore.isAuthenticated && authStore.isTokenExpired) {
+    // logout and redirect to login if token expired
+    authStore.logout();
+    return navigateTo({
+      path: "/auth/login",
+      query: { redirect: to.fullPath },
+    });
+  }
+
   if (!authStore.isAuthenticated) {
     return navigateTo({
       path: "/auth/login",
       query: { redirect: to.fullPath },
     });
+  }
+
+  // check if users email is verified (except for the verify email notice page)
+  if (
+    authStore.user &&
+    !authStore.user.emailVerified &&
+    to.path !== "/auth/verify-email-notice"
+  ) {
+    return navigateTo("/auth/verify-email-notice");
   }
 });

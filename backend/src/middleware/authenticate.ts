@@ -72,6 +72,7 @@ export async function authenticate(
         email: true,
         role: true,
         status: true,
+        emailVerified: true,
       },
     })
 
@@ -82,8 +83,23 @@ export async function authenticate(
       })
     }
 
+    if (user.status === 'SUSPENDED') {
+      return reply.status(403).send({
+        success: false,
+        message: 'Votre compte a été suspendu',
+      })
+    }
+
+    if (user.status === 'PENDING_VERIFICATION') {
+      return reply.status(403).send({
+        success: false,
+        message: 'Veuillez vérifier votre email avant d\'accéder à cette ressource',
+        code: 'EMAIL_NOT_VERIFIED',
+      })
+    }
+
     if (user.status !== 'ACTIVE') {
-      return reply.status(401).send({
+      return reply.status(403).send({
         success: false,
         message: 'Compte utilisateur inactif',
       })

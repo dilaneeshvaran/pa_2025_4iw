@@ -22,6 +22,7 @@ import { practitionersService } from '../practitioners/practitioners.service'
 import { patientsService } from '../patients/patients.service'
 import path from 'path'
 import fs from 'fs'
+import { messageRateLimit } from '../../plugins/rate-limit'
 
 export async function messagesRoutes(fastify: FastifyInstance) {
   fastify.get(
@@ -111,7 +112,7 @@ export async function messagesRoutes(fastify: FastifyInstance) {
   // patient  new conversation with  practitioner
   fastify.post(
     '/conversations',
-    { preHandler: [authenticate, authorize(['PATIENT'])] },
+    { preHandler: [authenticate, authorize(['PATIENT']), messageRateLimit] },
     async (request: FastifyRequest, reply: FastifyReply) => {
       try {
         const user = request.user as { id: string }
@@ -180,7 +181,9 @@ export async function messagesRoutes(fastify: FastifyInstance) {
   // practitioner starts a conversation with a patient
   fastify.post(
     '/conversations/with-patient',
-    { preHandler: [authenticate, authorize(['PRACTITIONER'])] },
+    {
+      preHandler: [authenticate, authorize(['PRACTITIONER']), messageRateLimit],
+    },
     async (request: FastifyRequest, reply: FastifyReply) => {
       try {
         const user = request.user as { id: string }
@@ -240,7 +243,9 @@ export async function messagesRoutes(fastify: FastifyInstance) {
   // practitioner starts a conversation with another practitioner
   fastify.post(
     '/conversations/with-practitioner',
-    { preHandler: [authenticate, authorize(['PRACTITIONER'])] },
+    {
+      preHandler: [authenticate, authorize(['PRACTITIONER']), messageRateLimit],
+    },
     async (request: FastifyRequest, reply: FastifyReply) => {
       try {
         const user = request.user as { id: string }
@@ -299,7 +304,7 @@ export async function messagesRoutes(fastify: FastifyInstance) {
   // send message (text)
   fastify.post(
     '/conversations/:id/messages',
-    { preHandler: [authenticate] },
+    { preHandler: [authenticate, messageRateLimit] },
     async (request: FastifyRequest, reply: FastifyReply) => {
       try {
         const user = request.user as { id: string; role: string }
@@ -355,7 +360,7 @@ export async function messagesRoutes(fastify: FastifyInstance) {
   // send message with attachment
   fastify.post(
     '/conversations/:id/messages/attachment',
-    { preHandler: [authenticate] },
+    { preHandler: [authenticate, messageRateLimit] },
     async (request: FastifyRequest, reply: FastifyReply) => {
       try {
         const user = request.user as { id: string; role: string }

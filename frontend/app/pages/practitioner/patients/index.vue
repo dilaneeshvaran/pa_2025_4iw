@@ -237,7 +237,9 @@
           <UiButton
             variant="secondary"
             size="sm"
-            @click="navigateTo(`/practitioner/patients/${patient.id}`)"
+            @click="
+              navigateTo(`/practitioner/patients/${patient.id}/medical-record`)
+            "
           >
             <FolderOpen class="mr-1 h-3.5 w-3.5" />
             Dossier
@@ -351,7 +353,11 @@
                     variant="ghost"
                     size="sm"
                     title="Dossier"
-                    @click="navigateTo(`/practitioner/patients/${patient.id}`)"
+                    @click="
+                      navigateTo(
+                        `/practitioner/patients/${patient.id}/medical-record`,
+                      )
+                    "
                   >
                     <FolderOpen class="h-4 w-4" />
                   </UiButton>
@@ -406,7 +412,8 @@
       :patient-id="selectedPatientId"
       @close="closeModal"
       @navigate-dossier="
-        (id: string) => navigateTo(`/practitioner/patients/${id}`)
+        (id: string) =>
+          navigateTo(`/practitioner/patients/${id}/medical-record`)
       "
       @navigate-message="goToMessageById"
       @navigate-booking="openBooking"

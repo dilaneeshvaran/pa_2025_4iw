@@ -210,8 +210,20 @@ export class PaymentsService {
       throw new Error("Vous n'avez pas accès à ce rendez-vous")
     }
 
+    // if a pending payment exists, update it instead of creating a new one
     if (appointment.payment) {
-      throw new Error('Ce rendez-vous a déjà été payé')
+      if (appointment.payment.status === 'COMPLETED') {
+        throw new Error('Ce rendez-vous a déjà été payé')
+      }
+      if (appointment.payment.status === 'PENDING') {
+        // update existing pending payment to comepleted
+        return this.processExistingPendingPayment(
+          appointment.payment.id,
+          data,
+          appointment,
+        )
+      }
+      throw new Error('Ce rendez-vous a déjà un paiement en cours')
     }
 
     if (appointment.status === 'CANCELLED') {
@@ -361,6 +373,154 @@ export class PaymentsService {
         invoiceNumber: invoice.invoiceNumber,
         pdfPath: null,
       },
+    }
+  }
+
+  // process an existing oending payment (complete it)
+  private async processExistingPendingPayment(
+    paymentId: string,
+    data: CreatePaymentData,
+    appointment: any,
+  ): Promise<PatientPayment> {
+    const now = new Date()
+
+    // update payment status to completed
+    const payment = await prisma.payment.update({
+      where: { id: paymentId },
+      data: {
+        method: data.method as PaymentMethod,
+        status: 'COMPLETED',
+        paidAt: now,
+        mobileMoneyRef:
+          data.method === 'MOBILE_MONEY'
+            ? `MM-${Date.now()}-${Math.random().toString(36).substring(2, 8).toUpperCase()}`
+            : null,
+        stripePaymentId:
+          data.method === 'CARD'
+            ? `pi_${Date.now()}_${Math.random().toString(36).substring(2, 10)}`
+            : null,
+      },
+      include: {
+        appointment: {
+          include: {
+            practitioner: {
+              include: {
+                specialties: {
+                  where: { isPrimary: true },
+                  include: { specialty: true },
+                  take: 1,
+                },
+              },
+            },
+          },
+        },
+        invoice: {
+          select: { id: true, invoiceNumber: true, pdfPath: true },
+        },
+      },
+    })
+
+    // create invoice if it doesnt exist
+    let invoice = await prisma.invoice.findUnique({
+      where: { paymentId: payment.id },
+    })
+
+    if (!invoice) {
+      const amount = Number(payment.amount)
+      invoice = await prisma.invoice.create({
+        data: {
+          paymentId: payment.id,
+          invoiceNumber: payment.invoiceNumber,
+          invoiceDate: now,
+          subtotal: amount,
+          taxRate: 0,
+          taxAmount: 0,
+          total: amount,
+          currency: 'XOF',
+          items: [
+            {
+              description: `Consultation ${appointment.type === 'TELECONSULTATION' ? 'Téléconsultation' : 'En cabinet'} - ${appointment.practitioner.title} ${appointment.practitioner.lastName}`,
+              quantity: 1,
+              unitPrice: amount,
+              amount: amount,
+            },
+          ],
+          billedToName: `${appointment.patient.firstName} ${appointment.patient.lastName}`,
+          billedToAddress: appointment.patient.address || null,
+          billedToEmail: appointment.patient.user.email,
+          billedToPhone: appointment.patient.phone,
+          billedFromName: `${appointment.practitioner.title} ${appointment.practitioner.firstName} ${appointment.practitioner.lastName}`,
+          billedFromAddress: appointment.practitioner.address || null,
+          billedFromLicense: appointment.practitioner.licenseNumber,
+        },
+      })
+
+      // send invoice email
+      try {
+        const pdfBuffer = await this.buildInvoicePdfContent({
+          ...invoice,
+          payment: {
+            ...payment,
+            appointment,
+          },
+        })
+
+        await sendInvoiceEmail(
+          appointment.patient.user.email,
+          {
+            patientName: `${appointment.patient.firstName} ${appointment.patient.lastName}`,
+            invoiceNumber: invoice.invoiceNumber,
+            amount: Number(payment.amount),
+            date: new Date(invoice.invoiceDate).toLocaleDateString('fr-FR', {
+              day: 'numeric',
+              month: 'long',
+              year: 'numeric',
+            }),
+          },
+          pdfBuffer,
+        )
+      } catch (err) {
+        console.error('Failed to send invoice email after payment:', err)
+      }
+    }
+
+    return {
+      id: payment.id,
+      appointmentId: payment.appointmentId,
+      amount: Number(payment.amount),
+      currency: payment.currency,
+      method: payment.method,
+      status: payment.status,
+      invoiceNumber: payment.invoiceNumber,
+      paidAt: payment.paidAt?.toISOString() || null,
+      refundedAmount: null,
+      refundedAt: null,
+      refundReason: null,
+      createdAt: payment.createdAt.toISOString(),
+      appointment: {
+        id: payment.appointment.id,
+        appointmentDate: payment.appointment.appointmentDate.toISOString(),
+        startTime: payment.appointment.startTime,
+        endTime: payment.appointment.endTime,
+        type: payment.appointment.type,
+        status: payment.appointment.status,
+        practitioner: {
+          id: payment.appointment.practitioner.id,
+          firstName: payment.appointment.practitioner.firstName,
+          lastName: payment.appointment.practitioner.lastName,
+          title: payment.appointment.practitioner.title,
+          specialty:
+            payment.appointment.practitioner.specialties[0]?.specialty.name ||
+            null,
+        },
+      },
+      invoice: invoice
+        ? {
+            id: invoice.id,
+            invoiceNumber: invoice.invoiceNumber,
+            pdfPath: invoice.pdfPath,
+          }
+        : null,
     }
   }
 
@@ -908,7 +1068,9 @@ export class PaymentsService {
   async createCabinetPayment(
     practitionerId: string,
     appointmentId: string,
+    amount: number,
     methodStr: string,
+    notes?: string,
   ) {
     const appointment = await prisma.appointment.findUnique({
       where: { id: appointmentId },
@@ -922,18 +1084,29 @@ export class PaymentsService {
     if (!appointment) throw new Error('Rendez-vous non trouvé')
     if (appointment.practitionerId !== practitionerId)
       throw new Error('Accès refusé')
-    if (appointment.payment)
+    if (appointment.payment && appointment.payment.status === 'COMPLETED')
       throw new Error('Ce rendez-vous a déjà été facturé')
     if (appointment.status === 'CANCELLED')
       throw new Error('Rendez-vous annulé')
 
-    // unique invoice number MED-YYYYMMDD-XXXX
     const now = new Date()
+
+    // if a pending payment exists, complete it instead of creating a new one
+    if (appointment.payment && appointment.payment.status === 'PENDING') {
+      return this.completePendingCabinetPayment(
+        appointment.payment,
+        appointment,
+        methodStr,
+        now,
+        amount,
+        notes,
+      )
+    }
+
+    // unique invoice number CAB-YYYYMMDD-XXXX
     const dateStr = now.toISOString().slice(0, 10).replace(/-/g, '')
     const count = await prisma.payment.count()
     const invoiceNumber = `CAB-${dateStr}-${(count + 1).toString().padStart(4, '0')}`
-
-    const amount = Number(appointment.consultationFee || 0)
 
     const payment = await prisma.payment.create({
       data: {
@@ -961,7 +1134,9 @@ export class PaymentsService {
         currency: 'XOF',
         items: [
           {
-            description: `Consultation En cabinet - ${appointment.practitioner.title} ${appointment.practitioner.lastName}`,
+            description: notes
+              ? `Consultation En cabinet - ${appointment.practitioner.title} ${appointment.practitioner.lastName} - ${notes}`
+              : `Consultation En cabinet - ${appointment.practitioner.title} ${appointment.practitioner.lastName}`,
             quantity: 1,
             unitPrice: amount,
             amount: amount,
@@ -1009,8 +1184,98 @@ export class PaymentsService {
     return { ...payment, invoice }
   }
 
+  // complete a pending payment for cabinet billing
+  private async completePendingCabinetPayment(
+    existingPayment: any,
+    appointment: any,
+    methodStr: string,
+    now: Date,
+    amount: number,
+    notes?: string,
+  ) {
+    const payment = await prisma.payment.update({
+      where: { id: existingPayment.id },
+      data: {
+        amount,
+        method: methodStr as PaymentMethod,
+        status: 'COMPLETED',
+        paidAt: now,
+      },
+    })
+
+    // Create invoice if it doesn't exist
+    let invoice = await prisma.invoice.findUnique({
+      where: { paymentId: payment.id },
+    })
+
+    if (!invoice) {
+      invoice = await prisma.invoice.create({
+        data: {
+          paymentId: payment.id,
+          invoiceNumber: payment.invoiceNumber,
+          invoiceDate: now,
+          subtotal: amount,
+          taxRate: 0,
+          taxAmount: 0,
+          total: amount,
+          currency: 'XOF',
+          items: [
+            {
+              description: notes
+                ? `Consultation En cabinet - ${appointment.practitioner.title} ${appointment.practitioner.lastName} - ${notes}`
+                : `Consultation En cabinet - ${appointment.practitioner.title} ${appointment.practitioner.lastName}`,
+              quantity: 1,
+              unitPrice: amount,
+              amount: amount,
+            },
+          ],
+          billedToName: `${appointment.patient.firstName} ${appointment.patient.lastName}`,
+          billedToAddress: appointment.patient.address || null,
+          billedToEmail: appointment.patient.user.email,
+          billedToPhone: appointment.patient.phone,
+          billedFromName: `${appointment.practitioner.title} ${appointment.practitioner.firstName} ${appointment.practitioner.lastName}`,
+          billedFromAddress: appointment.practitioner.address || null,
+          billedFromLicense: appointment.practitioner.licenseNumber,
+        },
+      })
+    }
+
+    // send email with pdf
+    try {
+      const pdfBuffer = await this.buildInvoicePdfContent({
+        ...invoice,
+        payment: {
+          ...payment,
+          appointment,
+        },
+      })
+
+      await sendInvoiceEmail(
+        appointment.patient.user.email,
+        {
+          patientName: `${appointment.patient.firstName} ${appointment.patient.lastName}`,
+          invoiceNumber: invoice.invoiceNumber,
+          amount: amount,
+          date: new Date(invoice.invoiceDate).toLocaleDateString('fr-FR', {
+            day: 'numeric',
+            month: 'long',
+            year: 'numeric',
+          }),
+        },
+        pdfBuffer,
+      )
+    } catch (err) {
+      console.error(
+        'Failed to send invoice email after completing pending payment:',
+        err,
+      )
+    }
+
+    return { ...payment, invoice }
+  }
+
   async getPractitionerUnpaidAppointments(practitionerId: string) {
-    // get appointments that are completed or past their date without any payment record
+    // get appointments that are completed or past their date without a completed payment
     const today = new Date()
     today.setHours(0, 0, 0, 0)
     const now = new Date()
@@ -1018,18 +1283,23 @@ export class PaymentsService {
     const appointments = await prisma.appointment.findMany({
       where: {
         practitionerId,
-        payment: null, // no payment exists
         OR: [
-          { status: 'COMPLETED' },
-          {
-            status: { in: ['CONFIRMED', 'PENDING'] },
-            appointmentDate: { lt: today },
-          },
-          {
-            status: { in: ['CONFIRMED', 'PENDING'] },
-            appointmentDate: today,
-          },
+          { payment: null }, // no payment exists
+          { payment: { status: 'PENDING' } }, // payment is pending
         ],
+        AND: {
+          OR: [
+            { status: 'COMPLETED' },
+            {
+              status: { in: ['CONFIRMED', 'PENDING'] },
+              appointmentDate: { lt: today },
+            },
+            {
+              status: { in: ['CONFIRMED', 'PENDING'] },
+              appointmentDate: today,
+            },
+          ],
+        },
       },
       include: {
         patient: {
@@ -1038,6 +1308,13 @@ export class PaymentsService {
             firstName: true,
             lastName: true,
             phone: true,
+          },
+        },
+        payment: {
+          select: {
+            id: true,
+            status: true,
+            invoiceNumber: true,
           },
         },
       },

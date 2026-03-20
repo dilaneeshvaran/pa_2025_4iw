@@ -341,6 +341,36 @@ export class DocumentsService {
   private emptyCounts() {
     return { all: 0, prescriptions: 0, exams: 0, certificates: 0, others: 0 }
   }
+
+  // for practitioner to access patient documents
+  async getDocumentForPractitionerAccess(
+    practitionerId: string,
+    patientId: string,
+    documentId: string,
+  ) {
+    // verify practitioner has relation with patient
+    const hasRelation = await prisma.appointment.findFirst({
+      where: {
+        practitionerId,
+        patientId,
+        status: { not: 'CANCELLED' as any },
+      },
+    })
+
+    if (!hasRelation) return null
+
+    // check document belongs to patient
+    const document = await prisma.document.findFirst({
+      where: {
+        id: documentId,
+        patientId,
+        practitionerId: null,
+        medicalRecordId: null,
+      },
+    })
+
+    return document
+  }
 }
 
 export const documentsService = new DocumentsService()

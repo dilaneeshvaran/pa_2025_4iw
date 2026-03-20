@@ -53,10 +53,9 @@
             Email vérifié avec succès !
           </h2>
           <p class="text-gray-600">
-            Votre adresse email a été vérifiée. Vous pouvez maintenant vous
-            connecter à votre compte.
+            Votre adresse email a été vérifiée. {{ isLoggedIn ? 'Vous allez être redirigé vers votre tableau de bord.' : 'Vous pouvez maintenant vous connecter à votre compte.' }}
           </p>
-          <div class="pt-4">
+          <div v-if="!isLoggedIn" class="pt-4">
             <NuxtLink
               to="/auth/login?verified=true"
               class="inline-flex items-center justify-center rounded-md border border-transparent bg-blue-600 px-6 py-3 text-base font-medium text-white shadow-sm transition-colors hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2"
@@ -145,8 +144,10 @@
 <script setup lang="ts">
 import { ref, onMounted } from "vue";
 import { useAuth } from "~/composables/useAuth";
+import { useAuthStore } from "~/stores/auth";
 
 const route = useRoute();
+const router = useRouter();
 const auth = useAuth();
 
 const loading = ref(true);
@@ -155,12 +156,17 @@ const errorMessage = ref("");
 const resendEmail = ref("");
 const resendLoading = ref(false);
 const resendEmailSent = ref(false);
+const isLoggedIn = ref(false);
 
 definePageMeta({
   layout: 'default',
 });
 
 onMounted(async () => {
+  const authStore = useAuthStore();
+  authStore.initAuth();
+  isLoggedIn.value = authStore.isAuthenticated;
+  
   // get token from url query parameter
   const token = (route.query.token as string) || "";
 
@@ -174,6 +180,27 @@ onMounted(async () => {
   try {
     await auth.verifyEmail({ token });
     verified.value = true;
+    
+    // if user is logged in, update their emailVerified status and redirect to dashboard
+    if (authStore.isAuthenticated && authStore.user) {
+      authStore.updateUser({ emailVerified: true, status: 'ACTIVE' });
+      
+      // redirect to appropriate dashboard after a short delay
+      setTimeout(() => {
+        const role = authStore.user?.role;
+        if (role === "CABINET_ADMIN") {
+          router.push("/cabinet/dashboard");
+        } else if (role === "STAFF") {
+          router.push("/staff/dashboard");
+        } else if (role === "PRACTITIONER") {
+          router.push("/practitioner/dashboard");
+        } else if (role === "ADMIN") {
+          router.push("/admin/dashboard");
+        } else {
+          router.push("/patient/dashboard");
+        }
+      }, 2000);
+    }
   } catch (error: unknown) {
     console.error("Email verification error:", error);
     const err = error as { data?: { message?: string }; message?: string };
