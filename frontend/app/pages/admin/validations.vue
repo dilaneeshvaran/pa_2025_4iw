@@ -13,7 +13,7 @@
           class="whitespace-nowrap border-b-2 px-1 pb-4 text-sm font-medium transition-colors"
           :class="
             activeTab === 'pending'
-              ? 'border-blue-600 text-blue-600'
+              ? 'border-orange-600 text-orange-600'
               : 'border-transparent text-gray-500 hover:border-gray-300 hover:text-gray-700'
           "
           @click="activeTab = 'pending'"
@@ -30,7 +30,7 @@
           class="whitespace-nowrap border-b-2 px-1 pb-4 text-sm font-medium transition-colors"
           :class="
             activeTab === 'approved'
-              ? 'border-blue-600 text-blue-600'
+              ? 'border-orange-600 text-orange-600'
               : 'border-transparent text-gray-500 hover:border-gray-300 hover:text-gray-700'
           "
           @click="activeTab = 'approved'"
@@ -41,7 +41,7 @@
           class="whitespace-nowrap border-b-2 px-1 pb-4 text-sm font-medium transition-colors"
           :class="
             activeTab === 'rejected'
-              ? 'border-blue-600 text-blue-600'
+              ? 'border-orange-600 text-orange-600'
               : 'border-transparent text-gray-500 hover:border-gray-300 hover:text-gray-700'
           "
           @click="activeTab = 'rejected'"
@@ -54,7 +54,7 @@
     <div class="mb-4 flex flex-wrap items-center gap-4">
       <select
         v-model="filterType"
-        class="rounded-lg border border-gray-300 px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-600"
+        class="rounded-lg border border-gray-300 px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-orange-500"
       >
         <option value="">Tous les types</option>
         <option value="PRACTITIONER">Praticien</option>
@@ -64,7 +64,7 @@
         v-model="filterSpecialty"
         type="text"
         placeholder="Filtrer par spécialité..."
-        class="rounded-lg border border-gray-300 px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-600"
+        class="rounded-lg border border-gray-300 px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-orange-500"
       />
       <button
         class="rounded-lg bg-gray-100 px-4 py-2 text-sm text-gray-700 transition-colors hover:bg-gray-200"
@@ -147,7 +147,7 @@
                 class="inline-flex rounded-full px-2.5 py-0.5 text-xs font-medium"
                 :class="
                   req.requestType === 'PRACTITIONER'
-                    ? 'bg-blue-100 text-blue-800'
+                    ? 'bg-orange-100 text-orange-800'
                     : 'bg-purple-100 text-purple-800'
                 "
               >
@@ -308,7 +308,7 @@
                   >
                   <button
                     type="button"
-                    class="flex items-center gap-1 rounded bg-blue-600 px-3 py-1 text-xs font-medium text-white hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-500"
+                    class="flex items-center gap-1 rounded bg-orange-500 px-3 py-1 text-xs font-medium text-white hover:bg-orange-600 focus:outline-none focus:ring-2 focus:ring-orange-500"
                     @click="
                       downloadDocument(
                         selectedRequest.id,
@@ -339,7 +339,7 @@
                   <span class="text-sm text-gray-700">Diplôme d'État</span>
                   <button
                     type="button"
-                    class="flex items-center gap-1 rounded bg-blue-600 px-3 py-1 text-xs font-medium text-white hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-500"
+                    class="flex items-center gap-1 rounded bg-orange-500 px-3 py-1 text-xs font-medium text-white hover:bg-orange-600 focus:outline-none focus:ring-2 focus:ring-orange-500"
                     @click="downloadDocument(selectedRequest.id, 'diplomaPath')"
                   >
                     <svg
@@ -367,7 +367,7 @@
                   >
                   <button
                     type="button"
-                    class="flex items-center gap-1 rounded bg-blue-600 px-3 py-1 text-xs font-medium text-white hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-500"
+                    class="flex items-center gap-1 rounded bg-orange-500 px-3 py-1 text-xs font-medium text-white hover:bg-orange-600 focus:outline-none focus:ring-2 focus:ring-orange-500"
                     @click="
                       downloadDocument(
                         selectedRequest.id,
@@ -462,7 +462,7 @@
                 >
                 <button
                   type="button"
-                  class="flex items-center gap-1 rounded bg-blue-600 px-3 py-1 text-xs font-medium text-white hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-500"
+                  class="flex items-center gap-1 rounded bg-orange-500 px-3 py-1 text-xs font-medium text-white hover:bg-orange-600 focus:outline-none focus:ring-2 focus:ring-orange-500"
                   @click="
                     downloadDocument(selectedRequest.id, 'cabinetRegDocPath')
                   "

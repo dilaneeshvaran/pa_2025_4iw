@@ -12,7 +12,7 @@
               'inline-flex items-center rounded-full px-2.5 py-0.5 text-xs font-semibold',
               dashboard.assignedTo.type === 'cabinet'
                 ? 'bg-purple-100 text-purple-800'
-                : 'bg-indigo-100 text-indigo-800',
+                : 'bg-orange-100 text-orange-800',
             ]"
           >
             <component
@@ -67,9 +67,9 @@
       <div class="rounded-xl border border-gray-200 bg-white p-6 shadow-sm">
         <div class="flex items-center gap-4">
           <div
-            class="flex h-12 w-12 items-center justify-center rounded-lg bg-teal-100"
+            class="flex h-12 w-12 items-center justify-center rounded-lg bg-green-100"
           >
-            <Users class="h-6 w-6 text-teal-600" />
+            <Users class="h-6 w-6 text-green-600" />
           </div>
           <div>
             <p class="text-sm text-gray-500">Praticiens gérés</p>
@@ -87,9 +87,9 @@
       <div class="rounded-xl border border-gray-200 bg-white p-6 shadow-sm">
         <div class="flex items-center gap-4">
           <div
-            class="flex h-12 w-12 items-center justify-center rounded-lg bg-blue-100"
+            class="flex h-12 w-12 items-center justify-center rounded-lg bg-orange-100"
           >
-            <Calendar class="h-6 w-6 text-blue-600" />
+            <Calendar class="h-6 w-6 text-orange-600" />
           </div>
           <div>
             <p class="text-sm text-gray-500">RDV aujourd'hui</p>
@@ -144,13 +144,13 @@
           v-for="prac in dashboard.practitioners"
           :key="prac.id"
           :to="`/staff/agenda/${prac.id}`"
-          class="flex items-center justify-between rounded-lg bg-gray-50 p-4 transition-colors hover:bg-teal-50"
+          class="flex items-center justify-between rounded-lg bg-gray-50 p-4 transition-colors hover:bg-green-50"
         >
           <div class="flex items-center gap-3">
             <div
-              class="flex h-10 w-10 items-center justify-center rounded-full bg-teal-100"
+              class="flex h-10 w-10 items-center justify-center rounded-full bg-green-100"
             >
-              <span class="text-sm font-bold text-teal-600">
+              <span class="text-sm font-bold text-green-600">
                 {{ prac.firstName[0] }}{{ prac.lastName[0] }}
               </span>
             </div>
@@ -163,7 +163,7 @@
               </p>
             </div>
           </div>
-          <div class="flex items-center gap-2 text-sm text-teal-600">
+          <div class="flex items-center gap-2 text-sm text-green-600">
             <Calendar class="h-4 w-4" />
             Voir l'agenda
           </div>
@@ -205,7 +205,7 @@
                 ? 'bg-green-100 text-green-700'
                 : apt.status === 'CANCELLED'
                   ? 'bg-red-100 text-red-700'
-                  : 'bg-blue-100 text-blue-700',
+                  : 'bg-orange-100 text-orange-700',
             ]"
           >
             {{

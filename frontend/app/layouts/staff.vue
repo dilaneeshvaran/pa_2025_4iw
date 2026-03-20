@@ -8,13 +8,13 @@
         <!-- logo -->
         <div class="flex items-center gap-3 border-b border-gray-100 px-6 py-5">
           <div
-            class="flex h-10 w-10 items-center justify-center rounded-lg bg-teal-600"
+            class="flex h-10 w-10 items-center justify-center rounded-lg bg-green-600"
           >
             <ClipboardList class="h-6 w-6 text-white" />
           </div>
           <div>
             <span class="text-xl font-bold text-gray-900">MediCote</span>
-            <p class="text-xs text-teal-600">Espace Personnel</p>
+            <p class="text-xs text-green-600">Espace Personnel</p>
           </div>
         </div>
 
@@ -27,7 +27,7 @@
                 :class="[
                   'flex items-center gap-3 rounded-lg px-4 py-3 text-sm font-medium transition-colors',
                   isActive(item.path)
-                    ? 'bg-teal-50 text-teal-700'
+                    ? 'bg-green-50 text-green-700'
                     : 'text-gray-700 hover:bg-gray-100',
                 ]"
               >
@@ -42,9 +42,9 @@
         <div class="border-t border-gray-100 p-4">
           <div class="mb-3 flex items-center gap-3">
             <div
-              class="flex h-10 w-10 items-center justify-center rounded-full bg-teal-100"
+              class="flex h-10 w-10 items-center justify-center rounded-full bg-green-100"
             >
-              <ClipboardList class="h-5 w-5 text-teal-600" />
+              <ClipboardList class="h-5 w-5 text-green-600" />
             </div>
             <div class="min-w-0 flex-1">
               <p class="truncate text-sm font-medium text-gray-900">
@@ -55,7 +55,7 @@
           </div>
           <button
             @click="handleLogout"
-            class="flex w-full items-center gap-2 rounded-lg px-4 py-2 text-sm text-red-600 transition-colors hover:bg-red-50"
+            class="flex w-full items-center gap-2 rounded-lg px-4 py-2 text-sm text-orange-600 transition-colors hover:bg-orange-50"
           >
             <LogOut class="h-4 w-4" />
             Déconnexion

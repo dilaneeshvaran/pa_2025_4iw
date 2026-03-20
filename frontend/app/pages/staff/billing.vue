@@ -8,7 +8,7 @@
     <div class="mb-6 border-b border-gray-200">
       <nav class="-mb-px flex space-x-8" aria-label="Tabs">
         <button
-          class="whitespace-nowrap border-b-2 border-blue-500 px-1 pb-4 text-sm font-medium text-blue-600 transition-colors duration-200"
+          class="whitespace-nowrap border-b-2 border-orange-500 px-1 pb-4 text-sm font-medium text-orange-600 transition-colors duration-200"
         >
           Paiements reçus / Factures
         </button>
@@ -33,7 +33,7 @@
         >
         <select
           v-model="selectedPractitionerId"
-          class="min-w-[250px] rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500 sm:text-sm"
+          class="min-w-[250px] rounded-md border-gray-300 shadow-sm focus:border-orange-500 focus:ring-orange-500 sm:text-sm"
         >
           <option value="" disabled>-- Choisir --</option>
           <option

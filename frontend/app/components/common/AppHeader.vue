@@ -4,8 +4,9 @@
       <div class="flex h-16 items-center justify-between">
         <!-- logo -->
         <div class="flex-shrink-0">
-          <NuxtLink to="/" class="text-2xl font-bold text-blue-600">
-            MediCôte
+          <NuxtLink to="/" class="text-2xl font-bold">
+            <span class="text-orange-500">Medi</span
+            ><span class="text-green-600">côte</span>
           </NuxtLink>
         </div>
 
@@ -13,13 +14,13 @@
           <template v-if="!authStore.isAuthenticated">
             <NuxtLink
               to="/auth/login"
-              class="rounded-md px-3 py-2 text-sm font-medium text-gray-700 transition-colors hover:text-blue-600"
+              class="rounded-md px-3 py-2 text-sm font-medium text-gray-700 transition-colors hover:text-orange-600"
             >
               Connexion
             </NuxtLink>
             <NuxtLink
               to="/auth/register"
-              class="rounded-md bg-blue-600 px-4 py-2 text-sm font-medium text-white transition-colors hover:bg-blue-700"
+              class="rounded-md bg-orange-500 px-4 py-2 text-sm font-medium text-white transition-colors hover:bg-orange-600"
             >
               S'inscrire
             </NuxtLink>
@@ -33,7 +34,7 @@
                     ? '/patient/dashboard'
                     : '/practitioner/dashboard'
                 "
-                class="text-sm font-medium text-gray-700 transition-colors hover:text-blue-600"
+                class="text-sm font-medium text-gray-700 transition-colors hover:text-orange-600"
               >
                 Tableau de bord
               </NuxtLink>

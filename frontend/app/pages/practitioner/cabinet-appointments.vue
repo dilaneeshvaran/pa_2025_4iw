@@ -51,9 +51,9 @@
       <UiCard>
         <div class="flex items-center gap-4">
           <div
-            class="flex h-12 w-12 flex-shrink-0 items-center justify-center rounded-lg bg-blue-100"
+            class="flex h-12 w-12 flex-shrink-0 items-center justify-center rounded-lg bg-orange-100"
           >
-            <CheckCircle class="h-6 w-6 text-blue-600" />
+            <CheckCircle class="h-6 w-6 text-orange-600" />
           </div>
           <div>
             <p class="text-sm text-gray-500">Terminées (semaine)</p>
@@ -94,7 +94,7 @@
           :class="[
             'whitespace-nowrap border-b-2 px-1 py-3 text-sm font-medium transition-colors',
             activeTab === 'today'
-              ? 'border-blue-600 text-blue-600'
+              ? 'border-orange-600 text-orange-600'
               : 'border-transparent text-gray-500 hover:border-gray-300 hover:text-gray-700',
           ]"
           @click="activeTab = 'today'"
@@ -104,7 +104,7 @@
             :class="[
               'ml-2 rounded-full px-2 py-0.5 text-xs',
               activeTab === 'today'
-                ? 'bg-blue-100 text-blue-600'
+                ? 'bg-orange-100 text-orange-600'
                 : 'bg-gray-100 text-gray-500',
             ]"
           >
@@ -115,7 +115,7 @@
           :class="[
             'whitespace-nowrap border-b-2 px-1 py-3 text-sm font-medium transition-colors',
             activeTab === 'past'
-              ? 'border-blue-600 text-blue-600'
+              ? 'border-orange-600 text-orange-600'
               : 'border-transparent text-gray-500 hover:border-gray-300 hover:text-gray-700',
           ]"
           @click="activeTab = 'past'"
@@ -125,7 +125,7 @@
             :class="[
               'ml-2 rounded-full px-2 py-0.5 text-xs',
               activeTab === 'past'
-                ? 'bg-blue-100 text-blue-600'
+                ? 'bg-orange-100 text-orange-600'
                 : 'bg-gray-100 text-gray-500',
             ]"
           >
@@ -146,7 +146,7 @@
               :class="[
                 'rounded-l-lg px-3 py-1.5 text-xs font-medium transition-colors',
                 todaySortOrder === 'asc'
-                  ? 'bg-blue-600 text-white'
+                  ? 'bg-orange-500 text-white'
                   : 'text-gray-700 hover:bg-gray-50',
               ]"
               @click="todaySortOrder = 'asc'"
@@ -157,7 +157,7 @@
               :class="[
                 'rounded-r-lg px-3 py-1.5 text-xs font-medium transition-colors',
                 todaySortOrder === 'desc'
-                  ? 'bg-blue-600 text-white'
+                  ? 'bg-orange-500 text-white'
                   : 'text-gray-700 hover:bg-gray-50',
               ]"
               @click="todaySortOrder = 'desc'"
@@ -322,7 +322,7 @@
               :class="[
                 'rounded-l-lg px-4 py-2 text-sm font-medium transition-colors',
                 pastPeriod === 'week'
-                  ? 'bg-blue-600 text-white'
+                  ? 'bg-orange-500 text-white'
                   : 'text-gray-700 hover:bg-gray-50',
               ]"
               @click="setPastPeriod('week')"
@@ -333,7 +333,7 @@
               :class="[
                 'rounded-r-lg px-4 py-2 text-sm font-medium transition-colors',
                 pastPeriod === 'month'
-                  ? 'bg-blue-600 text-white'
+                  ? 'bg-orange-500 text-white'
                   : 'text-gray-700 hover:bg-gray-50',
               ]"
               @click="setPastPeriod('month')"
@@ -477,13 +477,13 @@
                   v-model="historySearch"
                   type="text"
                   placeholder="Rechercher un patient..."
-                  class="w-full rounded-lg border border-gray-300 py-2 pl-10 pr-4 text-sm focus:border-blue-500 focus:outline-none focus:ring-1 focus:ring-blue-500"
+                  class="w-full rounded-lg border border-gray-300 py-2 pl-10 pr-4 text-sm focus:border-orange-500 focus:outline-none focus:ring-1 focus:ring-orange-500"
                   @input="debouncedFetchHistory"
                 />
               </div>
               <select
                 v-model="historyStatus"
-                class="rounded-lg border border-gray-300 px-3 py-2 text-sm focus:border-blue-500 focus:outline-none"
+                class="rounded-lg border border-gray-300 px-3 py-2 text-sm focus:border-orange-500 focus:outline-none"
                 @change="fetchHistory()"
               >
                 <option value="">Tous les statuts</option>
@@ -494,13 +494,13 @@
               <input
                 v-model="historyDateFrom"
                 type="date"
-                class="rounded-lg border border-gray-300 px-3 py-2 text-sm focus:border-blue-500 focus:outline-none"
+                class="rounded-lg border border-gray-300 px-3 py-2 text-sm focus:border-orange-500 focus:outline-none"
                 @change="fetchHistory()"
               />
               <input
                 v-model="historyDateTo"
                 type="date"
-                class="rounded-lg border border-gray-300 px-3 py-2 text-sm focus:border-blue-500 focus:outline-none"
+                class="rounded-lg border border-gray-300 px-3 py-2 text-sm focus:border-orange-500 focus:outline-none"
                 @change="fetchHistory()"
               />
             </div>
@@ -640,7 +640,7 @@
             </label>
             <textarea
               v-model="cancelReason"
-              class="w-full rounded-lg border border-gray-300 px-3 py-2 text-sm focus:border-blue-500 focus:outline-none focus:ring-1 focus:ring-blue-500"
+              class="w-full rounded-lg border border-gray-300 px-3 py-2 text-sm focus:border-orange-500 focus:outline-none focus:ring-1 focus:ring-orange-500"
               rows="3"
               placeholder="Raison de l'annulation..."
             />
@@ -671,9 +671,9 @@
         <div class="mx-4 w-full max-w-md rounded-xl bg-white p-6 shadow-2xl">
           <div class="mb-4 flex items-center gap-3">
             <div
-              class="flex h-10 w-10 items-center justify-center rounded-full bg-blue-100"
+              class="flex h-10 w-10 items-center justify-center rounded-full bg-orange-100"
             >
-              <Pencil class="h-5 w-5 text-blue-600" />
+              <Pencil class="h-5 w-5 text-orange-600" />
             </div>
             <h3 class="text-lg font-semibold text-gray-900">
               Modifier le rendez-vous
@@ -711,7 +711,7 @@
               <input
                 v-model="modifyDate"
                 type="date"
-                class="w-full rounded-lg border border-gray-300 px-3 py-2 text-sm focus:border-blue-500 focus:outline-none focus:ring-1 focus:ring-blue-500"
+                class="w-full rounded-lg border border-gray-300 px-3 py-2 text-sm focus:border-orange-500 focus:outline-none focus:ring-1 focus:ring-orange-500"
               />
             </div>
             <div>
@@ -721,7 +721,7 @@
               <input
                 v-model="modifyTime"
                 type="time"
-                class="w-full rounded-lg border border-gray-300 px-3 py-2 text-sm focus:border-blue-500 focus:outline-none focus:ring-1 focus:ring-blue-500"
+                class="w-full rounded-lg border border-gray-300 px-3 py-2 text-sm focus:border-orange-500 focus:outline-none focus:ring-1 focus:ring-orange-500"
               />
             </div>
           </div>
@@ -766,9 +766,9 @@
               </p>
             </div>
           </div>
-          <div class="mb-5 rounded-lg bg-blue-50 p-4 text-sm text-blue-800">
+          <div class="mb-5 rounded-lg bg-orange-50 p-4 text-sm text-orange-700">
             <p class="mb-1 font-medium">Veuillez confirmer :</p>
-            <ul class="list-inside list-disc space-y-1 text-blue-700">
+            <ul class="list-inside list-disc space-y-1 text-orange-700">
               <li>Le patient s'est bien présenté au cabinet</li>
               <li>Le paiement a été effectué à la réception</li>
             </ul>
@@ -1090,7 +1090,7 @@ const getStatusBgColor = (status: string) => {
     case "PENDING":
       return "bg-yellow-100";
     case "CONFIRMED":
-      return "bg-blue-100";
+      return "bg-orange-100";
     case "COMPLETED":
       return "bg-green-100";
     case "NO_SHOW":
@@ -1107,7 +1107,7 @@ const getStatusIconColor = (status: string) => {
     case "PENDING":
       return "text-yellow-600";
     case "CONFIRMED":
-      return "text-blue-600";
+      return "text-orange-600";
     case "COMPLETED":
       return "text-green-600";
     case "NO_SHOW":

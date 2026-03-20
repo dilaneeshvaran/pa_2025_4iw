@@ -14,7 +14,7 @@
           :class="[
             'whitespace-nowrap border-b-2 px-1 py-3 text-sm font-medium transition-colors',
             activeTab === tab.key
-              ? 'border-blue-600 text-blue-600'
+              ? 'border-orange-600 text-orange-600'
               : 'border-transparent text-gray-500 hover:border-gray-300 hover:text-gray-700',
           ]"
         >
@@ -24,7 +24,7 @@
             :class="[
               'ml-2 rounded-full px-2 py-0.5 text-xs',
               activeTab === tab.key
-                ? 'bg-blue-100 text-blue-600'
+                ? 'bg-orange-100 text-orange-600'
                 : 'bg-gray-100 text-gray-500',
             ]"
           >
@@ -48,7 +48,7 @@
             v-model="searchQuery"
             type="text"
             placeholder="Rechercher par nom ou spécialité..."
-            class="w-full rounded-lg border border-gray-300 py-2 pl-10 pr-4 text-sm focus:border-blue-500 focus:outline-none focus:ring-1 focus:ring-blue-500"
+            class="w-full rounded-lg border border-gray-300 py-2 pl-10 pr-4 text-sm focus:border-orange-500 focus:outline-none focus:ring-1 focus:ring-orange-500"
           />
         </div>
         <button
@@ -165,7 +165,7 @@
                     <template v-if="apt.cabinet?.city || apt.practitioner.city"
                       >, {{ apt.cabinet?.city || apt.practitioner.city }}</template
                     >
-                    <span v-if="apt.cabinet" class="ml-1 text-xs font-medium text-blue-600">({{ apt.cabinet.name }})</span>
+                    <span v-if="apt.cabinet" class="ml-1 text-xs font-medium text-orange-600">({{ apt.cabinet.name }})</span>
                   </span>
                 </div>
               </div>
@@ -321,8 +321,8 @@
                 }}</span>
               </div>
             </div>
-            <div class="rounded-lg border border-blue-200 bg-blue-50 p-3">
-              <p class="text-sm text-blue-800">
+            <div class="rounded-lg border border-orange-200 bg-orange-50 p-3">
+              <p class="text-sm text-orange-800">
                 <strong>Conseil :</strong> Utilisez un casque ou des écouteurs
                 pour une meilleure qualité audio.
               </p>
@@ -394,7 +394,7 @@
               v-model="cancelReason"
               rows="3"
               placeholder="Indiquez la raison de l'annulation..."
-              class="w-full rounded-lg border border-gray-300 px-3 py-2 text-sm focus:border-blue-500 focus:outline-none focus:ring-1 focus:ring-blue-500"
+              class="w-full rounded-lg border border-gray-300 px-3 py-2 text-sm focus:border-orange-500 focus:outline-none focus:ring-1 focus:ring-orange-500"
             ></textarea>
           </div>
 
@@ -432,9 +432,9 @@
         >
           <div class="mb-4 flex items-center gap-3">
             <div
-              class="flex h-10 w-10 items-center justify-center rounded-full bg-blue-100"
+              class="flex h-10 w-10 items-center justify-center rounded-full bg-orange-100"
             >
-              <Pencil class="h-5 w-5 text-blue-600" />
+              <Pencil class="h-5 w-5 text-orange-600" />
             </div>
             <h3 class="text-lg font-semibold text-gray-900">
               Modifier le rendez-vous
@@ -456,7 +456,7 @@
             class="flex items-center justify-center py-8"
           >
             <div
-              class="h-8 w-8 animate-spin rounded-full border-4 border-blue-600 border-t-transparent"
+              class="h-8 w-8 animate-spin rounded-full border-4 border-orange-600 border-t-transparent"
             ></div>
             <span class="ml-3 text-sm text-gray-600"
               >Chargement des disponibilités...</span
@@ -481,7 +481,7 @@
                   :class="[
                     'rounded-lg border-2 px-3 py-2 text-sm transition-all',
                     modifyDate === day.date
-                      ? 'border-blue-600 bg-blue-50 text-blue-700'
+                      ? 'border-orange-600 bg-orange-50 text-orange-700'
                       : 'border-gray-200 hover:border-gray-300',
                   ]"
                   @click="selectModifyDate(day.date)"
@@ -509,7 +509,7 @@
                   :class="[
                     'rounded-lg border-2 px-4 py-2 text-sm transition-all',
                     modifyTime === time
-                      ? 'border-blue-600 bg-blue-50 text-blue-700'
+                      ? 'border-orange-600 bg-orange-50 text-orange-700'
                       : 'border-gray-200 hover:border-gray-300',
                   ]"
                   @click="modifyTime = time"

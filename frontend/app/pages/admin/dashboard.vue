@@ -34,7 +34,7 @@
 
     <UiCard>
       <h3 class="mb-4 text-lg font-semibold text-gray-900">
-        <Calendar class="mr-2 inline h-5 w-5 text-blue-600" />
+        <Calendar class="mr-2 inline h-5 w-5 text-orange-600" />
         RDV ce mois
       </h3>
 
@@ -74,7 +74,7 @@
     <div class="grid gap-6 lg:grid-cols-2">
       <UiCard>
         <h3 class="mb-4 text-lg font-semibold text-gray-900">
-          <Users class="mr-2 inline h-5 w-5 text-blue-600" />
+          <Users class="mr-2 inline h-5 w-5 text-orange-600" />
           Nouveaux patients (6 derniers mois)
         </h3>
         <div v-if="loading" class="animate-pulse space-y-2">
@@ -90,7 +90,7 @@
               item.month
             }}</span>
             <span
-              class="rounded-full bg-blue-100 px-3 py-0.5 text-sm font-semibold text-blue-700"
+              class="rounded-full bg-orange-100 px-3 py-0.5 text-sm font-semibold text-orange-700"
             >
               {{ item.count }}
             </span>
@@ -341,8 +341,8 @@ const kpiCards = computed(() => [
     label: "Nouveaux patients ce mois",
     value: dashboard.value?.newPatientsThisMonth ?? "-",
     icon: Users,
-    bgColor: "bg-blue-100",
-    iconColor: "text-blue-600",
+    bgColor: "bg-orange-100",
+    iconColor: "text-orange-600",
   },
   {
     label: "Nouveaux praticiens ce mois",

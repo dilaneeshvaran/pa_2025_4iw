@@ -9,7 +9,7 @@
       </div>
       <button
         @click="showCreateModal = true"
-        class="flex items-center gap-2 rounded-lg bg-blue-600 px-4 py-2 text-sm font-medium text-white transition-colors hover:bg-blue-700"
+        class="flex items-center gap-2 rounded-lg bg-orange-500 px-4 py-2 text-sm font-medium text-white transition-colors hover:bg-orange-600"
       >
         <UserPlus class="h-4 w-4" />
         Créer un compte personnel
@@ -26,12 +26,12 @@
           v-model="searchQuery"
           type="text"
           placeholder="Rechercher par nom, email, poste…"
-          class="w-full rounded-lg border border-gray-300 py-2 pl-10 pr-4 text-sm focus:border-blue-500 focus:outline-none focus:ring-1 focus:ring-blue-500"
+          class="w-full rounded-lg border border-gray-300 py-2 pl-10 pr-4 text-sm focus:border-orange-500 focus:outline-none focus:ring-1 focus:ring-orange-500"
         />
       </div>
       <select
         v-model="statusFilter"
-        class="rounded-lg border border-gray-300 px-3 py-2 text-sm focus:border-blue-500 focus:outline-none focus:ring-1 focus:ring-blue-500"
+        class="rounded-lg border border-gray-300 px-3 py-2 text-sm focus:border-orange-500 focus:outline-none focus:ring-1 focus:ring-orange-500"
       >
         <option value="all">Tous les statuts</option>
         <option value="ACTIVE">Actif</option>
@@ -67,9 +67,9 @@
         >
           <div class="flex items-center gap-4">
             <div
-              class="flex h-12 w-12 items-center justify-center rounded-full bg-blue-100"
+              class="flex h-12 w-12 items-center justify-center rounded-full bg-orange-100"
             >
-              <span class="text-sm font-bold text-blue-600">
+              <span class="text-sm font-bold text-orange-600">
                 {{ staff.firstName[0] }}{{ staff.lastName[0] }}
               </span>
             </div>
@@ -86,7 +86,7 @@
                   <input
                     v-model="editPosition"
                     type="text"
-                    class="w-48 rounded border border-blue-300 px-2 py-0.5 text-xs focus:outline-none focus:ring-1 focus:ring-blue-500"
+                    class="w-48 rounded border border-orange-300 px-2 py-0.5 text-xs focus:outline-none focus:ring-1 focus:ring-orange-500"
                     @keyup.enter="savePosition(staff.id)"
                     @keyup.escape="cancelEdit"
                   />
@@ -111,7 +111,7 @@
                   }}</span>
                   <button
                     @click="startEdit(staff)"
-                    class="rounded p-0.5 text-gray-400 hover:bg-gray-100 hover:text-blue-600"
+                    class="rounded p-0.5 text-gray-400 hover:bg-gray-100 hover:text-orange-600"
                     title="Modifier le poste"
                   >
                     <Pencil class="h-3 w-3" />

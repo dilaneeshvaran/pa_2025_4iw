@@ -38,7 +38,7 @@
                   :disabled="!profileVisibility.tarifsAreDefined"
                 />
                 <div
-                  class="peer h-6 w-11 rounded-full bg-gray-200 after:absolute after:left-[2px] after:top-[2px] after:h-5 after:w-5 after:rounded-full after:border after:border-gray-300 after:bg-white after:transition-all after:content-[''] peer-checked:bg-blue-600 peer-checked:after:translate-x-full peer-checked:after:border-white peer-focus:outline-none peer-focus:ring-4 peer-focus:ring-blue-300 peer-disabled:cursor-not-allowed peer-disabled:opacity-50"
+                  class="peer h-6 w-11 rounded-full bg-gray-200 after:absolute after:left-[2px] after:top-[2px] after:h-5 after:w-5 after:rounded-full after:border after:border-gray-300 after:bg-white after:transition-all after:content-[''] peer-checked:bg-orange-500 peer-checked:after:translate-x-full peer-checked:after:border-white peer-focus:outline-none peer-focus:ring-4 peer-focus:ring-orange-300 peer-disabled:cursor-not-allowed peer-disabled:opacity-50"
                 ></div>
               </label>
             </div>
@@ -159,7 +159,7 @@
                 <input
                   v-model="passwords.currentPassword"
                   type="password"
-                  class="w-full rounded-lg border border-gray-300 px-3 py-2 text-sm focus:border-blue-500 focus:outline-none focus:ring-1 focus:ring-blue-500"
+                  class="w-full rounded-lg border border-gray-300 px-3 py-2 text-sm focus:border-orange-500 focus:outline-none focus:ring-1 focus:ring-orange-500"
                 />
               </div>
               <div>
@@ -169,7 +169,7 @@
                 <input
                   v-model="passwords.newPassword"
                   type="password"
-                  class="w-full rounded-lg border border-gray-300 px-3 py-2 text-sm focus:border-blue-500 focus:outline-none focus:ring-1 focus:ring-blue-500"
+                  class="w-full rounded-lg border border-gray-300 px-3 py-2 text-sm focus:border-orange-500 focus:outline-none focus:ring-1 focus:ring-orange-500"
                 />
               </div>
             </div>
@@ -200,7 +200,7 @@
                   @change="toggle2fa"
                 />
                 <div
-                  class="peer h-6 w-11 rounded-full bg-gray-200 after:absolute after:left-[2px] after:top-[2px] after:h-5 after:w-5 after:rounded-full after:border after:border-gray-300 after:bg-white after:transition-all after:content-[''] peer-checked:bg-blue-600 peer-checked:after:translate-x-full peer-checked:after:border-white peer-focus:outline-none peer-focus:ring-4 peer-focus:ring-blue-300"
+                  class="peer h-6 w-11 rounded-full bg-gray-200 after:absolute after:left-[2px] after:top-[2px] after:h-5 after:w-5 after:rounded-full after:border after:border-gray-300 after:bg-white after:transition-all after:content-[''] peer-checked:bg-orange-500 peer-checked:after:translate-x-full peer-checked:after:border-white peer-focus:outline-none peer-focus:ring-4 peer-focus:ring-orange-300"
                 ></div>
               </label>
             </div>
@@ -233,7 +233,7 @@
                 @change="updateNotifications"
               />
               <div
-                class="peer h-6 w-11 rounded-full bg-gray-200 after:absolute after:left-[2px] after:top-[2px] after:h-5 after:w-5 after:rounded-full after:border after:border-gray-300 after:bg-white after:transition-all after:content-[''] peer-checked:bg-blue-600 peer-checked:after:translate-x-full peer-checked:after:border-white peer-focus:outline-none peer-focus:ring-4 peer-focus:ring-blue-300"
+                class="peer h-6 w-11 rounded-full bg-gray-200 after:absolute after:left-[2px] after:top-[2px] after:h-5 after:w-5 after:rounded-full after:border after:border-gray-300 after:bg-white after:transition-all after:content-[''] peer-checked:bg-orange-500 peer-checked:after:translate-x-full peer-checked:after:border-white peer-focus:outline-none peer-focus:ring-4 peer-focus:ring-orange-300"
               ></div>
             </label>
           </div>
@@ -248,13 +248,13 @@
         </h3>
         <div v-if="subscription">
           <div
-            class="mb-4 flex items-center justify-between rounded-lg border border-blue-100 bg-blue-50 p-4"
+            class="mb-4 flex items-center justify-between rounded-lg border border-orange-100 bg-orange-50 p-4"
           >
             <div>
-              <h4 class="text-lg font-bold text-blue-900">
+              <h4 class="text-lg font-bold text-orange-700">
                 Plan {{ subscription.plan }}
               </h4>
-              <p class="mt-1 text-sm text-blue-700">
+              <p class="mt-1 text-sm text-orange-700">
                 Statut :
                 <span class="font-semibold">{{ subscription.status }}</span>
               </p>
@@ -266,7 +266,7 @@
               </p>
             </div>
             <div class="text-right">
-              <p class="mb-1 text-2xl font-bold text-blue-900">
+              <p class="mb-1 text-2xl font-bold text-orange-700">
                 12 000 XOF <span class="text-sm font-normal">/ mois</span>
               </p>
             </div>

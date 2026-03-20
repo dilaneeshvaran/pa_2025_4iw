@@ -16,11 +16,11 @@
                 pour traiter vos données personnelles. Vos données sont
                 utilisées uniquement pour vous fournir nos services médicaux et
                 améliorer votre expérience. Consultez notre
-                <a href="#" class="text-blue-600 underline hover:text-blue-700"
+                <a href="#" class="text-orange-600 underline hover:text-orange-600"
                   >politique de confidentialité</a
                 >
                 et nos
-                <a href="#" class="text-blue-600 underline hover:text-blue-700"
+                <a href="#" class="text-orange-600 underline hover:text-orange-600"
                   >conditions générales d'utilisation</a
                 >.
               </p>
@@ -33,7 +33,7 @@
                 Refuser
               </button>
               <button
-                class="rounded-lg bg-blue-600 px-4 py-2 text-sm font-medium text-white transition-colors hover:bg-blue-700"
+                class="rounded-lg bg-orange-500 px-4 py-2 text-sm font-medium text-white transition-colors hover:bg-orange-600"
                 :disabled="submitting"
                 @click="handleAccept"
               >

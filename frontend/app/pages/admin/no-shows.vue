@@ -19,7 +19,7 @@
               v-model="searchQuery"
               type="text"
               placeholder="Nom, prénom ou email..."
-              class="w-full rounded-lg border border-gray-300 py-2 pl-10 pr-4 text-sm focus:border-blue-500 focus:outline-none focus:ring-1 focus:ring-blue-500"
+              class="w-full rounded-lg border border-gray-300 py-2 pl-10 pr-4 text-sm focus:border-orange-500 focus:outline-none focus:ring-1 focus:ring-orange-500"
               @input="debouncedFetch"
             />
           </div>
@@ -32,7 +32,7 @@
           <input
             v-model="dateFrom"
             type="date"
-            class="rounded-lg border border-gray-300 px-3 py-2 text-sm focus:border-blue-500 focus:outline-none focus:ring-1 focus:ring-blue-500"
+            class="rounded-lg border border-gray-300 px-3 py-2 text-sm focus:border-orange-500 focus:outline-none focus:ring-1 focus:ring-orange-500"
             @change="fetchPatients"
           />
         </div>
@@ -44,7 +44,7 @@
           <input
             v-model="dateTo"
             type="date"
-            class="rounded-lg border border-gray-300 px-3 py-2 text-sm focus:border-blue-500 focus:outline-none focus:ring-1 focus:ring-blue-500"
+            class="rounded-lg border border-gray-300 px-3 py-2 text-sm focus:border-orange-500 focus:outline-none focus:ring-1 focus:ring-orange-500"
             @change="fetchPatients"
           />
         </div>
@@ -58,7 +58,7 @@
             type="number"
             min="0"
             placeholder="0"
-            class="w-24 rounded-lg border border-gray-300 px-3 py-2 text-sm focus:border-blue-500 focus:outline-none focus:ring-1 focus:ring-blue-500"
+            class="w-24 rounded-lg border border-gray-300 px-3 py-2 text-sm focus:border-orange-500 focus:outline-none focus:ring-1 focus:ring-orange-500"
             @change="fetchPatients"
           />
         </div>
@@ -69,7 +69,7 @@
           </label>
           <select
             v-model="statusFilter"
-            class="rounded-lg border border-gray-300 px-3 py-2 text-sm focus:border-blue-500 focus:outline-none focus:ring-1 focus:ring-blue-500"
+            class="rounded-lg border border-gray-300 px-3 py-2 text-sm focus:border-orange-500 focus:outline-none focus:ring-1 focus:ring-orange-500"
             @change="fetchPatients"
           >
             <option value="">Tous</option>
@@ -85,7 +85,7 @@
           </label>
           <select
             v-model="sortOrder"
-            class="rounded-lg border border-gray-300 px-3 py-2 text-sm focus:border-blue-500 focus:outline-none focus:ring-1 focus:ring-blue-500"
+            class="rounded-lg border border-gray-300 px-3 py-2 text-sm focus:border-orange-500 focus:outline-none focus:ring-1 focus:ring-orange-500"
             @change="fetchPatients"
           >
             <option value="desc">Plus élevé d'abord</option>
@@ -267,7 +267,7 @@
           :class="[
             'rounded-lg border px-3 py-1.5 text-sm font-medium',
             p === pagination.page
-              ? 'border-blue-600 bg-blue-600 text-white'
+              ? 'border-orange-600 bg-orange-500 text-white'
               : 'border-gray-300 text-gray-700 hover:bg-gray-50',
           ]"
           @click="goToPage(p)"
@@ -510,7 +510,7 @@
               type="number"
               min="1"
               placeholder="Ex: 30"
-              class="w-full rounded-lg border border-gray-300 px-3 py-2 text-sm focus:border-blue-500 focus:outline-none focus:ring-1 focus:ring-blue-500"
+              class="w-full rounded-lg border border-gray-300 px-3 py-2 text-sm focus:border-orange-500 focus:outline-none focus:ring-1 focus:ring-orange-500"
             />
           </div>
           <div>
@@ -521,7 +521,7 @@
               v-model="banReason"
               rows="3"
               placeholder="Ex: Absences répétées à 5 rendez-vous consécutifs..."
-              class="w-full rounded-lg border border-gray-300 px-3 py-2 text-sm focus:border-blue-500 focus:outline-none focus:ring-1 focus:ring-blue-500"
+              class="w-full rounded-lg border border-gray-300 px-3 py-2 text-sm focus:border-orange-500 focus:outline-none focus:ring-1 focus:ring-orange-500"
             />
           </div>
         </div>

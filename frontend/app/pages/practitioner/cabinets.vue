@@ -13,7 +13,7 @@
           @click="currentTab = 'active'"
           :class="[
             currentTab === 'active'
-              ? 'border-blue-500 text-blue-600'
+              ? 'border-orange-500 text-orange-600'
               : 'border-transparent text-gray-500 hover:border-gray-300 hover:text-gray-700',
             'whitespace-nowrap border-b-2 px-1 py-4 text-sm font-medium transition-colors',
           ]"
@@ -23,7 +23,7 @@
             v-if="cabinets.length"
             :class="[
               currentTab === 'active'
-                ? 'bg-blue-100 text-blue-600'
+                ? 'bg-orange-100 text-orange-600'
                 : 'bg-gray-100 text-gray-900',
               'ml-2 hidden rounded-full px-2.5 py-0.5 text-xs font-medium md:inline-block',
             ]"
@@ -35,7 +35,7 @@
           @click="currentTab = 'invitations'"
           :class="[
             currentTab === 'invitations'
-              ? 'border-blue-500 text-blue-600'
+              ? 'border-orange-500 text-orange-600'
               : 'border-transparent text-gray-500 hover:border-gray-300 hover:text-gray-700',
             'whitespace-nowrap border-b-2 px-1 py-4 text-sm font-medium transition-colors',
           ]"
@@ -45,7 +45,7 @@
             v-if="invitations.length"
             :class="[
               currentTab === 'invitations'
-                ? 'bg-blue-100 text-blue-600'
+                ? 'bg-orange-100 text-orange-600'
                 : 'bg-red-100 text-red-600',
               'ml-2 rounded-full px-2.5 py-0.5 text-xs font-medium',
             ]"
@@ -86,9 +86,9 @@
       >
         <div class="flex items-start gap-4 sm:items-center">
           <div
-            class="flex h-12 w-12 flex-shrink-0 items-center justify-center rounded-lg bg-blue-50"
+            class="flex h-12 w-12 flex-shrink-0 items-center justify-center rounded-lg bg-orange-50"
           >
-            <Building class="h-6 w-6 text-blue-600" />
+            <Building class="h-6 w-6 text-orange-600" />
           </div>
           <div>
             <h3 class="text-lg font-medium text-gray-900">

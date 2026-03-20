@@ -19,7 +19,7 @@
           v-model="searchQuery"
           type="text"
           placeholder="Rechercher un document..."
-          class="w-full rounded-lg border border-gray-300 py-2.5 pl-10 pr-4 text-sm focus:border-blue-600 focus:outline-none focus:ring-2 focus:ring-blue-600/20"
+          class="w-full rounded-lg border border-gray-300 py-2.5 pl-10 pr-4 text-sm focus:border-orange-600 focus:outline-none focus:ring-2 focus:ring-orange-600/20"
           @input="debouncedSearch"
         />
         <button
@@ -37,7 +37,7 @@
           :class="[
             'rounded-md px-3 py-1.5 text-sm font-medium transition-colors',
             viewMode === 'card'
-              ? 'bg-blue-600 text-white'
+              ? 'bg-orange-500 text-white'
               : 'text-gray-600 hover:bg-gray-100',
           ]"
           @click="viewMode = 'card'"
@@ -48,7 +48,7 @@
           :class="[
             'rounded-md px-3 py-1.5 text-sm font-medium transition-colors',
             viewMode === 'list'
-              ? 'bg-blue-600 text-white'
+              ? 'bg-orange-500 text-white'
               : 'text-gray-600 hover:bg-gray-100',
           ]"
           @click="viewMode = 'list'"
@@ -67,7 +67,7 @@
           :class="[
             'whitespace-nowrap border-b-2 px-1 py-3 text-sm font-medium transition-colors',
             activeTab === tab.key
-              ? 'border-blue-600 text-blue-600'
+              ? 'border-orange-600 text-orange-600'
               : 'border-transparent text-gray-500 hover:border-gray-300 hover:text-gray-700',
           ]"
           @click="switchTab(tab.key)"
@@ -78,7 +78,7 @@
             :class="[
               'ml-1.5 inline-flex items-center rounded-full px-2 py-0.5 text-xs font-medium',
               activeTab === tab.key
-                ? 'bg-blue-100 text-blue-700'
+                ? 'bg-orange-100 text-orange-700'
                 : 'bg-gray-100 text-gray-600',
             ]"
           >
@@ -197,7 +197,7 @@
             Lire
           </button>
           <button
-            class="flex flex-1 items-center justify-center gap-1.5 rounded-lg bg-blue-600 px-3 py-2 text-sm font-medium text-white transition-colors hover:bg-blue-700"
+            class="flex flex-1 items-center justify-center gap-1.5 rounded-lg bg-orange-500 px-3 py-2 text-sm font-medium text-white transition-colors hover:bg-orange-600"
             @click="downloadDocument(doc.id, doc.fileName)"
           >
             <Download class="h-4 w-4" />
@@ -249,14 +249,14 @@
         <div class="ml-4 flex flex-shrink-0 items-center gap-2">
           <button
             v-if="isPdf(doc.mimeType)"
-            class="rounded-lg p-2 text-gray-400 transition-colors hover:bg-gray-100 hover:text-blue-600"
+            class="rounded-lg p-2 text-gray-400 transition-colors hover:bg-gray-100 hover:text-orange-600"
             title="Lire"
             @click="viewDocument(doc)"
           >
             <Eye class="h-5 w-5" />
           </button>
           <button
-            class="rounded-lg p-2 text-gray-400 transition-colors hover:bg-gray-100 hover:text-blue-600"
+            class="rounded-lg p-2 text-gray-400 transition-colors hover:bg-gray-100 hover:text-orange-600"
             title="Télécharger"
             @click="downloadDocument(doc.id, doc.fileName)"
           >

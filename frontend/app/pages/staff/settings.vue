@@ -15,7 +15,7 @@
         <h3
           class="mb-4 flex items-center gap-2 text-lg font-semibold text-gray-900"
         >
-          <UserIcon class="h-5 w-5 text-teal-600" />
+          <UserIcon class="h-5 w-5 text-green-600" />
           Informations personnelles
         </h3>
 
@@ -27,7 +27,7 @@
             <input
               v-model="profile.firstName"
               type="text"
-              class="w-full rounded-lg border border-gray-300 px-3 py-2 text-sm focus:border-teal-500 focus:outline-none focus:ring-1 focus:ring-teal-500"
+              class="w-full rounded-lg border border-gray-300 px-3 py-2 text-sm focus:border-green-500 focus:outline-none focus:ring-1 focus:ring-green-500"
             />
           </div>
           <div>
@@ -37,7 +37,7 @@
             <input
               v-model="profile.lastName"
               type="text"
-              class="w-full rounded-lg border border-gray-300 px-3 py-2 text-sm focus:border-teal-500 focus:outline-none focus:ring-1 focus:ring-teal-500"
+              class="w-full rounded-lg border border-gray-300 px-3 py-2 text-sm focus:border-green-500 focus:outline-none focus:ring-1 focus:ring-green-500"
             />
           </div>
           <div>
@@ -47,7 +47,7 @@
             <input
               v-model="profile.phone"
               type="tel"
-              class="w-full rounded-lg border border-gray-300 px-3 py-2 text-sm focus:border-teal-500 focus:outline-none focus:ring-1 focus:ring-teal-500"
+              class="w-full rounded-lg border border-gray-300 px-3 py-2 text-sm focus:border-green-500 focus:outline-none focus:ring-1 focus:ring-green-500"
             />
           </div>
         </div>
@@ -75,7 +75,7 @@
         <h3
           class="mb-4 flex items-center gap-2 text-lg font-semibold text-gray-900"
         >
-          <Mail class="h-5 w-5 text-teal-600" />
+          <Mail class="h-5 w-5 text-green-600" />
           Adresse email
         </h3>
 
@@ -91,7 +91,7 @@
             <input
               v-model="emailForm.newEmail"
               type="email"
-              class="w-full rounded-lg border border-gray-300 px-3 py-2 text-sm focus:border-teal-500 focus:outline-none focus:ring-1 focus:ring-teal-500"
+              class="w-full rounded-lg border border-gray-300 px-3 py-2 text-sm focus:border-green-500 focus:outline-none focus:ring-1 focus:ring-green-500"
             />
           </div>
           <div>
@@ -101,7 +101,7 @@
             <input
               v-model="emailForm.password"
               type="password"
-              class="w-full rounded-lg border border-gray-300 px-3 py-2 text-sm focus:border-teal-500 focus:outline-none focus:ring-1 focus:ring-teal-500"
+              class="w-full rounded-lg border border-gray-300 px-3 py-2 text-sm focus:border-green-500 focus:outline-none focus:ring-1 focus:ring-green-500"
             />
           </div>
         </div>
@@ -125,7 +125,7 @@
         <h3
           class="mb-4 flex items-center gap-2 text-lg font-semibold text-gray-900"
         >
-          <Shield class="h-5 w-5 text-teal-600" />
+          <Shield class="h-5 w-5 text-green-600" />
           Mot de passe
         </h3>
 
@@ -137,7 +137,7 @@
             <input
               v-model="passwordForm.currentPassword"
               type="password"
-              class="w-full rounded-lg border border-gray-300 px-3 py-2 text-sm focus:border-teal-500 focus:outline-none focus:ring-1 focus:ring-teal-500"
+              class="w-full rounded-lg border border-gray-300 px-3 py-2 text-sm focus:border-green-500 focus:outline-none focus:ring-1 focus:ring-green-500"
             />
           </div>
           <div>
@@ -147,7 +147,7 @@
             <input
               v-model="passwordForm.newPassword"
               type="password"
-              class="w-full rounded-lg border border-gray-300 px-3 py-2 text-sm focus:border-teal-500 focus:outline-none focus:ring-1 focus:ring-teal-500"
+              class="w-full rounded-lg border border-gray-300 px-3 py-2 text-sm focus:border-green-500 focus:outline-none focus:ring-1 focus:ring-green-500"
             />
           </div>
         </div>
