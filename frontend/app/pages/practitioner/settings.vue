@@ -14,6 +14,135 @@
         <h3
           class="mb-4 flex items-center gap-2 text-lg font-semibold text-gray-900"
         >
+          <Eye class="h-5 w-5 text-gray-500" /> Visibilité du profil
+        </h3>
+
+        <div class="space-y-4">
+          <div class="rounded-lg border border-gray-200 bg-gray-50 p-4">
+            <div class="mb-3 flex items-start justify-between">
+              <div class="flex-1">
+                <h4 class="font-medium text-gray-800">
+                  Rendre mon profil public
+                </h4>
+                <p class="mt-1 text-sm text-gray-500">
+                  Permet aux patients de trouver votre profil et de prendre
+                  rendez-vous en ligne.
+                </p>
+              </div>
+              <label class="relative inline-flex cursor-pointer items-center">
+                <input
+                  type="checkbox"
+                  v-model="profileVisibility.isProfilePublic"
+                  class="peer sr-only"
+                  @change="updateProfileVisibility"
+                  :disabled="!profileVisibility.tarifsAreDefined"
+                />
+                <div
+                  class="peer h-6 w-11 rounded-full bg-gray-200 after:absolute after:left-[2px] after:top-[2px] after:h-5 after:w-5 after:rounded-full after:border after:border-gray-300 after:bg-white after:transition-all after:content-[''] peer-checked:bg-blue-600 peer-checked:after:translate-x-full peer-checked:after:border-white peer-focus:outline-none peer-focus:ring-4 peer-focus:ring-blue-300 peer-disabled:cursor-not-allowed peer-disabled:opacity-50"
+                ></div>
+              </label>
+            </div>
+
+            <div
+              v-if="!profileVisibility.tarifsAreDefined"
+              class="mt-3 flex items-start gap-2 rounded-md bg-yellow-50 p-3 text-sm text-yellow-800"
+            >
+              <AlertCircle class="mt-0.5 h-4 w-4 flex-shrink-0" />
+              <div>
+                <p class="font-medium">Tarifs requis</p>
+                <p class="mt-1">
+                  Vous devez définir au moins votre tarif de consultation de
+                  base avant de rendre votre profil public.
+                  <NuxtLink
+                    to="/practitioner/billing"
+                    class="font-semibold underline hover:text-yellow-900"
+                  >
+                    Configurer mes tarifs
+                  </NuxtLink>
+                </p>
+              </div>
+            </div>
+
+            <div
+              v-if="
+                profileVisibility.isProfilePublic &&
+                profileVisibility.tarifsAreDefined
+              "
+              class="mt-3 flex items-start gap-2 rounded-md bg-green-50 p-3 text-sm text-green-800"
+            >
+              <CheckCircle class="mt-0.5 h-4 w-4 flex-shrink-0" />
+              <p>
+                Votre profil est visible publiquement. Les patients peuvent vous
+                trouver et prendre rendez-vous.
+              </p>
+            </div>
+          </div>
+
+          <div class="rounded-lg border border-gray-100 bg-white p-4">
+            <h5 class="mb-2 text-sm font-semibold text-gray-700">
+              Statut des tarifs
+            </h5>
+            <div class="space-y-2 text-sm">
+              <div class="flex items-center justify-between">
+                <span class="text-gray-600">Consultation standard</span>
+                <span
+                  :class="[
+                    'font-medium',
+                    profileVisibility.tarifs.baseConsultationFee
+                      ? 'text-green-600'
+                      : 'text-gray-400',
+                  ]"
+                >
+                  {{
+                    profileVisibility.tarifs.baseConsultationFee
+                      ? `${profileVisibility.tarifs.baseConsultationFee} XOF`
+                      : "Non défini"
+                  }}
+                </span>
+              </div>
+              <div class="flex items-center justify-between">
+                <span class="text-gray-600">Téléconsultation</span>
+                <span
+                  :class="[
+                    'font-medium',
+                    profileVisibility.tarifs.teleconsultationFee
+                      ? 'text-green-600'
+                      : 'text-gray-400',
+                  ]"
+                >
+                  {{
+                    profileVisibility.tarifs.teleconsultationFee
+                      ? `${profileVisibility.tarifs.teleconsultationFee} XOF`
+                      : "Non défini"
+                  }}
+                </span>
+              </div>
+              <div class="flex items-center justify-between">
+                <span class="text-gray-600">Urgence</span>
+                <span
+                  :class="[
+                    'font-medium',
+                    profileVisibility.tarifs.emergencyFee
+                      ? 'text-green-600'
+                      : 'text-gray-400',
+                  ]"
+                >
+                  {{
+                    profileVisibility.tarifs.emergencyFee
+                      ? `${profileVisibility.tarifs.emergencyFee} XOF`
+                      : "Non défini"
+                  }}
+                </span>
+              </div>
+            </div>
+          </div>
+        </div>
+      </UiCard>
+
+      <UiCard class="p-6">
+        <h3
+          class="mb-4 flex items-center gap-2 text-lg font-semibold text-gray-900"
+        >
           <Shield class="h-5 w-5 text-gray-500" /> Sécurité
         </h3>
 
@@ -223,7 +352,15 @@
 
 <script setup lang="ts">
 import { ref, onMounted } from "vue";
-import { Settings, Shield, Bell, CreditCard, FileText } from "lucide-vue-next";
+import {
+  Shield,
+  Bell,
+  CreditCard,
+  FileText,
+  Eye,
+  AlertCircle,
+  CheckCircle,
+} from "lucide-vue-next";
 import { useToast } from "vue-toastification";
 
 definePageMeta({
@@ -231,7 +368,6 @@ definePageMeta({
   middleware: "practitioner-only",
 });
 
-const authStore = useAuthStore();
 const toast = useToast();
 
 const loading = ref(true);
@@ -257,24 +393,70 @@ const passwords = ref({
 });
 const savingPwd = ref(false);
 
-const subscription = ref<any>(null);
-const invoices = ref<any[]>([]);
+interface SubscriptionInfo {
+  plan: string;
+  status: string;
+  cancelAtPeriodEnd: boolean;
+}
+
+interface InvoiceInfo {
+  id: string;
+  invoiceDate?: string;
+  createdAt: string;
+  invoiceNumber: string;
+  total: number;
+  currency: string;
+  payment?: {
+    method: string;
+  };
+}
+
+const subscription = ref<SubscriptionInfo | null>(null);
+const invoices = ref<InvoiceInfo[]>([]);
+
+const profileVisibility = ref({
+  isProfilePublic: false,
+  tarifsAreDefined: false,
+  tarifs: {
+    baseConsultationFee: undefined as number | undefined,
+    teleconsultationFee: undefined as number | undefined,
+    emergencyFee: undefined as number | undefined,
+  },
+});
+
+interface ProfileData {
+  isProfilePublic: boolean;
+  baseConsultationFee?: number;
+  teleconsultationFee?: number;
+  emergencyFee?: number;
+}
+
+interface NotificationPreferences {
+  appointmentReminders: boolean;
+  newMessages: boolean;
+  emailNotifications: boolean;
+}
 
 const fetchData = async () => {
   loading.value = true;
   try {
-    const [profRes, notifRes, subRes, invRes] = await Promise.all([
-      useAuthenticatedFetch<{ success: boolean; data: any }>(
-        "/settings/profile",
-      ),
-      useAuthenticatedFetch<{ success: boolean; data: any }>(
-        "/settings/notifications",
-      ),
-      useAuthenticatedFetch<{ success: boolean; data: any }>(
+    const [profRes, notifRes, subRes, invRes, profileRes] = await Promise.all([
+      useAuthenticatedFetch<{
+        success: boolean;
+        data: { twoFactorEnabled: boolean };
+      }>("/settings/profile"),
+      useAuthenticatedFetch<{
+        success: boolean;
+        data: NotificationPreferences;
+      }>("/settings/notifications"),
+      useAuthenticatedFetch<{ success: boolean; data: SubscriptionInfo }>(
         "/practitioner/dashboard/subscription",
       ),
-      useAuthenticatedFetch<{ success: boolean; data: any }>(
+      useAuthenticatedFetch<{ success: boolean; data: InvoiceInfo[] }>(
         "/payments/practitioner/invoices",
+      ),
+      useAuthenticatedFetch<{ success: boolean; data: ProfileData }>(
+        "/practitioner/dashboard/profile",
       ),
     ]);
 
@@ -294,8 +476,20 @@ const fetchData = async () => {
     if (invRes.success) {
       invoices.value = invRes.data || [];
     }
-  } catch (err) {
-    console.error(err);
+    if (profileRes.success) {
+      profileVisibility.value.isProfilePublic =
+        profileRes.data.isProfilePublic || false;
+      profileVisibility.value.tarifs.baseConsultationFee =
+        profileRes.data.baseConsultationFee;
+      profileVisibility.value.tarifs.teleconsultationFee =
+        profileRes.data.teleconsultationFee;
+      profileVisibility.value.tarifs.emergencyFee =
+        profileRes.data.emergencyFee;
+      profileVisibility.value.tarifsAreDefined =
+        !!profileRes.data.baseConsultationFee;
+    }
+  } catch (error: unknown) {
+    console.error("Error fetching settings:", error);
   } finally {
     loading.value = false;
   }
@@ -305,19 +499,20 @@ const updatePassword = async () => {
   if (!passwords.value.currentPassword || !passwords.value.newPassword) return;
   savingPwd.value = true;
   try {
-    const res = await useAuthenticatedFetch<{ success: boolean; data: any }>(
-      "/settings/password",
-      {
-        method: "PATCH",
-        body: passwords.value,
-      },
-    );
+    const res = await useAuthenticatedFetch<{
+      success: boolean;
+      message?: string;
+    }>("/settings/password", {
+      method: "PATCH",
+      body: passwords.value,
+    });
     if (res.success) {
       toast.success("Mot de passe mis à jour");
       passwords.value = { currentPassword: "", newPassword: "" };
     }
-  } catch (err: any) {
-    toast.error(err.response?.message || "Erreur");
+  } catch (err: unknown) {
+    const apiError = err as { response?: { message?: string } };
+    toast.error(apiError.response?.message || "Erreur");
   } finally {
     savingPwd.value = false;
   }
@@ -330,8 +525,9 @@ const toggle2fa = async () => {
       body: { enabled: twoFactorEnabled.value },
     });
     toast.success("2FA mis à jour");
-  } catch (err) {
+  } catch (error: unknown) {
     twoFactorEnabled.value = !twoFactorEnabled.value; // revert
+    console.error("Error updating 2FA:", error);
   }
 };
 
@@ -341,8 +537,33 @@ const updateNotifications = async () => {
       method: "PATCH",
       body: notifications.value,
     });
-  } catch (err) {
-    console.error(err);
+  } catch (error: unknown) {
+    console.error("Error updating notifications:", error);
+  }
+};
+
+const updateProfileVisibility = async () => {
+  try {
+    const res = await useAuthenticatedFetch<{
+      success: boolean;
+      message?: string;
+    }>("/practitioner/dashboard/profile", {
+      method: "PATCH",
+      body: { isProfilePublic: profileVisibility.value.isProfilePublic },
+    });
+    if (res.success) {
+      toast.success(
+        profileVisibility.value.isProfilePublic
+          ? "Votre profil est maintenant public"
+          : "Votre profil est maintenant privé",
+      );
+    }
+  } catch (err: unknown) {
+    // revert the toggle on error
+    profileVisibility.value.isProfilePublic =
+      !profileVisibility.value.isProfilePublic;
+    const apiError = err as { message?: string };
+    toast.error(apiError.message || "Erreur lors de la mise à jour");
   }
 };
 
@@ -354,18 +575,19 @@ const cancelSubscription = async () => {
   )
     return;
   try {
-    const res = await useAuthenticatedFetch<{ success: boolean; data: any }>(
-      "/practitioner/dashboard/subscription/cancel",
-      {
-        method: "POST",
-      },
-    );
+    const res = await useAuthenticatedFetch<{
+      success: boolean;
+      data: SubscriptionInfo;
+    }>("/practitioner/dashboard/subscription/cancel", {
+      method: "POST",
+    });
     if (res.success) {
       subscription.value = res.data;
       toast.success("Abonnement annulé");
     }
-  } catch (err) {
+  } catch (error: unknown) {
     toast.error("Erreur lors de l'annulation");
+    console.error("Error cancelling subscription:", error);
   }
 };
 
@@ -375,7 +597,7 @@ const downloadInvoice = async (invoiceId: string) => {
       Blob | { success: boolean; message?: string }
     >(`/payments/practitioner/invoices/${invoiceId}/download`);
 
-    // Check if response is JSON (success false or message) or Blob directly
+    // check if response is json (success false or message) or blob directly
     if (response instanceof Blob) {
       const url = window.URL.createObjectURL(response);
       const link = document.createElement("a");
@@ -388,7 +610,7 @@ const downloadInvoice = async (invoiceId: string) => {
     } else if (response && response.success === false) {
       toast.error(response.message || "Erreur");
     }
-  } catch (error) {
+  } catch (error: unknown) {
     console.error(error);
     toast.error("Erreur lors du téléchargement");
   }

@@ -30,7 +30,7 @@
                 Date :
                 {{
                   new Date(
-                    appointment.appointmentDate || appointment.date,
+                    appointment.appointmentDate ?? appointment.date ?? "",
                   ).toLocaleDateString("fr-FR")
                 }}
                 à {{ appointment.startTime }}
@@ -120,15 +120,33 @@
 import { ref, watch } from "vue";
 import { X as XIcon } from "lucide-vue-next";
 
+interface AppointmentData {
+  id: string;
+  appointmentDate?: string;
+  date?: string;
+  startTime: string;
+  reason?: string | null;
+  patient?: {
+    firstName: string;
+    lastName: string;
+  };
+}
+
+interface InvoiceData {
+  id: string;
+  invoiceNumber: string;
+  amount: number;
+}
+
 const props = defineProps<{
   isOpen: boolean;
-  appointment: any;
+  appointment: AppointmentData | null;
   practitionerId?: string;
 }>();
 
 const emit = defineEmits<{
   close: [];
-  success: [invoice: any];
+  success: [invoice: InvoiceData];
 }>();
 
 const form = ref({
@@ -168,7 +186,7 @@ const submitPayment = async () => {
 
     const response = await useAuthenticatedFetch<{
       success: boolean;
-      invoice: any;
+      data: InvoiceData;
     }>("/payments/practitioner/cabinet-payment", {
       method: "POST",
       body: {
@@ -181,12 +199,13 @@ const submitPayment = async () => {
     });
 
     if (response) {
-      emit("success", response.invoice);
+      emit("success", response.data);
     }
-  } catch (error: any) {
+  } catch (error: unknown) {
     console.error("Payment creation failed:", error);
+    const apiError = error as { data?: { message?: string } };
     errorMsg.value =
-      error.data?.message || "Erreur lors de la création de la facture";
+      apiError.data?.message || "Erreur lors de la création de la facture";
   } finally {
     loading.value = false;
   }

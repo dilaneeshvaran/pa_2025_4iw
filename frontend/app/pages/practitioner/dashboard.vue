@@ -5,6 +5,37 @@
       <p class="text-gray-600">Bienvenue sur votre espace praticien</p>
     </div>
 
+    <!-- profile visibility alert -->
+    <div
+      v-if="showProfileAlert"
+      class="rounded-lg border border-blue-200 bg-blue-50 p-4"
+    >
+      <div class="flex items-start gap-3">
+        <Info class="mt-0.5 h-5 w-5 flex-shrink-0 text-blue-600" />
+        <div class="flex-1">
+          <h3 class="font-semibold text-blue-900">
+            {{ profileAlertTitle }}
+          </h3>
+          <p class="mt-1 text-sm text-blue-700">
+            {{ profileAlertMessage }}
+          </p>
+          <NuxtLink
+            :to="profileAlertLink"
+            class="mt-2 inline-flex items-center text-sm font-semibold text-blue-600 hover:text-blue-800"
+          >
+            {{ profileAlertAction }}
+            <ArrowRight class="ml-1 h-4 w-4" />
+          </NuxtLink>
+        </div>
+        <button
+          @click="dismissProfileAlert"
+          class="text-blue-400 hover:text-blue-600"
+        >
+          <X class="h-5 w-5" />
+        </button>
+      </div>
+    </div>
+
     <!-- kpi  -->
     <div class="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
       <UiCard v-for="(kpi, i) in kpiCards" :key="i">
@@ -417,7 +448,8 @@ import {
   Plus,
   Check,
   X,
-  Activity,
+  Info,
+  ArrowRight,
 } from "lucide-vue-next";
 import CreateInvoiceModal from "~/components/practitioner/CreateInvoiceModal.vue";
 import { useAuthStore } from "~/stores/auth";
@@ -484,6 +516,50 @@ const addingTodo = ref(false);
 const togglingId = ref<string | null>(null);
 const deletingId = ref<string | null>(null);
 
+// profile visibility alert
+const profileAlertDismissed = ref(false);
+const profileInfo = ref({
+  isProfilePublic: false,
+  tarifsAreDefined: false,
+});
+
+const showProfileAlert = computed(() => {
+  if (profileAlertDismissed.value || loading.value) return false;
+  return !profileInfo.value.isProfilePublic;
+});
+
+const profileAlertTitle = computed(() => {
+  if (!profileInfo.value.tarifsAreDefined) {
+    return "Configurez vos tarifs pour rendre votre profil public";
+  }
+  return "Votre profil n'est pas encore public";
+});
+
+const profileAlertMessage = computed(() => {
+  if (!profileInfo.value.tarifsAreDefined) {
+    return "Définissez vos tarifs de consultation pour permettre aux patients de vous trouver et de prendre rendez-vous en ligne.";
+  }
+  return "Rendez votre profil visible pour que les patients puissent vous trouver et prendre rendez-vous en ligne.";
+});
+
+const profileAlertLink = computed(() => {
+  if (!profileInfo.value.tarifsAreDefined) {
+    return "/practitioner/billing";
+  }
+  return "/practitioner/settings";
+});
+
+const profileAlertAction = computed(() => {
+  if (!profileInfo.value.tarifsAreDefined) {
+    return "Configurer mes tarifs";
+  }
+  return "Rendre mon profil public";
+});
+
+const dismissProfileAlert = () => {
+  profileAlertDismissed.value = true;
+};
+
 const canJoinNextTeleconsultation = computed(() => {
   if (!dashboard.value?.nextAppointment) return false;
   const apt = dashboard.value.nextAppointment;
@@ -530,14 +606,33 @@ const kpiCards = computed(() => [
   },
 ]);
 
+interface ProfileData {
+  isProfilePublic: boolean;
+  baseConsultationFee: number | null;
+}
+
 const fetchDashboard = async () => {
   try {
-    const response = await useAuthenticatedFetch<{
-      success: boolean;
-      data: DashboardData;
-    }>("/practitioner/dashboard");
-    if (response.success) {
-      dashboard.value = response.data;
+    const [dashboardResponse, profileResponse] = await Promise.all([
+      useAuthenticatedFetch<{
+        success: boolean;
+        data: DashboardData;
+      }>("/practitioner/dashboard"),
+      useAuthenticatedFetch<{
+        success: boolean;
+        data: ProfileData;
+      }>("/practitioner/dashboard/profile"),
+    ]);
+
+    if (dashboardResponse.success) {
+      dashboard.value = dashboardResponse.data;
+    }
+
+    if (profileResponse.success) {
+      profileInfo.value.isProfilePublic =
+        profileResponse.data.isProfilePublic || false;
+      profileInfo.value.tarifsAreDefined =
+        !!profileResponse.data.baseConsultationFee;
     }
   } catch (error) {
     console.error("Error fetching dashboard:", error);
@@ -609,14 +704,14 @@ const deleteTodo = async (todoId: string) => {
 };
 
 const isInvoiceModalOpen = ref(false);
-const selectedAppointmentForInvoice = ref(null);
+const selectedAppointmentForInvoice = ref<AppointmentInfo | null>(null);
 
-const openInvoiceModal = (apt: any) => {
+const openInvoiceModal = (apt: AppointmentInfo) => {
   selectedAppointmentForInvoice.value = apt;
   isInvoiceModalOpen.value = true;
 };
 
-const handleInvoiceSuccess = (invoice: any) => {
+const handleInvoiceSuccess = () => {
   isInvoiceModalOpen.value = false;
   navigateTo("/practitioner/billing");
 };
