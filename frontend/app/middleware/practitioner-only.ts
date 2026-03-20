@@ -5,11 +5,10 @@ export default defineNuxtRouteMiddleware((to, _from) => {
 
   const authStore = useAuthStore();
 
-  if (!authStore.isAuthenticated) {
-    authStore.initAuth();
-  }
+  // auth check is handled by global middleware
+  // this middleware only checks role authorization
 
-  if (!authStore.isAuthenticated) {
+  if (!authStore.isAuthenticated || !authStore.user) {
     return navigateTo({
       path: "/auth/login",
       query: { redirect: to.fullPath },
@@ -17,7 +16,7 @@ export default defineNuxtRouteMiddleware((to, _from) => {
   }
 
   // redirect non practitioner users to their appropriate dashboard
-  if (authStore.user?.role !== "PRACTITIONER") {
+  if (authStore.user.role !== "PRACTITIONER") {
     const dashboardMap: Record<string, string> = {
       PATIENT: "/patient/dashboard",
       STAFF: "/staff/dashboard",
@@ -25,7 +24,7 @@ export default defineNuxtRouteMiddleware((to, _from) => {
       ADMIN: "/admin/dashboard",
     };
 
-    const redirectPath = dashboardMap[authStore.user?.role || ""] || "/";
+    const redirectPath = dashboardMap[authStore.user.role] || "/";
     return navigateTo(redirectPath);
   }
 });

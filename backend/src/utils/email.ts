@@ -700,3 +700,180 @@ export async function sendCabinetInvitationEmail(
 
   await sendEmail(to, `Invitation à rejoindre ${cabinetName} - MediCôte`, html)
 }
+
+interface AppointmentCancelledByPatientEmailData {
+  practitionerName: string
+  patientFirstName: string
+  patientLastName: string
+  appointmentDate: string
+  appointmentTime: string
+  reason?: string
+}
+
+export async function sendAppointmentCancelledByPatientEmail(
+  to: string,
+  data: AppointmentCancelledByPatientEmailData,
+): Promise<void> {
+  const html = `
+    <!DOCTYPE html>
+    <html>
+      <head>
+        <meta charset="utf-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1.0">
+        <title>Annulation de rendez-vous par un patient</title>
+      </head>
+      <body style="font-family: Arial, sans-serif; line-height: 1.6; color: #333; max-width: 600px; margin: 0 auto; padding: 20px;">
+        <div style="background-color: #0066cc; color: white; padding: 20px; text-align: center; border-radius: 5px 5px 0 0;">
+          <h1 style="margin: 0;">MediCôte</h1>
+        </div>
+        <div style="background-color: #f9f9f9; padding: 30px; border-radius: 0 0 5px 5px;">
+          <h2 style="color: #cc0000; margin-top: 0;">Rendez-vous annulé par le patient</h2>
+          <p>Bonjour ${data.practitionerName},</p>
+          <p>Un patient a annulé son rendez-vous. Voici les détails :</p>
+          
+          <div style="background-color: white; border: 1px solid #e0e0e0; border-radius: 8px; padding: 20px; margin: 20px 0;">
+            <p style="margin: 8px 0;"><strong>Patient :</strong> ${data.patientFirstName} ${data.patientLastName}</p>
+            <p style="margin: 8px 0;"><strong>Date :</strong> ${data.appointmentDate}</p>
+            <p style="margin: 8px 0;"><strong>Heure :</strong> ${data.appointmentTime}</p>
+            ${data.reason ? `<p style="margin: 8px 0;"><strong>Raison :</strong> ${data.reason}</p>` : ''}
+          </div>
+
+          <p>Le créneau est maintenant disponible pour d'autres patients.</p>
+
+          <div style="text-align: center; margin: 30px 0;">
+            <a href="${APP_URL}/practitioner/agenda" style="background-color: #0066cc; color: white; padding: 12px 30px; text-decoration: none; border-radius: 5px; display: inline-block; font-weight: bold;">Voir mon agenda</a>
+          </div>
+        </div>
+        <div style="text-align: center; margin-top: 20px; color: #999; font-size: 12px;">
+          <p>© ${new Date().getFullYear()} MediCôte. Tous droits réservés.</p>
+        </div>
+      </body>
+    </html>
+  `
+
+  await sendEmail(to, 'Annulation de rendez-vous - MediCôte', html)
+}
+
+interface AppointmentModifiedByPatientEmailData {
+  practitionerName: string
+  patientFirstName: string
+  patientLastName: string
+  oldDate: string
+  oldTime: string
+  newDate: string
+  newTime: string
+}
+
+export async function sendAppointmentModifiedByPatientEmail(
+  to: string,
+  data: AppointmentModifiedByPatientEmailData,
+): Promise<void> {
+  const html = `
+    <!DOCTYPE html>
+    <html>
+      <head>
+        <meta charset="utf-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1.0">
+        <title>Modification de rendez-vous par un patient</title>
+      </head>
+      <body style="font-family: Arial, sans-serif; line-height: 1.6; color: #333; max-width: 600px; margin: 0 auto; padding: 20px;">
+        <div style="background-color: #0066cc; color: white; padding: 20px; text-align: center; border-radius: 5px 5px 0 0;">
+          <h1 style="margin: 0;">MediCôte</h1>
+        </div>
+        <div style="background-color: #f9f9f9; padding: 30px; border-radius: 0 0 5px 5px;">
+          <h2 style="color: #e67e00; margin-top: 0;">Rendez-vous modifié par le patient</h2>
+          <p>Bonjour ${data.practitionerName},</p>
+          <p>Un patient a modifié son rendez-vous. Voici les détails :</p>
+          
+          <div style="background-color: white; border: 1px solid #e0e0e0; border-radius: 8px; padding: 20px; margin: 20px 0;">
+            <p style="margin: 8px 0;"><strong>Patient :</strong> ${data.patientFirstName} ${data.patientLastName}</p>
+            <p style="margin: 8px 0; color: #cc0000; text-decoration: line-through;"><strong>Ancien :</strong> ${data.oldDate} à ${data.oldTime}</p>
+            <p style="margin: 8px 0; color: #009900;"><strong>Nouveau :</strong> ${data.newDate} à ${data.newTime}</p>
+          </div>
+
+          <div style="text-align: center; margin: 30px 0;">
+            <a href="${APP_URL}/practitioner/agenda" style="background-color: #0066cc; color: white; padding: 12px 30px; text-decoration: none; border-radius: 5px; display: inline-block; font-weight: bold;">Voir mon agenda</a>
+          </div>
+        </div>
+        <div style="text-align: center; margin-top: 20px; color: #999; font-size: 12px;">
+          <p>© ${new Date().getFullYear()} MediCôte. Tous droits réservés.</p>
+        </div>
+      </body>
+    </html>
+  `
+
+  await sendEmail(to, 'Modification de rendez-vous - MediCôte', html)
+}
+
+interface AppointmentBookedByPractitionerEmailData {
+  patientName: string
+  practitionerTitle: string
+  practitionerFirstName: string
+  practitionerLastName: string
+  practitionerSpecialty: string
+  appointmentDate: string
+  appointmentTime: string
+  consultationType: 'IN_PERSON' | 'TELECONSULTATION'
+  consultationFee: number
+  clinicAddress?: string
+}
+
+export async function sendAppointmentBookedByPractitionerEmail(
+  to: string,
+  data: AppointmentBookedByPractitionerEmailData,
+): Promise<void> {
+  const isTelemedicine = data.consultationType === 'TELECONSULTATION'
+  const typeLabel = isTelemedicine
+    ? 'Téléconsultation'
+    : 'Consultation au cabinet'
+  const locationInfo = isTelemedicine
+    ? 'Vous recevrez un lien de connexion avant votre rendez-vous.'
+    : `Adresse : ${data.clinicAddress || 'À confirmer'}`
+
+  const html = `
+    <!DOCTYPE html>
+    <html>
+      <head>
+        <meta charset="utf-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1.0">
+        <title>Nouveau rendez-vous programmé</title>
+      </head>
+      <body style="font-family: Arial, sans-serif; line-height: 1.6; color: #333; max-width: 600px; margin: 0 auto; padding: 20px;">
+        <div style="background-color: #0066cc; color: white; padding: 20px; text-align: center; border-radius: 5px 5px 0 0;">
+          <h1 style="margin: 0;">MediCôte</h1>
+        </div>
+        <div style="background-color: #f9f9f9; padding: 30px; border-radius: 0 0 5px 5px;">
+          <h2 style="color: #0066cc; margin-top: 0;">Rendez-vous programmé pour vous ✓</h2>
+          <p>Bonjour ${data.patientName},</p>
+          <p>Votre praticien a programmé un rendez-vous pour vous. Voici les détails :</p>
+          
+          <div style="background-color: white; border: 1px solid #e0e0e0; border-radius: 8px; padding: 20px; margin: 20px 0;">
+            <p style="margin: 8px 0;"><strong>Praticien :</strong> ${data.practitionerTitle} ${data.practitionerFirstName} ${data.practitionerLastName}</p>
+            <p style="margin: 8px 0;"><strong>Spécialité :</strong> ${data.practitionerSpecialty}</p>
+            <p style="margin: 8px 0;"><strong>Date :</strong> ${data.appointmentDate}</p>
+            <p style="margin: 8px 0;"><strong>Heure :</strong> ${data.appointmentTime}</p>
+            <p style="margin: 8px 0;"><strong>Type :</strong> ${typeLabel}</p>
+            <p style="margin: 8px 0;"><strong>Tarif :</strong> ${data.consultationFee.toLocaleString('fr-FR')} FCFA</p>
+            <p style="margin: 8px 0; color: #666;">${locationInfo}</p>
+          </div>
+
+          <div style="text-align: center; margin: 30px 0;">
+            <a href="${APP_URL}/patient/appointments" style="background-color: #0066cc; color: white; padding: 12px 30px; text-decoration: none; border-radius: 5px; display: inline-block; font-weight: bold;">Voir mes rendez-vous</a>
+          </div>
+          
+          <p style="color: #666; font-size: 14px; margin-top: 30px;">
+            Vous recevrez un rappel 24h et 1h avant votre rendez-vous.
+          </p>
+          <p style="color: #666; font-size: 14px;">
+            Pour annuler ou modifier votre rendez-vous, connectez-vous à votre espace patient.
+          </p>
+        </div>
+        <div style="text-align: center; margin-top: 20px; color: #999; font-size: 12px;">
+          <p>© ${new Date().getFullYear()} MediCôte. Tous droits réservés.</p>
+        </div>
+      </body>
+    </html>
+  `
+
+  await sendEmail(to, 'Nouveau rendez-vous programmé - MediCôte', html)
+}

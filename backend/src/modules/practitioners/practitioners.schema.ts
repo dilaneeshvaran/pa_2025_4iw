@@ -49,3 +49,27 @@ export type GetAvailableSlotsInput = z.infer<typeof getAvailableSlotsSchema>
 export type GetPractitionerStatisticsInput = z.infer<
   typeof getPractitionerStatisticsSchema
 >
+
+export const updateTarifsSchema = z.object({
+  baseConsultationFee: z.number().min(0, 'Le tarif ne peut pas être négatif'),
+  teleconsultationFee: z
+    .number()
+    .min(0, 'Le tarif ne peut pas être négatif')
+    .nullable()
+    .optional(),
+  emergencyFee: z
+    .number()
+    .min(0, 'Le tarif ne peut pas être négatif')
+    .nullable()
+    .optional(),
+})
+
+export type UpdateTarifsInput = z.infer<typeof updateTarifsSchema>
+
+export const updateProfileVisibilitySchema = z.object({
+  isProfilePublic: z.boolean(),
+})
+
+export type UpdateProfileVisibilityInput = z.infer<
+  typeof updateProfileVisibilitySchema
+>

@@ -9,6 +9,7 @@ import path from 'path'
 import fs from 'fs'
 import { randomUUID } from 'crypto'
 import '@fastify/multipart'
+import prisma from '../../config/database'
 
 export async function documentsRoutes(fastify: FastifyInstance) {
   // docs received from practitioners
@@ -328,6 +329,150 @@ export async function documentsRoutes(fastify: FastifyInstance) {
             ? error.message
             : 'Erreur lors de la suppression du document'
         return reply.status(400).send({ success: false, message })
+      }
+    },
+  )
+
+  // practitioner: download patient document
+  fastify.get(
+    '/patient/:patientId/:id/download',
+    { preHandler: [authenticate] },
+    async (request: FastifyRequest, reply: FastifyReply) => {
+      try {
+        const user = request.user as { id: string; role: string }
+        const { patientId, id: documentId } = request.params as {
+          patientId: string
+          id: string
+        }
+
+        if (user.role !== 'PRACTITIONER') {
+          return reply.status(403).send({
+            success: false,
+            message: 'Accès réservé aux praticiens',
+          })
+        }
+
+        const practitioner = await prisma.practitioner.findUnique({
+          where: { userId: user.id },
+          select: { id: true },
+        })
+
+        if (!practitioner) {
+          return reply.status(404).send({
+            success: false,
+            message: 'Profil praticien non trouvé',
+          })
+        }
+
+        const document =
+          await documentsService.getDocumentForPractitionerAccess(
+            practitioner.id,
+            patientId,
+            documentId,
+          )
+
+        if (!document) {
+          return reply.status(404).send({
+            success: false,
+            message: 'Document non trouvé',
+          })
+        }
+
+        const filePath = path.resolve(document.filePath)
+
+        if (!fs.existsSync(filePath)) {
+          return reply.status(404).send({
+            success: false,
+            message: 'Fichier non trouvé sur le serveur',
+          })
+        }
+
+        const stream = fs.createReadStream(filePath)
+        return reply
+          .header('Content-Type', document.mimeType)
+          .header(
+            'Content-Disposition',
+            `attachment; filename="${document.fileName}"`,
+          )
+          .send(stream)
+      } catch (error) {
+        request.log.error(error)
+        return reply.status(500).send({
+          success: false,
+          message: 'Erreur lors du téléchargement du document',
+        })
+      }
+    },
+  )
+
+  // practitioner: view patient document
+  fastify.get(
+    '/patient/:patientId/:id/view',
+    { preHandler: [authenticate] },
+    async (request: FastifyRequest, reply: FastifyReply) => {
+      try {
+        const user = request.user as { id: string; role: string }
+        const { patientId, id: documentId } = request.params as {
+          patientId: string
+          id: string
+        }
+
+        if (user.role !== 'PRACTITIONER') {
+          return reply.status(403).send({
+            success: false,
+            message: 'Accès réservé aux praticiens',
+          })
+        }
+
+        const practitioner = await prisma.practitioner.findUnique({
+          where: { userId: user.id },
+          select: { id: true },
+        })
+
+        if (!practitioner) {
+          return reply.status(404).send({
+            success: false,
+            message: 'Profil praticien non trouvé',
+          })
+        }
+
+        const document =
+          await documentsService.getDocumentForPractitionerAccess(
+            practitioner.id,
+            patientId,
+            documentId,
+          )
+
+        if (!document) {
+          return reply.status(404).send({
+            success: false,
+            message: 'Document non trouvé',
+          })
+        }
+
+        const filePath = path.resolve(document.filePath)
+
+        if (!fs.existsSync(filePath)) {
+          return reply.status(404).send({
+            success: false,
+            message: 'Fichier non trouvé sur le serveur',
+          })
+        }
+
+        const stream = fs.createReadStream(filePath)
+        return reply
+          .header('Content-Type', document.mimeType)
+          .header(
+            'Content-Disposition',
+            `inline; filename="${document.fileName}"`,
+          )
+          .send(stream)
+      } catch (error) {
+        request.log.error(error)
+        return reply.status(500).send({
+          success: false,
+          message: 'Erreur lors de la visualisation du document',
+        })
       }
     },
   )

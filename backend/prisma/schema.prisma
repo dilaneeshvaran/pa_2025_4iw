@@ -207,6 +207,7 @@ model Practitioner {
   emergencyFee             Decimal?                  @db.Decimal(10, 2)
   languages                String[]                  @default([])
   photoUrl                 String?
+  isProfilePublic          Boolean                   @default(false)
   absences                 Absence[]
   appointments             Appointment[]
   availabilities           Availability[]

@@ -373,101 +373,209 @@
               </div>
             </div>
 
-            <!-- payment method selection -->
-            <div class="space-y-3">
-              <label class="text-sm font-medium text-gray-700"
-                >Moyen de paiement</label
+            <!-- loading saved methods -->
+            <div
+              v-if="loadingSavedMethods"
+              class="flex items-center justify-center py-4"
+            >
+              <div
+                class="h-6 w-6 animate-spin rounded-full border-2 border-blue-600 border-t-transparent"
+              ></div>
+              <span class="ml-2 text-sm text-gray-500"
+                >Chargement des moyens de paiement...</span
               >
-              <div class="grid grid-cols-2 gap-3">
-                <button
-                  v-for="pm in paymentOptions"
-                  :key="pm.value"
-                  type="button"
-                  class="flex flex-col items-center gap-2 rounded-lg border-2 p-4 transition-all"
-                  :class="[
-                    selectedPaymentMethod === pm.value
-                      ? 'border-blue-600 bg-blue-50'
-                      : 'border-gray-200 hover:border-gray-300',
-                  ]"
-                  @click="selectedPaymentMethod = pm.value"
-                >
-                  <span class="text-2xl">{{ pm.icon }}</span>
-                  <span class="text-sm font-medium">{{ pm.label }}</span>
-                </button>
-              </div>
             </div>
 
-            <!-- mobile money operator selection -->
+            <!-- saved payment methods -->
             <div
-              v-if="selectedPaymentMethod === 'MOBILE_MONEY'"
+              v-else-if="
+                verifiedSavedMethods.length > 0 && !useNewPaymentMethod
+              "
               class="space-y-3"
             >
               <label class="text-sm font-medium text-gray-700"
-                >Opérateur mobile</label
+                >Moyens de paiement enregistrés</label
               >
-              <div class="grid grid-cols-2 gap-2">
-                <button
-                  v-for="op in mobileOperators"
-                  :key="op.value"
-                  type="button"
-                  class="flex items-center gap-2 rounded-lg border-2 px-3 py-2.5 text-sm transition-all"
-                  :class="[
-                    selectedMobileOperator === op.value
-                      ? 'border-orange-500 bg-orange-50'
-                      : 'border-gray-200 hover:border-gray-300',
-                  ]"
-                  @click="selectedMobileOperator = op.value"
+              <div class="space-y-2">
+                <label
+                  v-for="method in verifiedSavedMethods"
+                  :key="method.id"
+                  class="flex cursor-pointer items-center justify-between rounded-lg border p-3 transition-colors hover:bg-gray-50"
+                  :class="
+                    selectedSavedMethodId === method.id
+                      ? 'border-blue-500 bg-blue-50 ring-1 ring-blue-500'
+                      : 'border-gray-200'
+                  "
                 >
-                  <span>{{ op.icon }}</span>
-                  <span class="font-medium">{{ op.label }}</span>
-                </button>
+                  <div class="flex items-center gap-3">
+                    <input
+                      type="radio"
+                      name="savedMethod"
+                      :value="method.id"
+                      v-model="selectedSavedMethodId"
+                      class="h-4 w-4 border-gray-300 text-blue-600 focus:ring-blue-500"
+                    />
+                    <div
+                      class="flex h-8 w-8 items-center justify-center rounded-full text-sm"
+                      :class="
+                        method.type === 'MOBILE_MONEY'
+                          ? 'bg-orange-100'
+                          : 'bg-blue-100'
+                      "
+                    >
+                      {{ method.type === "MOBILE_MONEY" ? "📱" : "💳" }}
+                    </div>
+                    <div>
+                      <div
+                        class="flex items-center gap-2 font-medium text-gray-900"
+                      >
+                        {{ method.label }}
+                        <span
+                          v-if="method.isDefault"
+                          class="rounded-full bg-blue-100 px-2 py-0.5 text-xs text-blue-700"
+                          >Par défaut</span
+                        >
+                      </div>
+                      <div class="text-xs text-gray-500">
+                        <template v-if="method.type === 'MOBILE_MONEY'">
+                          {{ method.mobileNumber }}
+                        </template>
+                        <template v-else>
+                          {{ method.cardBrand }} •••• {{ method.cardLast4 }}
+                        </template>
+                      </div>
+                    </div>
+                  </div>
+                </label>
               </div>
-              <div>
-                <label class="text-sm text-gray-600">Numéro de téléphone</label>
-                <input
-                  v-model="mobilePaymentNumber"
-                  type="tel"
-                  placeholder="07 XX XX XX XX"
-                  class="mt-1 w-full rounded-lg border border-gray-300 px-4 py-2.5 focus:border-blue-600 focus:outline-none focus:ring-2 focus:ring-blue-600"
-                />
-              </div>
+              <button
+                type="button"
+                class="mt-2 text-sm text-blue-600 hover:underline"
+                @click="
+                  useNewPaymentMethod = true;
+                  selectedSavedMethodId = null;
+                "
+              >
+                + Utiliser un autre moyen de paiement
+              </button>
             </div>
 
-            <!-- card payment fields -->
-            <div v-if="selectedPaymentMethod === 'CARD'" class="space-y-3">
-              <div>
-                <label class="text-sm text-gray-600">Numéro de carte</label>
-                <input
-                  v-model="cardNumber"
-                  type="text"
-                  placeholder="4XXX XXXX XXXX XXXX"
-                  maxlength="19"
-                  class="mt-1 w-full rounded-lg border border-gray-300 px-4 py-2.5 focus:border-blue-600 focus:outline-none focus:ring-2 focus:ring-blue-600"
-                />
+            <!-- new payment method selection (shown when no saved methods or user chooses to add new) -->
+            <template v-else>
+              <div v-if="verifiedSavedMethods.length > 0" class="mb-3">
+                <button
+                  type="button"
+                  class="text-sm text-blue-600 hover:underline"
+                  @click="
+                    useNewPaymentMethod = false;
+                    selectedSavedMethodId =
+                      verifiedSavedMethods.find((m) => m.isDefault)?.id ||
+                      verifiedSavedMethods[0]?.id ||
+                      null;
+                  "
+                >
+                  ← Utiliser un moyen de paiement enregistré
+                </button>
               </div>
-              <div class="grid grid-cols-2 gap-3">
+
+              <!-- payment method selection -->
+              <div class="space-y-3">
+                <label class="text-sm font-medium text-gray-700"
+                  >Moyen de paiement</label
+                >
+                <div class="grid grid-cols-2 gap-3">
+                  <button
+                    v-for="pm in paymentOptions"
+                    :key="pm.value"
+                    type="button"
+                    class="flex flex-col items-center gap-2 rounded-lg border-2 p-4 transition-all"
+                    :class="[
+                      selectedPaymentMethod === pm.value
+                        ? 'border-blue-600 bg-blue-50'
+                        : 'border-gray-200 hover:border-gray-300',
+                    ]"
+                    @click="selectedPaymentMethod = pm.value"
+                  >
+                    <span class="text-2xl">{{ pm.icon }}</span>
+                    <span class="text-sm font-medium">{{ pm.label }}</span>
+                  </button>
+                </div>
+              </div>
+
+              <!-- mobile money operator selection -->
+              <div
+                v-if="selectedPaymentMethod === 'MOBILE_MONEY'"
+                class="space-y-3"
+              >
+                <label class="text-sm font-medium text-gray-700"
+                  >Opérateur mobile</label
+                >
+                <div class="grid grid-cols-2 gap-2">
+                  <button
+                    v-for="op in mobileOperators"
+                    :key="op.value"
+                    type="button"
+                    class="flex items-center gap-2 rounded-lg border-2 px-3 py-2.5 text-sm transition-all"
+                    :class="[
+                      selectedMobileOperator === op.value
+                        ? 'border-orange-500 bg-orange-50'
+                        : 'border-gray-200 hover:border-gray-300',
+                    ]"
+                    @click="selectedMobileOperator = op.value"
+                  >
+                    <span>{{ op.icon }}</span>
+                    <span class="font-medium">{{ op.label }}</span>
+                  </button>
+                </div>
                 <div>
-                  <label class="text-sm text-gray-600">Expiration</label>
+                  <label class="text-sm text-gray-600"
+                    >Numéro de téléphone</label
+                  >
                   <input
-                    v-model="cardExpiry"
-                    type="text"
-                    placeholder="MM/AA"
-                    maxlength="5"
+                    v-model="mobilePaymentNumber"
+                    type="tel"
+                    placeholder="07 XX XX XX XX"
                     class="mt-1 w-full rounded-lg border border-gray-300 px-4 py-2.5 focus:border-blue-600 focus:outline-none focus:ring-2 focus:ring-blue-600"
                   />
                 </div>
+              </div>
+
+              <!-- card payment fields -->
+              <div v-if="selectedPaymentMethod === 'CARD'" class="space-y-3">
                 <div>
-                  <label class="text-sm text-gray-600">CVV</label>
+                  <label class="text-sm text-gray-600">Numéro de carte</label>
                   <input
-                    v-model="cardCvv"
+                    v-model="cardNumber"
                     type="text"
-                    placeholder="XXX"
-                    maxlength="4"
+                    placeholder="4XXX XXXX XXXX XXXX"
+                    maxlength="19"
                     class="mt-1 w-full rounded-lg border border-gray-300 px-4 py-2.5 focus:border-blue-600 focus:outline-none focus:ring-2 focus:ring-blue-600"
                   />
                 </div>
+                <div class="grid grid-cols-2 gap-3">
+                  <div>
+                    <label class="text-sm text-gray-600">Expiration</label>
+                    <input
+                      v-model="cardExpiry"
+                      type="text"
+                      placeholder="MM/AA"
+                      maxlength="5"
+                      class="mt-1 w-full rounded-lg border border-gray-300 px-4 py-2.5 focus:border-blue-600 focus:outline-none focus:ring-2 focus:ring-blue-600"
+                    />
+                  </div>
+                  <div>
+                    <label class="text-sm text-gray-600">CVV</label>
+                    <input
+                      v-model="cardCvv"
+                      type="text"
+                      placeholder="XXX"
+                      maxlength="4"
+                      class="mt-1 w-full rounded-lg border border-gray-300 px-4 py-2.5 focus:border-blue-600 focus:outline-none focus:ring-2 focus:ring-blue-600"
+                    />
+                  </div>
+                </div>
               </div>
-            </div>
+            </template>
 
             <div class="rounded-lg bg-green-50 p-3 text-sm text-green-800">
               <p>🔒 Paiement sécurisé. Vos informations sont chiffrées.</p>
@@ -484,12 +592,42 @@
           <!-- success message -->
           <div
             v-if="success"
-            class="mt-4 rounded-lg bg-green-50 p-4 text-sm text-green-600"
+            class="mt-4 rounded-lg border border-green-200 bg-green-50 p-6 text-center"
           >
-            <p class="font-medium">
-              Votre rendez-vous a été réservé avec succès !
+            <div
+              class="mx-auto mb-3 flex h-12 w-12 items-center justify-center rounded-full bg-green-100"
+            >
+              <IconCheck class="h-6 w-6 text-green-600" />
+            </div>
+            <h3 class="text-lg font-semibold text-green-800">
+              {{
+                appointmentType === "TELECONSULTATION"
+                  ? "Téléconsultation confirmée !"
+                  : "Rendez-vous confirmé !"
+              }}
+            </h3>
+            <p class="mt-2 text-sm text-green-700">
+              {{
+                appointmentType === "TELECONSULTATION"
+                  ? "Votre téléconsultation a été réservée avec succès. Vous recevrez un lien de connexion par email."
+                  : "Votre rendez-vous a été réservé avec succès !"
+              }}
             </p>
-            <p class="mt-1">Un email de confirmation vous a été envoyé.</p>
+            <p class="mt-1 text-xs text-green-600">
+              Un email de confirmation vous a été envoyé avec tous les détails.
+            </p>
+            <div
+              v-if="selectedDate && selectedTime"
+              class="mt-3 rounded-lg bg-white p-3 text-sm"
+            >
+              <p class="font-medium text-gray-800">
+                📅 {{ formatDate(selectedDate) }} à {{ selectedTime }}
+              </p>
+              <p class="text-gray-600">
+                {{ practitioner?.title }} {{ practitioner?.firstName }}
+                {{ practitioner?.lastName }}
+              </p>
+            </div>
           </div>
 
           <div class="mt-6 flex gap-3">
@@ -616,6 +754,72 @@ const mobilePaymentNumber = ref("");
 const cardNumber = ref("");
 const cardExpiry = ref("");
 const cardCvv = ref("");
+
+interface SavedPaymentMethod {
+  id: string;
+  type: "MOBILE_MONEY" | "CARD";
+  label: string;
+  isDefault: boolean;
+  mobileOperator?: string | null;
+  mobileNumber?: string | null;
+  cardLast4?: string | null;
+  cardBrand?: string | null;
+  isVerified: boolean;
+}
+const savedPaymentMethods = ref<SavedPaymentMethod[]>([]);
+const loadingSavedMethods = ref(false);
+const selectedSavedMethodId = ref<string | null>(null);
+const useNewPaymentMethod = ref(false);
+
+const verifiedSavedMethods = computed(() =>
+  savedPaymentMethods.value.filter((m) => m.isVerified),
+);
+
+const loadSavedPaymentMethods = async () => {
+  if (!authStore.isAuthenticated) return;
+  loadingSavedMethods.value = true;
+  try {
+    const response = await useAuthenticatedFetch<{
+      success: boolean;
+      data: SavedPaymentMethod[];
+    }>("/payments/methods");
+    if (response.success) {
+      savedPaymentMethods.value = response.data;
+      // preselect default verified method
+      const defaultMethod = response.data.find(
+        (m) => m.isDefault && m.isVerified,
+      );
+      if (defaultMethod) {
+        selectedSavedMethodId.value = defaultMethod.id;
+        useNewPaymentMethod.value = false;
+        // set the type to match the saved method
+        selectedPaymentMethod.value = defaultMethod.type;
+        if (
+          defaultMethod.type === "MOBILE_MONEY" &&
+          defaultMethod.mobileOperator
+        ) {
+          selectedMobileOperator.value = defaultMethod.mobileOperator;
+        }
+      } else if (response.data.some((m) => m.isVerified)) {
+        // use first verified method if no default
+        const firstVerified = response.data.find((m) => m.isVerified);
+        if (firstVerified) {
+          selectedSavedMethodId.value = firstVerified.id;
+          useNewPaymentMethod.value = false;
+          selectedPaymentMethod.value = firstVerified.type;
+        }
+      } else {
+        // no saved methods, use new payment
+        useNewPaymentMethod.value = true;
+        selectedSavedMethodId.value = null;
+      }
+    }
+  } catch (error) {
+    console.error("Error loading saved payment methods:", error);
+  } finally {
+    loadingSavedMethods.value = false;
+  }
+};
 
 const requiresPayment = computed(
   () => appointmentType.value === "TELECONSULTATION",
@@ -814,6 +1018,11 @@ const canProceed = computed(() => {
     return appointmentType.value;
   }
   if (currentStep.value === 4 && requiresPayment.value) {
+    // if using a saved payment method
+    if (!useNewPaymentMethod.value && selectedSavedMethodId.value) {
+      return true;
+    }
+    // using new payment method
     if (selectedPaymentMethod.value === "MOBILE_MONEY") {
       return (
         selectedMobileOperator.value && mobilePaymentNumber.value.length >= 8
@@ -838,6 +1047,15 @@ const formatDateLong = (dateStr: string) => {
     day: "numeric",
     month: "long",
     year: "numeric",
+  });
+};
+
+const formatDate = (dateStr: string) => {
+  const date = new Date(dateStr);
+  return date.toLocaleDateString("fr-FR", {
+    weekday: "long",
+    day: "numeric",
+    month: "long",
   });
 };
 
@@ -960,6 +1178,9 @@ const close = () => {
   cardNumber.value = "";
   cardExpiry.value = "";
   cardCvv.value = "";
+  savedPaymentMethods.value = [];
+  selectedSavedMethodId.value = null;
+  useNewPaymentMethod.value = false;
 
   emit("close");
 };
@@ -1001,9 +1222,26 @@ const handleSubmit = async () => {
     // if teleconsultation, process payment
     if (requiresPayment.value && aptResponse.data?.id) {
       try {
-        await useAuthenticatedFetch("/payments", {
-          method: "POST",
-          body: {
+        // build payment body based on whether using saved method or new method
+        let paymentBody: Record<string, string | undefined>;
+
+        if (!useNewPaymentMethod.value && selectedSavedMethodId.value) {
+          // using saved payment method
+          const savedMethod = savedPaymentMethods.value.find(
+            (m) => m.id === selectedSavedMethodId.value,
+          );
+          paymentBody = {
+            appointmentId: aptResponse.data.id,
+            method: savedMethod?.type || "MOBILE_MONEY",
+            savedPaymentMethodId: selectedSavedMethodId.value,
+            mobileOperator: savedMethod?.mobileOperator || undefined,
+            mobileNumber: savedMethod?.mobileNumber || undefined,
+            cardLast4: savedMethod?.cardLast4 || undefined,
+            cardBrand: savedMethod?.cardBrand || undefined,
+          };
+        } else {
+          // using new payment method
+          paymentBody = {
             appointmentId: aptResponse.data.id,
             method: selectedPaymentMethod.value,
             mobileOperator:
@@ -1022,7 +1260,12 @@ const handleSubmit = async () => {
               selectedPaymentMethod.value === "CARD"
                 ? detectCardBrand(cardNumber.value)
                 : undefined,
-          },
+          };
+        }
+
+        await useAuthenticatedFetch("/payments", {
+          method: "POST",
+          body: paymentBody,
         });
       } catch (payErr: unknown) {
         const payError = payErr as { data?: { message?: string } };
@@ -1037,10 +1280,10 @@ const handleSubmit = async () => {
     slotReserved.value = false;
     emit("success");
 
-    // close modal after 3 seconds
+    // close modal after 5 seconds (gives user time to read confirmation)
     setTimeout(() => {
       close();
-    }, 3000);
+    }, 5000);
   } catch (err: unknown) {
     const fetchError = err as { data?: { message?: string } };
     error.value =
@@ -1056,6 +1299,7 @@ watch(
   (isOpen) => {
     if (isOpen) {
       fetchAvailableSlots();
+      loadSavedPaymentMethods();
     }
   },
 );

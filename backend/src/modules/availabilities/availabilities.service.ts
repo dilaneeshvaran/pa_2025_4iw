@@ -5,6 +5,7 @@ import {
   sendAppointmentCancelledByPractitionerEmail,
   sendAppointmentModifiedByPractitionerEmail,
   sendNoShowEmail,
+  sendAppointmentBookedByPractitionerEmail,
 } from '../../utils/email'
 import type {
   AvailabilitySlot,
@@ -644,6 +645,13 @@ export class AvailabilitiesService {
   ): Promise<AgendaAppointment> {
     const practitioner = await prisma.practitioner.findUnique({
       where: { id: practitionerId },
+      include: {
+        specialties: {
+          where: { isPrimary: true },
+          include: { specialty: true },
+          take: 1,
+        },
+      },
     })
     if (!practitioner) throw new Error('Praticien non trouvé')
 
@@ -655,6 +663,38 @@ export class AvailabilitiesService {
     const appointmentDate = new Date(data.appointmentDate)
     appointmentDate.setHours(0, 0, 0, 0)
 
+    // prevent booking in the past
+    const today = new Date()
+    today.setHours(0, 0, 0, 0)
+    if (appointmentDate < today) {
+      throw new Error('La date du rendez-vous ne peut pas être dans le passé')
+    }
+
+    // validate that the selected day is a working day for practicien
+    const days: DayOfWeek[] = [
+      'SUNDAY',
+      'MONDAY',
+      'TUESDAY',
+      'WEDNESDAY',
+      'THURSDAY',
+      'FRIDAY',
+      'SATURDAY',
+    ]
+    const dayOfWeek = days[appointmentDate.getDay()]
+
+    const availability = await prisma.availability.findFirst({
+      where: {
+        practitionerId,
+        dayOfWeek,
+        isActive: true,
+        isEmergencySlot: false,
+      },
+    })
+
+    if (!availability) {
+      throw new Error('Ce jour ne fait pas partie de vos jours de travail')
+    }
+
     const duration = practitioner.consultationDuration
     const [hours, minutes] = data.startTime.split(':').map(Number)
     const newStartMin = hours * 60 + minutes
@@ -662,6 +702,20 @@ export class AvailabilitiesService {
     const endTime = `${Math.floor(newEndMin / 60)
       .toString()
       .padStart(2, '0')}:${(newEndMin % 60).toString().padStart(2, '0')}`
+
+    // validate that requested time is within the practitioners working hours
+    const [availStartH, availStartM] = availability.startTime
+      .split(':')
+      .map(Number)
+    const [availEndH, availEndM] = availability.endTime.split(':').map(Number)
+    const availStartMin = availStartH * 60 + availStartM
+    const availEndMin = availEndH * 60 + availEndM
+
+    if (newStartMin < availStartMin || newEndMin > availEndMin) {
+      throw new Error(
+        `L'heure demandée est en dehors de vos heures de travail (${availability.startTime} - ${availability.endTime})`,
+      )
+    }
 
     // practitioner conflict + proximity checks
     const practitionerDayApts = await prisma.appointment.findMany({
@@ -795,6 +849,37 @@ export class AvailabilitiesService {
       },
     })
 
+    // send email to patient when pracitiener books appointment for them
+    const patientUser = await prisma.user.findFirst({
+      where: { patient: { id: data.patientId } },
+      select: { email: true },
+    })
+
+    if (patientUser?.email) {
+      try {
+        await sendAppointmentBookedByPractitionerEmail(patientUser.email, {
+          patientName: `${appointment.patient.firstName} ${appointment.patient.lastName}`,
+          practitionerTitle: practitioner.title ?? 'Dr.',
+          practitionerFirstName: practitioner.firstName,
+          practitionerLastName: practitioner.lastName,
+          practitionerSpecialty:
+            practitioner.specialties[0]?.specialty.name || 'Médecine générale',
+          appointmentDate: appointmentDate.toLocaleDateString('fr-FR'),
+          appointmentTime: data.startTime,
+          consultationType: data.type as 'IN_PERSON' | 'TELECONSULTATION',
+          consultationFee: Number(consultationFee),
+          clinicAddress: practitioner.address
+            ? `${practitioner.address}, ${practitioner.city || ''}`
+            : undefined,
+        })
+      } catch (emailError) {
+        console.error(
+          'Failed to send appointment notification email to patient:',
+          emailError,
+        )
+      }
+    }
+
     return {
       id: appointment.id,
       appointmentDate: appointment.appointmentDate,
@@ -918,7 +1003,72 @@ export class AvailabilitiesService {
       throw new Error('Impossible de modifier ce rendez-vous')
 
     const newDate = new Date(data.appointmentDate)
-    newDate.setHours(0, 0, 0, 0)
+    newDate.setUTCHours(0, 0, 0, 0)
+
+    // validate that new date is not in the past
+    const today = new Date()
+    today.setUTCHours(0, 0, 0, 0)
+    if (newDate < today) {
+      throw new Error('La date du rendez-vous ne peut pas être dans le passé')
+    }
+
+    // also validate if its today, that the time hasnt already passed
+    if (newDate.getTime() === today.getTime()) {
+      const now = new Date()
+      const [reqHours, reqMinutes] = data.startTime.split(':').map(Number)
+      const requestedTime = new Date(newDate)
+      requestedTime.setUTCHours(reqHours, reqMinutes, 0, 0)
+      if (requestedTime <= now) {
+        throw new Error("L'heure du rendez-vous est déjà passée")
+      }
+    }
+
+    // validate that the selected day is a working day for the practitioner
+    const days: DayOfWeek[] = [
+      'SUNDAY',
+      'MONDAY',
+      'TUESDAY',
+      'WEDNESDAY',
+      'THURSDAY',
+      'FRIDAY',
+      'SATURDAY',
+    ]
+    const dayOfWeek = days[newDate.getDay()]
+
+    const availability = await prisma.availability.findFirst({
+      where: {
+        practitionerId,
+        dayOfWeek,
+        isActive: true,
+        isEmergencySlot: false,
+      },
+    })
+
+    if (!availability) {
+      throw new Error('Ce jour ne fait pas partie de vos jours de travail')
+    }
+
+    // validate that the requested time is within practitioners working hours
+    const [availStartH, availStartM] = availability.startTime
+      .split(':')
+      .map(Number)
+    const [availEndH, availEndM] = availability.endTime.split(':').map(Number)
+    const [reqH, reqM] = data.startTime.split(':').map(Number)
+
+    const availStartMinutes = availStartH * 60 + availStartM
+    const availEndMinutes = availEndH * 60 + availEndM
+    const requestedStartMinutes = reqH * 60 + reqM
+    const aptDuration = appointment.duration
+    const requestedEndMinutes = requestedStartMinutes + aptDuration
+
+    if (
+      requestedStartMinutes < availStartMinutes ||
+      requestedEndMinutes > availEndMinutes
+    ) {
+      throw new Error(
+        `L'heure demandée est en dehors de vos heures de travail (${availability.startTime} - ${availability.endTime})`,
+      )
+    }
 
     // conflicts check
     const conflict = await prisma.appointment.findFirst({

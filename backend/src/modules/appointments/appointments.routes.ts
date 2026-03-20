@@ -7,11 +7,12 @@ import {
   reserveSlotSchema,
 } from './appointments.schema'
 import { reserveSlot, releaseSlotReservation } from '../../config/redis'
+import { bookingRateLimit } from '../../plugins/rate-limit'
 
 export async function appointmentsRoutes(fastify: FastifyInstance) {
   fastify.post(
     '/',
-    { preHandler: [authenticate] },
+    { preHandler: [authenticate, bookingRateLimit] },
     async (request: FastifyRequest, reply: FastifyReply) => {
       try {
         const user = request.user as { id: string; role: string }

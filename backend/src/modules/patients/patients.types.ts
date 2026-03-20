@@ -42,8 +42,13 @@ export interface PatientDetail {
   bloodType: string | null
   allergies: string[]
   chronicConditions: string[]
+  surgicalOperations: string[]
   height: number | null
   weight: number | null
+  emergencyContactName: string | null
+  emergencyContactPhone: string | null
+  insuranceProvider: string | null
+  insuranceNumber: string | null
   isNew: boolean
   firstAppointmentDate: Date | null
   totalConsultations: number

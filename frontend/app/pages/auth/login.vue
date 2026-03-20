@@ -141,6 +141,13 @@ const handleLogin = async () => {
     // store auth data - access data from the nested response structure
     authStore.setAuth(response.data.user, response.data.tokens);
 
+    // check if email is verified
+    if (!response.data.user.emailVerified) {
+      // redirect to email verification notice page
+      await router.push("/auth/verify-email-notice");
+      return;
+    }
+
     // redirect to the appropriate dashboard based on user role
     let redirectTo = route.query.redirect as string;
     if (!redirectTo) {

@@ -36,6 +36,7 @@ export class PractitionersService {
         status: 'ACTIVE',
       },
       acceptsNewPatients: true,
+      isProfilePublic: true,
     }
 
     if (search) {
@@ -352,6 +353,11 @@ export class PractitionersService {
     })
 
     if (!practitioner) {
+      return null
+    }
+
+    // only return practitioner if profile is public
+    if (!practitioner.isProfilePublic) {
       return null
     }
 

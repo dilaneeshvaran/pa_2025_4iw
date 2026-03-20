@@ -443,12 +443,39 @@ export class PractitionerDashboardService {
       city: p.city,
       postalCode: p.postalCode,
       country: p.country,
+      isProfilePublic: p.isProfilePublic,
+      baseConsultationFee: p.baseConsultationFee
+        ? Number(p.baseConsultationFee)
+        : null,
+      teleconsultationFee: p.teleconsultationFee
+        ? Number(p.teleconsultationFee)
+        : null,
+      emergencyFee: p.emergencyFee ? Number(p.emergencyFee) : null,
       qualifications: p.qualifications,
     }
   }
 
   async updateProfile(practitionerId: string, data: any) {
-    const { qualifications, ...rest } = data
+    const { qualifications, isProfilePublic, ...rest } = data
+
+    // validate tarifs are defined if trying to make profile public
+    if (isProfilePublic === true) {
+      const practitioner = await prisma.practitioner.findUnique({
+        where: { id: practitionerId },
+        select: {
+          baseConsultationFee: true,
+          teleconsultationFee: true,
+          emergencyFee: true,
+        },
+      })
+
+      if (!practitioner || !practitioner.baseConsultationFee) {
+        throw new Error(
+          'Vous devez définir au moins le tarif de consultation de base avant de rendre votre profil public',
+        )
+      }
+    }
+
     if (qualifications) {
       await prisma.qualification.deleteMany({ where: { practitionerId } })
       for (const q of qualifications) {
@@ -462,9 +489,15 @@ export class PractitionerDashboardService {
         })
       }
     }
+
+    const updateData: any = { ...rest }
+    if (isProfilePublic !== undefined) {
+      updateData.isProfilePublic = isProfilePublic
+    }
+
     const p = await prisma.practitioner.update({
       where: { id: practitionerId },
-      data: rest,
+      data: updateData,
       include: { qualifications: true },
     })
     return {
@@ -476,6 +509,7 @@ export class PractitionerDashboardService {
       bio: p.bio,
       languages: p.languages,
       photoUrl: p.photoUrl,
+      isProfilePublic: p.isProfilePublic,
       qualifications: p.qualifications,
     }
   }
