@@ -8,8 +8,10 @@ jest.mock('../../../config/database', () => ({
   default: {
     user: {
       findUnique: jest.fn(),
+      findFirst: jest.fn(),
       create: jest.fn(),
       update: jest.fn(),
+      updateMany: jest.fn(),
     },
     patient: {
       findUnique: jest.fn(),
@@ -119,7 +121,7 @@ describe('AuthService', () => {
 
   describe('signup', () => {
     it('crée un utilisateur et retourne les tokens', async () => {
-      ;(mockPrisma.user.findUnique as jest.Mock).mockResolvedValue(null)
+      ;(mockPrisma.user.findFirst as jest.Mock).mockResolvedValue(null)
       const user = buildUser({ email: signupData.email })
       ;(mockPrisma.user.create as jest.Mock).mockResolvedValue(user)
       ;(mockPrisma.patient.create as jest.Mock).mockResolvedValue({})
@@ -134,7 +136,7 @@ describe('AuthService', () => {
     })
 
     it("force le rôle PATIENT indépendamment des données fournies", async () => {
-      ;(mockPrisma.user.findUnique as jest.Mock).mockResolvedValue(null)
+      ;(mockPrisma.user.findFirst as jest.Mock).mockResolvedValue(null)
       ;(mockPrisma.user.create as jest.Mock).mockResolvedValue(buildUser())
       ;(mockPrisma.patient.create as jest.Mock).mockResolvedValue({})
       ;(mockPrisma.emailVerificationToken.create as jest.Mock).mockResolvedValue({})
@@ -146,7 +148,7 @@ describe('AuthService', () => {
     })
 
     it('crée le profil patient après la création du compte', async () => {
-      ;(mockPrisma.user.findUnique as jest.Mock).mockResolvedValue(null)
+      ;(mockPrisma.user.findFirst as jest.Mock).mockResolvedValue(null)
       ;(mockPrisma.user.create as jest.Mock).mockResolvedValue(buildUser())
       ;(mockPrisma.patient.create as jest.Mock).mockResolvedValue({})
       ;(mockPrisma.emailVerificationToken.create as jest.Mock).mockResolvedValue({})
@@ -164,7 +166,7 @@ describe('AuthService', () => {
     })
 
     it('lève une erreur si l\'email est déjà utilisé', async () => {
-      ;(mockPrisma.user.findUnique as jest.Mock).mockResolvedValue(buildUser())
+      ;(mockPrisma.user.findFirst as jest.Mock).mockResolvedValue(buildUser())
 
       await expect(service.signup(signupData)).rejects.toThrow(
         'Un utilisateur avec cet email existe déjà',
@@ -173,7 +175,7 @@ describe('AuthService', () => {
 
     it('envoie un email de vérification lors de l\'inscription', async () => {
       const { sendVerificationEmail } = require('../../../utils/email')
-      ;(mockPrisma.user.findUnique as jest.Mock).mockResolvedValue(null)
+      ;(mockPrisma.user.findFirst as jest.Mock).mockResolvedValue(null)
       ;(mockPrisma.user.create as jest.Mock).mockResolvedValue(buildUser())
       ;(mockPrisma.patient.create as jest.Mock).mockResolvedValue({})
       ;(mockPrisma.emailVerificationToken.create as jest.Mock).mockResolvedValue({})
@@ -192,7 +194,7 @@ describe('AuthService', () => {
   describe('login', () => {
     it('retourne les tokens pour des identifiants valides', async () => {
       const user = buildUser({ status: UserStatus.ACTIVE })
-      ;(mockPrisma.user.findUnique as jest.Mock).mockResolvedValue(user)
+      ;(mockPrisma.user.findFirst as jest.Mock).mockResolvedValue(user)
       mockComparePassword.mockResolvedValue(true)
       ;(mockPrisma.user.update as jest.Mock).mockResolvedValue(user)
 
@@ -203,7 +205,7 @@ describe('AuthService', () => {
     })
 
     it('lève une erreur si l\'utilisateur n\'existe pas', async () => {
-      ;(mockPrisma.user.findUnique as jest.Mock).mockResolvedValue(null)
+      ;(mockPrisma.user.findFirst as jest.Mock).mockResolvedValue(null)
 
       await expect(service.login('unknown@example.com', 'pass')).rejects.toThrow(
         'Email ou mot de passe incorrect',
@@ -211,7 +213,7 @@ describe('AuthService', () => {
     })
 
     it('lève une erreur si le mot de passe est incorrect', async () => {
-      ;(mockPrisma.user.findUnique as jest.Mock).mockResolvedValue(buildUser())
+      ;(mockPrisma.user.findFirst as jest.Mock).mockResolvedValue(buildUser())
       mockComparePassword.mockResolvedValue(false)
       ;(mockPrisma.user.update as jest.Mock).mockResolvedValue({})
 
@@ -222,7 +224,7 @@ describe('AuthService', () => {
 
     it('incrémente les tentatives échouées sur mauvais mot de passe', async () => {
       const user = buildUser({ failedLoginAttempts: 2 })
-      ;(mockPrisma.user.findUnique as jest.Mock).mockResolvedValue(user)
+      ;(mockPrisma.user.findFirst as jest.Mock).mockResolvedValue(user)
       mockComparePassword.mockResolvedValue(false)
       ;(mockPrisma.user.update as jest.Mock).mockResolvedValue({})
 
@@ -234,7 +236,7 @@ describe('AuthService', () => {
 
     it('verrouille le compte après 5 tentatives échouées', async () => {
       const user = buildUser({ failedLoginAttempts: 4 })
-      ;(mockPrisma.user.findUnique as jest.Mock).mockResolvedValue(user)
+      ;(mockPrisma.user.findFirst as jest.Mock).mockResolvedValue(user)
       mockComparePassword.mockResolvedValue(false)
       ;(mockPrisma.user.update as jest.Mock).mockResolvedValue({})
 
@@ -248,7 +250,7 @@ describe('AuthService', () => {
     it('lève une erreur si le compte est verrouillé', async () => {
       const lockedUntil = new Date(Date.now() + 10 * 60 * 1000) // +10 min
       const user = buildUser({ lockedUntil })
-      ;(mockPrisma.user.findUnique as jest.Mock).mockResolvedValue(user)
+      ;(mockPrisma.user.findFirst as jest.Mock).mockResolvedValue(user)
 
       await expect(service.login('test@example.com', 'any')).rejects.toThrow(
         /Compte verrouillé/,
@@ -257,7 +259,7 @@ describe('AuthService', () => {
 
     it('lève une erreur si le compte est suspendu', async () => {
       const user = buildUser({ status: UserStatus.SUSPENDED })
-      ;(mockPrisma.user.findUnique as jest.Mock).mockResolvedValue(user)
+      ;(mockPrisma.user.findFirst as jest.Mock).mockResolvedValue(user)
       mockComparePassword.mockResolvedValue(true)
       ;(mockPrisma.user.update as jest.Mock).mockResolvedValue(user)
 
@@ -268,7 +270,7 @@ describe('AuthService', () => {
 
     it('réinitialise les tentatives échouées lors d\'une connexion réussie', async () => {
       const user = buildUser({ status: UserStatus.ACTIVE, failedLoginAttempts: 3 })
-      ;(mockPrisma.user.findUnique as jest.Mock).mockResolvedValue(user)
+      ;(mockPrisma.user.findFirst as jest.Mock).mockResolvedValue(user)
       mockComparePassword.mockResolvedValue(true)
       ;(mockPrisma.user.update as jest.Mock).mockResolvedValue(user)
 
@@ -346,7 +348,7 @@ describe('AuthService', () => {
   describe('resendVerificationEmail', () => {
     it('renvoie un email de vérification', async () => {
       const { sendVerificationEmail } = require('../../../utils/email')
-      ;(mockPrisma.user.findUnique as jest.Mock).mockResolvedValue(
+      ;(mockPrisma.user.findFirst as jest.Mock).mockResolvedValue(
         buildUser({ emailVerified: null }),
       )
       ;(mockPrisma.emailVerificationToken.deleteMany as jest.Mock).mockResolvedValue({})
@@ -358,7 +360,7 @@ describe('AuthService', () => {
     })
 
     it('lève une erreur si l\'utilisateur n\'existe pas', async () => {
-      ;(mockPrisma.user.findUnique as jest.Mock).mockResolvedValue(null)
+      ;(mockPrisma.user.findFirst as jest.Mock).mockResolvedValue(null)
 
       await expect(
         service.resendVerificationEmail('unknown@example.com'),
@@ -366,7 +368,7 @@ describe('AuthService', () => {
     })
 
     it('lève une erreur si l\'email est déjà vérifié', async () => {
-      ;(mockPrisma.user.findUnique as jest.Mock).mockResolvedValue(
+      ;(mockPrisma.user.findFirst as jest.Mock).mockResolvedValue(
         buildUser({ emailVerified: new Date() }),
       )
 
@@ -381,7 +383,7 @@ describe('AuthService', () => {
   describe('requestPasswordReset', () => {
     it('envoie un email de réinitialisation', async () => {
       const { sendPasswordResetEmail } = require('../../../utils/email')
-      ;(mockPrisma.user.findUnique as jest.Mock).mockResolvedValue(buildUser())
+      ;(mockPrisma.user.findFirst as jest.Mock).mockResolvedValue(buildUser())
       ;(mockPrisma.passwordResetToken.deleteMany as jest.Mock).mockResolvedValue({})
       ;(mockPrisma.passwordResetToken.create as jest.Mock).mockResolvedValue({})
 
@@ -394,7 +396,7 @@ describe('AuthService', () => {
     })
 
     it('ne révèle pas si l\'utilisateur existe (retour silencieux)', async () => {
-      ;(mockPrisma.user.findUnique as jest.Mock).mockResolvedValue(null)
+      ;(mockPrisma.user.findFirst as jest.Mock).mockResolvedValue(null)
 
       await expect(
         service.requestPasswordReset('ghost@example.com'),
