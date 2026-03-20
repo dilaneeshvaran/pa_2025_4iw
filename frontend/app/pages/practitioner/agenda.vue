@@ -251,12 +251,13 @@
                 v-for="apt in getAppointmentsForDate(day.dateStr)"
                 :key="apt.id"
                 :class="[
-                  'cursor-default rounded px-2 py-1 text-xs',
+                  'cursor-pointer rounded px-2 py-1 text-xs transition-opacity hover:opacity-80',
                   apt.type === 'TELECONSULTATION'
                     ? 'bg-green-100 text-green-800'
                     : 'bg-blue-100 text-blue-800',
                 ]"
                 :title="`${apt.patient.firstName} ${apt.patient.lastName} – ${apt.reason || ''}`"
+                @click="openAppointmentDetailsModal(apt)"
               >
                 <span class="font-medium">{{ apt.startTime }}</span>
                 {{ apt.patient.lastName }}
@@ -303,11 +304,12 @@
                 v-for="apt in getAppointmentsForDate(day.dateStr).slice(0, 3)"
                 :key="apt.id"
                 :class="[
-                  'truncate rounded px-1 py-0.5 text-[10px]',
+                  'cursor-pointer truncate rounded px-1 py-0.5 text-[10px] transition-opacity hover:opacity-80',
                   apt.type === 'TELECONSULTATION'
                     ? 'bg-green-100 text-green-700'
                     : 'bg-blue-100 text-blue-700',
                 ]"
+                @click="openAppointmentDetailsModal(apt)"
               >
                 {{ apt.startTime }} {{ apt.patient.lastName }}
               </div>
@@ -521,31 +523,45 @@
               <span class="text-xs text-gray-500">Actif</span>
             </label>
             <template v-if="isDayActive(day.value)">
-              <input
+              <select
                 :value="getDaySchedule(day.value)?.startTime || '09:00'"
                 @change="
                   updateDayTime(
                     day.value,
                     'startTime',
-                    ($event.target as HTMLInputElement).value,
+                    ($event.target as HTMLSelectElement).value,
                   )
                 "
-                type="time"
-                class="rounded-lg border border-gray-300 px-2 py-1 text-sm"
-              />
+                class="rounded-lg border border-gray-300 px-2 py-1 text-sm focus:border-blue-500 focus:outline-none focus:ring-1 focus:ring-blue-500"
+              >
+                <option
+                  v-for="slot in getStartTimeOptions(day.value)"
+                  :key="slot"
+                  :value="slot"
+                >
+                  {{ slot }}
+                </option>
+              </select>
               <span class="text-gray-400">–</span>
-              <input
+              <select
                 :value="getDaySchedule(day.value)?.endTime || '17:00'"
                 @change="
                   updateDayTime(
                     day.value,
                     'endTime',
-                    ($event.target as HTMLInputElement).value,
+                    ($event.target as HTMLSelectElement).value,
                   )
                 "
-                type="time"
-                class="rounded-lg border border-gray-300 px-2 py-1 text-sm"
-              />
+                class="rounded-lg border border-gray-300 px-2 py-1 text-sm focus:border-blue-500 focus:outline-none focus:ring-1 focus:ring-blue-500"
+              >
+                <option
+                  v-for="slot in getEndTimeOptions(day.value)"
+                  :key="slot"
+                  :value="slot"
+                >
+                  {{ slot }}
+                </option>
+              </select>
             </template>
             <span v-else class="text-sm text-gray-400">Repos</span>
           </div>
@@ -1243,8 +1259,16 @@
               <input
                 v-model="agendaModifyDate"
                 type="date"
-                class="w-full rounded-lg border border-gray-300 px-3 py-2 text-sm focus:border-blue-500 focus:outline-none focus:ring-1 focus:ring-blue-500"
+                :class="[
+                  'w-full rounded-lg border px-3 py-2 text-sm focus:outline-none focus:ring-1',
+                  modifyDateError
+                    ? 'border-red-300 focus:border-red-500 focus:ring-red-500'
+                    : 'border-gray-300 focus:border-blue-500 focus:ring-blue-500',
+                ]"
               />
+              <p v-if="modifyDateError" class="mt-1 text-xs text-red-600">
+                {{ modifyDateError }}
+              </p>
             </div>
             <div>
               <label class="mb-1 block text-sm font-medium text-gray-700"
@@ -1263,7 +1287,10 @@
             >
             <UiButton
               :disabled="
-                agendaModifyLoading || !agendaModifyDate || !agendaModifyTime
+                agendaModifyLoading ||
+                !agendaModifyDate ||
+                !agendaModifyTime ||
+                !!modifyDateError
               "
               @click="confirmAgendaModify"
             >
@@ -1382,6 +1409,187 @@
         </div>
       </div>
     </Teleport>
+
+    <!-- appointment details modal (for week/month view) -->
+    <Teleport to="body">
+      <div
+        v-if="showAppointmentDetailsModal"
+        class="fixed inset-0 z-50 flex items-center justify-center bg-black/50"
+        @click.self="showAppointmentDetailsModal = false"
+      >
+        <div class="mx-4 w-full max-w-md rounded-xl bg-white p-6 shadow-2xl">
+          <div class="mb-4 flex items-center justify-between">
+            <h3 class="text-lg font-semibold text-gray-900">
+              Détails du rendez-vous
+            </h3>
+            <button
+              @click="showAppointmentDetailsModal = false"
+              class="rounded-lg p-1 text-gray-400 hover:bg-gray-100"
+            >
+              <X class="h-5 w-5" />
+            </button>
+          </div>
+
+          <template v-if="appointmentDetailsSelected">
+            <div class="mb-4 space-y-3 rounded-lg bg-gray-50 p-4">
+              <div class="flex items-center gap-3">
+                <User class="h-5 w-5 text-gray-400" />
+                <div>
+                  <p class="font-medium text-gray-900">
+                    {{ appointmentDetailsSelected.patient.firstName }}
+                    {{ appointmentDetailsSelected.patient.lastName }}
+                  </p>
+                  <p
+                    v-if="appointmentDetailsSelected.patient.phone"
+                    class="text-sm text-gray-500"
+                  >
+                    {{ appointmentDetailsSelected.patient.phone }}
+                  </p>
+                </div>
+              </div>
+              <div class="flex items-center gap-3">
+                <CalendarDays class="h-5 w-5 text-gray-400" />
+                <div>
+                  <p class="text-sm text-gray-900">
+                    {{
+                      new Date(
+                        appointmentDetailsSelected.appointmentDate,
+                      ).toLocaleDateString("fr-FR", {
+                        weekday: "long",
+                        day: "numeric",
+                        month: "long",
+                        year: "numeric",
+                      })
+                    }}
+                  </p>
+                  <p class="text-sm text-gray-500">
+                    {{ appointmentDetailsSelected.startTime }} –
+                    {{ appointmentDetailsSelected.endTime }}
+                  </p>
+                </div>
+              </div>
+              <div class="flex items-center gap-3">
+                <component
+                  :is="
+                    appointmentDetailsSelected.type === 'TELECONSULTATION'
+                      ? Video
+                      : Building2
+                  "
+                  :class="[
+                    'h-5 w-5',
+                    appointmentDetailsSelected.type === 'TELECONSULTATION'
+                      ? 'text-green-500'
+                      : 'text-blue-500',
+                  ]"
+                />
+                <p class="text-sm text-gray-900">
+                  {{
+                    appointmentDetailsSelected.type === "TELECONSULTATION"
+                      ? "Téléconsultation"
+                      : "Cabinet"
+                  }}
+                </p>
+              </div>
+              <div v-if="appointmentDetailsSelected.reason" class="pt-2">
+                <p class="text-xs font-medium uppercase text-gray-500">Motif</p>
+                <p class="text-sm text-gray-700">
+                  {{ appointmentDetailsSelected.reason }}
+                </p>
+              </div>
+              <div class="flex items-center gap-2">
+                <UiBadge
+                  :variant="getStatusVariant(appointmentDetailsSelected.status)"
+                >
+                  {{ getStatusLabel(appointmentDetailsSelected.status) }}
+                </UiBadge>
+              </div>
+            </div>
+
+            <!-- actions -->
+            <div class="flex flex-wrap justify-end gap-2">
+              <UiButton
+                variant="secondary"
+                size="sm"
+                @click="showAppointmentDetailsModal = false"
+              >
+                Fermer
+              </UiButton>
+              <!-- before appointment time: modify / cancel -->
+              <template
+                v-if="isBeforeAppointmentTime(appointmentDetailsSelected)"
+              >
+                <UiButton
+                  size="sm"
+                  variant="outline"
+                  @click="
+                    openAgendaModifyModal(appointmentDetailsSelected);
+                    showAppointmentDetailsModal = false;
+                  "
+                >
+                  Modifier
+                </UiButton>
+                <UiButton
+                  size="sm"
+                  variant="danger"
+                  @click="
+                    openAgendaCancelModal(appointmentDetailsSelected);
+                    showAppointmentDetailsModal = false;
+                  "
+                >
+                  Annuler
+                </UiButton>
+              </template>
+              <!-- at or after: attended / noshow (cabinet only) -->
+              <template
+                v-else-if="
+                  isAtOrAfterAppointmentTime(appointmentDetailsSelected) &&
+                  appointmentDetailsSelected.type !== 'TELECONSULTATION' &&
+                  appointmentDetailsSelected.status !== 'COMPLETED' &&
+                  appointmentDetailsSelected.status !== 'NO_SHOW' &&
+                  appointmentDetailsSelected.status !== 'CANCELLED'
+                "
+              >
+                <UiButton
+                  size="sm"
+                  class="bg-green-600 hover:bg-green-700"
+                  @click="
+                    agendaMarkAttended(appointmentDetailsSelected);
+                    showAppointmentDetailsModal = false;
+                  "
+                >
+                  Présenté
+                </UiButton>
+                <UiButton
+                  size="sm"
+                  variant="danger"
+                  @click="
+                    agendaMarkNoShow(appointmentDetailsSelected);
+                    showAppointmentDetailsModal = false;
+                  "
+                >
+                  No Show
+                </UiButton>
+              </template>
+              <!-- completed appointments: invoice -->
+              <UiButton
+                v-if="
+                  appointmentDetailsSelected.status === 'COMPLETED' &&
+                  appointmentDetailsSelected.type === 'CABINET'
+                "
+                size="sm"
+                variant="outline"
+                @click="
+                  openInvoiceModal(appointmentDetailsSelected);
+                  showAppointmentDetailsModal = false;
+                "
+              >
+                Facturer
+              </UiButton>
+            </div>
+          </template>
+        </div>
+      </div>
+    </Teleport>
   </div>
 </template>
 
@@ -1484,7 +1692,7 @@ interface SettingsData {
   acceptsNewPatients: boolean;
   newPatientMaxPerDay: number;
   baseConsultationFee: number;
-  teleconsultationFee: number | null;
+  teleconsultationFee?: number;
   noShowThreshold: number;
   noShowPenaltyDays: number;
   noShowAutoBlock: boolean;
@@ -1542,7 +1750,7 @@ const settingsForm = ref<SettingsData>({
   acceptsNewPatients: true,
   newPatientMaxPerDay: 0,
   baseConsultationFee: 0,
-  teleconsultationFee: null,
+  teleconsultationFee: undefined,
   noShowThreshold: 3,
   noShowPenaltyDays: 30,
   noShowAutoBlock: false,
@@ -1794,6 +2002,52 @@ function getDaySchedule(dayValue: string): AvailabilitySlot | undefined {
   );
 }
 
+// generate all time slots from 00:00 to 23:45 in 15 minute increments
+function generateAllTimeSlots(): string[] {
+  const slots: string[] = [];
+  for (let h = 0; h < 24; h++) {
+    for (let m = 0; m < 60; m += 15) {
+      slots.push(
+        `${h.toString().padStart(2, "0")}:${m.toString().padStart(2, "0")}`,
+      );
+    }
+  }
+  return slots;
+}
+
+const allTimeSlots = generateAllTimeSlots();
+
+// get start time options: all slots from 00:00 to 23:30 (so theres room for atleast one 15min slot after)
+function getStartTimeOptions(_dayValue: string): string[] {
+  // start time can be from 00:00 to 23:30 (must leave room for end time to be > start)
+  return allTimeSlots.filter((slot) => {
+    const parts = slot.split(":").map(Number);
+    const h = parts[0] ?? 0;
+    const m = parts[1] ?? 0;
+    const totalMinutes = h * 60 + m;
+    return totalMinutes <= 23 * 60 + 30; // max 23:30
+  });
+}
+
+// get end time options: only times strictly after the selected start time, up to 23:45
+function getEndTimeOptions(dayValue: string): string[] {
+  const schedule = getDaySchedule(dayValue);
+  const startTime = schedule?.startTime || "09:00";
+  const startParts = startTime.split(":").map(Number);
+  const startH = startParts[0] ?? 9;
+  const startM = startParts[1] ?? 0;
+  const startMinutes = startH * 60 + startM;
+
+  return allTimeSlots.filter((slot) => {
+    const parts = slot.split(":").map(Number);
+    const h = parts[0] ?? 0;
+    const m = parts[1] ?? 0;
+    const totalMinutes = h * 60 + m;
+    // end time must be strictly greater than start time and at most 23:45
+    return totalMinutes > startMinutes && totalMinutes <= 23 * 60 + 45;
+  });
+}
+
 function navigateDate(direction: number) {
   const d = new Date(currentDate.value);
   if (calendarView.value === "day") {
@@ -1936,14 +2190,36 @@ async function toggleDayActive(dayValue: string, event: Event) {
 
 async function updateDayTime(dayValue: string, field: string, value: string) {
   const existing = getDaySchedule(dayValue);
+  const startTime =
+    field === "startTime" ? value : existing?.startTime || "09:00";
+  let endTime = field === "endTime" ? value : existing?.endTime || "17:00";
+
+  // convert times to minutes for comparison
+  const startParts = startTime.split(":").map(Number);
+  const endParts = endTime.split(":").map(Number);
+  const startH = startParts[0] ?? 9;
+  const startM = startParts[1] ?? 0;
+  const endH = endParts[0] ?? 17;
+  const endM = endParts[1] ?? 0;
+  const startMinutes = startH * 60 + startM;
+  const endMinutes = endH * 60 + endM;
+
+  // if updating start time and it makes end time invalid, autoadjust end time
+  if (field === "startTime" && endMinutes <= startMinutes) {
+    // set end time to start time + 15 minutes, capped at 23:45
+    const newEndMinutes = Math.min(startMinutes + 15, 23 * 60 + 45);
+    const newEndH = Math.floor(newEndMinutes / 60);
+    const newEndM = newEndMinutes % 60;
+    endTime = `${newEndH.toString().padStart(2, "0")}:${newEndM.toString().padStart(2, "0")}`;
+  }
+
   try {
     await useAuthenticatedFetch("/practitioner/agenda/availabilities", {
       method: "POST",
       body: {
         dayOfWeek: dayValue,
-        startTime:
-          field === "startTime" ? value : existing?.startTime || "09:00",
-        endTime: field === "endTime" ? value : existing?.endTime || "17:00",
+        startTime,
+        endTime,
         isActive: true,
         isEmergencySlot: false,
       },
@@ -2197,14 +2473,14 @@ watch([currentDate, calendarView], () => {
 });
 
 const isInvoiceModalOpen = ref(false);
-const selectedAppointmentForInvoice = ref(null);
+const selectedAppointmentForInvoice = ref<AgendaAppointment | null>(null);
 
-const openInvoiceModal = (apt: any) => {
+const openInvoiceModal = (apt: AgendaAppointment) => {
   selectedAppointmentForInvoice.value = apt;
   isInvoiceModalOpen.value = true;
 };
 
-const handleInvoiceSuccess = (invoice: any) => {
+const handleInvoiceSuccess = () => {
   isInvoiceModalOpen.value = false;
   showToast("Facture créée avec succès", "success");
   navigateTo("/practitioner/billing");
@@ -2248,6 +2524,15 @@ const agendaNoShowApt = ref<AgendaAppointment | null>(null);
 const agendaAttendedLoading = ref(false);
 const agendaNoShowLoading = ref(false);
 
+// appointment details modal (for week/month view click)
+const showAppointmentDetailsModal = ref(false);
+const appointmentDetailsSelected = ref<AgendaAppointment | null>(null);
+
+function openAppointmentDetailsModal(apt: AgendaAppointment) {
+  appointmentDetailsSelected.value = apt;
+  showAppointmentDetailsModal.value = true;
+}
+
 function isBeforeAppointmentTime(apt: AgendaAppointment): boolean {
   if (
     apt.status === "CANCELLED" ||
@@ -2256,7 +2541,9 @@ function isBeforeAppointmentTime(apt: AgendaAppointment): boolean {
   )
     return false;
   const now = new Date();
-  const [h, m] = apt.startTime.split(":").map(Number);
+  const timeParts = apt.startTime.split(":").map(Number);
+  const h = timeParts[0] ?? 0;
+  const m = timeParts[1] ?? 0;
   const aptTime = new Date(apt.appointmentDate);
   aptTime.setHours(h, m, 0, 0);
   return now < aptTime;
@@ -2264,7 +2551,9 @@ function isBeforeAppointmentTime(apt: AgendaAppointment): boolean {
 
 function isAtOrAfterAppointmentTime(apt: AgendaAppointment): boolean {
   const now = new Date();
-  const [h, m] = apt.startTime.split(":").map(Number);
+  const timeParts = apt.startTime.split(":").map(Number);
+  const h = timeParts[0] ?? 0;
+  const m = timeParts[1] ?? 0;
   const aptTime = new Date(apt.appointmentDate);
   aptTime.setHours(h, m, 0, 0);
   return now >= aptTime;
@@ -2291,19 +2580,58 @@ async function confirmAgendaCancel() {
     showToast("Rendez-vous annulé", "success");
     await fetchAppointments();
     await fetchDaySummary();
-  } catch (e: any) {
-    showToast(e?.data?.message || "Erreur lors de l'annulation", "error");
+  } catch (e: unknown) {
+    const apiError = e as { data?: { message?: string } };
+    showToast(
+      apiError?.data?.message || "Erreur lors de l'annulation",
+      "error",
+    );
   } finally {
     agendaCancelLoading.value = false;
   }
 }
 
-function openAgendaModifyModal(apt: AgendaAppointment) {
+// map of js day numbers (0=sunday) to dayOfWeek values
+const dayOfWeekNames = [
+  "SUNDAY",
+  "MONDAY",
+  "TUESDAY",
+  "WEDNESDAY",
+  "THURSDAY",
+  "FRIDAY",
+  "SATURDAY",
+] as const;
+
+// computed property to validate if the selected modify date is a working day
+const modifyDateError = computed(() => {
+  if (!agendaModifyDate.value) return null;
+
+  const selectedDate = new Date(agendaModifyDate.value);
+  const dayOfWeek = dayOfWeekNames[selectedDate.getDay()];
+
+  // check if theres an active availability for this day of week
+  const hasAvailability = availabilities.value.some(
+    (a) => a.dayOfWeek === dayOfWeek && a.isActive && !a.isEmergencySlot,
+  );
+
+  if (!hasAvailability) {
+    return "Ce jour ne fait pas partie de vos jours de travail";
+  }
+
+  return null;
+});
+
+async function openAgendaModifyModal(apt: AgendaAppointment) {
   agendaSelectedAppointment.value = apt;
   const d = new Date(apt.appointmentDate);
   agendaModifyDate.value = d.toISOString().slice(0, 10);
   agendaModifyTime.value = apt.startTime;
   showAgendaModifyModal.value = true;
+
+  // fetch availabilities if not already loaded (needed for date validation)
+  if (availabilities.value.length === 0 && !loadingAvailabilities.value) {
+    await fetchAvailabilities();
+  }
 }
 
 async function confirmAgendaModify() {
@@ -2329,8 +2657,12 @@ async function confirmAgendaModify() {
     showToast("Rendez-vous modifié", "success");
     await fetchAppointments();
     await fetchDaySummary();
-  } catch (e: any) {
-    showToast(e?.data?.message || "Erreur lors de la modification", "error");
+  } catch (e: unknown) {
+    const apiError = e as { data?: { message?: string } };
+    showToast(
+      apiError?.data?.message || "Erreur lors de la modification",
+      "error",
+    );
   } finally {
     agendaModifyLoading.value = false;
   }
@@ -2353,8 +2685,9 @@ async function confirmAgendaAttended() {
     showToast("Patient marqué comme présent", "success");
     await fetchAppointments();
     await fetchDaySummary();
-  } catch (e: any) {
-    showToast(e?.data?.message || "Erreur", "error");
+  } catch (e: unknown) {
+    const apiError = e as { data?: { message?: string } };
+    showToast(apiError?.data?.message || "Erreur", "error");
   } finally {
     agendaAttendedLoading.value = false;
   }
@@ -2377,8 +2710,9 @@ async function confirmAgendaNoShow() {
     showToast("Patient marqué comme absent", "success");
     await fetchAppointments();
     await fetchDaySummary();
-  } catch (e: any) {
-    showToast(e?.data?.message || "Erreur", "error");
+  } catch (e) {
+    const apiError = e as { data?: { message?: string } };
+    showToast(apiError?.data?.message || "Erreur", "error");
   } finally {
     agendaNoShowLoading.value = false;
   }

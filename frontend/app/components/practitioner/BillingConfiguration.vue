@@ -6,7 +6,8 @@
           Tarifs de consultation
         </h2>
         <p class="text-sm text-gray-500">
-          Définissez vos tarifs pour chaque type de consultation.
+          Définissez vos tarifs pour chaque type de consultation. Le tarif de
+          consultation standard (*) est requis pour rendre votre profil public.
         </p>
       </div>
 
@@ -21,31 +22,30 @@
               type="number"
               min="0"
               required
+              placeholder="Ex: 15000"
               class="w-full"
             />
           </div>
           <div>
             <label class="mb-1 block text-sm font-medium text-gray-700">
-              Téléconsultation (FCFA) *
+              Téléconsultation (FCFA)
             </label>
             <UiInput
               v-model.number="form.teleconsultationFee"
               type="number"
               min="0"
-              required
               placeholder="Ex: 10000"
               class="w-full"
             />
           </div>
           <div>
             <label class="mb-1 block text-sm font-medium text-gray-700">
-              Urgence (FCFA) *
+              Urgence (FCFA)
             </label>
             <UiInput
               v-model.number="form.emergencyFee"
               type="number"
               min="0"
-              required
               placeholder="Ex: 25000"
               class="w-full"
             />
@@ -155,16 +155,22 @@ const availableMethods = [
   { value: "OTHER", label: "Autre" },
 ];
 
+interface BankInfo {
+  bankName: string;
+  accountName: string;
+  iban: string;
+}
+
 const form = ref({
   baseConsultationFee: 0,
-  teleconsultationFee: 0,
-  emergencyFee: 0,
+  teleconsultationFee: undefined as number | undefined,
+  emergencyFee: undefined as number | undefined,
   acceptedPaymentMethods: [] as string[],
   bankInfo: {
     bankName: "",
     accountName: "",
     iban: "",
-  } as any,
+  } as BankInfo,
 });
 
 const loading = ref(true);
@@ -172,16 +178,26 @@ const saving = ref(false);
 const successMsg = ref("");
 const errorMsg = ref("");
 
+interface BillingConfigResponse {
+  data: {
+    baseConsultationFee: number;
+    teleconsultationFee?: number;
+    emergencyFee?: number;
+    acceptedPaymentMethods: string[];
+    bankInfo?: BankInfo;
+  };
+}
+
 onMounted(async () => {
   try {
     loading.value = true;
-    const res = await useAuthenticatedFetch<{ data: any }>(
+    const res = await useAuthenticatedFetch<BillingConfigResponse>(
       "/practitioner/dashboard/billing-config",
     );
     if (res.data) {
       form.value.baseConsultationFee = res.data.baseConsultationFee || 0;
-      form.value.teleconsultationFee = res.data.teleconsultationFee || 0;
-      form.value.emergencyFee = res.data.emergencyFee || 0;
+      form.value.teleconsultationFee = res.data.teleconsultationFee;
+      form.value.emergencyFee = res.data.emergencyFee;
       form.value.acceptedPaymentMethods = res.data.acceptedPaymentMethods || [];
 
       if (res.data.bankInfo) {
@@ -192,7 +208,7 @@ onMounted(async () => {
         };
       }
     }
-  } catch (err: any) {
+  } catch (err: unknown) {
     console.error("Failed to load billing config", err);
   } finally {
     loading.value = false;
@@ -220,9 +236,10 @@ const saveConfig = async () => {
     setTimeout(() => {
       successMsg.value = "";
     }, 3000);
-  } catch (err: any) {
+  } catch (err: unknown) {
     console.error("Failed to save billing config", err);
-    errorMsg.value = err.data?.message || "Erreur lors de la sauvegarde";
+    const apiError = err as { data?: { message?: string } };
+    errorMsg.value = apiError.data?.message || "Erreur lors de la sauvegarde";
   } finally {
     saving.value = false;
   }

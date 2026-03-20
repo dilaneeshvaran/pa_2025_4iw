@@ -1235,21 +1235,36 @@ const processPayment = async () => {
       (m) => m.id === selectedPaymentMethod.value,
     );
 
+    if (!methodDetails) {
+      paymentError.value = "Moyen de paiement non trouvé";
+      processingPayment.value = false;
+      return;
+    }
+
+    // build payment body with only defined values
+    const body: Record<string, string | number> = {
+      appointmentId: payingPayment.value.appointmentId,
+      method: methodDetails.type,
+      savedPaymentMethodId: selectedPaymentMethod.value,
+    };
+
+    if (methodDetails.type === "MOBILE_MONEY") {
+      if (methodDetails.mobileOperator)
+        body.mobileOperator = methodDetails.mobileOperator;
+      if (methodDetails.mobileNumber)
+        body.mobileNumber = methodDetails.mobileNumber;
+    } else if (methodDetails.type === "CARD") {
+      if (methodDetails.cardLast4) body.cardLast4 = methodDetails.cardLast4;
+      if (methodDetails.cardBrand) body.cardBrand = methodDetails.cardBrand;
+    }
+
     // Call the create payment endpoint
     const response = await useAuthenticatedFetch<{
       success: boolean;
-      data: any;
+      data: Payment;
     }>("/payments", {
       method: "POST",
-      body: {
-        appointmentId: payingPayment.value.appointmentId,
-        method: methodDetails?.type || "CARD",
-        savedPaymentMethodId: selectedPaymentMethod.value,
-        mobileOperator: methodDetails?.mobileOperator,
-        mobileNumber: methodDetails?.mobileNumber,
-        cardLast4: methodDetails?.cardLast4,
-        cardBrand: methodDetails?.cardBrand,
-      },
+      body,
     });
 
     if (response.success) {

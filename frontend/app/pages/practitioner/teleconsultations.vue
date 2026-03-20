@@ -1248,14 +1248,6 @@ const canJoinSession = (session: SessionItem) => {
   return now >= scheduledTime - fifteenMin && now <= lateJoinLimit;
 };
 
-const canMarkNoShow = (session: SessionItem) => {
-  if (session.status !== "SCHEDULED" && session.status !== "WAITING")
-    return false;
-  const scheduledTime = new Date(session.scheduledAt);
-  const now = new Date();
-  return now.getTime() - scheduledTime.getTime() > 15 * 60 * 1000;
-};
-
 const joinSession = async (session: SessionItem) => {
   try {
     const res = await useAuthenticatedFetch<{
@@ -1299,7 +1291,7 @@ const joinSession = async (session: SessionItem) => {
       };
       showTeleconsultationRoom.value = true;
     }
-  } catch (e) {
+  } catch (e: unknown) {
     console.error("Failed to join session:", e);
   }
 };
@@ -1311,20 +1303,9 @@ const closeTeleconsultationRoom = () => {
   refreshData();
 };
 
-const markNoShow = async (session: SessionItem) => {
-  try {
-    await useAuthenticatedFetch(`/teleconsultations/${session.id}/no-show`, {
-      method: "POST",
-    });
-    await refreshData();
-  } catch (e) {
-    console.error("Failed to mark no-show:", e);
-  }
-};
-
 const viewPatientFile = (session: SessionItem) => {
   if (session.patientId) {
-    router.push(`/practitioner/patients/${session.patientId}`);
+    router.push(`/practitioner/patients/${session.patientId}/medical-record`);
   }
 };
 
@@ -1352,9 +1333,10 @@ const runPreCallTest = async () => {
       const avg = dataArray.reduce((a, b) => a + b, 0) / dataArray.length;
       micLevel.value = Math.min(100, Math.round((avg / 128) * 100));
     }, 100);
-  } catch {
+  } catch (error: unknown) {
     preCallCamera.value = false;
     preCallMic.value = false;
+    console.error("Pre-call test error:", error);
   }
 };
 
@@ -1458,9 +1440,10 @@ async function confirmTeleCancel() {
     );
     showTeleCancelModal.value = false;
     await refreshData();
-  } catch (e: any) {
+  } catch (e: unknown) {
     console.error("Error cancelling:", e);
-    alert(e?.data?.message || "Erreur lors de l'annulation");
+    const apiError = e as { data?: { message?: string } };
+    alert(apiError?.data?.message || "Erreur lors de l'annulation");
   } finally {
     teleCancelLoading.value = false;
   }
@@ -1495,9 +1478,10 @@ async function confirmTeleModify() {
     );
     showTeleModifyModal.value = false;
     await refreshData();
-  } catch (e: any) {
+  } catch (e: unknown) {
     console.error("Error modifying:", e);
-    alert(e?.data?.message || "Erreur lors de la modification");
+    const apiError = e as { data?: { message?: string } };
+    alert(apiError?.data?.message || "Erreur lors de la modification");
   } finally {
     teleModifyLoading.value = false;
   }
