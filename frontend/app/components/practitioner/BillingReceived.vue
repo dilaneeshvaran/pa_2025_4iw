@@ -397,11 +397,11 @@ const openCreateInvoiceModal = async () => {
   unpaidAppointments.value = [];
 
   try {
-    const query = new URLSearchParams()
+    const query = new URLSearchParams();
     if (props.practitionerId) {
-      query.append('practitionerId', props.practitionerId)
+      query.append("practitionerId", props.practitionerId);
     }
-    
+
     const response = await useAuthenticatedFetch<{
       success: boolean;
       data: any[];
@@ -430,9 +430,9 @@ const onInvoiceCreated = (invoice: any) => {
 
 const downloadPdf = async (invoiceId: string, invoiceNumber: string) => {
   try {
-    const query = new URLSearchParams()
+    const query = new URLSearchParams();
     if (props.practitionerId) {
-      query.append('practitionerId', props.practitionerId)
+      query.append("practitionerId", props.practitionerId);
     }
 
     const response = await useAuthenticatedFetch<Blob>(
@@ -459,9 +459,12 @@ const downloadPdf = async (invoiceId: string, invoiceNumber: string) => {
   }
 };
 
-watch(() => props.practitionerId, () => {
-  fetchInvoices(1);
-});
+watch(
+  () => props.practitionerId,
+  () => {
+    fetchInvoices(1);
+  },
+);
 
 onMounted(() => {
   fetchInvoices(1);
