@@ -16,11 +16,15 @@
                 pour traiter vos données personnelles. Vos données sont
                 utilisées uniquement pour vous fournir nos services médicaux et
                 améliorer votre expérience. Consultez notre
-                <a href="#" class="text-orange-600 underline hover:text-orange-600"
+                <a
+                  href="#"
+                  class="text-orange-600 underline hover:text-orange-600"
                   >politique de confidentialité</a
                 >
                 et nos
-                <a href="#" class="text-orange-600 underline hover:text-orange-600"
+                <a
+                  href="#"
+                  class="text-orange-600 underline hover:text-orange-600"
                   >conditions générales d'utilisation</a
                 >.
               </p>

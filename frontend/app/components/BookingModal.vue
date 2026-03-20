@@ -51,7 +51,9 @@
               <span
                 v-for="(step, index) in steps"
                 :key="index"
-                :class="{ 'font-medium text-orange-600': currentStep === index }"
+                :class="{
+                  'font-medium text-orange-600': currentStep === index,
+                }"
               >
                 {{ step }}
               </span>
