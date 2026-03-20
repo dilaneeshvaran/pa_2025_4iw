@@ -8,7 +8,11 @@ import {
   UpdateAppointmentData,
 } from './appointments.types'
 import { isSlotReserved, releaseSlotReservation } from '../../config/redis'
-import { sendAppointmentConfirmationEmail } from '../../utils/email'
+import {
+  sendAppointmentConfirmationEmail,
+  sendAppointmentCancelledByPatientEmail,
+  sendAppointmentModifiedByPatientEmail,
+} from '../../utils/email'
 import { scheduleAppointmentReminders } from '../../utils/reminder-scheduler'
 
 export class AppointmentsService {
@@ -66,13 +70,17 @@ export class AppointmentsService {
                 take: 1,
               },
               cabinets: {
-                where: { leftAt: null, isPaused: false, cabinet: { isVerified: true } },
+                where: {
+                  leftAt: null,
+                  isPaused: false,
+                  cabinet: { isVerified: true },
+                },
                 include: { cabinet: true },
               },
             },
           },
           cabinet: {
-            select: { id: true, name: true, address: true, city: true }
+            select: { id: true, name: true, address: true, city: true },
           },
           teleconsultationSession: {
             select: {
@@ -113,9 +121,10 @@ export class AppointmentsService {
     }
 
     const data: PatientAppointment[] = filteredAppointments.map((apt) => {
-      const activeCabinet = apt.practitioner.cabinets && apt.practitioner.cabinets.length > 0 
-        ? apt.practitioner.cabinets[0].cabinet 
-        : null;
+      const activeCabinet =
+        apt.practitioner.cabinets && apt.practitioner.cabinets.length > 0
+          ? apt.practitioner.cabinets[0].cabinet
+          : null
 
       return {
         id: apt.id,
@@ -133,13 +142,17 @@ export class AppointmentsService {
           title: apt.practitioner.title,
           specialty: apt.practitioner.specialties[0]?.specialty.name || null,
           photo: null,
-          address: activeCabinet ? activeCabinet.address : apt.practitioner.address || null,
-          city: activeCabinet ? activeCabinet.city : apt.practitioner.city || null,
+          address: activeCabinet
+            ? activeCabinet.address
+            : apt.practitioner.address || null,
+          city: activeCabinet
+            ? activeCabinet.city
+            : apt.practitioner.city || null,
           cancellationNotice: apt.practitioner.cancellationNotice,
         },
         cabinet: apt.cabinet || null,
         teleconsultationSession: apt.teleconsultationSession || null,
-      };
+      }
     })
 
     return {
@@ -179,7 +192,11 @@ export class AppointmentsService {
               take: 1,
             },
             cabinets: {
-              where: { leftAt: null, isPaused: false, cabinet: { isVerified: true } },
+              where: {
+                leftAt: null,
+                isPaused: false,
+                cabinet: { isVerified: true },
+              },
               include: { cabinet: true },
             },
           },
@@ -207,9 +224,11 @@ export class AppointmentsService {
       return null
     }
 
-    const activeCabinet = nextAppointment.practitioner.cabinets && nextAppointment.practitioner.cabinets.length > 0 
-      ? nextAppointment.practitioner.cabinets[0].cabinet 
-      : null;
+    const activeCabinet =
+      nextAppointment.practitioner.cabinets &&
+      nextAppointment.practitioner.cabinets.length > 0
+        ? nextAppointment.practitioner.cabinets[0].cabinet
+        : null
 
     return {
       id: nextAppointment.id,
@@ -228,8 +247,12 @@ export class AppointmentsService {
         specialty:
           nextAppointment.practitioner.specialties[0]?.specialty.name || null,
         photo: null,
-        address: activeCabinet ? activeCabinet.address : nextAppointment.practitioner.address || null,
-        city: activeCabinet ? activeCabinet.city : nextAppointment.practitioner.city || null,
+        address: activeCabinet
+          ? activeCabinet.address
+          : nextAppointment.practitioner.address || null,
+        city: activeCabinet
+          ? activeCabinet.city
+          : nextAppointment.practitioner.city || null,
         cancellationNotice: nextAppointment.practitioner.cancellationNotice,
       },
       cabinet: nextAppointment.cabinet || null,
@@ -269,7 +292,11 @@ export class AppointmentsService {
               take: 1,
             },
             cabinets: {
-              where: { leftAt: null, isPaused: false, cabinet: { isVerified: true } },
+              where: {
+                leftAt: null,
+                isPaused: false,
+                cabinet: { isVerified: true },
+              },
               include: { cabinet: true },
             },
           },
@@ -304,9 +331,10 @@ export class AppointmentsService {
 
     // slice to limit
     return filtered.slice(0, limit).map((apt) => {
-      const activeCabinet = apt.practitioner.cabinets && apt.practitioner.cabinets.length > 0 
-        ? apt.practitioner.cabinets[0].cabinet 
-        : null;
+      const activeCabinet =
+        apt.practitioner.cabinets && apt.practitioner.cabinets.length > 0
+          ? apt.practitioner.cabinets[0].cabinet
+          : null
 
       return {
         id: apt.id,
@@ -324,12 +352,16 @@ export class AppointmentsService {
           title: apt.practitioner.title,
           specialty: apt.practitioner.specialties[0]?.specialty.name || null,
           photo: null,
-          address: activeCabinet ? activeCabinet.address : apt.practitioner.address || null,
-          city: activeCabinet ? activeCabinet.city : apt.practitioner.city || null,
+          address: activeCabinet
+            ? activeCabinet.address
+            : apt.practitioner.address || null,
+          city: activeCabinet
+            ? activeCabinet.city
+            : apt.practitioner.city || null,
           cancellationNotice: apt.practitioner.cancellationNotice,
         },
         cabinet: apt.cabinet || null,
-      };
+      }
     })
   }
 
@@ -693,6 +725,14 @@ export class AppointmentsService {
   ): Promise<void> {
     const appointment = await prisma.appointment.findUnique({
       where: { id: appointmentId },
+      include: {
+        patient: {
+          select: { firstName: true, lastName: true },
+        },
+        practitioner: {
+          select: { id: true, firstName: true, lastName: true, title: true },
+        },
+      },
     })
 
     if (!appointment) {
@@ -728,6 +768,31 @@ export class AppointmentsService {
         cancellationReason: reason || null,
       },
     })
+
+    // send email notification to practitioner
+    const practitionerUser = await prisma.user.findFirst({
+      where: { practitioner: { id: appointment.practitionerId } },
+      select: { email: true },
+    })
+
+    if (practitionerUser?.email) {
+      try {
+        await sendAppointmentCancelledByPatientEmail(practitionerUser.email, {
+          practitionerName: `${appointment.practitioner.title ?? 'Dr.'} ${appointment.practitioner.firstName} ${appointment.practitioner.lastName}`,
+          patientFirstName: appointment.patient.firstName,
+          patientLastName: appointment.patient.lastName,
+          appointmentDate:
+            appointment.appointmentDate.toLocaleDateString('fr-FR'),
+          appointmentTime: appointment.startTime,
+          reason: reason,
+        })
+      } catch (emailError) {
+        console.error(
+          'Failed to send cancellation email to practitioner:',
+          emailError,
+        )
+      }
+    }
   }
 
   async updateAppointment(
@@ -738,6 +803,9 @@ export class AppointmentsService {
     const appointment = await prisma.appointment.findUnique({
       where: { id: appointmentId },
       include: {
+        patient: {
+          select: { firstName: true, lastName: true },
+        },
         practitioner: {
           select: {
             id: true,
@@ -838,6 +906,36 @@ export class AppointmentsService {
         },
       },
     })
+
+    // send email notification to practitien when patient modifies appointment
+    const oldDate = appointment.appointmentDate.toLocaleDateString('fr-FR')
+    const oldTime = appointment.startTime
+
+    if (data.appointmentDate || data.startTime) {
+      const practitionerUser = await prisma.user.findFirst({
+        where: { practitioner: { id: appointment.practitionerId } },
+        select: { email: true },
+      })
+
+      if (practitionerUser?.email) {
+        try {
+          await sendAppointmentModifiedByPatientEmail(practitionerUser.email, {
+            practitionerName: `${appointment.practitioner.title ?? 'Dr.'} ${appointment.practitioner.firstName} ${appointment.practitioner.lastName}`,
+            patientFirstName: appointment.patient.firstName,
+            patientLastName: appointment.patient.lastName,
+            oldDate,
+            oldTime,
+            newDate: newDate.toLocaleDateString('fr-FR'),
+            newTime: newStartTime,
+          })
+        } catch (emailError) {
+          console.error(
+            'Failed to send modification email to practitioner:',
+            emailError,
+          )
+        }
+      }
+    }
 
     return {
       id: updated.id,

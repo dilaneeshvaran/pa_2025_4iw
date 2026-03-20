@@ -444,7 +444,9 @@ export class PaymentsController {
       const payment = await paymentsService.createCabinetPayment(
         practitionerId,
         body.appointmentId,
+        body.amount,
         body.method,
+        body.notes,
       )
 
       return reply.status(201).send({

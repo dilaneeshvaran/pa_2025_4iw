@@ -17,12 +17,14 @@ export const createPaymentSchema = z.object({
 export const createCabinetPaymentSchema = z.object({
   appointmentId: z.string().min(1, "L'identifiant du rendez-vous est requis"),
   practitionerId: z.string().optional(),
+  amount: z.number().positive('Le montant doit être positif'),
   method: z.enum(
     ['CASH', 'CARD', 'MOBILE_MONEY', 'CHECK', 'TRANSFER', 'OTHER'],
     {
       message: 'Méthode de paiement invalide',
     },
   ),
+  notes: z.string().optional(),
 })
 
 export const addPaymentMethodSchema = z

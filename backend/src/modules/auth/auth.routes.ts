@@ -1,6 +1,6 @@
 import { FastifyInstance } from 'fastify'
 import { ZodTypeProvider } from 'fastify-type-provider-zod'
-import { AuthController } from './auth.controller'
+import * as authController from './auth.controller'
 import {
   signupSchema,
   loginSchema,
@@ -10,8 +10,7 @@ import {
   resetPasswordSchema,
   refreshTokenSchema,
 } from './auth.schema'
-
-const authController = new AuthController()
+import { authenticate } from '../../middleware/authenticate'
 
 export async function authRoutes(fastify: FastifyInstance) {
   const app = fastify.withTypeProvider<ZodTypeProvider>()
@@ -25,7 +24,7 @@ export async function authRoutes(fastify: FastifyInstance) {
         description: 'Register a new user (patient or practitioner)',
       },
     },
-    authController.signup.bind(authController),
+    authController.signup,
   )
 
   app.post(
@@ -37,7 +36,7 @@ export async function authRoutes(fastify: FastifyInstance) {
         description: 'Login with email and password',
       },
     },
-    authController.login.bind(authController),
+    authController.login,
   )
 
   app.post(
@@ -49,7 +48,7 @@ export async function authRoutes(fastify: FastifyInstance) {
         description: 'Verify email address with token',
       },
     },
-    authController.verifyEmail.bind(authController),
+    authController.verifyEmail,
   )
 
   app.post(
@@ -61,7 +60,7 @@ export async function authRoutes(fastify: FastifyInstance) {
         description: 'Resend email verification',
       },
     },
-    authController.resendVerification.bind(authController),
+    authController.resendVerification,
   )
 
   app.post(
@@ -73,7 +72,7 @@ export async function authRoutes(fastify: FastifyInstance) {
         description: 'Request password reset email',
       },
     },
-    authController.requestPasswordReset.bind(authController),
+    authController.requestPasswordReset,
   )
 
   app.post(
@@ -85,7 +84,7 @@ export async function authRoutes(fastify: FastifyInstance) {
         description: 'Reset password with token',
       },
     },
-    authController.resetPassword.bind(authController),
+    authController.resetPassword,
   )
 
   app.post(
@@ -97,7 +96,7 @@ export async function authRoutes(fastify: FastifyInstance) {
         description: 'Refresh access token',
       },
     },
-    authController.refreshToken.bind(authController),
+    authController.refreshToken,
   )
 
   app.post(
@@ -109,6 +108,18 @@ export async function authRoutes(fastify: FastifyInstance) {
         description: 'Logout and revoke refresh token',
       },
     },
-    authController.logout.bind(authController),
+    authController.logout,
+  )
+
+  app.get(
+    '/validate',
+    {
+      preHandler: authenticate,
+      schema: {
+        tags: ['Authentication'],
+        description: 'Validate current session',
+      },
+    },
+    authController.validateSession,
   )
 }

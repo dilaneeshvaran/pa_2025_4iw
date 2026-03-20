@@ -28,4 +28,16 @@ export async function practitionerPatientsRoutes(fastify: FastifyInstance) {
     },
     patientsController.getPatientDetail.bind(patientsController),
   )
+
+  fastify.get(
+    '/:id/documents',
+    {
+      preHandler: [authenticate, authorize(['PRACTITIONER'])],
+      schema: {
+        tags: ['practitioner-patients'],
+        description: 'Get patient documents uploaded by the patient',
+      },
+    },
+    patientsController.getPatientDocuments.bind(patientsController),
+  )
 }

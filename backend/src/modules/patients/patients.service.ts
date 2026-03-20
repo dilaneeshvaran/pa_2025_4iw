@@ -301,8 +301,13 @@ export class PatientsService {
       bloodType: patient.bloodType,
       allergies: patient.allergies,
       chronicConditions: patient.chronicConditions,
+      surgicalOperations: patient.surgicalOperations,
       height: patient.height ? Number(patient.height) : null,
       weight: patient.weight ? Number(patient.weight) : null,
+      emergencyContactName: patient.emergencyContactName,
+      emergencyContactPhone: patient.emergencyContactPhone,
+      insuranceProvider: patient.insuranceProvider,
+      insuranceNumber: patient.insuranceNumber,
       isNew,
       firstAppointmentDate: firstAppointment
         ? firstAppointment.appointmentDate
@@ -328,6 +333,41 @@ export class PatientsService {
         : null,
     }
   }
+
+  async getPatientDocuments(practitionerId: string, patientId: string) {
+    // verify practitioner has relation with patient
+    const hasRelation = await prisma.appointment.findFirst({
+      where: {
+        practitionerId,
+        patientId,
+        status: { not: AppointmentStatus.CANCELLED },
+      },
+    })
+
+    if (!hasRelation) return null
+
+    // get patients own documents (uploaded by patient for their medical record)
+    const documents = await prisma.document.findMany({
+      where: {
+        patientId,
+        practitionerId: null,
+        medicalRecordId: null,
+      },
+      orderBy: { uploadedAt: 'desc' },
+    })
+
+    return documents.map((doc) => ({
+      id: doc.id,
+      type: doc.type,
+      title: doc.title,
+      description: doc.description,
+      fileName: doc.fileName,
+      fileSize: doc.fileSize,
+      mimeType: doc.mimeType,
+      uploadedAt: doc.uploadedAt.toISOString(),
+    }))
+  }
+
   async getPatientIdFromUserId(userId: string): Promise<string | null> {
     const patient = await prisma.patient.findUnique({
       where: { userId },

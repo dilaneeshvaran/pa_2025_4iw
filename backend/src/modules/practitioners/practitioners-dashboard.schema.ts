@@ -45,6 +45,7 @@ export const updatePractitionerProfileSchema = z.object({
   city: z.string().optional(),
   postalCode: z.string().nullable().optional(),
   country: z.string().optional(),
+  isProfilePublic: z.boolean().optional(),
   qualifications: z
     .array(
       z.object({
