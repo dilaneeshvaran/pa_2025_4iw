@@ -50,6 +50,12 @@ export default defineNuxtConfig({
     typeCheck: false,
   },
 
+  ignore: [
+    "**/__tests__/**",
+    "**/*.test.ts",
+    "**/*.spec.ts",
+  ],
+
   nitro: {
     compressPublicAssets: true,
   },
