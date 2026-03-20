@@ -28,7 +28,7 @@
             <input
               v-model="form.name"
               type="text"
-              class="w-full rounded-lg border border-gray-300 px-3 py-2 text-sm focus:border-indigo-500 focus:outline-none focus:ring-1 focus:ring-indigo-500"
+              class="w-full rounded-lg border border-gray-300 px-3 py-2 text-sm focus:border-orange-500 focus:outline-none focus:ring-1 focus:ring-orange-500"
             />
           </div>
           <div>
@@ -38,7 +38,7 @@
             <input
               v-model="form.phone"
               type="tel"
-              class="w-full rounded-lg border border-gray-300 px-3 py-2 text-sm focus:border-indigo-500 focus:outline-none focus:ring-1 focus:ring-indigo-500"
+              class="w-full rounded-lg border border-gray-300 px-3 py-2 text-sm focus:border-orange-500 focus:outline-none focus:ring-1 focus:ring-orange-500"
             />
           </div>
           <div class="sm:col-span-2">
@@ -48,7 +48,7 @@
             <input
               v-model="form.address"
               type="text"
-              class="w-full rounded-lg border border-gray-300 px-3 py-2 text-sm focus:border-indigo-500 focus:outline-none focus:ring-1 focus:ring-indigo-500"
+              class="w-full rounded-lg border border-gray-300 px-3 py-2 text-sm focus:border-orange-500 focus:outline-none focus:ring-1 focus:ring-orange-500"
             />
           </div>
           <div>
@@ -58,7 +58,7 @@
             <input
               v-model="form.city"
               type="text"
-              class="w-full rounded-lg border border-gray-300 px-3 py-2 text-sm focus:border-indigo-500 focus:outline-none focus:ring-1 focus:ring-indigo-500"
+              class="w-full rounded-lg border border-gray-300 px-3 py-2 text-sm focus:border-orange-500 focus:outline-none focus:ring-1 focus:ring-orange-500"
             />
           </div>
         </div>
@@ -85,7 +85,7 @@
                 type="checkbox"
                 :checked="!openHours[day.key]?.closed"
                 @change="toggleDay(day.key)"
-                class="rounded border-gray-300 text-indigo-600 focus:ring-indigo-500"
+                class="rounded border-gray-300 text-orange-600 focus:ring-orange-500"
               />
               <span class="text-sm text-gray-600">Ouvert</span>
             </label>
@@ -125,7 +125,7 @@
         <button
           type="submit"
           :disabled="saving"
-          class="rounded-lg bg-indigo-600 px-6 py-2 text-sm font-medium text-white transition-colors hover:bg-indigo-700 disabled:opacity-50"
+          class="rounded-lg bg-orange-500 px-6 py-2 text-sm font-medium text-white transition-colors hover:bg-orange-600 disabled:opacity-50"
         >
           {{ saving ? "Enregistrement..." : "Enregistrer" }}
         </button>

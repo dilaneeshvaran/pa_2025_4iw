@@ -49,7 +49,7 @@
             :class="[
               'whitespace-nowrap border-b-2 px-1 py-3 text-sm font-medium transition-colors',
               activeTab === tab.key
-                ? 'border-blue-600 text-blue-600'
+                ? 'border-orange-600 text-orange-600'
                 : 'border-transparent text-gray-500 hover:border-gray-300 hover:text-gray-700',
             ]"
             @click="activeTab = tab.key"
@@ -274,14 +274,14 @@
               <div class="ml-4 flex flex-shrink-0 items-center gap-2">
                 <button
                   v-if="isPdf(doc.mimeType)"
-                  class="rounded-lg p-2 text-gray-400 transition-colors hover:bg-gray-100 hover:text-blue-600"
+                  class="rounded-lg p-2 text-gray-400 transition-colors hover:bg-gray-100 hover:text-orange-600"
                   title="Lire"
                   @click="viewDocument(doc)"
                 >
                   <Eye class="h-5 w-5" />
                 </button>
                 <button
-                  class="rounded-lg p-2 text-gray-400 transition-colors hover:bg-gray-100 hover:text-blue-600"
+                  class="rounded-lg p-2 text-gray-400 transition-colors hover:bg-gray-100 hover:text-orange-600"
                   title="Telecharger"
                   @click="downloadDocument(doc)"
                 >
@@ -300,9 +300,9 @@
             Historique des consultations
           </h2>
           <div class="grid gap-4 sm:grid-cols-2">
-            <div class="rounded-lg bg-blue-50 p-4">
-              <p class="text-sm text-blue-700">Total consultations</p>
-              <p class="text-2xl font-bold text-blue-900">
+            <div class="rounded-lg bg-orange-50 p-4">
+              <p class="text-sm text-orange-700">Total consultations</p>
+              <p class="text-2xl font-bold text-orange-700">
                 {{ patient.totalConsultations }}
               </p>
             </div>

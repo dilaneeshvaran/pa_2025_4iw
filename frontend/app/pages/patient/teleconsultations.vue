@@ -71,7 +71,7 @@
           :class="[
             'whitespace-nowrap border-b-2 px-1 py-3 text-sm font-medium transition-colors',
             activeTab === 'upcoming'
-              ? 'border-blue-600 text-blue-600'
+              ? 'border-orange-600 text-orange-600'
               : 'border-transparent text-gray-500 hover:border-gray-300 hover:text-gray-700',
           ]"
           @click="activeTab = 'upcoming'"
@@ -81,7 +81,7 @@
             :class="[
               'ml-2 rounded-full px-2 py-0.5 text-xs',
               activeTab === 'upcoming'
-                ? 'bg-blue-100 text-blue-600'
+                ? 'bg-orange-100 text-orange-600'
                 : 'bg-gray-100 text-gray-500',
             ]"
           >
@@ -92,7 +92,7 @@
           :class="[
             'whitespace-nowrap border-b-2 px-1 py-3 text-sm font-medium transition-colors',
             activeTab === 'past'
-              ? 'border-blue-600 text-blue-600'
+              ? 'border-orange-600 text-orange-600'
               : 'border-transparent text-gray-500 hover:border-gray-300 hover:text-gray-700',
           ]"
           @click="activeTab = 'past'"
@@ -102,7 +102,7 @@
             :class="[
               'ml-2 rounded-full px-2 py-0.5 text-xs',
               activeTab === 'past'
-                ? 'bg-blue-100 text-blue-600'
+                ? 'bg-orange-100 text-orange-600'
                 : 'bg-gray-100 text-gray-500',
             ]"
           >
@@ -119,7 +119,7 @@
             :class="[
               'rounded-l-lg px-3 py-1.5 text-xs font-medium transition-colors',
               upcomingSortOrder === 'asc'
-                ? 'bg-blue-600 text-white'
+                ? 'bg-orange-500 text-white'
                 : 'text-gray-700 hover:bg-gray-50',
             ]"
             @click="upcomingSortOrder = 'asc'"
@@ -130,7 +130,7 @@
             :class="[
               'rounded-r-lg px-3 py-1.5 text-xs font-medium transition-colors',
               upcomingSortOrder === 'desc'
-                ? 'bg-blue-600 text-white'
+                ? 'bg-orange-500 text-white'
                 : 'text-gray-700 hover:bg-gray-50',
             ]"
             @click="upcomingSortOrder = 'desc'"
@@ -429,8 +429,8 @@
                 }}</span>
               </div>
             </div>
-            <div class="rounded-lg border border-blue-200 bg-blue-50 p-3">
-              <p class="text-sm text-blue-800">
+            <div class="rounded-lg border border-orange-200 bg-orange-50 p-3">
+              <p class="text-sm text-orange-800">
                 <strong>Conseil :</strong> Utilisez un casque ou des écouteurs
                 pour une meilleure qualité audio.
               </p>

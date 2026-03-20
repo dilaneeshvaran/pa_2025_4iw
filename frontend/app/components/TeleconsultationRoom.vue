@@ -128,12 +128,12 @@
         <!-- screen share indicator -->
         <div
           v-if="isScreenSharing"
-          class="absolute left-4 top-4 flex items-center gap-2 rounded-lg bg-blue-600 px-3 py-2 text-white shadow-lg"
+          class="absolute left-4 top-4 flex items-center gap-2 rounded-lg bg-orange-500 px-3 py-2 text-white shadow-lg"
         >
           <Monitor class="h-4 w-4" />
           <span class="text-sm font-medium">Partage d'écran en cours</span>
           <button
-            class="ml-2 rounded-full bg-blue-700 p-0.5 hover:bg-blue-800"
+            class="ml-2 rounded-full bg-orange-600 p-0.5 hover:bg-orange-600"
             @click="stopScreenShare"
           >
             <X class="h-3 w-3" />
@@ -168,7 +168,7 @@
               :class="[
                 'max-w-[85%] rounded-lg px-3 py-2',
                 msg.fromSelf
-                  ? 'ml-auto bg-blue-600 text-white'
+                  ? 'ml-auto bg-orange-500 text-white'
                   : 'bg-gray-700 text-gray-200',
               ]"
             >
@@ -176,7 +176,7 @@
               <p
                 :class="[
                   'mt-1 text-[10px]',
-                  msg.fromSelf ? 'text-blue-200' : 'text-gray-400',
+                  msg.fromSelf ? 'text-orange-200' : 'text-gray-400',
                 ]"
               >
                 {{ msg.time }}
@@ -195,11 +195,11 @@
                 v-model="chatInput"
                 type="text"
                 placeholder="Votre message..."
-                class="flex-1 rounded-lg border border-gray-600 bg-gray-700 px-3 py-2 text-sm text-white placeholder-gray-400 focus:border-blue-500 focus:outline-none"
+                class="flex-1 rounded-lg border border-gray-600 bg-gray-700 px-3 py-2 text-sm text-white placeholder-gray-400 focus:border-orange-500 focus:outline-none"
                 @keyup.enter="sendChatMessage"
               />
               <button
-                class="rounded-lg bg-blue-600 px-3 py-2 text-white transition-colors hover:bg-blue-700 disabled:opacity-50"
+                class="rounded-lg bg-orange-500 px-3 py-2 text-white transition-colors hover:bg-orange-600 disabled:opacity-50"
                 :disabled="!chatInput.trim()"
                 @click="sendChatMessage"
               >
@@ -247,7 +247,7 @@
         :class="[
           'flex h-12 w-12 items-center justify-center rounded-full transition-colors',
           isScreenSharing
-            ? 'bg-blue-600 text-white hover:bg-blue-700'
+            ? 'bg-orange-500 text-white hover:bg-orange-600'
             : 'bg-gray-700 text-white hover:bg-gray-600',
         ]"
         title="Partager l'écran"

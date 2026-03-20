@@ -42,7 +42,7 @@
     <div v-if="activeTab === 'compose'" class="space-y-6">
       <UiCard>
         <h3 class="mb-4 text-lg font-semibold text-gray-900">
-          <Users class="mr-2 inline h-5 w-5 text-blue-600" />
+          <Users class="mr-2 inline h-5 w-5 text-orange-600" />
           Destinataires
         </h3>
 
@@ -152,7 +152,7 @@
 
       <UiCard>
         <h3 class="mb-4 text-lg font-semibold text-gray-900">
-          <Mail class="mr-2 inline h-5 w-5 text-blue-600" />
+          <Mail class="mr-2 inline h-5 w-5 text-orange-600" />
           Contenu du message
         </h3>
 
@@ -200,7 +200,7 @@
 
       <UiCard>
         <h3 class="mb-4 text-lg font-semibold text-gray-900">
-          <Settings class="mr-2 inline h-5 w-5 text-blue-600" />
+          <Settings class="mr-2 inline h-5 w-5 text-orange-600" />
           Options de diffusion
         </h3>
 
@@ -273,16 +273,16 @@
 
       <UiCard>
         <h3 class="mb-4 text-lg font-semibold text-gray-900">
-          <BarChart3 class="mr-2 inline h-5 w-5 text-blue-600" />
+          <BarChart3 class="mr-2 inline h-5 w-5 text-orange-600" />
           Résumé
         </h3>
 
         <div class="grid gap-4 sm:grid-cols-3">
-          <div class="rounded-lg bg-blue-50 p-4 text-center">
-            <p class="text-2xl font-bold text-blue-700">
+          <div class="rounded-lg bg-orange-50 p-4 text-center">
+            <p class="text-2xl font-bold text-orange-700">
               {{ summaryRecipientCount }}
             </p>
-            <p class="text-sm text-blue-600">Destinataires</p>
+            <p class="text-sm text-orange-600">Destinataires</p>
           </div>
           <div class="rounded-lg bg-green-50 p-4 text-center">
             <p class="text-2xl font-bold text-green-700">
@@ -491,11 +491,11 @@
 
         <div class="space-y-4">
           <div class="grid gap-4 sm:grid-cols-3">
-            <div class="rounded-lg bg-blue-50 p-3 text-center">
-              <p class="text-xl font-bold text-blue-700">
+            <div class="rounded-lg bg-orange-50 p-3 text-center">
+              <p class="text-xl font-bold text-orange-700">
                 {{ selectedCampaign.totalRecipients }}
               </p>
-              <p class="text-xs text-blue-600">Total destinataires</p>
+              <p class="text-xs text-orange-600">Total destinataires</p>
             </div>
             <div class="rounded-lg bg-green-50 p-3 text-center">
               <p class="text-xl font-bold text-green-700">
@@ -704,7 +704,7 @@ const typeLabels: Record<string, string> = {
 };
 
 const typeVariants: Record<string, string> = {
-  INFO: "bg-blue-100 text-blue-800",
+  INFO: "bg-orange-100 text-orange-800",
   WARNING: "bg-yellow-100 text-yellow-800",
   URGENT: "bg-red-100 text-red-800",
   MAINTENANCE: "bg-purple-100 text-purple-800",
@@ -720,7 +720,7 @@ const statusLabels: Record<string, string> = {
 
 const statusVariants: Record<string, string> = {
   DRAFT: "bg-gray-100 text-gray-800",
-  ACTIVE: "bg-blue-100 text-blue-800",
+  ACTIVE: "bg-orange-100 text-orange-800",
   COMPLETED: "bg-green-100 text-green-800",
   CANCELLED: "bg-red-100 text-red-800",
   PAUSED: "bg-yellow-100 text-yellow-800",

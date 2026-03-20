@@ -70,7 +70,7 @@
                 type="checkbox"
                 :value="method.value"
                 v-model="form.acceptedPaymentMethods"
-                class="h-4 w-4 rounded border-gray-300 text-blue-600 focus:ring-blue-500"
+                class="h-4 w-4 rounded border-gray-300 text-orange-600 focus:ring-orange-500"
               />
               <span class="text-sm text-gray-700">{{ method.label }}</span>
             </label>

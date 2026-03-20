@@ -183,11 +183,11 @@
             class="flex gap-3 rounded-lg bg-gray-50 p-3"
           >
             <div
-              class="flex h-10 w-10 flex-shrink-0 items-center justify-center rounded-lg bg-blue-100"
+              class="flex h-10 w-10 flex-shrink-0 items-center justify-center rounded-lg bg-orange-100"
             >
               <component
                 :is="getNotificationIcon(notification.type)"
-                class="h-5 w-5 text-blue-600"
+                class="h-5 w-5 text-orange-600"
               />
             </div>
             <div class="flex-1">
@@ -295,7 +295,7 @@
               v-model="cancelReason"
               rows="3"
               placeholder="Indiquez la raison de l'annulation..."
-              class="w-full rounded-lg border border-gray-300 px-3 py-2 text-sm focus:border-blue-500 focus:outline-none focus:ring-1 focus:ring-blue-500"
+              class="w-full rounded-lg border border-gray-300 px-3 py-2 text-sm focus:border-orange-500 focus:outline-none focus:ring-1 focus:ring-orange-500"
             ></textarea>
           </div>
 
@@ -331,9 +331,9 @@
         <div class="mx-4 w-full max-w-md rounded-xl bg-white p-6 shadow-2xl">
           <div class="mb-4 flex items-center gap-3">
             <div
-              class="flex h-10 w-10 items-center justify-center rounded-full bg-blue-100"
+              class="flex h-10 w-10 items-center justify-center rounded-full bg-orange-100"
             >
-              <Pencil class="h-5 w-5 text-blue-600" />
+              <Pencil class="h-5 w-5 text-orange-600" />
             </div>
             <h3 class="text-lg font-semibold text-gray-900">
               Modifier le rendez-vous
@@ -358,7 +358,7 @@
                 v-model="modifyDate"
                 type="date"
                 :min="minModifyDate"
-                class="w-full rounded-lg border border-gray-300 px-3 py-2 text-sm focus:border-blue-500 focus:outline-none focus:ring-1 focus:ring-blue-500"
+                class="w-full rounded-lg border border-gray-300 px-3 py-2 text-sm focus:border-orange-500 focus:outline-none focus:ring-1 focus:ring-orange-500"
               />
             </div>
             <div>
@@ -368,7 +368,7 @@
               <input
                 v-model="modifyTime"
                 type="time"
-                class="w-full rounded-lg border border-gray-300 px-3 py-2 text-sm focus:border-blue-500 focus:outline-none focus:ring-1 focus:ring-blue-500"
+                class="w-full rounded-lg border border-gray-300 px-3 py-2 text-sm focus:border-orange-500 focus:outline-none focus:ring-1 focus:ring-orange-500"
               />
             </div>
           </div>
@@ -523,7 +523,7 @@ const quickActions = [
     icon: Calendar,
     label: "Prendre RDV",
     action: () => router.push("/search"),
-    color: "bg-blue-100 text-blue-600",
+    color: "bg-orange-100 text-orange-600",
   },
   {
     icon: Video,

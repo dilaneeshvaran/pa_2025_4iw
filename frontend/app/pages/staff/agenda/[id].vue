@@ -32,7 +32,7 @@
             :class="[
               'rounded-md px-3 py-1.5 text-xs font-medium transition-colors',
               calendarView === v.value
-                ? 'bg-teal-600 text-white'
+                ? 'bg-green-600 text-white'
                 : 'text-gray-600 hover:bg-gray-100',
             ]"
           >
@@ -68,10 +68,10 @@
 
         <div class="flex items-center gap-4 text-sm">
           <div
-            class="flex items-center gap-1.5 rounded-full bg-teal-50 px-3 py-1"
+            class="flex items-center gap-1.5 rounded-full bg-green-50 px-3 py-1"
           >
-            <CalendarIcon class="h-3.5 w-3.5 text-teal-600" />
-            <span class="font-medium text-teal-700">
+            <CalendarIcon class="h-3.5 w-3.5 text-green-600" />
+            <span class="font-medium text-green-700">
               {{ daySummary.total }} rdv
             </span>
           </div>
@@ -113,7 +113,7 @@
           ]"
         >
           <div class="text-center">
-            <p class="text-lg font-bold text-teal-600">{{ apt.startTime }}</p>
+            <p class="text-lg font-bold text-green-600">{{ apt.startTime }}</p>
             <p class="text-xs text-gray-400">{{ apt.endTime }}</p>
           </div>
           <div class="h-10 w-px bg-gray-200"></div>
@@ -142,7 +142,7 @@
           >
             <button
               @click="openModifyModal(apt)"
-              class="rounded-lg p-2 text-gray-400 transition-colors hover:bg-blue-50 hover:text-blue-500"
+              class="rounded-lg p-2 text-gray-400 transition-colors hover:bg-orange-50 hover:text-orange-500"
               title="Modifier"
             >
               <Pencil class="h-4 w-4" />
@@ -167,7 +167,7 @@
             :class="[
               'mb-2 rounded-t-lg px-2 py-1.5 text-center text-xs font-semibold',
               day.isToday
-                ? 'bg-teal-600 text-white'
+                ? 'bg-green-600 text-white'
                 : 'bg-gray-100 text-gray-700',
             ]"
           >
@@ -182,7 +182,7 @@
                 'cursor-pointer rounded px-2 py-1 text-xs',
                 apt.status === 'CANCELLED'
                   ? 'bg-gray-100 text-gray-400 line-through'
-                  : 'bg-teal-100 text-teal-800',
+                  : 'bg-green-100 text-green-800',
               ]"
               :title="`${apt.patient?.firstName} ${apt.patient?.lastName}`"
               @click="openModifyModal(apt)"
@@ -219,7 +219,7 @@
             :class="[
               'mb-1 text-xs font-medium',
               day.isToday
-                ? 'inline-flex h-6 w-6 items-center justify-center rounded-full bg-teal-600 text-white'
+                ? 'inline-flex h-6 w-6 items-center justify-center rounded-full bg-green-600 text-white'
                 : day.inMonth
                   ? 'text-gray-900'
                   : 'text-gray-300',
@@ -235,7 +235,7 @@
                 'truncate rounded px-1 py-0.5 text-[10px]',
                 apt.status === 'CANCELLED'
                   ? 'bg-gray-100 text-gray-400'
-                  : 'bg-teal-100 text-teal-700',
+                  : 'bg-green-100 text-green-700',
               ]"
             >
               {{ apt.startTime }} {{ apt.patient?.lastName }}
@@ -282,7 +282,7 @@
                   @input="searchPatients"
                   type="text"
                   placeholder="Rechercher un patient..."
-                  class="w-full rounded-lg border border-gray-300 px-4 py-2 text-sm focus:border-teal-500 focus:outline-none focus:ring-1 focus:ring-teal-500"
+                  class="w-full rounded-lg border border-gray-300 px-4 py-2 text-sm focus:border-green-500 focus:outline-none focus:ring-1 focus:ring-green-500"
                 />
                 <div
                   v-if="patientResults.length > 0 && patientSearch.length >= 2"
@@ -316,7 +316,7 @@
                   v-model="newAppointment.appointmentDate"
                   type="date"
                   required
-                  class="w-full rounded-lg border border-gray-300 px-3 py-2 text-sm focus:border-teal-500 focus:outline-none focus:ring-1 focus:ring-teal-500"
+                  class="w-full rounded-lg border border-gray-300 px-3 py-2 text-sm focus:border-green-500 focus:outline-none focus:ring-1 focus:ring-green-500"
                 />
               </div>
               <div>
@@ -327,7 +327,7 @@
                   v-model="newAppointment.startTime"
                   type="time"
                   required
-                  class="w-full rounded-lg border border-gray-300 px-3 py-2 text-sm focus:border-teal-500 focus:outline-none focus:ring-1 focus:ring-teal-500"
+                  class="w-full rounded-lg border border-gray-300 px-3 py-2 text-sm focus:border-green-500 focus:outline-none focus:ring-1 focus:ring-green-500"
                 />
               </div>
             </div>
@@ -341,7 +341,7 @@
                   v-model="newAppointment.endTime"
                   type="time"
                   required
-                  class="w-full rounded-lg border border-gray-300 px-3 py-2 text-sm focus:border-teal-500 focus:outline-none focus:ring-1 focus:ring-teal-500"
+                  class="w-full rounded-lg border border-gray-300 px-3 py-2 text-sm focus:border-green-500 focus:outline-none focus:ring-1 focus:ring-green-500"
                 />
               </div>
               <div>
@@ -350,7 +350,7 @@
                 >
                 <select
                   v-model="newAppointment.type"
-                  class="w-full rounded-lg border border-gray-300 px-3 py-2 text-sm focus:border-teal-500 focus:outline-none focus:ring-1 focus:ring-teal-500"
+                  class="w-full rounded-lg border border-gray-300 px-3 py-2 text-sm focus:border-green-500 focus:outline-none focus:ring-1 focus:ring-green-500"
                 >
                   <option value="IN_PERSON">Cabinet</option>
                   <option value="TELECONSULTATION">Téléconsultation</option>
@@ -366,7 +366,7 @@
                 v-model="newAppointment.reason"
                 type="text"
                 placeholder="Motif de la consultation..."
-                class="w-full rounded-lg border border-gray-300 px-3 py-2 text-sm focus:border-teal-500 focus:outline-none focus:ring-1 focus:ring-teal-500"
+                class="w-full rounded-lg border border-gray-300 px-3 py-2 text-sm focus:border-green-500 focus:outline-none focus:ring-1 focus:ring-green-500"
               />
             </div>
 
@@ -447,9 +447,9 @@
         <div class="mx-4 w-full max-w-md rounded-xl bg-white p-6 shadow-2xl">
           <div class="mb-4 flex items-center gap-3">
             <div
-              class="flex h-10 w-10 items-center justify-center rounded-full bg-blue-100"
+              class="flex h-10 w-10 items-center justify-center rounded-full bg-orange-100"
             >
-              <Pencil class="h-5 w-5 text-blue-600" />
+              <Pencil class="h-5 w-5 text-orange-600" />
             </div>
             <h3 class="text-lg font-semibold text-gray-900">
               Modifier le rendez-vous
@@ -470,7 +470,7 @@
               <input
                 v-model="modifyDate"
                 type="date"
-                class="w-full rounded-lg border border-gray-300 px-3 py-2 text-sm focus:border-teal-500 focus:outline-none focus:ring-1 focus:ring-teal-500"
+                class="w-full rounded-lg border border-gray-300 px-3 py-2 text-sm focus:border-green-500 focus:outline-none focus:ring-1 focus:ring-green-500"
               />
             </div>
             <div class="grid grid-cols-2 gap-3">
@@ -481,7 +481,7 @@
                 <input
                   v-model="modifyStartTime"
                   type="time"
-                  class="w-full rounded-lg border border-gray-300 px-3 py-2 text-sm focus:border-teal-500 focus:outline-none focus:ring-1 focus:ring-teal-500"
+                  class="w-full rounded-lg border border-gray-300 px-3 py-2 text-sm focus:border-green-500 focus:outline-none focus:ring-1 focus:ring-green-500"
                 />
               </div>
               <div>
@@ -491,7 +491,7 @@
                 <input
                   v-model="modifyEndTime"
                   type="time"
-                  class="w-full rounded-lg border border-gray-300 px-3 py-2 text-sm focus:border-teal-500 focus:outline-none focus:ring-1 focus:ring-teal-500"
+                  class="w-full rounded-lg border border-gray-300 px-3 py-2 text-sm focus:border-green-500 focus:outline-none focus:ring-1 focus:ring-green-500"
                 />
               </div>
             </div>
@@ -527,7 +527,7 @@
           'rounded-lg px-4 py-3 shadow-lg transition-all duration-300',
           toast.type === 'success' ? 'bg-green-600 text-white' : '',
           toast.type === 'error' ? 'bg-red-600 text-white' : '',
-          toast.type === 'info' ? 'bg-blue-600 text-white' : '',
+          toast.type === 'info' ? 'bg-orange-600 text-white' : '',
         ]"
       >
         <div class="flex items-start gap-2">
@@ -766,7 +766,7 @@ const statusClass = (status: string) => {
     case "RESCHEDULED":
       return "bg-amber-100 text-amber-700";
     case "COMPLETED":
-      return "bg-blue-100 text-blue-700";
+      return "bg-orange-100 text-orange-700";
     case "NO_SHOW":
       return "bg-orange-100 text-orange-700";
     default:

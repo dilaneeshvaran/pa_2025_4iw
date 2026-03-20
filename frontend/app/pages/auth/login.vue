@@ -36,7 +36,7 @@
               type="email"
               required
               autocomplete="email"
-              class="mt-1 block w-full rounded-md border border-gray-300 px-3 py-2 placeholder-gray-400 shadow-sm focus:border-blue-500 focus:outline-none focus:ring-2 focus:ring-blue-500"
+              class="mt-1 block w-full rounded-md border border-gray-300 px-3 py-2 placeholder-gray-400 shadow-sm focus:border-orange-500 focus:outline-none focus:ring-2 focus:ring-orange-500"
               placeholder="votre@email.com"
             />
           </div>
@@ -54,7 +54,7 @@
               type="password"
               required
               autocomplete="current-password"
-              class="mt-1 block w-full rounded-md border border-gray-300 px-3 py-2 placeholder-gray-400 shadow-sm focus:border-blue-500 focus:outline-none focus:ring-2 focus:ring-blue-500"
+              class="mt-1 block w-full rounded-md border border-gray-300 px-3 py-2 placeholder-gray-400 shadow-sm focus:border-orange-500 focus:outline-none focus:ring-2 focus:ring-orange-500"
               placeholder="••••••••"
             />
           </div>
@@ -64,7 +64,7 @@
           <div class="text-sm">
             <NuxtLink
               to="/auth/forgot-password"
-              class="font-medium text-blue-600 hover:text-blue-500"
+              class="font-medium text-orange-600 hover:text-orange-500"
             >
               Mot de passe oublié ?
             </NuxtLink>
@@ -75,7 +75,7 @@
           <button
             type="submit"
             :disabled="loading"
-            class="flex w-full justify-center rounded-md border border-transparent bg-blue-600 px-4 py-3 text-sm font-medium text-white shadow-sm transition-colors hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50"
+            class="flex w-full justify-center rounded-md border border-transparent bg-orange-500 px-4 py-3 text-sm font-medium text-white shadow-sm transition-colors hover:bg-orange-600 focus:outline-none focus:ring-2 focus:ring-orange-500 focus:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50"
           >
             <span v-if="loading">Connexion en cours...</span>
             <span v-else>Se connecter</span>
@@ -87,7 +87,7 @@
             Vous n'avez pas de compte ?
             <NuxtLink
               :to="`/auth/register${route.query.redirect ? '?redirect=' + encodeURIComponent(route.query.redirect as string) : ''}`"
-              class="font-medium text-blue-600 hover:text-blue-500"
+              class="font-medium text-orange-600 hover:text-orange-500"
             >
               Créer un compte
             </NuxtLink>
@@ -105,7 +105,7 @@ import { useAuth } from "~/composables/useAuth";
 
 definePageMeta({
   middleware: "guest",
-  layout: 'default',
+  layout: "default",
 });
 
 const route = useRoute();

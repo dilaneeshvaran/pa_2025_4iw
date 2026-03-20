@@ -966,17 +966,17 @@ async function sendNewMessageEmail(
         <title>Nouveau message</title>
       </head>
       <body style="font-family: Arial, sans-serif; line-height: 1.6; color: #333; max-width: 600px; margin: 0 auto; padding: 20px;">
-        <div style="background-color: #0066cc; color: white; padding: 20px; text-align: center; border-radius: 5px 5px 0 0;">
+        <div style="background-color: #FF8200; color: white; padding: 20px; text-align: center; border-radius: 5px 5px 0 0;">
           <h1 style="margin: 0;">MediCôte</h1>
         </div>
         <div style="background-color: #f9f9f9; padding: 30px; border-radius: 0 0 5px 5px;">
-          <h2 style="color: #0066cc; margin-top: 0;">Nouveau message reçu</h2>
+          <h2 style="color: #FF8200; margin-top: 0;">Nouveau message reçu</h2>
           <p>Vous avez reçu un nouveau message de <strong>${senderName}</strong>.</p>
           <div style="background-color: white; border: 1px solid #e0e0e0; border-radius: 8px; padding: 15px; margin: 20px 0;">
             <p style="margin: 0; color: #555; font-style: italic;">"${messagePreview}"</p>
           </div>
           <div style="text-align: center; margin: 30px 0;">
-            <a href="${APP_URL}/practitioner/messages" style="background-color: #0066cc; color: white; padding: 12px 30px; text-decoration: none; border-radius: 5px; display: inline-block; font-weight: bold;">Voir mes messages</a>
+            <a href="${APP_URL}/practitioner/messages" style="background-color: #FF8200; color: white; padding: 12px 30px; text-decoration: none; border-radius: 5px; display: inline-block; font-weight: bold;">Voir mes messages</a>
           </div>
           <p style="color: #666; font-size: 12px; margin-top: 20px;">
             Les messages sont chiffrés de bout en bout pour votre sécurité.

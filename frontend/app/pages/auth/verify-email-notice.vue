@@ -13,13 +13,13 @@
         </p>
       </div>
 
-      <div class="rounded-md border border-blue-200 bg-blue-50 p-4">
+      <div class="rounded-md border border-orange-200 bg-orange-50 p-4">
         <div class="flex">
           <div class="flex-shrink-0">
-            <Icon name="lucide:info" class="h-5 w-5 text-blue-400" />
+            <Icon name="lucide:info" class="h-5 w-5 text-orange-400" />
           </div>
           <div class="ml-3">
-            <p class="text-sm text-blue-700">
+            <p class="text-sm text-orange-700">
               Un email de vérification a été envoyé à <strong>{{ userEmail }}</strong>. 
               Veuillez cliquer sur le lien dans l'email pour activer votre compte.
             </p>
@@ -47,7 +47,7 @@
         <button
           @click="resendVerification"
           :disabled="loading || countdown > 0"
-          class="flex w-full justify-center rounded-md border border-blue-600 bg-white px-4 py-3 text-sm font-medium text-blue-600 shadow-sm transition-colors hover:bg-blue-50 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50"
+          class="flex w-full justify-center rounded-md border border-orange-600 bg-white px-4 py-3 text-sm font-medium text-orange-600 shadow-sm transition-colors hover:bg-orange-50 focus:outline-none focus:ring-2 focus:ring-orange-500 focus:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50"
         >
           <span v-if="loading">Envoi en cours...</span>
           <span v-else-if="countdown > 0">Renvoyer dans {{ countdown }}s</span>

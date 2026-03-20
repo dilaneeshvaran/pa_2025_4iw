@@ -11,7 +11,7 @@
           @click="activeTab = 'received'"
           :class="[
             activeTab === 'received'
-              ? 'border-blue-500 text-blue-600'
+              ? 'border-orange-500 text-orange-600'
               : 'border-transparent text-gray-500 hover:border-gray-300 hover:text-gray-700',
             'whitespace-nowrap border-b-2 px-1 pb-4 text-sm font-medium transition-colors duration-200',
           ]"
@@ -22,7 +22,7 @@
           @click="activeTab = 'config'"
           :class="[
             activeTab === 'config'
-              ? 'border-blue-500 text-blue-600'
+              ? 'border-orange-500 text-orange-600'
               : 'border-transparent text-gray-500 hover:border-gray-300 hover:text-gray-700',
             'whitespace-nowrap border-b-2 px-1 pb-4 text-sm font-medium transition-colors duration-200',
           ]"

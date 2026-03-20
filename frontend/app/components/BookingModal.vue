@@ -33,7 +33,7 @@
                     currentStep > index
                       ? 'bg-green-500 text-white'
                       : currentStep === index
-                        ? 'bg-blue-600 text-white'
+                        ? 'bg-orange-500 text-white'
                         : 'bg-gray-200 text-gray-600',
                   ]"
                 >
@@ -51,7 +51,7 @@
               <span
                 v-for="(step, index) in steps"
                 :key="index"
-                :class="{ 'font-medium text-blue-600': currentStep === index }"
+                :class="{ 'font-medium text-orange-600': currentStep === index }"
               >
                 {{ step }}
               </span>
@@ -101,7 +101,7 @@
               class="flex items-center justify-center py-8"
             >
               <div
-                class="h-8 w-8 animate-spin rounded-full border-4 border-blue-600 border-t-transparent"
+                class="h-8 w-8 animate-spin rounded-full border-4 border-orange-500 border-t-transparent"
               />
               <span class="ml-3 text-gray-600"
                 >Chargement des disponibilités...</span
@@ -147,9 +147,9 @@
                   :class="[
                     'flex flex-col items-center rounded-lg border-2 px-1 py-2 text-sm transition-all',
                     selectedDate === day.date
-                      ? 'border-blue-600 bg-blue-50 text-blue-700'
+                      ? 'border-orange-500 bg-orange-50 text-orange-700'
                       : day.hasSlots
-                        ? 'border-gray-200 hover:border-blue-300 hover:bg-blue-50/50'
+                        ? 'border-gray-200 hover:border-orange-300 hover:bg-orange-50/50'
                         : 'cursor-not-allowed border-gray-100 bg-gray-50 text-gray-300',
                   ]"
                   @click="day.hasSlots && selectDate(day.date)"
@@ -187,7 +187,7 @@
                         :class="[
                           'rounded-lg border-2 px-3 py-2 text-sm transition-all',
                           selectedTime === time
-                            ? 'border-blue-600 bg-blue-50 text-blue-700'
+                            ? 'border-orange-500 bg-orange-50 text-orange-700'
                             : 'border-gray-200 hover:border-gray-300',
                         ]"
                         @click="selectTime(time)"
@@ -210,7 +210,7 @@
                         :class="[
                           'rounded-lg border-2 px-3 py-2 text-sm transition-all',
                           selectedTime === time
-                            ? 'border-blue-600 bg-blue-50 text-blue-700'
+                            ? 'border-orange-500 bg-orange-50 text-orange-700'
                             : 'border-gray-200 hover:border-gray-300',
                         ]"
                         @click="selectTime(time)"
@@ -237,14 +237,14 @@
                 :class="[
                   'flex flex-col items-center gap-2 rounded-lg border-2 p-6 transition-all',
                   appointmentType === 'IN_PERSON'
-                    ? 'border-blue-600 bg-blue-50'
+                    ? 'border-orange-500 bg-orange-50'
                     : 'border-gray-200 hover:border-gray-300',
                 ]"
                 @click="appointmentType = 'IN_PERSON'"
               >
-                <IconMapPin class="h-8 w-8 text-blue-600" />
+                <IconMapPin class="h-8 w-8 text-orange-600" />
                 <span class="font-medium">Au cabinet</span>
-                <span class="text-lg font-bold text-blue-600">
+                <span class="text-lg font-bold text-orange-600">
                   {{ practitioner?.baseConsultationFee?.toLocaleString() }} FCFA
                 </span>
                 <span class="text-xs text-gray-500">{{
@@ -257,7 +257,7 @@
                 :class="[
                   'flex flex-col items-center gap-2 rounded-lg border-2 p-6 transition-all',
                   appointmentType === 'TELECONSULTATION'
-                    ? 'border-blue-600 bg-blue-50'
+                    ? 'border-orange-500 bg-orange-50'
                     : 'border-gray-200 hover:border-gray-300',
                 ]"
                 @click="appointmentType = 'TELECONSULTATION'"
@@ -287,7 +287,7 @@
               v-model="reason"
               rows="4"
               placeholder="Ex: Douleurs au niveau du dos depuis une semaine..."
-              class="w-full rounded-lg border border-gray-300 px-4 py-3 focus:border-blue-600 focus:outline-none focus:ring-2 focus:ring-blue-600"
+              class="w-full rounded-lg border border-gray-300 px-4 py-3 focus:border-orange-500 focus:outline-none focus:ring-2 focus:ring-orange-500"
             />
           </div>
 
@@ -323,9 +323,9 @@
                 <span class="text-gray-600">Motif</span>
                 <p class="mt-1 text-sm">{{ reason }}</p>
               </div>
-              <div class="flex justify-between bg-blue-50 p-4">
+              <div class="flex justify-between bg-orange-50 p-4">
                 <span class="font-medium text-gray-800">Total à payer</span>
-                <span class="text-xl font-bold text-blue-600">
+                <span class="text-xl font-bold text-orange-600">
                   {{ consultationFee?.toLocaleString() }} FCFA
                 </span>
               </div>
@@ -342,7 +342,7 @@
             <!-- cancellation rule for teleconsultation -->
             <div
               v-if="appointmentType === 'TELECONSULTATION'"
-              class="rounded-lg bg-blue-50 p-4 text-sm text-blue-800"
+              class="rounded-lg bg-orange-50 p-4 text-sm text-orange-800"
             >
               <p class="mb-1 font-medium">Politique de remboursement :</p>
               <ul class="list-inside list-disc space-y-1 text-xs">
@@ -367,7 +367,7 @@
             <div class="rounded-lg border border-gray-200 p-4">
               <div class="mb-3 flex justify-between">
                 <span class="text-gray-600">Montant à payer</span>
-                <span class="text-xl font-bold text-blue-600">
+                <span class="text-xl font-bold text-orange-600">
                   {{ consultationFee?.toLocaleString() }} FCFA
                 </span>
               </div>
@@ -379,7 +379,7 @@
               class="flex items-center justify-center py-4"
             >
               <div
-                class="h-6 w-6 animate-spin rounded-full border-2 border-blue-600 border-t-transparent"
+                class="h-6 w-6 animate-spin rounded-full border-2 border-orange-500 border-t-transparent"
               ></div>
               <span class="ml-2 text-sm text-gray-500"
                 >Chargement des moyens de paiement...</span
@@ -403,7 +403,7 @@
                   class="flex cursor-pointer items-center justify-between rounded-lg border p-3 transition-colors hover:bg-gray-50"
                   :class="
                     selectedSavedMethodId === method.id
-                      ? 'border-blue-500 bg-blue-50 ring-1 ring-blue-500'
+                      ? 'border-orange-500 bg-orange-50 ring-1 ring-orange-500'
                       : 'border-gray-200'
                   "
                 >
@@ -413,14 +413,14 @@
                       name="savedMethod"
                       :value="method.id"
                       v-model="selectedSavedMethodId"
-                      class="h-4 w-4 border-gray-300 text-blue-600 focus:ring-blue-500"
+                      class="h-4 w-4 border-gray-300 text-orange-600 focus:ring-orange-500"
                     />
                     <div
                       class="flex h-8 w-8 items-center justify-center rounded-full text-sm"
                       :class="
                         method.type === 'MOBILE_MONEY'
                           ? 'bg-orange-100'
-                          : 'bg-blue-100'
+                          : 'bg-orange-100'
                       "
                     >
                       {{ method.type === "MOBILE_MONEY" ? "📱" : "💳" }}
@@ -432,7 +432,7 @@
                         {{ method.label }}
                         <span
                           v-if="method.isDefault"
-                          class="rounded-full bg-blue-100 px-2 py-0.5 text-xs text-blue-700"
+                          class="rounded-full bg-orange-100 px-2 py-0.5 text-xs text-orange-700"
                           >Par défaut</span
                         >
                       </div>
@@ -450,7 +450,7 @@
               </div>
               <button
                 type="button"
-                class="mt-2 text-sm text-blue-600 hover:underline"
+                class="mt-2 text-sm text-orange-600 hover:underline"
                 @click="
                   useNewPaymentMethod = true;
                   selectedSavedMethodId = null;
@@ -465,7 +465,7 @@
               <div v-if="verifiedSavedMethods.length > 0" class="mb-3">
                 <button
                   type="button"
-                  class="text-sm text-blue-600 hover:underline"
+                  class="text-sm text-orange-600 hover:underline"
                   @click="
                     useNewPaymentMethod = false;
                     selectedSavedMethodId =
@@ -491,7 +491,7 @@
                     class="flex flex-col items-center gap-2 rounded-lg border-2 p-4 transition-all"
                     :class="[
                       selectedPaymentMethod === pm.value
-                        ? 'border-blue-600 bg-blue-50'
+                        ? 'border-orange-500 bg-orange-50'
                         : 'border-gray-200 hover:border-gray-300',
                     ]"
                     @click="selectedPaymentMethod = pm.value"
@@ -535,7 +535,7 @@
                     v-model="mobilePaymentNumber"
                     type="tel"
                     placeholder="07 XX XX XX XX"
-                    class="mt-1 w-full rounded-lg border border-gray-300 px-4 py-2.5 focus:border-blue-600 focus:outline-none focus:ring-2 focus:ring-blue-600"
+                    class="mt-1 w-full rounded-lg border border-gray-300 px-4 py-2.5 focus:border-orange-500 focus:outline-none focus:ring-2 focus:ring-orange-500"
                   />
                 </div>
               </div>
@@ -549,7 +549,7 @@
                     type="text"
                     placeholder="4XXX XXXX XXXX XXXX"
                     maxlength="19"
-                    class="mt-1 w-full rounded-lg border border-gray-300 px-4 py-2.5 focus:border-blue-600 focus:outline-none focus:ring-2 focus:ring-blue-600"
+                    class="mt-1 w-full rounded-lg border border-gray-300 px-4 py-2.5 focus:border-orange-500 focus:outline-none focus:ring-2 focus:ring-orange-500"
                   />
                 </div>
                 <div class="grid grid-cols-2 gap-3">
@@ -560,7 +560,7 @@
                       type="text"
                       placeholder="MM/AA"
                       maxlength="5"
-                      class="mt-1 w-full rounded-lg border border-gray-300 px-4 py-2.5 focus:border-blue-600 focus:outline-none focus:ring-2 focus:ring-blue-600"
+                      class="mt-1 w-full rounded-lg border border-gray-300 px-4 py-2.5 focus:border-orange-500 focus:outline-none focus:ring-2 focus:ring-orange-500"
                     />
                   </div>
                   <div>
@@ -570,7 +570,7 @@
                       type="text"
                       placeholder="XXX"
                       maxlength="4"
-                      class="mt-1 w-full rounded-lg border border-gray-300 px-4 py-2.5 focus:border-blue-600 focus:outline-none focus:ring-2 focus:ring-blue-600"
+                      class="mt-1 w-full rounded-lg border border-gray-300 px-4 py-2.5 focus:border-orange-500 focus:outline-none focus:ring-2 focus:ring-orange-500"
                     />
                   </div>
                 </div>

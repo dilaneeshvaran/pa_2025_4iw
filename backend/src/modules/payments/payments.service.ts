@@ -869,18 +869,18 @@ export class PaymentsService {
   <style>
     * { margin: 0; padding: 0; box-sizing: border-box; }
     body { font-family: 'Helvetica Neue', Arial, sans-serif; color: #1a1a1a; padding: 40px; max-width: 800px; margin: 0 auto; }
-    .header { display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 40px; border-bottom: 3px solid #E8870E; padding-bottom: 20px; }
-    .logo { font-size: 28px; font-weight: bold; color: #E8870E; }
-    .logo span { color: #2D8C3C; }
+    .header { display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 40px; border-bottom: 3px solid #FF8200; padding-bottom: 20px; }
+    .logo { font-size: 28px; font-weight: bold; color: #FF8200; }
+    .logo span { color: #009A44; }
     .invoice-info { text-align: right; }
-    .invoice-info h2 { color: #E8870E; font-size: 20px; margin-bottom: 8px; }
+    .invoice-info h2 { color: #FF8200; font-size: 20px; margin-bottom: 8px; }
     .invoice-info p { color: #666; font-size: 13px; line-height: 1.6; }
     .parties { display: flex; justify-content: space-between; margin-bottom: 30px; }
     .party { width: 48%; }
     .party h3 { font-size: 12px; text-transform: uppercase; color: #888; letter-spacing: 1px; margin-bottom: 10px; }
     .party p { font-size: 14px; line-height: 1.6; }
     table { width: 100%; border-collapse: collapse; margin-bottom: 30px; }
-    thead th { background: #2D8C3C; color: white; padding: 12px 16px; text-align: left; font-size: 13px; }
+    thead th { background: #009A44; color: white; padding: 12px 16px; text-align: left; font-size: 13px; }
     tbody td { padding: 12px 16px; border-bottom: 1px solid #eee; font-size: 14px; }
     .totals { display: flex; justify-content: flex-end; }
     .totals-table { width: 280px; }
@@ -888,8 +888,8 @@ export class PaymentsService {
     .totals-table .total { border-top: 2px solid #1a1a1a; font-weight: bold; font-size: 18px; padding-top: 12px; }
     .footer { margin-top: 40px; padding-top: 20px; border-top: 1px solid #ddd; text-align: center; color: #888; font-size: 12px; }
     .status { display: inline-block; padding: 4px 12px; border-radius: 20px; font-size: 12px; font-weight: 600; }
-    .status-completed { background: #dcfce7; color: #166534; }
-    .status-refunded { background: #fef3c7; color: #92400e; }
+    .status-completed { background: #E6F5EB; color: #006B30; }
+    .status-refunded { background: #FFF5E6; color: #B35900; }
     .payment-info { background: #f8f9fa; padding: 16px; border-radius: 8px; margin-bottom: 30px; }
     .payment-info p { font-size: 13px; color: #555; line-height: 1.8; }
   </style>

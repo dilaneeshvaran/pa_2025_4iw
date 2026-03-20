@@ -15,7 +15,7 @@
           :class="[
             'whitespace-nowrap border-b-2 px-1 py-3 text-sm font-medium transition-colors',
             activeTab === tab.key
-              ? 'border-blue-600 text-blue-600'
+              ? 'border-orange-600 text-orange-600'
               : 'border-transparent text-gray-500 hover:border-gray-300 hover:text-gray-700',
           ]"
           @click="activeTab = tab.key"
@@ -132,7 +132,7 @@
               >
               <select
                 v-model="profileForm.bloodType"
-                class="w-full rounded-lg border border-gray-300 px-4 py-2.5 text-base focus:border-blue-600 focus:outline-none focus:ring-2 focus:ring-blue-600/20"
+                class="w-full rounded-lg border border-gray-300 px-4 py-2.5 text-base focus:border-orange-600 focus:outline-none focus:ring-2 focus:ring-orange-600/20"
               >
                 <option value="">Non renseigné</option>
                 <option v-for="bt in bloodTypes" :key="bt" :value="bt">
@@ -356,7 +356,7 @@
 
             <div v-if="consultation.medicalRecord" class="mt-3 border-t pt-3">
               <button
-                class="flex items-center gap-1 text-sm font-medium text-blue-600 hover:text-blue-700"
+                class="flex items-center gap-1 text-sm font-medium text-orange-600 hover:text-orange-700"
                 @click="toggleConsultationDetails(consultation.id)"
               >
                 <ChevronDown
@@ -429,7 +429,7 @@
                     <button
                       v-for="doc in consultation.medicalRecord.documents"
                       :key="doc.id"
-                      class="inline-flex items-center gap-1.5 rounded-lg bg-blue-50 px-3 py-1.5 text-sm text-blue-700 hover:bg-blue-100"
+                      class="inline-flex items-center gap-1.5 rounded-lg bg-orange-50 px-3 py-1.5 text-sm text-orange-700 hover:bg-orange-100"
                       @click="downloadDocument(doc.id, doc.fileName)"
                     >
                       <Download class="h-3.5 w-3.5" />
@@ -486,7 +486,7 @@
             v-model="docSearchQuery"
             type="text"
             placeholder="Rechercher un document..."
-            class="w-full rounded-lg border border-gray-300 py-2.5 pl-10 pr-4 text-sm focus:border-blue-600 focus:outline-none focus:ring-2 focus:ring-blue-600/20"
+            class="w-full rounded-lg border border-gray-300 py-2.5 pl-10 pr-4 text-sm focus:border-orange-600 focus:outline-none focus:ring-2 focus:ring-orange-600/20"
             @input="debouncedDocSearch"
           />
           <button
@@ -505,7 +505,7 @@
               :class="[
                 'rounded-md px-2.5 py-1.5 text-sm font-medium transition-colors',
                 docViewMode === 'card'
-                  ? 'bg-blue-600 text-white'
+                  ? 'bg-orange-500 text-white'
                   : 'text-gray-600 hover:bg-gray-100',
               ]"
               @click="docViewMode = 'card'"
@@ -516,7 +516,7 @@
               :class="[
                 'rounded-md px-2.5 py-1.5 text-sm font-medium transition-colors',
                 docViewMode === 'list'
-                  ? 'bg-blue-600 text-white'
+                  ? 'bg-orange-500 text-white'
                   : 'text-gray-600 hover:bg-gray-100',
               ]"
               @click="docViewMode = 'list'"
@@ -539,7 +539,7 @@
           :class="[
             'rounded-full px-3 py-1.5 text-sm font-medium transition-colors',
             docActiveSubTab === st.key
-              ? 'bg-blue-600 text-white'
+              ? 'bg-orange-500 text-white'
               : 'bg-gray-100 text-gray-600 hover:bg-gray-200',
           ]"
           @click="switchDocSubTab(st.key)"
@@ -549,7 +549,7 @@
             :class="[
               'ml-1 inline-flex items-center rounded-full px-1.5 py-0.5 text-xs',
               docActiveSubTab === st.key
-                ? 'bg-blue-500 text-white'
+                ? 'bg-orange-500 text-white'
                 : 'bg-gray-200 text-gray-700',
             ]"
           >
@@ -636,7 +636,7 @@
                 Lire
               </button>
               <button
-                class="flex flex-1 items-center justify-center gap-1.5 rounded-lg bg-blue-600 px-3 py-1.5 text-sm font-medium text-white hover:bg-blue-700"
+                class="flex flex-1 items-center justify-center gap-1.5 rounded-lg bg-orange-500 px-3 py-1.5 text-sm font-medium text-white hover:bg-orange-600"
                 @click="downloadDocument(doc.id, doc.fileName)"
               >
                 <Download class="mr-1 h-4 w-4" />
@@ -683,14 +683,14 @@
             <div class="ml-4 flex flex-shrink-0 items-center gap-1">
               <button
                 v-if="isPdf(doc.mimeType)"
-                class="rounded-lg p-2 text-gray-400 hover:bg-gray-100 hover:text-blue-600"
+                class="rounded-lg p-2 text-gray-400 hover:bg-gray-100 hover:text-orange-600"
                 title="Lire"
                 @click="viewOwnDocument(doc)"
               >
                 <Eye class="h-5 w-5" />
               </button>
               <button
-                class="rounded-lg p-2 text-gray-400 hover:bg-gray-100 hover:text-blue-600"
+                class="rounded-lg p-2 text-gray-400 hover:bg-gray-100 hover:text-orange-600"
                 title="Télécharger"
                 @click="downloadDocument(doc.id, doc.fileName)"
               >
@@ -781,7 +781,7 @@
                     {{ vac.manufacturer }}
                   </span>
                 </div>
-                <p v-if="vac.nextDoseDate" class="mt-1 text-sm text-blue-600">
+                <p v-if="vac.nextDoseDate" class="mt-1 text-sm text-orange-600">
                   Prochaine dose : {{ formatDate(vac.nextDoseDate) }}
                 </p>
                 <p v-if="vac.administeredBy" class="text-xs text-gray-400">
@@ -878,7 +878,7 @@
                 <input
                   v-model="vaccinationForm.administeredAt"
                   type="date"
-                  class="w-full rounded-lg border border-gray-300 px-4 py-2.5 text-base focus:border-blue-600 focus:outline-none focus:ring-2 focus:ring-blue-600/20"
+                  class="w-full rounded-lg border border-gray-300 px-4 py-2.5 text-base focus:border-orange-600 focus:outline-none focus:ring-2 focus:ring-orange-600/20"
                 />
               </div>
               <div>
@@ -916,7 +916,7 @@
                 <input
                   v-model="vaccinationForm.nextDoseDate"
                   type="date"
-                  class="w-full rounded-lg border border-gray-300 px-4 py-2.5 text-base focus:border-blue-600 focus:outline-none focus:ring-2 focus:ring-blue-600/20"
+                  class="w-full rounded-lg border border-gray-300 px-4 py-2.5 text-base focus:border-orange-600 focus:outline-none focus:ring-2 focus:ring-orange-600/20"
                 />
               </div>
               <div>
@@ -932,7 +932,7 @@
                 <textarea
                   v-model="vaccinationForm.sideEffects"
                   rows="2"
-                  class="w-full rounded-lg border border-gray-300 px-4 py-2.5 text-sm focus:border-blue-600 focus:outline-none focus:ring-2 focus:ring-blue-600/20"
+                  class="w-full rounded-lg border border-gray-300 px-4 py-2.5 text-sm focus:border-orange-600 focus:outline-none focus:ring-2 focus:ring-orange-600/20"
                   placeholder="Optionnel"
                 />
               </div>
@@ -988,7 +988,7 @@
               </label>
               <select
                 v-model="docUploadForm.type"
-                class="w-full rounded-lg border border-gray-300 px-4 py-2.5 text-base focus:border-blue-600 focus:outline-none focus:ring-2 focus:ring-blue-600/20"
+                class="w-full rounded-lg border border-gray-300 px-4 py-2.5 text-base focus:border-orange-600 focus:outline-none focus:ring-2 focus:ring-orange-600/20"
               >
                 <option value="LAB_RESULT">Résultat d'analyse</option>
                 <option value="RADIOLOGY">Imagerie médicale</option>
@@ -1004,7 +1004,7 @@
               <textarea
                 v-model="docUploadForm.description"
                 rows="2"
-                class="w-full rounded-lg border border-gray-300 px-4 py-2.5 text-sm focus:border-blue-600 focus:outline-none focus:ring-2 focus:ring-blue-600/20"
+                class="w-full rounded-lg border border-gray-300 px-4 py-2.5 text-sm focus:border-orange-600 focus:outline-none focus:ring-2 focus:ring-orange-600/20"
                 placeholder="Optionnel"
               />
             </div>
@@ -1016,7 +1016,7 @@
                 ref="fileInput"
                 type="file"
                 accept=".pdf,.jpg,.jpeg,.png,.doc,.docx"
-                class="w-full rounded-lg border border-gray-300 px-4 py-2 text-sm file:mr-4 file:rounded-lg file:border-0 file:bg-blue-50 file:px-4 file:py-2 file:text-sm file:font-medium file:text-blue-700 hover:file:bg-blue-100"
+                class="w-full rounded-lg border border-gray-300 px-4 py-2 text-sm file:mr-4 file:rounded-lg file:border-0 file:bg-orange-50 file:px-4 file:py-2 file:text-sm file:font-medium file:text-orange-700 hover:file:bg-orange-100"
                 @change="handleFileSelect"
               />
               <p class="mt-1 text-xs text-gray-400">

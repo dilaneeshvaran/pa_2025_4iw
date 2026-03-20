@@ -4,8 +4,13 @@
   >
     <div class="mx-auto max-w-4xl space-y-8 text-center">
       <h1 class="text-5xl font-bold text-gray-900 md:text-6xl">
-        Bienvenue sur <span class="text-blue-600">Medicote</span>
+        Bienvenue sur <span class="text-orange-500">Medi</span
+        ><span class="text-green-600">côte</span>
       </h1>
+
+      <p class="mx-auto max-w-2xl text-lg italic text-gray-500">
+        « À côté des patients, nous sommes là à vos côtés »
+      </p>
 
       <p class="mx-auto max-w-2xl text-xl text-gray-600">
         Plateforme de mise en relation entre patients et praticiens de santé en
@@ -18,7 +23,7 @@
         <NuxtLink
           v-if="!authStore.isAuthenticated"
           to="/auth/register"
-          class="rounded-md bg-blue-600 px-8 py-3 text-lg font-medium text-white shadow-md transition-colors hover:bg-blue-700 hover:shadow-lg"
+          class="rounded-md bg-orange-500 px-8 py-3 text-lg font-medium text-white shadow-md transition-colors hover:bg-orange-600 hover:shadow-lg"
         >
           Créer un compte patient
         </NuxtLink>
@@ -26,7 +31,7 @@
         <NuxtLink
           v-if="!authStore.isAuthenticated"
           to="/auth/login"
-          class="rounded-md border-2 border-blue-600 px-8 py-3 text-lg font-medium text-blue-600 transition-colors hover:bg-blue-50"
+          class="rounded-md border-2 border-green-600 px-8 py-3 text-lg font-medium text-green-600 transition-colors hover:bg-green-50"
         >
           Se connecter
         </NuxtLink>
@@ -66,7 +71,7 @@
         <NuxtLink
           v-if="!authStore.isAuthenticated"
           to="/contact/practitioner"
-          class="inline-flex items-center gap-2 rounded-md border-2 border-gray-300 bg-white px-6 py-3 text-base font-medium text-gray-700 transition-colors hover:border-blue-600 hover:bg-blue-50 hover:text-blue-600"
+          class="inline-flex items-center gap-2 rounded-md border-2 border-gray-300 bg-white px-6 py-3 text-base font-medium text-gray-700 transition-colors hover:border-orange-500 hover:bg-orange-50 hover:text-orange-600"
         >
           <span class="text-xl">⚕️</span>
           <span>Vous êtes soignant ?</span>
@@ -76,7 +81,7 @@
         <NuxtLink
           v-else
           :to="dashboardPath"
-          class="inline-flex items-center gap-2 rounded-md border-2 border-blue-600 bg-blue-600 px-6 py-3 text-base font-medium text-white transition-colors hover:bg-blue-700"
+          class="inline-flex items-center gap-2 rounded-md border-2 border-orange-500 bg-orange-500 px-6 py-3 text-base font-medium text-white transition-colors hover:bg-orange-600"
         >
           <span class="text-xl">📊</span>
           <span>Accéder à mon tableau de bord</span>
@@ -85,7 +90,7 @@
 
       <div class="grid grid-cols-1 gap-6 pt-12 md:grid-cols-3">
         <div class="rounded-lg bg-white p-6 shadow-sm">
-          <div class="mb-3 text-4xl text-blue-600">📅</div>
+          <div class="mb-3 text-4xl text-orange-500">📅</div>
           <h3 class="mb-2 text-lg font-semibold text-gray-900">
             Prendre rendez-vous
           </h3>
@@ -95,7 +100,7 @@
         </div>
 
         <div class="rounded-lg bg-white p-6 shadow-sm">
-          <div class="mb-3 text-4xl text-blue-600">👨‍⚕️</div>
+          <div class="mb-3 text-4xl text-green-600">👨‍⚕️</div>
           <h3 class="mb-2 text-lg font-semibold text-gray-900">
             Praticiens qualifiés
           </h3>
@@ -105,7 +110,7 @@
         </div>
 
         <div class="rounded-lg bg-white p-6 shadow-sm">
-          <div class="mb-3 text-4xl text-blue-600">💬</div>
+          <div class="mb-3 text-4xl text-orange-500">💬</div>
           <h3 class="mb-2 text-lg font-semibold text-gray-900">
             Suivi personnalisé
           </h3>
@@ -166,6 +171,6 @@ onMounted(() => {
 });
 
 definePageMeta({
-  layout: 'default',
+  layout: "default",
 });
 </script>

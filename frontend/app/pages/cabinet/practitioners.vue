@@ -7,7 +7,7 @@
       </div>
       <button
         @click="showInviteModal = true"
-        class="flex items-center gap-2 rounded-lg bg-indigo-600 px-4 py-2 text-sm font-medium text-white transition-colors hover:bg-indigo-700"
+        class="flex items-center gap-2 rounded-lg bg-orange-500 px-4 py-2 text-sm font-medium text-white transition-colors hover:bg-orange-600"
       >
         <Mail class="h-4 w-4" />
         Inviter un praticien
@@ -36,9 +36,9 @@
         >
           <div class="flex items-center gap-4">
             <div
-              class="flex h-12 w-12 items-center justify-center rounded-full bg-indigo-100"
+              class="flex h-12 w-12 items-center justify-center rounded-full bg-orange-100"
             >
-              <span class="text-sm font-bold text-indigo-600">
+              <span class="text-sm font-bold text-orange-600">
                 {{ prac.firstName[0] }}{{ prac.lastName[0] }}
               </span>
             </div>
@@ -53,7 +53,7 @@
                 <span
                   v-for="spec in prac.specialties"
                   :key="spec"
-                  class="rounded-full bg-blue-50 px-2 py-0.5 text-xs font-medium text-blue-700"
+                  class="rounded-full bg-orange-50 px-2 py-0.5 text-xs font-medium text-orange-700"
                 >
                   {{ spec }}
                 </span>
@@ -109,7 +109,7 @@
               v-model="inviteEmail"
               type="email"
               required
-              class="w-full rounded-lg border border-gray-300 px-3 py-2 text-sm focus:border-indigo-500 focus:outline-none focus:ring-1 focus:ring-indigo-500"
+              class="w-full rounded-lg border border-gray-300 px-3 py-2 text-sm focus:border-orange-500 focus:outline-none focus:ring-1 focus:ring-orange-500"
               placeholder="praticien@email.com"
             />
           </div>
@@ -144,7 +144,7 @@
             <button
               type="submit"
               :disabled="inviting"
-              class="rounded-lg bg-indigo-600 px-4 py-2 text-sm font-medium text-white hover:bg-indigo-700 disabled:opacity-50"
+              class="rounded-lg bg-orange-500 px-4 py-2 text-sm font-medium text-white hover:bg-orange-600 disabled:opacity-50"
             >
               {{ inviting ? "Envoi..." : "Envoyer l'invitation" }}
             </button>

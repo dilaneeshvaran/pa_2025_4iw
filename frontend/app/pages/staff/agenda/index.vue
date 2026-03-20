@@ -23,13 +23,13 @@
         v-for="prac in practitioners"
         :key="prac.id"
         :to="`/staff/agenda/${prac.id}`"
-        class="flex items-center justify-between rounded-xl border border-gray-200 bg-white p-5 shadow-sm transition-colors hover:bg-teal-50"
+        class="flex items-center justify-between rounded-xl border border-gray-200 bg-white p-5 shadow-sm transition-colors hover:bg-green-50"
       >
         <div class="flex items-center gap-4">
           <div
-            class="flex h-12 w-12 items-center justify-center rounded-full bg-teal-100"
+            class="flex h-12 w-12 items-center justify-center rounded-full bg-green-100"
           >
-            <span class="text-sm font-bold text-teal-600">
+            <span class="text-sm font-bold text-green-600">
               {{ prac.firstName[0] }}{{ prac.lastName[0] }}
             </span>
           </div>
@@ -42,7 +42,7 @@
             </p>
           </div>
         </div>
-        <div class="flex items-center gap-2 text-sm font-medium text-teal-600">
+        <div class="flex items-center gap-2 text-sm font-medium text-green-600">
           <Calendar class="h-4 w-4" />
           Voir l'agenda
         </div>

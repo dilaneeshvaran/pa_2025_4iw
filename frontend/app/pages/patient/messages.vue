@@ -22,7 +22,7 @@
       >
         <div class="border-b p-3">
           <button
-            class="flex w-full items-center justify-center gap-2 rounded-lg bg-blue-600 px-4 py-2.5 text-sm font-medium text-white transition-colors hover:bg-blue-700"
+            class="flex w-full items-center justify-center gap-2 rounded-lg bg-orange-500 px-4 py-2.5 text-sm font-medium text-white transition-colors hover:bg-orange-600"
             @click="showNewConversation = true"
           >
             <PenSquare class="h-4 w-4" />
@@ -39,7 +39,7 @@
               v-model="searchQuery"
               type="text"
               placeholder="Rechercher une conversation..."
-              class="w-full rounded-lg border border-gray-200 bg-gray-50 py-2 pl-10 pr-3 text-sm focus:border-blue-500 focus:outline-none focus:ring-1 focus:ring-blue-500"
+              class="w-full rounded-lg border border-gray-200 bg-gray-50 py-2 pl-10 pr-3 text-sm focus:border-orange-500 focus:outline-none focus:ring-1 focus:ring-orange-500"
             />
           </div>
         </div>
@@ -89,14 +89,14 @@
               :class="[
                 'flex w-full items-start gap-3 border-b px-4 py-3 text-left transition-colors',
                 activeConversationId === conv.id
-                  ? 'bg-blue-50'
+                  ? 'bg-orange-50'
                   : 'hover:bg-gray-50',
               ]"
               @click="openConversation(conv.id)"
             >
               <!-- avatar -->
               <div
-                class="flex h-10 w-10 flex-shrink-0 items-center justify-center rounded-full bg-blue-100 text-sm font-semibold text-blue-600"
+                class="flex h-10 w-10 flex-shrink-0 items-center justify-center rounded-full bg-orange-100 text-sm font-semibold text-orange-600"
               >
                 {{ conv.practitionerFirstName[0]
                 }}{{ conv.practitionerLastName[0] }}
@@ -124,7 +124,7 @@
                   </p>
                   <span
                     v-if="conv.unreadCount > 0"
-                    class="ml-2 flex h-5 min-w-5 flex-shrink-0 items-center justify-center rounded-full bg-blue-600 px-1.5 text-xs font-medium text-white"
+                    class="ml-2 flex h-5 min-w-5 flex-shrink-0 items-center justify-center rounded-full bg-orange-500 px-1.5 text-xs font-medium text-white"
                   >
                     {{ conv.unreadCount }}
                   </span>
@@ -153,8 +153,8 @@
           v-if="!activeConversationId"
           class="flex flex-1 flex-col items-center justify-center text-center"
         >
-          <div class="mb-4 rounded-full bg-blue-50 p-6">
-            <MessageSquare class="h-12 w-12 text-blue-400" />
+          <div class="mb-4 rounded-full bg-orange-50 p-6">
+            <MessageSquare class="h-12 w-12 text-orange-400" />
           </div>
           <h3 class="mb-2 text-lg font-semibold text-gray-900">Vos messages</h3>
           <p class="max-w-sm text-sm text-gray-500">
@@ -189,7 +189,7 @@
               <ArrowLeft class="h-5 w-5" />
             </button>
             <div
-              class="flex h-10 w-10 items-center justify-center rounded-full bg-blue-100 text-sm font-semibold text-blue-600"
+              class="flex h-10 w-10 items-center justify-center rounded-full bg-orange-100 text-sm font-semibold text-orange-600"
             >
               {{
                 activeConversation?.practitioner?.firstName?.[0] +
@@ -204,7 +204,7 @@
               </p>
               <p class="text-xs text-gray-500">
                 {{ activeConversation?.practitioner?.specialty || "" }}
-                <span v-if="isTyping" class="ml-1 italic text-blue-500"
+                <span v-if="isTyping" class="ml-1 italic text-orange-500"
                   >est en train d'écrire...</span
                 >
               </p>
@@ -223,7 +223,7 @@
               class="flex items-center justify-center py-12"
             >
               <div
-                class="h-8 w-8 animate-spin rounded-full border-2 border-blue-600 border-t-transparent"
+                class="h-8 w-8 animate-spin rounded-full border-2 border-orange-600 border-t-transparent"
               />
             </div>
 
@@ -267,7 +267,7 @@
                     :class="[
                       'max-w-[75%] rounded-2xl px-4 py-2.5',
                       msg.senderUserId === currentUserId
-                        ? 'rounded-br-md bg-blue-600 text-white'
+                        ? 'rounded-br-md bg-orange-500 text-white'
                         : 'rounded-bl-md bg-gray-100 text-gray-900',
                     ]"
                   >
@@ -294,7 +294,7 @@
                           :class="[
                             'flex items-center gap-2 rounded-lg p-2 text-xs',
                             msg.senderUserId === currentUserId
-                              ? 'bg-blue-500/30 text-blue-100 hover:bg-blue-500/50'
+                              ? 'bg-orange-500/30 text-orange-100 hover:bg-orange-500/50'
                               : 'bg-gray-200 text-gray-700 hover:bg-gray-300',
                           ]"
                         >
@@ -319,7 +319,7 @@
                       :class="[
                         'mt-1 flex items-center justify-end gap-1',
                         msg.senderUserId === currentUserId
-                          ? 'text-blue-200'
+                          ? 'text-orange-200'
                           : 'text-gray-400',
                       ]"
                     >
@@ -329,7 +329,7 @@
                       <template v-if="msg.senderUserId === currentUserId">
                         <CheckCheck
                           v-if="msg.status === 'READ'"
-                          class="h-3.5 w-3.5 text-blue-200"
+                          class="h-3.5 w-3.5 text-orange-200"
                         />
                         <Check v-else class="h-3.5 w-3.5" />
                       </template>
@@ -389,7 +389,7 @@
                   v-model="newMessage"
                   placeholder="Votre message..."
                   rows="1"
-                  class="max-h-32 w-full resize-none rounded-xl border border-gray-200 bg-gray-50 px-4 py-2.5 text-sm focus:border-blue-500 focus:outline-none focus:ring-1 focus:ring-blue-500"
+                  class="max-h-32 w-full resize-none rounded-xl border border-gray-200 bg-gray-50 px-4 py-2.5 text-sm focus:border-orange-500 focus:outline-none focus:ring-1 focus:ring-orange-500"
                   @keydown.enter.exact.prevent="handleSendMessage"
                   @input="handleTyping"
                 />
@@ -399,7 +399,7 @@
                 :disabled="
                   (!newMessage.trim() && !pendingAttachment) || sendingMessage
                 "
-                class="flex h-10 w-10 flex-shrink-0 items-center justify-center rounded-xl bg-blue-600 text-white transition-colors hover:bg-blue-700 disabled:cursor-not-allowed disabled:opacity-50"
+                class="flex h-10 w-10 flex-shrink-0 items-center justify-center rounded-xl bg-orange-500 text-white transition-colors hover:bg-orange-600 disabled:cursor-not-allowed disabled:opacity-50"
               >
                 <Send class="h-4 w-4" />
               </button>
@@ -470,11 +470,11 @@
             <button
               v-for="prac in messagablePractitioners"
               :key="prac.id"
-              class="flex w-full items-center gap-3 rounded-lg border p-3 text-left transition-colors hover:border-blue-200 hover:bg-blue-50"
+              class="flex w-full items-center gap-3 rounded-lg border p-3 text-left transition-colors hover:border-orange-200 hover:bg-orange-50"
               @click="startNewConversation(prac)"
             >
               <div
-                class="flex h-10 w-10 flex-shrink-0 items-center justify-center rounded-full bg-blue-100 text-sm font-semibold text-blue-600"
+                class="flex h-10 w-10 flex-shrink-0 items-center justify-center rounded-full bg-orange-100 text-sm font-semibold text-orange-600"
               >
                 {{ prac.firstName[0] }}{{ prac.lastName[0] }}
               </div>
@@ -503,7 +503,7 @@
         <div class="mx-4 w-full max-w-md rounded-xl bg-white p-6 shadow-2xl">
           <div class="mb-4 flex items-center gap-3">
             <div
-              class="flex h-10 w-10 items-center justify-center rounded-full bg-blue-100 text-sm font-semibold text-blue-600"
+              class="flex h-10 w-10 items-center justify-center rounded-full bg-orange-100 text-sm font-semibold text-orange-600"
             >
               {{ selectedPractitioner?.firstName[0]
               }}{{ selectedPractitioner?.lastName[0] }}
@@ -536,7 +536,7 @@
             v-model="firstMessage"
             rows="4"
             placeholder="Votre message..."
-            class="mb-4 w-full resize-none rounded-lg border border-gray-200 px-4 py-2.5 text-sm focus:border-blue-500 focus:outline-none focus:ring-1 focus:ring-blue-500"
+            class="mb-4 w-full resize-none rounded-lg border border-gray-200 px-4 py-2.5 text-sm focus:border-orange-500 focus:outline-none focus:ring-1 focus:ring-orange-500"
           />
 
           <div v-if="firstMessageError" class="mb-3 rounded-lg bg-red-50 p-3">
@@ -554,7 +554,7 @@
             <button
               type="button"
               :disabled="!firstMessage.trim() || sendingFirst"
-              class="flex flex-1 items-center justify-center gap-2 rounded-lg bg-blue-600 px-4 py-2.5 text-sm font-medium text-white transition-colors hover:bg-blue-700 disabled:cursor-not-allowed disabled:opacity-50"
+              class="flex flex-1 items-center justify-center gap-2 rounded-lg bg-orange-500 px-4 py-2.5 text-sm font-medium text-white transition-colors hover:bg-orange-600 disabled:cursor-not-allowed disabled:opacity-50"
               @click="sendFirstMessage"
             >
               <Send class="h-4 w-4" />

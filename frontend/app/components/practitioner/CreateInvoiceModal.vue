@@ -61,7 +61,7 @@
               <select
                 v-model="form.method"
                 required
-                class="w-full rounded-lg border border-gray-300 px-3 py-2 text-sm focus:border-blue-500 focus:outline-none focus:ring-1 focus:ring-blue-500"
+                class="w-full rounded-lg border border-gray-300 px-3 py-2 text-sm focus:border-orange-500 focus:outline-none focus:ring-1 focus:ring-orange-500"
               >
                 <option value="" disabled>Sélectionner...</option>
                 <option value="CASH">Espèces</option>
@@ -80,7 +80,7 @@
               <textarea
                 v-model="form.notes"
                 rows="2"
-                class="w-full rounded-lg border border-gray-300 px-3 py-2 text-sm focus:border-blue-500 focus:outline-none focus:ring-1 focus:ring-blue-500"
+                class="w-full rounded-lg border border-gray-300 px-3 py-2 text-sm focus:border-orange-500 focus:outline-none focus:ring-1 focus:ring-orange-500"
                 placeholder="Ex: Reste à payer, mutuelle..."
               ></textarea>
             </div>

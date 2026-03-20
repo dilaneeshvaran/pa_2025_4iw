@@ -317,7 +317,7 @@
                       <button
                         v-for="slot in getMorningSlots(day.slots)"
                         :key="slot"
-                        class="rounded-lg border border-gray-200 bg-white px-3 py-2 text-sm font-medium text-gray-700 transition-all hover:border-[var(--color-primary)] hover:bg-blue-50 hover:text-[var(--color-primary)]"
+                        class="rounded-lg border border-gray-200 bg-white px-3 py-2 text-sm font-medium text-gray-700 transition-all hover:border-[var(--color-primary)] hover:bg-orange-50 hover:text-[var(--color-primary)]"
                         @click="selectTimeSlot(day.date, slot)"
                       >
                         {{ slot }}
@@ -334,7 +334,7 @@
                       <button
                         v-for="slot in getAfternoonSlots(day.slots)"
                         :key="slot"
-                        class="rounded-lg border border-gray-200 bg-white px-3 py-2 text-sm font-medium text-gray-700 transition-all hover:border-[var(--color-primary)] hover:bg-blue-50 hover:text-[var(--color-primary)]"
+                        class="rounded-lg border border-gray-200 bg-white px-3 py-2 text-sm font-medium text-gray-700 transition-all hover:border-[var(--color-primary)] hover:bg-orange-50 hover:text-[var(--color-primary)]"
                         @click="selectTimeSlot(day.date, slot)"
                       >
                         {{ slot }}
@@ -347,7 +347,7 @@
               <!-- voir plus button -->
               <div class="mt-4 text-center">
                 <button
-                  class="inline-flex items-center gap-1.5 rounded-lg border border-[var(--color-primary)] px-4 py-2 text-sm font-medium text-[var(--color-primary)] transition-colors hover:bg-blue-50"
+                  class="inline-flex items-center gap-1.5 rounded-lg border border-[var(--color-primary)] px-4 py-2 text-sm font-medium text-[var(--color-primary)] transition-colors hover:bg-orange-50"
                   @click="openBookingModalFromAvailability"
                 >
                   <IconCalendar class="h-4 w-4" />
@@ -367,7 +367,7 @@
                 d'informations.
               </p>
               <button
-                class="mt-4 inline-flex items-center gap-1.5 rounded-lg border border-[var(--color-primary)] px-4 py-2 text-sm font-medium text-[var(--color-primary)] transition-colors hover:bg-blue-50"
+                class="mt-4 inline-flex items-center gap-1.5 rounded-lg border border-[var(--color-primary)] px-4 py-2 text-sm font-medium text-[var(--color-primary)] transition-colors hover:bg-orange-50"
                 @click="openBookingModalFromAvailability"
               >
                 <IconCalendar class="h-4 w-4" />

@@ -25,7 +25,7 @@
         :class="[
           'flex-1 rounded-md px-4 py-2 text-sm font-medium transition-colors',
           activeTab === tab.id
-            ? 'bg-white text-blue-700 shadow-sm'
+            ? 'bg-white text-orange-700 shadow-sm'
             : 'text-gray-600 hover:text-gray-900',
         ]"
       >
@@ -47,7 +47,7 @@
               :class="[
                 'rounded-md px-3 py-1.5 text-xs font-medium transition-colors',
                 calendarView === v.value
-                  ? 'bg-blue-600 text-white'
+                  ? 'bg-orange-500 text-white'
                   : 'text-gray-600 hover:bg-gray-100',
               ]"
             >
@@ -85,10 +85,10 @@
           <!-- day summary -->
           <div class="flex items-center gap-4 text-sm">
             <div
-              class="flex items-center gap-1.5 rounded-full bg-blue-50 px-3 py-1"
+              class="flex items-center gap-1.5 rounded-full bg-orange-50 px-3 py-1"
             >
-              <Calendar class="h-3.5 w-3.5 text-blue-600" />
-              <span class="font-medium text-blue-700">
+              <Calendar class="h-3.5 w-3.5 text-orange-600" />
+              <span class="font-medium text-orange-700">
                 {{ daySummary.total }} rdv
               </span>
             </div>
@@ -141,7 +141,7 @@
             ]"
           >
             <div class="text-center">
-              <p class="text-lg font-bold text-blue-600">{{ apt.startTime }}</p>
+              <p class="text-lg font-bold text-orange-600">{{ apt.startTime }}</p>
               <p class="text-xs text-gray-400">{{ apt.endTime }}</p>
             </div>
             <div class="h-10 w-px bg-gray-200"></div>
@@ -239,7 +239,7 @@
               :class="[
                 'mb-2 rounded-t-lg px-2 py-1.5 text-center text-xs font-semibold',
                 day.isToday
-                  ? 'bg-blue-600 text-white'
+                  ? 'bg-orange-500 text-white'
                   : 'bg-gray-100 text-gray-700',
               ]"
             >
@@ -254,7 +254,7 @@
                   'cursor-pointer rounded px-2 py-1 text-xs transition-opacity hover:opacity-80',
                   apt.type === 'TELECONSULTATION'
                     ? 'bg-green-100 text-green-800'
-                    : 'bg-blue-100 text-blue-800',
+                    : 'bg-orange-100 text-orange-700',
                 ]"
                 :title="`${apt.patient.firstName} ${apt.patient.lastName} – ${apt.reason || ''}`"
                 @click="openAppointmentDetailsModal(apt)"
@@ -291,7 +291,7 @@
               :class="[
                 'mb-1 text-xs font-medium',
                 day.isToday
-                  ? 'inline-flex h-6 w-6 items-center justify-center rounded-full bg-blue-600 text-white'
+                  ? 'inline-flex h-6 w-6 items-center justify-center rounded-full bg-orange-500 text-white'
                   : day.inMonth
                     ? 'text-gray-900'
                     : 'text-gray-300',
@@ -307,7 +307,7 @@
                   'cursor-pointer truncate rounded px-1 py-0.5 text-[10px] transition-opacity hover:opacity-80',
                   apt.type === 'TELECONSULTATION'
                     ? 'bg-green-100 text-green-700'
-                    : 'bg-blue-100 text-blue-700',
+                    : 'bg-orange-100 text-orange-700',
                 ]"
                 @click="openAppointmentDetailsModal(apt)"
               >
@@ -346,7 +346,7 @@
             <input
               v-model="newAbsence.startDate"
               type="date"
-              class="w-full rounded-lg border border-gray-300 px-3 py-2 text-sm focus:border-blue-500 focus:outline-none focus:ring-1 focus:ring-blue-500"
+              class="w-full rounded-lg border border-gray-300 px-3 py-2 text-sm focus:border-orange-500 focus:outline-none focus:ring-1 focus:ring-orange-500"
               required
             />
           </div>
@@ -357,7 +357,7 @@
             <input
               v-model="newAbsence.endDate"
               type="date"
-              class="w-full rounded-lg border border-gray-300 px-3 py-2 text-sm focus:border-blue-500 focus:outline-none focus:ring-1 focus:ring-blue-500"
+              class="w-full rounded-lg border border-gray-300 px-3 py-2 text-sm focus:border-orange-500 focus:outline-none focus:ring-1 focus:ring-orange-500"
               required
             />
           </div>
@@ -369,7 +369,7 @@
               v-model="newAbsence.reason"
               type="text"
               placeholder="Ex: Congés, Formation..."
-              class="w-full rounded-lg border border-gray-300 px-3 py-2 text-sm focus:border-blue-500 focus:outline-none focus:ring-1 focus:ring-blue-500"
+              class="w-full rounded-lg border border-gray-300 px-3 py-2 text-sm focus:border-orange-500 focus:outline-none focus:ring-1 focus:ring-orange-500"
             />
           </div>
           <div class="flex items-end">
@@ -419,7 +419,7 @@
               v-if="!absence.notifiedPatients"
               @click="notifyPatients(absence.id)"
               :disabled="notifyingId === absence.id"
-              class="flex items-center gap-1 rounded-lg border border-blue-200 bg-blue-50 px-3 py-1.5 text-xs font-medium text-blue-700 transition-colors hover:bg-blue-100"
+              class="flex items-center gap-1 rounded-lg border border-orange-200 bg-orange-50 px-3 py-1.5 text-xs font-medium text-orange-700 transition-colors hover:bg-orange-100"
             >
               <Mail class="h-3.5 w-3.5" />
               {{
@@ -518,7 +518,7 @@
                 type="checkbox"
                 :checked="isDayActive(day.value)"
                 @change="toggleDayActive(day.value, $event)"
-                class="h-4 w-4 rounded border-gray-300 text-blue-600 focus:ring-blue-500"
+                class="h-4 w-4 rounded border-gray-300 text-orange-600 focus:ring-orange-500"
               />
               <span class="text-xs text-gray-500">Actif</span>
             </label>
@@ -532,7 +532,7 @@
                     ($event.target as HTMLSelectElement).value,
                   )
                 "
-                class="rounded-lg border border-gray-300 px-2 py-1 text-sm focus:border-blue-500 focus:outline-none focus:ring-1 focus:ring-blue-500"
+                class="rounded-lg border border-gray-300 px-2 py-1 text-sm focus:border-orange-500 focus:outline-none focus:ring-1 focus:ring-orange-500"
               >
                 <option
                   v-for="slot in getStartTimeOptions(day.value)"
@@ -552,7 +552,7 @@
                     ($event.target as HTMLSelectElement).value,
                   )
                 "
-                class="rounded-lg border border-gray-300 px-2 py-1 text-sm focus:border-blue-500 focus:outline-none focus:ring-1 focus:ring-blue-500"
+                class="rounded-lg border border-gray-300 px-2 py-1 text-sm focus:border-orange-500 focus:outline-none focus:ring-1 focus:ring-orange-500"
               >
                 <option
                   v-for="slot in getEndTimeOptions(day.value)"
@@ -610,7 +610,7 @@
                 <input
                   v-model="settingsForm.backToBack"
                   type="checkbox"
-                  class="h-4 w-4 rounded border-gray-300 text-blue-600 focus:ring-blue-500"
+                  class="h-4 w-4 rounded border-gray-300 text-orange-600 focus:ring-orange-500"
                 />
                 <span class="text-sm text-gray-600"
                   >Sans pause entre les consultations</span
@@ -655,7 +655,7 @@
                   type="checkbox"
                   checked
                   disabled
-                  class="h-4 w-4 rounded border-gray-300 text-blue-600"
+                  class="h-4 w-4 rounded border-gray-300 text-orange-600"
                 />
               </label>
               <label
@@ -671,7 +671,7 @@
                 <input
                   v-model="settingsForm.teleconsultationEnabled"
                   type="checkbox"
-                  class="h-4 w-4 rounded border-gray-300 text-blue-600 focus:ring-blue-500"
+                  class="h-4 w-4 rounded border-gray-300 text-orange-600 focus:ring-orange-500"
                 />
               </label>
               <label
@@ -689,7 +689,7 @@
                 <input
                   v-model="settingsForm.homeVisitEnabled"
                   type="checkbox"
-                  class="h-4 w-4 rounded border-gray-300 text-blue-600 focus:ring-blue-500"
+                  class="h-4 w-4 rounded border-gray-300 text-orange-600 focus:ring-orange-500"
                 />
               </label>
               <label
@@ -707,7 +707,7 @@
                 <input
                   v-model="settingsForm.emergencySlotsEnabled"
                   type="checkbox"
-                  class="h-4 w-4 rounded border-gray-300 text-blue-600 focus:ring-blue-500"
+                  class="h-4 w-4 rounded border-gray-300 text-orange-600 focus:ring-orange-500"
                 />
               </label>
             </div>
@@ -775,7 +775,7 @@
                 <input
                   v-model="settingsForm.acceptsNewPatients"
                   type="checkbox"
-                  class="h-4 w-4 rounded border-gray-300 text-blue-600 focus:ring-blue-500"
+                  class="h-4 w-4 rounded border-gray-300 text-orange-600 focus:ring-orange-500"
                 />
                 <span class="text-sm text-gray-700"
                   >Autoriser les nouveaux patients</span
@@ -838,7 +838,7 @@
               <input
                 v-model="settingsForm.noShowAutoBlock"
                 type="checkbox"
-                class="h-4 w-4 rounded border-gray-300 text-blue-600 focus:ring-blue-500"
+                class="h-4 w-4 rounded border-gray-300 text-orange-600 focus:ring-orange-500"
               />
               <span class="text-sm text-gray-700"
                 >Bloquer automatiquement les patients après le seuil de
@@ -892,7 +892,7 @@
                   @input="searchPatients"
                   type="text"
                   placeholder="Rechercher un patient..."
-                  class="w-full rounded-lg border border-gray-300 px-4 py-2 text-sm focus:border-blue-500 focus:outline-none focus:ring-1 focus:ring-blue-500"
+                  class="w-full rounded-lg border border-gray-300 px-4 py-2 text-sm focus:border-orange-500 focus:outline-none focus:ring-1 focus:ring-orange-500"
                 />
                 <div
                   v-if="patientResults.length > 0 && patientSearch.length >= 2"
@@ -926,7 +926,7 @@
                   v-model="newAppointment.appointmentDate"
                   type="date"
                   required
-                  class="w-full rounded-lg border border-gray-300 px-3 py-2 text-sm focus:border-blue-500 focus:outline-none focus:ring-1 focus:ring-blue-500"
+                  class="w-full rounded-lg border border-gray-300 px-3 py-2 text-sm focus:border-orange-500 focus:outline-none focus:ring-1 focus:ring-orange-500"
                 />
               </div>
               <div>
@@ -937,7 +937,7 @@
                   v-model="newAppointment.startTime"
                   type="time"
                   required
-                  class="w-full rounded-lg border border-gray-300 px-3 py-2 text-sm focus:border-blue-500 focus:outline-none focus:ring-1 focus:ring-blue-500"
+                  class="w-full rounded-lg border border-gray-300 px-3 py-2 text-sm focus:border-orange-500 focus:outline-none focus:ring-1 focus:ring-orange-500"
                 />
               </div>
             </div>
@@ -948,7 +948,7 @@
               >
               <select
                 v-model="newAppointment.type"
-                class="w-full rounded-lg border border-gray-300 px-3 py-2 text-sm focus:border-blue-500 focus:outline-none focus:ring-1 focus:ring-blue-500"
+                class="w-full rounded-lg border border-gray-300 px-3 py-2 text-sm focus:border-orange-500 focus:outline-none focus:ring-1 focus:ring-orange-500"
               >
                 <option value="IN_PERSON">Cabinet</option>
                 <option value="TELECONSULTATION">Téléconsultation</option>
@@ -963,7 +963,7 @@
                 v-model="newAppointment.reason"
                 type="text"
                 placeholder="Motif de la consultation..."
-                class="w-full rounded-lg border border-gray-300 px-3 py-2 text-sm focus:border-blue-500 focus:outline-none focus:ring-1 focus:ring-blue-500"
+                class="w-full rounded-lg border border-gray-300 px-3 py-2 text-sm focus:border-orange-500 focus:outline-none focus:ring-1 focus:ring-orange-500"
               />
             </div>
 
@@ -1018,7 +1018,7 @@
                 v-model="newBlockedSlot.date"
                 type="date"
                 required
-                class="w-full rounded-lg border border-gray-300 px-3 py-2 text-sm focus:border-blue-500 focus:outline-none focus:ring-1 focus:ring-blue-500"
+                class="w-full rounded-lg border border-gray-300 px-3 py-2 text-sm focus:border-orange-500 focus:outline-none focus:ring-1 focus:ring-orange-500"
               />
             </div>
             <div class="grid grid-cols-2 gap-3">
@@ -1030,7 +1030,7 @@
                   v-model="newBlockedSlot.startTime"
                   type="time"
                   required
-                  class="w-full rounded-lg border border-gray-300 px-3 py-2 text-sm focus:border-blue-500 focus:outline-none focus:ring-1 focus:ring-blue-500"
+                  class="w-full rounded-lg border border-gray-300 px-3 py-2 text-sm focus:border-orange-500 focus:outline-none focus:ring-1 focus:ring-orange-500"
                 />
               </div>
               <div>
@@ -1041,7 +1041,7 @@
                   v-model="newBlockedSlot.endTime"
                   type="time"
                   required
-                  class="w-full rounded-lg border border-gray-300 px-3 py-2 text-sm focus:border-blue-500 focus:outline-none focus:ring-1 focus:ring-blue-500"
+                  class="w-full rounded-lg border border-gray-300 px-3 py-2 text-sm focus:border-orange-500 focus:outline-none focus:ring-1 focus:ring-orange-500"
                 />
               </div>
             </div>
@@ -1053,7 +1053,7 @@
                 v-model="newBlockedSlot.reason"
                 type="text"
                 placeholder="Ex: Réunion, Formation..."
-                class="w-full rounded-lg border border-gray-300 px-3 py-2 text-sm focus:border-blue-500 focus:outline-none focus:ring-1 focus:ring-blue-500"
+                class="w-full rounded-lg border border-gray-300 px-3 py-2 text-sm focus:border-orange-500 focus:outline-none focus:ring-1 focus:ring-orange-500"
               />
             </div>
             <div class="flex justify-end gap-2">
@@ -1134,7 +1134,7 @@
           'rounded-lg px-4 py-3 shadow-lg transition-all duration-300',
           toast.type === 'success' ? 'bg-green-600 text-white' : '',
           toast.type === 'error' ? 'bg-red-600 text-white' : '',
-          toast.type === 'info' ? 'bg-blue-600 text-white' : '',
+          toast.type === 'info' ? 'bg-orange-500 text-white' : '',
         ]"
       >
         <div class="flex items-start gap-2">
@@ -1193,7 +1193,7 @@
             >
             <textarea
               v-model="agendaCancelReason"
-              class="w-full rounded-lg border border-gray-300 px-3 py-2 text-sm focus:border-blue-500 focus:outline-none focus:ring-1 focus:ring-blue-500"
+              class="w-full rounded-lg border border-gray-300 px-3 py-2 text-sm focus:border-orange-500 focus:outline-none focus:ring-1 focus:ring-orange-500"
               rows="3"
               placeholder="Raison de l'annulation..."
             />
@@ -1226,9 +1226,9 @@
         <div class="mx-4 w-full max-w-md rounded-xl bg-white p-6 shadow-2xl">
           <div class="mb-4 flex items-center gap-3">
             <div
-              class="flex h-10 w-10 items-center justify-center rounded-full bg-blue-100"
+              class="flex h-10 w-10 items-center justify-center rounded-full bg-orange-100"
             >
-              <CalendarDays class="h-5 w-5 text-blue-600" />
+              <CalendarDays class="h-5 w-5 text-orange-600" />
             </div>
             <h3 class="text-lg font-semibold text-gray-900">
               Modifier le rendez-vous
@@ -1263,7 +1263,7 @@
                   'w-full rounded-lg border px-3 py-2 text-sm focus:outline-none focus:ring-1',
                   modifyDateError
                     ? 'border-red-300 focus:border-red-500 focus:ring-red-500'
-                    : 'border-gray-300 focus:border-blue-500 focus:ring-blue-500',
+                    : 'border-gray-300 focus:border-orange-500 focus:ring-orange-500',
                 ]"
               />
               <p v-if="modifyDateError" class="mt-1 text-xs text-red-600">
@@ -1277,7 +1277,7 @@
               <input
                 v-model="agendaModifyTime"
                 type="time"
-                class="w-full rounded-lg border border-gray-300 px-3 py-2 text-sm focus:border-blue-500 focus:outline-none focus:ring-1 focus:ring-blue-500"
+                class="w-full rounded-lg border border-gray-300 px-3 py-2 text-sm focus:border-orange-500 focus:outline-none focus:ring-1 focus:ring-orange-500"
               />
             </div>
           </div>
@@ -1329,9 +1329,9 @@
               </p>
             </div>
           </div>
-          <div class="mb-5 rounded-lg bg-blue-50 p-4 text-sm text-blue-800">
+          <div class="mb-5 rounded-lg bg-orange-50 p-4 text-sm text-orange-700">
             <p class="mb-1 font-medium">Veuillez confirmer :</p>
-            <ul class="list-inside list-disc space-y-1 text-blue-700">
+            <ul class="list-inside list-disc space-y-1 text-orange-700">
               <li>Le patient s'est bien présenté</li>
               <li v-if="agendaAttendedApt?.type === 'IN_PERSON'">
                 Le paiement a été effectué à la réception
@@ -1479,7 +1479,7 @@
                     'h-5 w-5',
                     appointmentDetailsSelected.type === 'TELECONSULTATION'
                       ? 'text-green-500'
-                      : 'text-blue-500',
+                      : 'text-orange-500',
                   ]"
                 />
                 <p class="text-sm text-gray-900">

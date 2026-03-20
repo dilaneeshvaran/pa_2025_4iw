@@ -344,11 +344,11 @@ export class ContactRequestsService {
           <title>Votre compte MediCôte a été approuvé</title>
         </head>
         <body style="font-family: Arial, sans-serif; line-height: 1.6; color: #333; max-width: 600px; margin: 0 auto; padding: 20px;">
-          <div style="background-color: #0066cc; color: white; padding: 20px; text-align: center; border-radius: 5px 5px 0 0;">
+          <div style="background-color: #FF8200; color: white; padding: 20px; text-align: center; border-radius: 5px 5px 0 0;">
             <h1 style="margin: 0;">MediCôte</h1>
           </div>
           <div style="background-color: #f9f9f9; padding: 30px; border-radius: 0 0 5px 5px;">
-            <h2 style="color: #16a34a; margin-top: 0;">Demande approuvée ✓</h2>
+            <h2 style="color: #009A44; margin-top: 0;">Demande approuvée ✓</h2>
             <p>Bonjour ${firstName},</p>
             <p>Votre demande d'inscription professionnelle sur MediCôte a été <strong>approuvée</strong>. Votre compte a été créé avec les identifiants suivants :</p>
             
@@ -360,10 +360,10 @@ export class ContactRequestsService {
             <p style="color: #dc2626; font-weight: bold;">Pour des raisons de sécurité, veuillez réinitialiser votre mot de passe dès votre première connexion :</p>
             
             <div style="text-align: center; margin: 30px 0;">
-              <a href="${resetUrl}" style="background-color: #0066cc; color: white; padding: 12px 30px; text-decoration: none; border-radius: 5px; display: inline-block; font-weight: bold;">Réinitialiser mon mot de passe</a>
+              <a href="${resetUrl}" style="background-color: #FF8200; color: white; padding: 12px 30px; text-decoration: none; border-radius: 5px; display: inline-block; font-weight: bold;">Réinitialiser mon mot de passe</a>
             </div>
             <p>Si le bouton ne fonctionne pas, copiez et collez ce lien dans votre navigateur :</p>
-            <p style="word-break: break-all; color: #0066cc;">${resetUrl}</p>
+            <p style="word-break: break-all; color: #FF8200;">${resetUrl}</p>
             <p style="color: #666; font-size: 14px; margin-top: 30px;">Ce lien de réinitialisation expirera dans 48 heures.</p>
           </div>
           <div style="text-align: center; margin-top: 20px; color: #999; font-size: 12px;">
@@ -390,7 +390,7 @@ export class ContactRequestsService {
           <title>Demande d'inscription refusée</title>
         </head>
         <body style="font-family: Arial, sans-serif; line-height: 1.6; color: #333; max-width: 600px; margin: 0 auto; padding: 20px;">
-          <div style="background-color: #0066cc; color: white; padding: 20px; text-align: center; border-radius: 5px 5px 0 0;">
+          <div style="background-color: #FF8200; color: white; padding: 20px; text-align: center; border-radius: 5px 5px 0 0;">
             <h1 style="margin: 0;">MediCôte</h1>
           </div>
           <div style="background-color: #f9f9f9; padding: 30px; border-radius: 0 0 5px 5px;">
@@ -402,7 +402,7 @@ export class ContactRequestsService {
               <p style="margin: 0; color: #333;">${reason}</p>
             </div>
 
-            <p>Si vous pensez qu'il s'agit d'une erreur ou si vous souhaitez soumettre une nouvelle demande avec des documents complémentaires, n'hésitez pas à nous contacter à <a href="mailto:support@medicote.ci" style="color: #0066cc;">support@medicote.ci</a>.</p>
+            <p>Si vous pensez qu'il s'agit d'une erreur ou si vous souhaitez soumettre une nouvelle demande avec des documents complémentaires, n'hésitez pas à nous contacter à <a href="mailto:support@medicote.ci" style="color: #FF8200;">support@medicote.ci</a>.</p>
           </div>
           <div style="text-align: center; margin-top: 20px; color: #999; font-size: 12px;">
             <p>© ${new Date().getFullYear()} MediCôte. Tous droits réservés.</p>

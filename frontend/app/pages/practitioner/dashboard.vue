@@ -8,20 +8,20 @@
     <!-- profile visibility alert -->
     <div
       v-if="showProfileAlert"
-      class="rounded-lg border border-blue-200 bg-blue-50 p-4"
+      class="rounded-lg border border-orange-200 bg-orange-50 p-4"
     >
       <div class="flex items-start gap-3">
-        <Info class="mt-0.5 h-5 w-5 flex-shrink-0 text-blue-600" />
+        <Info class="mt-0.5 h-5 w-5 flex-shrink-0 text-orange-600" />
         <div class="flex-1">
-          <h3 class="font-semibold text-blue-900">
+          <h3 class="font-semibold text-orange-700">
             {{ profileAlertTitle }}
           </h3>
-          <p class="mt-1 text-sm text-blue-700">
+          <p class="mt-1 text-sm text-orange-700">
             {{ profileAlertMessage }}
           </p>
           <NuxtLink
             :to="profileAlertLink"
-            class="mt-2 inline-flex items-center text-sm font-semibold text-blue-600 hover:text-blue-800"
+            class="mt-2 inline-flex items-center text-sm font-semibold text-orange-600 hover:text-orange-700"
           >
             {{ profileAlertAction }}
             <ArrowRight class="ml-1 h-4 w-4" />
@@ -29,7 +29,7 @@
         </div>
         <button
           @click="dismissProfileAlert"
-          class="text-blue-400 hover:text-blue-600"
+          class="text-orange-500 hover:text-orange-600"
         >
           <X class="h-5 w-5" />
         </button>
@@ -84,11 +84,11 @@
         </div>
 
         <div v-else class="flex flex-col">
-          <div class="flex items-center gap-4 rounded-lg bg-blue-50 p-4">
+          <div class="flex items-center gap-4 rounded-lg bg-orange-50 p-4">
             <div
-              class="flex h-14 w-14 flex-shrink-0 items-center justify-center rounded-full bg-blue-100"
+              class="flex h-14 w-14 flex-shrink-0 items-center justify-center rounded-full bg-orange-100"
             >
-              <User class="h-7 w-7 text-blue-600" />
+              <User class="h-7 w-7 text-orange-600" />
             </div>
             <div class="min-w-0 flex-1">
               <p class="text-lg font-semibold text-gray-900">
@@ -203,7 +203,7 @@
             :key="apt.id"
             class="flex items-center gap-3 rounded-lg bg-gray-50 p-3 transition-colors hover:bg-gray-100"
           >
-            <span class="font-mono text-sm font-medium text-blue-600">
+            <span class="font-mono text-sm font-medium text-orange-600">
               {{ apt.startTime }}
             </span>
             <div class="min-w-0 flex-1">
@@ -342,7 +342,7 @@
             </div>
             <span
               v-if="msg.unread"
-              class="mt-1 h-2.5 w-2.5 flex-shrink-0 rounded-full bg-blue-500"
+              class="mt-1 h-2.5 w-2.5 flex-shrink-0 rounded-full bg-orange-500"
             ></span>
           </div>
         </div>
@@ -364,7 +364,7 @@
           v-model="newTodoTitle"
           type="text"
           placeholder="Ajouter une tâche..."
-          class="flex-1 rounded-lg border border-gray-300 px-4 py-2 text-sm focus:border-blue-500 focus:outline-none focus:ring-1 focus:ring-blue-500"
+          class="flex-1 rounded-lg border border-gray-300 px-4 py-2 text-sm focus:border-orange-500 focus:outline-none focus:ring-1 focus:ring-orange-500"
           :disabled="addingTodo"
         />
         <UiButton
@@ -399,7 +399,7 @@
               'flex h-4 w-4 flex-shrink-0 items-center justify-center rounded border transition-colors',
               todo.completed
                 ? 'border-green-500 bg-green-500 text-white'
-                : 'border-gray-300 hover:border-blue-400',
+                : 'border-gray-300 hover:border-orange-400',
             ]"
           >
             <Check v-if="todo.completed" class="h-2.5 w-2.5" />
@@ -578,8 +578,8 @@ const kpiCards = computed(() => [
     label: "Consultations ce mois",
     value: dashboard.value?.consultationsThisMonth ?? "-",
     icon: Calendar,
-    bgColor: "bg-blue-100",
-    iconColor: "text-blue-600",
+    bgColor: "bg-orange-100",
+    iconColor: "text-orange-600",
   },
   {
     label: "Revenus ce mois",
