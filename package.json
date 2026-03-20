@@ -19,7 +19,12 @@
     "start:backend": "npm run start --workspace=backend",
     "start:frontend": "npm run preview --workspace=frontend",
     "install:all": "npm install",
-    "seed:dev": "npm run seed:dev --workspace=backend"
+    "seed:dev": "npm run seed:dev --workspace=backend",
+    "test": "npm run test:backend && npm run test:frontend",
+    "test:backend": "npm run test --workspace=backend",
+    "test:frontend": "npm run test --workspace=frontend",
+    "test:watch:backend": "npm run test:watch --workspace=backend",
+    "test:watch:frontend": "npm run test:watch --workspace=frontend"
   },
   "keywords": [
     "medicote",
