@@ -38,7 +38,7 @@ services:
     build:
       context: ./backend
       target: development
-    container_name: backend-dev
+    container_name: backend
     env_file:
       - ./backend/.env
     command: sh -c "npx prisma db push && npm run dev"
@@ -60,7 +60,7 @@ services:
     build:
       context: ./frontend
       target: development
-    container_name: frontend-dev
+    container_name: frontend
     ports:
       - "3000:3000"
     environment:

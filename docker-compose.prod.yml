@@ -1,7 +1,7 @@
 services:
   postgres-db:
     image: postgres:16-alpine
-    container_name: postgresdb-dev
+    container_name: postgresdb
     environment:
       POSTGRES_DB: ${BACKEND_POSTGRES_DB}
       POSTGRES_USER: ${BACKEND_POSTGRES_USER}
@@ -9,53 +9,53 @@ services:
     ports:
       - "${BACKEND_POSTGRES_PORT}:5432"
     volumes:
-      - postgres-data-dev:/var/lib/postgresql/data
+      - postgres-data:/var/lib/postgresql/data
+    restart: unless-stopped
     networks:
       - pgnetwork
+
   redis-db:
-      image: redis:7-alpine
-      container_name: redisdb-dev
-      ports:
-        - "6379:6379"
-      volumes:
-        - redis-data-dev:/data
-      networks:
-        - pgnetwork
+    image: redis:7-alpine
+    container_name: redisdb
+    ports:
+      - "6379:6379"
+    volumes:
+      - redis-data:/data
+    restart: unless-stopped
+    networks:
+      - pgnetwork
+
   backend:
     build:
       context: ./backend
-      target: development
-    container_name: backend-dev
+      target: production
+    container_name: backend
     env_file:
       - ./backend/.env
-    command: sh -c "npx prisma db push --accept-data-loss && npm run dev"
+    command: sh -c "npx prisma migrate deploy && node dist/server.js"
     ports:
       - "3001:3001"
-    volumes:
-      - ./backend/src:/app/src
-      - ./backend/prisma:/app/prisma
-      - /app/node_modules
     depends_on:
       - postgres-db
       - redis-db
+    restart: unless-stopped
     networks:
       - pgnetwork
 
   frontend:
     build:
       context: ./frontend
-      target: development
-    container_name: frontend-dev
+      target: production
+    container_name: frontend
     ports:
       - "3000:3000"
     environment:
+      # NUXT_PUBLIC_API_BASE overrides runtimeConfig.public.apiBase at runtime
+      # Use localhost so the browser can reach the backend via the exposed port
       NUXT_PUBLIC_API_BASE: http://localhost:3001/api
-    volumes:
-      - ./frontend:/app
-      - /app/node_modules
-      - /app/.nuxt
     depends_on:
       - backend
+    restart: unless-stopped
     networks:
       - pgnetwork
 
@@ -64,7 +64,7 @@ networks:
     driver: bridge
 
 volumes:
-  postgres-data-dev:
+  postgres-data:
     driver: local
-  redis-data-dev:
+  redis-data:
     driver: local
