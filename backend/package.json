@@ -37,6 +37,14 @@
     "puppeteer": "^24.37.5",
     "zod": "^4.3.6"
   },
+  "overrides": {
+    "bullmq": {
+      "ioredis": "$ioredis"
+    },
+    "@prisma/adapter-pg": {
+      "@types/pg": "$@types/pg"
+    }
+  },
   "devDependencies": {
     "@types/bcrypt": "^6.0.0",
     "@types/jest": "^30.0.0",
