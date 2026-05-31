@@ -23,6 +23,9 @@ const app = Fastify({
   .setSerializerCompiler(serializerCompiler)
   .withTypeProvider<ZodTypeProvider>()
 
+// lightweight health check (used by the container HEALTHCHECK / load balancers)
+app.get('/health', async () => ({ status: 'ok' }))
+
 app.register(cors, {
   origin: [
     'http://localhost:3000',
