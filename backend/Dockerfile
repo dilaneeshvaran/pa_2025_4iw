@@ -56,6 +56,8 @@ COPY --chown=medicote:appgroup --from=prod-deps /app/node_modules ./node_modules
 COPY --chown=medicote:appgroup --from=builder /app/node_modules/.prisma ./node_modules/.prisma
 COPY --chown=medicote:appgroup --from=builder /app/dist ./dist
 COPY --chown=medicote:appgroup --from=builder /app/prisma ./prisma
+# Required by `prisma migrate deploy` (Prisma 7 reads datasource.url from here)
+COPY --chown=medicote:appgroup --from=builder /app/prisma.config.ts .
 COPY --chown=medicote:appgroup --from=deps /app/package.json .
 
 ENV NODE_ENV=production
