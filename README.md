@@ -169,6 +169,38 @@ If you get a port conflict error:
 
 Run `npm install` from the root directory to install all dependencies.
 
+## CI/CD
+
+The project uses **GitHub Actions** (`.github/workflows/`):
+
+- **`ci.yml`** — runs on every push (except `main`) and PR to `main`. Installs deps,
+  generates the Prisma client, runs the Jest (backend) and Vitest (frontend) test
+  suites, and builds both apps.
+- **`cd.yml`** — runs on push to `main`. Re-runs the tests, builds the production
+  Docker images and pushes them to **GHCR**
+  (`ghcr.io/<owner>/pa_2025_4iw-backend` and `-frontend`), then deploys to the VPS
+  over SSH (`git pull` → `docker compose -f docker-compose.prod.yml pull` → `up -d`).
+
+### Required GitHub secrets (Settings → Secrets and variables → Actions)
+
+| Secret | Description |
+| --- | --- |
+| `SSH_HOST` | VPS hostname or IP |
+| `SSH_USER` | SSH user on the VPS |
+| `SSH_KEY` | Private SSH key (PEM) authorized on the VPS |
+| `SSH_PORT` | SSH port (optional, defaults to `22`) |
+| `DEPLOY_PATH` | Absolute path of the project checkout on the VPS |
+
+`GITHUB_TOKEN` is provided automatically and is used to push/pull images on GHCR.
+
+### One-time VPS setup
+
+- Install Docker + Docker Compose.
+- Clone the repo into `DEPLOY_PATH` and create `backend/.env` and the root `.env`.
+- Make sure the SSH user can run `docker` (e.g. is in the `docker` group).
+- Images are public by default; if the GHCR packages are private, the deploy step's
+  `docker login` (already included) handles authentication.
+
 ## Authors
 
 Made by **Dilan EESHVARAN**, **AKA Kassi Joel Emmanuel**, **Sylvain ANTIN**, **Alix Sylvani**
