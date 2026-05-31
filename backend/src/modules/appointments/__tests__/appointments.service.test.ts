@@ -33,6 +33,9 @@ jest.mock('../../../config/database', () => ({
     patient: {
       findUnique: jest.fn(),
     },
+    user: {
+      findFirst: jest.fn(),
+    },
   },
 }))
 
@@ -65,6 +68,12 @@ tomorrow.setDate(tomorrow.getDate() + 1)
 
 const yesterday = new Date(today)
 yesterday.setDate(yesterday.getDate() - 1)
+
+// Heure de référence déterministe : aujourd'hui à midi UTC.
+// Le service interprète startTime en UTC (setUTCHours), donc on fige l'horloge
+// pour éviter toute dépendance à la timezone ou à l'heure d'exécution.
+const noonUTC = new Date(today)
+noonUTC.setUTCHours(12, 0, 0, 0)
 
 const buildPractitioner = (overrides = {}) => ({
   id: 'pract-1',
@@ -112,6 +121,10 @@ describe('AppointmentsService.getNextAppointment', () => {
     jest.clearAllMocks()
   })
 
+  afterEach(() => {
+    jest.useRealTimers()
+  })
+
   it('retourne null si aucun rendez-vous trouvé', async () => {
     ;(mockPrisma.appointment.findMany as jest.Mock).mockResolvedValue([])
 
@@ -135,15 +148,11 @@ describe('AppointmentsService.getNextAppointment', () => {
   })
 
   it("filtre les rendez-vous du jour déjà passés en heure", async () => {
-    const now = new Date()
-    // Créer un créneau une heure dans le passé aujourd'hui
-    const pastHour = new Date(now)
-    pastHour.setHours(pastHour.getHours() - 1)
-    const pastTimeStr = `${String(pastHour.getHours()).padStart(2, '0')}:00`
-
+    jest.useFakeTimers().setSystemTime(noonUTC)
+    // Créneau aujourd'hui à 11:00 UTC, soit une heure avant l'heure figée (midi UTC)
     const apt = buildAppointmentRow({
       appointmentDate: today,
-      startTime: pastTimeStr,
+      startTime: '11:00',
     })
     ;(mockPrisma.appointment.findMany as jest.Mock).mockResolvedValue([apt])
 
@@ -152,14 +161,11 @@ describe('AppointmentsService.getNextAppointment', () => {
   })
 
   it('retourne le rendez-vous du jour si l\'heure est dans le futur', async () => {
-    const now = new Date()
-    const futureHour = new Date(now)
-    futureHour.setHours(futureHour.getHours() + 2)
-    const futureTimeStr = `${String(futureHour.getHours()).padStart(2, '0')}:00`
-
+    jest.useFakeTimers().setSystemTime(noonUTC)
+    // Créneau aujourd'hui à 14:00 UTC, soit deux heures après l'heure figée (midi UTC)
     const apt = buildAppointmentRow({
       appointmentDate: today,
-      startTime: futureTimeStr,
+      startTime: '14:00',
     })
     ;(mockPrisma.appointment.findMany as jest.Mock).mockResolvedValue([apt])
 
@@ -193,6 +199,10 @@ describe('AppointmentsService.getPastAppointments', () => {
   beforeEach(() => {
     service = new AppointmentsService()
     jest.clearAllMocks()
+  })
+
+  afterEach(() => {
+    jest.useRealTimers()
   })
 
   it('retourne une liste vide si aucun rendez-vous passé', async () => {
@@ -263,15 +273,12 @@ describe('AppointmentsService.getPastAppointments', () => {
   })
 
   it("filtre les rendez-vous du jour dont l'heure est dans le futur", async () => {
-    const now = new Date()
-    const futureHour = new Date(now)
-    futureHour.setHours(futureHour.getHours() + 2)
-    const futureTimeStr = `${String(futureHour.getHours()).padStart(2, '0')}:00`
-
-    // Rendez-vous aujourd'hui, heure future, statut PENDING → ne doit pas être dans les passés
+    jest.useFakeTimers().setSystemTime(noonUTC)
+    // Rendez-vous aujourd'hui à 14:00 UTC (futur vs midi UTC), statut PENDING
+    // → ne doit pas être dans les passés
     const apt = buildAppointmentRow({
       appointmentDate: today,
-      startTime: futureTimeStr,
+      startTime: '14:00',
       status: AppointmentStatus.PENDING,
     })
     ;(mockPrisma.appointment.findMany as jest.Mock).mockResolvedValue([apt])
