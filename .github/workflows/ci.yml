@@ -29,6 +29,14 @@ jobs:
           cache: npm
           cache-dependency-path: backend/package-lock.json
 
+      # Install in isolation, exactly like the Docker build context (which only
+      # contains ./backend). Removing the root workspace manifests prevents npm
+      # from hoisting to the monorepo root, so backend's package-lock.json and
+      # its `overrides` (e.g. bullmq -> single ioredis) are honoured.
+      - name: Isolate workspace
+        working-directory: .
+        run: rm -f package.json package-lock.json
+
       - name: Install dependencies
         run: npm ci
 
@@ -55,6 +63,12 @@ jobs:
           node-version: 20
           cache: npm
           cache-dependency-path: frontend/package-lock.json
+
+      # Isolate from the monorepo root so npm uses frontend/package-lock.json
+      # and does not hoist to the workspace root (mirrors the Docker build).
+      - name: Isolate workspace
+        working-directory: .
+        run: rm -f package.json package-lock.json
 
       - name: Install dependencies
         run: npm ci
