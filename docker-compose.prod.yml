@@ -37,7 +37,7 @@ services:
       # CORS allow-list: the public origin the browser uses to load the frontend.
       # server.ts reads FRONTEND_URL; default keeps local dev working.
       FRONTEND_URL: ${PUBLIC_FRONTEND_URL:-http://localhost:3000}
-    command: sh -c "npx prisma migrate deploy && node dist/server.js"
+    command: sh -c "npx prisma migrate deploy && node dist/index.js"
     ports:
       - "3001:3001"
     depends_on:
