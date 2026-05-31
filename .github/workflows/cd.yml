@@ -33,6 +33,13 @@ jobs:
           cache: npm
           cache-dependency-path: ${{ matrix.workspace }}/package-lock.json
 
+      # Isolate from the monorepo root (mirrors the Docker build context) so the
+      # per-workspace lockfile and its `overrides` are honoured instead of being
+      # hoisted to the workspace root.
+      - name: Isolate workspace
+        working-directory: .
+        run: rm -f package.json package-lock.json
+
       - name: Install dependencies
         run: npm ci
 
