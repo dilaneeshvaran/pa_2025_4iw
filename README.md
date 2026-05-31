@@ -201,8 +201,17 @@ The project uses **GitHub Actions** (`.github/workflows/`):
 - Create the deploy directory (`DEPLOY_PATH`) and place the environment files in it
   (they hold secrets, so they live on the server and are **not** committed):
   - `DEPLOY_PATH/.env` — Postgres vars (`BACKEND_POSTGRES_DB`, `BACKEND_POSTGRES_USER`,
-    `BACKEND_POSTGRES_PASSWORD`, `BACKEND_POSTGRES_PORT`)
+    `BACKEND_POSTGRES_PASSWORD`, `BACKEND_POSTGRES_PORT`) **and the public URLs** the
+    browser uses to reach the stack (see below)
   - `DEPLOY_PATH/backend/.env` — backend runtime env (the service `env_file`)
+
+  Public URLs (in `DEPLOY_PATH/.env`) — replace `localhost` with the VPS IP/domain,
+  otherwise the visitor's browser tries to reach its own machine:
+
+  ```env
+  PUBLIC_API_BASE=http://<vps-ip-or-domain>:3001/api   # frontend -> backend
+  PUBLIC_FRONTEND_URL=http://<vps-ip-or-domain>:3000   # backend CORS allow-list
+  ```
 
   From your machine:
 
