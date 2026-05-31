@@ -178,8 +178,9 @@ The project uses **GitHub Actions** (`.github/workflows/`):
   suites, and builds both apps.
 - **`cd.yml`** — runs on push to `main`. Re-runs the tests, builds the production
   Docker images and pushes them to **GHCR**
-  (`ghcr.io/<owner>/pa_2025_4iw-backend` and `-frontend`), then deploys to the VPS
-  over SSH (`git pull` → `docker compose -f docker-compose.prod.yml pull` → `up -d`).
+  (`ghcr.io/<owner>/pa_2025_4iw-backend` and `-frontend`), then deploys to the VPS:
+  it copies `docker-compose.prod.yml` to the server over SCP, then over SSH runs
+  `docker compose pull` → `up -d`. No git checkout is required on the server.
 
 ### Required GitHub secrets (Settings → Secrets and variables → Actions)
 
@@ -189,17 +190,31 @@ The project uses **GitHub Actions** (`.github/workflows/`):
 | `SSH_USER` | SSH user on the VPS |
 | `SSH_KEY` | Private SSH key (PEM) authorized on the VPS |
 | `SSH_PORT` | SSH port (optional, defaults to `22`) |
-| `DEPLOY_PATH` | Absolute path of the project checkout on the VPS |
+| `DEPLOY_PATH` | Absolute path of the deploy directory on the VPS |
 
 `GITHUB_TOKEN` is provided automatically and is used to push/pull images on GHCR.
 
 ### One-time VPS setup
 
-- Install Docker + Docker Compose.
-- Clone the repo into `DEPLOY_PATH` and create `backend/.env` and the root `.env`.
-- Make sure the SSH user can run `docker` (e.g. is in the `docker` group).
-- Images are public by default; if the GHCR packages are private, the deploy step's
-  `docker login` (already included) handles authentication.
+- Install Docker + Docker Compose, and make sure the SSH user can run `docker`
+  (e.g. is in the `docker` group).
+- Create the deploy directory (`DEPLOY_PATH`) and place the environment files in it
+  (they hold secrets, so they live on the server and are **not** committed):
+  - `DEPLOY_PATH/.env` — Postgres vars (`BACKEND_POSTGRES_DB`, `BACKEND_POSTGRES_USER`,
+    `BACKEND_POSTGRES_PASSWORD`, `BACKEND_POSTGRES_PORT`)
+  - `DEPLOY_PATH/backend/.env` — backend runtime env (the service `env_file`)
+
+  From your machine:
+
+  ```bash
+  ssh <user>@<host> 'mkdir -p <DEPLOY_PATH>/backend'
+  scp .env         <user>@<host>:<DEPLOY_PATH>/.env
+  scp backend/.env <user>@<host>:<DEPLOY_PATH>/backend/.env
+  ```
+
+- The deploy job copies `docker-compose.prod.yml` automatically on each run.
+- If the GHCR packages are private, the deploy step's `docker login` (already
+  included) handles authentication.
 
 ## Authors
 
