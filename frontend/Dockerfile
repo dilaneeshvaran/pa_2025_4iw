@@ -18,7 +18,7 @@ COPY --chown=medicote:appgroup tsconfig.json .
 COPY --chown=medicote:appgroup nuxt.config.ts .
 COPY --chown=medicote:appgroup tailwind.config.cjs .
 
-RUN npm ci
+RUN npm install
 
 
 # stage 3: builder
