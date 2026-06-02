@@ -73,9 +73,7 @@ export class ReviewsService {
         response: true,
         respondedAt: true,
         patient: {
-          select: {
-            user: { select: { firstName: true, lastName: true } },
-          },
+          select: { firstName: true, lastName: true },
         },
       },
       orderBy: { createdAt: 'desc' },
