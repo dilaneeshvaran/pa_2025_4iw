@@ -45,6 +45,7 @@ services:
     ports:
       - "3001:3001"
     volumes:
+      - ./backend/.env:/app/.env:ro
       - ./backend/src:/app/src
       - ./backend/prisma:/app/prisma
       - /app/node_modules

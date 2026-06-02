@@ -15,6 +15,15 @@ export default defineNuxtConfig({
 
   css: ["~/assets/css/main.css"],
 
+  vite: {
+    optimizeDeps: {
+      include: ["leaflet"],
+    },
+    ssr: {
+      noExternal: ["leaflet"],
+    },
+  },
+
   runtimeConfig: {
     public: {
       apiBase: process.env.FRONTEND_API_BASE_URL || "http://localhost:3001/api",

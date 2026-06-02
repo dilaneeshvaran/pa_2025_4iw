@@ -974,6 +974,8 @@ model Cabinet {
   adminContactPhone   String
   registrationDocPath String?
   openHours           Json?
+  latitude            Float?
+  longitude           Float?
   isVerified          Boolean               @default(false)
   verifiedAt          DateTime?
   contactRequestId    String?               @unique
