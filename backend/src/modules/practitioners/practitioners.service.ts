@@ -247,6 +247,8 @@ export class PractitionersService {
         name: true,
         city: true,
         address: true,
+        latitude: true,
+        longitude: true,
       },
       orderBy: [{ name: 'asc' }],
     })
@@ -271,6 +273,8 @@ export class PractitionersService {
           name: cabinet.name,
           city: cabinet.city,
           address: cabinet.address,
+          latitude: cabinet.latitude,
+          longitude: cabinet.longitude,
           practitionersCount,
         }
       }),
@@ -290,6 +294,8 @@ export class PractitionersService {
         phone: true,
         openHours: true,
         isVerified: true,
+        latitude: true,
+        longitude: true,
       },
     })
 
