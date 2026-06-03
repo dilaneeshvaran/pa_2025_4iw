@@ -94,6 +94,14 @@ export class AppointmentsService {
               connectionQuality: true,
             },
           },
+          review: {
+            select: {
+              id: true,
+              rating: true,
+              comment: true,
+              createdAt: true,
+            },
+          },
         },
       }),
       prisma.appointment.count({ where }),
@@ -152,6 +160,7 @@ export class AppointmentsService {
         },
         cabinet: apt.cabinet || null,
         teleconsultationSession: apt.teleconsultationSession || null,
+        review: apt.review || null,
       }
     })
 

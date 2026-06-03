@@ -16,7 +16,7 @@ FROM base AS deps
 COPY --chown=medicote:appgroup package*.json .
 COPY --chown=medicote:appgroup prisma ./prisma
 
-RUN npm ci && npx prisma generate
+RUN npm install && npx prisma generate
 
 
 # stage 2b: production dependencies only
@@ -25,7 +25,7 @@ FROM base AS prod-deps
 COPY --chown=medicote:appgroup package*.json .
 COPY --chown=medicote:appgroup prisma ./prisma
 
-RUN npm ci --omit=dev
+RUN npm install --omit=dev
 
 
 # stage 3: builder

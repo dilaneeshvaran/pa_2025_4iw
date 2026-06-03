@@ -208,7 +208,7 @@
           <UiButton
             variant="secondary"
             size="sm"
-            @click="navigateTo('/patient/appointments')"
+            @click="navigateTo('/patient/appointments?tab=past')"
           >
             Voir tout
           </UiButton>

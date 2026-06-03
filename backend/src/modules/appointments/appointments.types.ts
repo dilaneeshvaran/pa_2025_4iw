@@ -34,6 +34,12 @@ export interface PatientAppointment {
     endedAt: Date | null
     connectionQuality: string | null
   } | null
+  review?: {
+    id: string
+    rating: number
+    comment: string | null
+    createdAt: Date
+  } | null
 }
 
 export interface PatientAppointmentsResult {

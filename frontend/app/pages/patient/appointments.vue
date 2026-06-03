@@ -216,6 +216,29 @@
               <Video class="mr-1.5 h-4 w-4" />
               Rejoindre
             </UiButton>
+            <UiButton
+              v-if="canReview(apt)"
+              variant="secondary"
+              size="sm"
+              @click="openReviewModal(apt)"
+            >
+              <Star class="mr-1.5 h-4 w-4" />
+              Laisser un avis
+            </UiButton>
+            <div
+              v-if="apt.review"
+              class="flex items-center gap-1 text-sm text-gray-500"
+            >
+              <span>Votre avis :</span>
+              <span class="flex">
+                <Star
+                  v-for="i in 5"
+                  :key="i"
+                  class="h-4 w-4"
+                  :class="i <= apt.review.rating ? 'fill-yellow-400 text-yellow-400' : 'text-gray-300'"
+                />
+              </span>
+            </div>
           </div>
         </div>
 
@@ -420,6 +443,99 @@
       </div>
     </Teleport>
 
+    <!-- review modal -->
+    <Teleport to="body">
+      <div
+        v-if="showReviewModal"
+        class="fixed inset-0 z-50 flex items-center justify-center bg-black/50"
+        @click.self="closeReviewModal"
+      >
+        <div class="mx-4 w-full max-w-md rounded-xl bg-white p-6 shadow-2xl">
+          <div class="mb-4 flex items-center gap-3">
+            <div
+              class="flex h-10 w-10 items-center justify-center rounded-full bg-yellow-100"
+            >
+              <Star class="h-5 w-5 text-yellow-500" />
+            </div>
+            <div>
+              <h3 class="text-lg font-semibold text-gray-900">
+                Laisser un avis
+              </h3>
+              <p class="text-sm text-gray-500">
+                {{ reviewAppointment?.practitioner.title }}
+                {{ reviewAppointment?.practitioner.firstName }}
+                {{ reviewAppointment?.practitioner.lastName }}
+              </p>
+            </div>
+          </div>
+
+          <div class="mb-5">
+            <label class="mb-2 block text-sm font-medium text-gray-700">
+              Note *
+            </label>
+            <div class="flex gap-1">
+              <button
+                v-for="i in 5"
+                :key="i"
+                type="button"
+                class="rounded p-0.5 transition-transform hover:scale-110 focus:outline-none"
+                @mouseenter="reviewHover = i"
+                @mouseleave="reviewHover = 0"
+                @click="reviewRating = i"
+              >
+                <Star
+                  class="h-8 w-8 transition-colors"
+                  :class="
+                    i <= (reviewHover || reviewRating)
+                      ? 'fill-yellow-400 text-yellow-400'
+                      : 'text-gray-300'
+                  "
+                />
+              </button>
+            </div>
+          </div>
+
+          <div class="mb-5">
+            <label class="mb-1 block text-sm font-medium text-gray-700">
+              Commentaire (optionnel)
+            </label>
+            <textarea
+              v-model="reviewComment"
+              rows="3"
+              maxlength="1000"
+              placeholder="Partagez votre expérience..."
+              class="w-full rounded-lg border border-gray-300 px-3 py-2 text-sm focus:border-orange-500 focus:outline-none focus:ring-1 focus:ring-orange-500"
+            ></textarea>
+            <p class="mt-1 text-right text-xs text-gray-400">
+              {{ reviewComment.length }}/1000
+            </p>
+          </div>
+
+          <p v-if="reviewError" class="mb-3 text-sm text-red-600">
+            {{ reviewError }}
+          </p>
+
+          <div class="flex gap-3">
+            <UiButton
+              variant="secondary"
+              class-name="flex-1"
+              @click="closeReviewModal"
+              :disabled="submittingReview"
+            >
+              Annuler
+            </UiButton>
+            <UiButton
+              class-name="flex-1"
+              :disabled="submittingReview || reviewRating === 0"
+              @click="submitReview"
+            >
+              {{ submittingReview ? "Publication..." : "Publier l'avis" }}
+            </UiButton>
+          </div>
+        </div>
+      </div>
+    </Teleport>
+
     <!-- modify modal -->
     <Teleport to="body">
       <div
@@ -568,6 +684,7 @@ import {
   ArrowUpDown,
   Camera,
   Mic,
+  Star,
 } from "lucide-vue-next";
 import { useAuthStore } from "~/stores/auth";
 import { formatDateLong as formatDate } from "~/utils/date";
@@ -618,6 +735,12 @@ interface Appointment {
     endedAt: string | null;
     connectionQuality: string | null;
   } | null;
+  review?: {
+    id: string;
+    rating: number;
+    comment: string | null;
+    createdAt: string;
+  } | null;
 }
 
 const route = useRoute();
@@ -647,6 +770,75 @@ const tabCounts = ref<{
   cancelled: 0,
   teleconsultations: 0,
 });
+
+// review modal
+const showReviewModal = ref(false);
+const reviewAppointment = ref<Appointment | null>(null);
+const reviewRating = ref(0);
+const reviewHover = ref(0);
+const reviewComment = ref("");
+const submittingReview = ref(false);
+const reviewError = ref("");
+
+const openReviewModal = (apt: Appointment) => {
+  reviewAppointment.value = apt;
+  reviewRating.value = apt.review?.rating ?? 0;
+  reviewComment.value = apt.review?.comment ?? "";
+  reviewError.value = "";
+  showReviewModal.value = true;
+};
+
+const closeReviewModal = () => {
+  showReviewModal.value = false;
+  reviewAppointment.value = null;
+  reviewRating.value = 0;
+  reviewHover.value = 0;
+  reviewComment.value = "";
+  reviewError.value = "";
+};
+
+const submitReview = async () => {
+  if (!reviewAppointment.value || reviewRating.value === 0) return;
+  submittingReview.value = true;
+  reviewError.value = "";
+  try {
+    await useAuthenticatedFetch("/reviews", {
+      method: "POST",
+      body: {
+        appointmentId: reviewAppointment.value.id,
+        rating: reviewRating.value,
+        comment: reviewComment.value || undefined,
+      },
+    });
+    // update local appointment to show the review without refetching
+    const idx = appointments.value.findIndex(
+      (a) => a.id === reviewAppointment.value!.id
+    );
+    if (idx !== -1) {
+      appointments.value[idx] = {
+        ...appointments.value[idx],
+        review: {
+          id: "",
+          rating: reviewRating.value,
+          comment: reviewComment.value || null,
+          createdAt: new Date().toISOString(),
+        },
+      };
+    }
+    closeReviewModal();
+  } catch (e: unknown) {
+    const fetchErr = e as { data?: { message?: string }; message?: string };
+    reviewError.value =
+      fetchErr?.data?.message ??
+      fetchErr?.message ??
+      "Erreur lors de la publication de l'avis";
+  } finally {
+    submittingReview.value = false;
+  }
+};
+
+const canReview = (apt: Appointment): boolean =>
+  apt.status === "COMPLETED" && !apt.review;
 
 //cancel
 const showCancelModal = ref(false);
@@ -830,6 +1022,8 @@ const getActions = (apt: Appointment): string[] => {
   if (canModify(apt)) actions.push("modify");
   if (canCancel(apt)) actions.push("cancel");
   if (canJoin(apt)) actions.push("join");
+  if (canReview(apt)) actions.push("review");
+  if (apt.review) actions.push("reviewed");
   return actions;
 };
 
@@ -1231,6 +1425,9 @@ onMounted(async () => {
   if (authStore.accessToken) {
     // redirect teleconsultations tab to the dedicated page
     const tabParam = route.query.tab as string;
+    if (tabParam === "past" || tabParam === "cancelled") {
+      activeTab.value = tabParam;
+    }
     if (tabParam === "teleconsultations") {
       const appointmentId = route.query.appointmentId as string;
       if (appointmentId) {
