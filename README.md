@@ -3,20 +3,6 @@
 Medicote is where doctors and patients can connect, manage appointments, share medical records, and do video consultations.
 We also have an ai assistant that can guide you to the right doctor based on your symptoms, and answer your medical questions.
 
-## Project Structure
-
-This is a monorepo containing:
-
-- **backend/** - Fastify API server with Prisma ORM
-- **frontend/** - Nuxt.js web application
-- **shared/** - Shared TypeScript types and utilities
-
-## Prerequisites
-
-- Node.js (v20 or higher)
-- Docker and Docker Compose
-- npm
-
 ## Quick Start
 
 ### 1. Install Dependencies
@@ -112,118 +98,9 @@ Navigate to `frontend/` directory:
 - `npm run build` - Build frontend for production
 - `npm run preview` - Preview production build
 
-## Project Configuration
-
-### Environment Variables
-
-All environment variables are consolidated in the root `.env` file with prefixes:
-
-- `BACKEND_*` - Backend configuration
-- `FRONTEND_*` - Frontend configuration
-
 ### Shared Types
 
 Common TypeScript types used by both frontend and backend are located in `shared/types/`.
-
-### Docker
-
-The `docker-compose.yml` in the root manages the PostgreSQL database service.
-
-## Development Workflow
-
-1. Make changes to backend or frontend code
-2. Changes are automatically reloaded in development mode
-3. Commit your changes with meaningful commit messages
-4. Push to your branch
-
-## Production Build
-
-Build both projects for production:
-
-```bash
-npm run build
-```
-
-Start in production mode:
-
-```bash
-npm run start
-```
-
-## Troubleshooting
-
-### Port Already in Use
-
-If you get a port conflict error:
-
-- Backend: Change `BACKEND_PORT` in `.env`
-- Frontend: The port is set in `frontend/nuxt.config.ts`
-
-### Database Connection Issues
-
-1. Ensure Docker is running: `docker ps`
-2. Check database credentials in `.env`
-3. Verify `BACKEND_DATABASE_URL` matches your Postgres configuration
-
-### Module Not Found Errors
-
-Run `npm install` from the root directory to install all dependencies.
-
-## CI/CD
-
-The project uses **GitHub Actions** (`.github/workflows/`):
-
-- **`ci.yml`** — runs on every push (except `main`) and PR to `main`. Installs deps,
-  generates the Prisma client, runs the Jest (backend) and Vitest (frontend) test
-  suites, and builds both apps.
-- **`cd.yml`** — runs on push to `main`. Re-runs the tests, builds the production
-  Docker images and pushes them to **GHCR**
-  (`ghcr.io/<owner>/pa_2025_4iw-backend` and `-frontend`), then deploys to the VPS:
-  it copies `docker-compose.prod.yml` to the server over SCP, then over SSH runs
-  `docker compose pull` → `up -d`. No git checkout is required on the server.
-
-### Required GitHub secrets (Settings → Secrets and variables → Actions)
-
-| Secret | Description |
-| --- | --- |
-| `SSH_HOST` | VPS hostname or IP |
-| `SSH_USER` | SSH user on the VPS |
-| `SSH_KEY` | Private SSH key (PEM) authorized on the VPS |
-| `SSH_PORT` | SSH port (optional, defaults to `22`) |
-| `DEPLOY_PATH` | Absolute path of the deploy directory on the VPS |
-
-`GITHUB_TOKEN` is provided automatically and is used to push/pull images on GHCR.
-
-### One-time VPS setup
-
-- Install Docker + Docker Compose, and make sure the SSH user can run `docker`
-  (e.g. is in the `docker` group).
-- Create the deploy directory (`DEPLOY_PATH`) and place the environment files in it
-  (they hold secrets, so they live on the server and are **not** committed):
-  - `DEPLOY_PATH/.env` — Postgres vars (`BACKEND_POSTGRES_DB`, `BACKEND_POSTGRES_USER`,
-    `BACKEND_POSTGRES_PASSWORD`, `BACKEND_POSTGRES_PORT`) **and the public URLs** the
-    browser uses to reach the stack (see below)
-  - `DEPLOY_PATH/backend/.env` — backend runtime env (the service `env_file`)
-
-  Public URLs (in `DEPLOY_PATH/.env`) — replace `localhost` with the VPS IP/domain,
-  otherwise the visitor's browser tries to reach its own machine:
-
-  ```env
-  PUBLIC_API_BASE=http://<vps-ip-or-domain>:3001/api   # frontend -> backend
-  PUBLIC_FRONTEND_URL=http://<vps-ip-or-domain>:3000   # backend CORS allow-list
-  ```
-
-  From your machine:
-
-  ```bash
-  ssh <user>@<host> 'mkdir -p <DEPLOY_PATH>/backend'
-  scp .env         <user>@<host>:<DEPLOY_PATH>/.env
-  scp backend/.env <user>@<host>:<DEPLOY_PATH>/backend/.env
-  ```
-
-- The deploy job copies `docker-compose.prod.yml` automatically on each run.
-- If the GHCR packages are private, the deploy step's `docker login` (already
-  included) handles authentication.
 
 ## Authors
 
