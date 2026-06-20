@@ -8,7 +8,7 @@ const QUEUE_NAME = 'appointment-reminders'
 
 // create the reminder queue
 export const reminderQueue = new Queue(QUEUE_NAME, {
-  connection: redis,
+  connection: redis as any,
   defaultJobOptions: {
     removeOnComplete: true,
     removeOnFail: 100, // keep last 100 failed jobs for debugging
@@ -178,7 +178,7 @@ export function startReminderWorker(): Worker {
         `Sent ${reminderType} reminder for appointment ${appointmentId}`,
       )
     },
-    { connection: redis },
+    { connection: redis as any },
   )
 
   worker.on('completed', (job) => {
