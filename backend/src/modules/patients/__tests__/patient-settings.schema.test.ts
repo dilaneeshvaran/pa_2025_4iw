@@ -40,6 +40,18 @@ describe('patient-settings.schema – validation Zod', () => {
     expect(() => updatePatientProfileSchema.parse({ dateOfBirth: tomorrowStr })).toThrow()
   })
 
+  it('rejette une date de naissance irréaliste (e.g. 1750)', () => {
+    expect(() => updatePatientProfileSchema.parse({ dateOfBirth: '1750-01-01' })).toThrow()
+  })
+
+  it('rejette une date de naissance trop jeune (e.g. 2023)', () => {
+    expect(() => updatePatientProfileSchema.parse({ dateOfBirth: '2023-01-01' })).toThrow()
+  })
+
+  it('accepte une date de naissance valide dans la plage (e.g. 2010)', () => {
+    expect(() => updatePatientProfileSchema.parse({ dateOfBirth: '2010-01-01' })).not.toThrow()
+  })
+
   it('rejette une date de naissance invalide', () => {
     expect(() => updatePatientProfileSchema.parse({ dateOfBirth: 'not-a-date' })).toThrow()
   })

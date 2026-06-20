@@ -59,7 +59,7 @@
               <label class="mb-1 block text-sm font-medium text-gray-700"
                 >Date de naissance</label
               >
-              <UiInput v-model="profile.dateOfBirth" type="date" :max="todayDate" />
+              <UiInput v-model="profile.dateOfBirth" type="date" :min="minDate" :max="maxDate" />
             </div>
             <div>
               <label class="mb-1 block text-sm font-medium text-gray-700"
@@ -568,8 +568,16 @@ const profileError = ref(false);
 const currentEmail = ref("");
 const twoFactorEnabled = ref(false);
 
-const todayDate = computed(() => {
-  return new Date().toISOString().split("T")[0];
+const maxDate = computed(() => {
+  const d = new Date();
+  d.setFullYear(d.getFullYear() - 15);
+  return d.toISOString().split("T")[0];
+});
+
+const minDate = computed(() => {
+  const d = new Date();
+  d.setFullYear(d.getFullYear() - 120);
+  return d.toISOString().split("T")[0];
 });
 
 const profile = reactive({

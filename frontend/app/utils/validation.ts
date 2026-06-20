@@ -4,7 +4,7 @@ export const isValidPhone = (phone: string): boolean => {
     return false
   }
   const digits = phone.replace(/\D/g, '')
-  return digits.length >= 8 && digits.length <= 15
+  return digits.length >= 10 && digits.length <= 15
 }
 
 export const isValidBirthDate = (dateStr: string): boolean => {
@@ -13,5 +13,8 @@ export const isValidBirthDate = (dateStr: string): boolean => {
   if (isNaN(date.getTime())) {
     return false
   }
-  return date < new Date()
+  const now = new Date()
+  const minDate = new Date(now.getFullYear() - 15, now.getMonth(), now.getDate())
+  const maxDate = new Date(now.getFullYear() - 120, now.getMonth(), now.getDate())
+  return date <= minDate && date >= maxDate
 }
