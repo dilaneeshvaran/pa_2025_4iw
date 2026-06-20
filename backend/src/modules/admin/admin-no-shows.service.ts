@@ -1,7 +1,7 @@
 import prisma from '../../config/database'
 import { sendEmail } from '../../utils/email'
 
-const APP_URL = process.env.BACKEND_APP_URL || 'http://localhost:3000'
+const APP_URL = process.env.BACKEND_FRONTEND_URL || 'http://localhost:3000'
 
 interface NoShowFilters {
   search?: string
