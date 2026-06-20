@@ -974,7 +974,7 @@ export class PaymentsService {
   </div>
 
   <div class="footer">
-    <p>MediCote - Plateforme de santé numérique - Côte d'Ivoire</p>
+    <p>MediCôte - Plateforme de santé numérique - Côte d'Ivoire</p>
     <p>Cette facture a été générée automatiquement et est valide sans signature.</p>
   </div>
 </body>

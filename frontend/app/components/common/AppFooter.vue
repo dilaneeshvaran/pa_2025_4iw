@@ -108,7 +108,7 @@
 
       <div class="mt-12 border-t border-gray-200 pt-8 flex flex-col md:flex-row items-center justify-between gap-4">
         <p class="text-xs text-gray-400">
-          &copy; {{ new Date().getFullYear() }} MediCote. Tous droits réservés. Projet académique ESGI.
+          &copy; {{ new Date().getFullYear() }} MediCôte. Tous droits réservés. Projet académique ESGI.
         </p>
         <p class="text-xs text-gray-400 flex items-center gap-1">
           Fait avec <span class="text-red-500">❤️</span> pour la Côte d'Ivoire

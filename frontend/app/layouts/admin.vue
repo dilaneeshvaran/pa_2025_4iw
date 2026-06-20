@@ -10,7 +10,7 @@
           >
             <ShieldCheck class="h-6 w-6 text-white" />
           </div>
-          <span class="text-xl font-bold text-gray-900">MediCote Admin</span>
+          <span class="text-xl font-bold text-gray-900">MediCôte Admin</span>
         </div>
 
         <nav class="flex-1 overflow-y-auto px-3 py-4">

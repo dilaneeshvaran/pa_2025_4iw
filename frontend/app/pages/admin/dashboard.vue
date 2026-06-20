@@ -4,7 +4,7 @@
       <h1 class="mb-2 text-2xl font-bold text-gray-900">
         Tableau de bord administrateur
       </h1>
-      <p class="text-gray-600">Vue d'ensemble de la plateforme MediCote</p>
+      <p class="text-gray-600">Vue d'ensemble de la plateforme MediCôte</p>
     </div>
 
     <div class="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">

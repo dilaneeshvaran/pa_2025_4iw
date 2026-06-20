@@ -13,7 +13,7 @@
             <Building2 class="h-6 w-6 text-white" />
           </div>
           <div>
-            <span class="text-xl font-bold text-gray-900">MediCote</span>
+            <span class="text-xl font-bold text-gray-900">MediCôte</span>
             <p class="text-xs text-orange-600">Cabinet Admin</p>
           </div>
         </div>

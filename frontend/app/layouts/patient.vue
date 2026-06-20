@@ -12,7 +12,7 @@
           >
             <Heart class="h-6 w-6 text-white" />
           </div>
-          <span class="text-xl font-bold text-gray-900">MediCote</span>
+          <span class="text-xl font-bold text-gray-900">MediCôte</span>
         </div>
 
         <!-- navigation -->

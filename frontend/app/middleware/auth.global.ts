@@ -27,6 +27,13 @@ export default defineNuxtRouteMiddleware((to, _from) => {
 
   // redirect login if not authenticated and trying to access protected route
   if (!authStore.isAuthenticated && !isPublicRoute) {
+    if (import.meta.client) {
+      const isInitialLoad = !_from || _from.matched.length === 0;
+      if (isInitialLoad) {
+        window.location.replace(`/auth/login?redirect=${encodeURIComponent(to.fullPath)}`);
+        return abortNavigation();
+      }
+    }
     return navigateTo({
       path: "/auth/login",
       query: { redirect: to.fullPath },
@@ -42,6 +49,13 @@ export default defineNuxtRouteMiddleware((to, _from) => {
     } else {
       // logout if no refresh token and redirect to login
       authStore.logout();
+      if (import.meta.client) {
+        const isInitialLoad = !_from || _from.matched.length === 0;
+        if (isInitialLoad) {
+          window.location.replace(`/auth/login?redirect=${encodeURIComponent(to.fullPath)}`);
+          return abortNavigation();
+        }
+      }
       return navigateTo({
         path: "/auth/login",
         query: { redirect: to.fullPath },
