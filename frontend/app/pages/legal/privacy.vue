@@ -2,12 +2,7 @@
   <div class="bg-gray-50 py-12 px-4 sm:px-6 lg:px-8">
     <div class="mx-auto max-w-4xl bg-white p-8 rounded-2xl shadow-sm border border-gray-100">
       <div class="mb-8">
-        <NuxtLink
-          to="/"
-          class="inline-flex items-center text-sm font-medium text-orange-500 hover:text-orange-600 transition-colors"
-        >
-          ← Retour à l'accueil
-        </NuxtLink>
+        <BackToHome />
       </div>
 
       <h1 class="text-4xl font-bold text-gray-900 mb-6">
@@ -109,6 +104,8 @@
 </template>
 
 <script setup lang="ts">
+import BackToHome from "~/components/ui/BackToHome.vue";
+
 definePageMeta({
   layout: "default",
 });
