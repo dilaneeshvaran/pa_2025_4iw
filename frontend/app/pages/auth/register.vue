@@ -106,7 +106,8 @@
               v-model="formData.dateOfBirth"
               type="date"
               required
-              :max="todayDate"
+              :min="minDate"
+              :max="maxDate"
               class="mt-1 block w-full rounded-md border border-gray-300 px-3 py-2 placeholder-gray-400 shadow-sm focus:border-orange-500 focus:outline-none focus:ring-2 focus:ring-orange-500"
             />
           </div>
@@ -213,8 +214,16 @@ const router = useRouter();
 const route = useRoute();
 const auth = useAuth();
 
-const todayDate = computed(() => {
-  return new Date().toISOString().split("T")[0];
+const maxDate = computed(() => {
+  const d = new Date();
+  d.setFullYear(d.getFullYear() - 15);
+  return d.toISOString().split("T")[0];
+});
+
+const minDate = computed(() => {
+  const d = new Date();
+  d.setFullYear(d.getFullYear() - 120);
+  return d.toISOString().split("T")[0];
 });
 
 const formData = ref<{

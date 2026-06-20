@@ -12,8 +12,12 @@ export const dateOfBirthSchema = z
   .string()
   .refine((val) => {
     const date = new Date(val)
-    return !isNaN(date.getTime()) && date < new Date()
-  }, 'La date de naissance doit être dans le passé')
+    if (isNaN(date.getTime())) return false
+    const now = new Date()
+    const minDate = new Date(now.getFullYear() - 15, now.getMonth(), now.getDate())
+    const maxDate = new Date(now.getFullYear() - 120, now.getMonth(), now.getDate())
+    return date <= minDate && date >= maxDate
+  }, 'La date de naissance doit être valide (âge requis: 15 à 120 ans)')
 
 export const updatePatientProfileSchema = z.object({
   firstName: z.string().min(2, 'Le prénom doit contenir au moins 2 caractères').optional(),

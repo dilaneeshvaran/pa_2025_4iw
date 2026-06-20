@@ -25,8 +25,12 @@ export const signupSchema = z.object({
     .string()
     .refine((val) => {
       const date = new Date(val)
-      return !isNaN(date.getTime()) && date < new Date()
-    }, 'La date de naissance doit être dans le passé'),
+      if (isNaN(date.getTime())) return false
+      const now = new Date()
+      const minDate = new Date(now.getFullYear() - 15, now.getMonth(), now.getDate())
+      const maxDate = new Date(now.getFullYear() - 120, now.getMonth(), now.getDate())
+      return date <= minDate && date >= maxDate
+    }, 'La date de naissance doit être valide (âge requis: 15 à 120 ans)'),
   gender: z.enum(['MALE', 'FEMALE', 'OTHER', 'PREFER_NOT_TO_SAY']),
 })
 
