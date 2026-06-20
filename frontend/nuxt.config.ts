@@ -26,9 +26,12 @@ export default defineNuxtConfig({
 
   runtimeConfig: {
     public: {
-      apiBase: process.env.FRONTEND_API_BASE_URL || "http://localhost:3001/api",
+      apiBase: process.env.NUXT_PUBLIC_API_BASE || process.env.FRONTEND_API_BASE_URL || "http://localhost:3001/api",
       stripePublicKey: process.env.FRONTEND_STRIPE_PUBLIC_KEY,
       googleClientId: process.env.FRONTEND_GOOGLE_CLIENT_ID,
+      umamiUrl: process.env.NUXT_PUBLIC_UMAMI_URL || "",
+      umamiWebsiteId: process.env.NUXT_PUBLIC_UMAMI_WEBSITE_ID || "",
+      umamiEnabled: process.env.NUXT_PUBLIC_UMAMI_ENABLED !== "false",
     },
   },
 
