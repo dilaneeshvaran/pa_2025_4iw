@@ -4,6 +4,6 @@
     <main class="flex-1">
       <slot />
     </main>
-    <!-- todo:  footer  -->
+    <CommonAppFooter />
   </div>
 </template>

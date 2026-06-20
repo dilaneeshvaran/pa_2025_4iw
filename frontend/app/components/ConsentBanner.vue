@@ -16,16 +16,16 @@
                 pour traiter vos données personnelles. Vos données sont
                 utilisées uniquement pour vous fournir nos services médicaux et
                 améliorer votre expérience. Consultez notre
-                <a
-                  href="#"
+                <NuxtLink
+                  to="/legal/privacy"
                   class="text-orange-600 underline hover:text-orange-600"
-                  >politique de confidentialité</a
+                  >politique de confidentialité</NuxtLink
                 >
                 et nos
-                <a
-                  href="#"
+                <NuxtLink
+                  to="/legal/terms"
                   class="text-orange-600 underline hover:text-orange-600"
-                  >conditions générales d'utilisation</a
+                  >conditions générales d'utilisation</NuxtLink
                 >.
               </p>
             </div>
