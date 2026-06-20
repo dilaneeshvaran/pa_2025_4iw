@@ -106,6 +106,7 @@
               v-model="formData.dateOfBirth"
               type="date"
               required
+              :max="todayDate"
               class="mt-1 block w-full rounded-md border border-gray-300 px-3 py-2 placeholder-gray-400 shadow-sm focus:border-orange-500 focus:outline-none focus:ring-2 focus:ring-orange-500"
             />
           </div>
@@ -197,8 +198,9 @@
 </template>
 
 <script setup lang="ts">
-import { ref } from "vue";
+import { ref, computed } from "vue";
 import { useAuth } from "~/composables/useAuth";
+import { isValidPhone, isValidBirthDate } from "~/utils/validation";
 
 import type { Gender } from "~/types/auth";
 
@@ -210,6 +212,10 @@ definePageMeta({
 const router = useRouter();
 const route = useRoute();
 const auth = useAuth();
+
+const todayDate = computed(() => {
+  return new Date().toISOString().split("T")[0];
+});
 
 const formData = ref<{
   email: string;
@@ -243,6 +249,18 @@ const handleRegister = async () => {
   // validate password confirmation
   if (formData.value.password !== formData.value.confirmPassword) {
     errorMessage.value = "Les mots de passe ne correspondent pas.";
+    loading.value = false;
+    return;
+  }
+
+  if (!isValidBirthDate(formData.value.dateOfBirth)) {
+    errorMessage.value = "La date de naissance doit être dans le passé.";
+    loading.value = false;
+    return;
+  }
+
+  if (!isValidPhone(formData.value.phone)) {
+    errorMessage.value = "Le numéro de téléphone contient des caractères non autorisés ou sa longueur est incorrecte (8-15 chiffres requis).";
     loading.value = false;
     return;
   }

@@ -182,6 +182,7 @@
 <script setup lang="ts">
 import { User as UserIcon, Mail, Shield } from "lucide-vue-next";
 import { useAuthStore } from "~/stores/auth";
+import { isValidPhone } from "~/utils/validation";
 
 definePageMeta({
   layout: "staff",
@@ -237,6 +238,14 @@ async function fetchProfile() {
 async function updateProfile() {
   savingProfile.value = true;
   profileMessage.value = "";
+
+  if (profile.value.phone && !isValidPhone(profile.value.phone)) {
+    profileMessage.value = "Le numéro de téléphone contient des caractères non autorisés ou sa longueur est incorrecte (8-15 chiffres requis).";
+    profileMessageClass.value = "text-red-600";
+    savingProfile.value = false;
+    return;
+  }
+
   try {
     const res = await useAuthenticatedFetch<{
       success: boolean;
