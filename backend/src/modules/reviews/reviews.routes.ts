@@ -1,5 +1,6 @@
 import { FastifyInstance, FastifyRequest, FastifyReply } from 'fastify'
 import { authenticate } from '../../middleware/authenticate'
+import { sanitizeErrorMessage } from '../../utils/errors'
 import { reviewsService } from './reviews.service'
 import { createReviewSchema } from './reviews.schema'
 import prisma from '../../config/database'
@@ -31,7 +32,7 @@ export async function reviewsRoutes(fastify: FastifyInstance) {
         return reply.status(201).send({ success: true, data: review, message: 'Avis publié avec succès' })
       } catch (error) {
         request.log.error(error)
-        const message = error instanceof Error ? error.message : 'Erreur lors de la publication de l\'avis'
+        const message = sanitizeErrorMessage(error, 'Erreur lors de la publication de l\'avis')
         return reply.status(400).send({ success: false, message })
       }
     },

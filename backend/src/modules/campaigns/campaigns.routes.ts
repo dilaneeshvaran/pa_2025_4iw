@@ -2,6 +2,7 @@ import { FastifyInstance, FastifyRequest, FastifyReply } from 'fastify'
 import { authenticate } from '../../middleware/authenticate'
 import { authorize } from '../../middleware/authorize'
 import { campaignsService } from './campaigns.service'
+import { sanitizeErrorMessage } from '../../utils/errors'
 
 export async function campaignsRoutes(fastify: FastifyInstance) {
   // recipient count for each destinatair selection
@@ -15,8 +16,7 @@ export async function campaignsRoutes(fastify: FastifyInstance) {
         const counts = await campaignsService.getRecipientCounts()
         return reply.status(200).send({ success: true, data: counts })
       } catch (error) {
-        const message =
-          error instanceof Error ? error.message : 'Erreur serveur'
+        const message = sanitizeErrorMessage(error, 'Erreur serveur')
         return reply.status(500).send({ success: false, message })
       }
     },
@@ -40,8 +40,7 @@ export async function campaignsRoutes(fastify: FastifyInstance) {
         const count = await campaignsService.getFilteredRecipientCount(body)
         return reply.status(200).send({ success: true, data: { count } })
       } catch (error) {
-        const message =
-          error instanceof Error ? error.message : 'Erreur serveur'
+        const message = sanitizeErrorMessage(error, 'Erreur serveur')
         return reply.status(500).send({ success: false, message })
       }
     },
@@ -58,8 +57,7 @@ export async function campaignsRoutes(fastify: FastifyInstance) {
         const cities = await campaignsService.getAvailableCities()
         return reply.status(200).send({ success: true, data: cities })
       } catch (error) {
-        const message =
-          error instanceof Error ? error.message : 'Erreur serveur'
+        const message = sanitizeErrorMessage(error, 'Erreur serveur')
         return reply.status(500).send({ success: false, message })
       }
     },
@@ -108,8 +106,7 @@ export async function campaignsRoutes(fastify: FastifyInstance) {
 
         return reply.status(201).send({ success: true, data: campaign })
       } catch (error) {
-        const message =
-          error instanceof Error ? error.message : 'Erreur serveur'
+        const message = sanitizeErrorMessage(error, 'Erreur serveur')
         return reply.status(400).send({ success: false, message })
       }
     },
@@ -141,8 +138,7 @@ export async function campaignsRoutes(fastify: FastifyInstance) {
 
         return reply.status(200).send({ success: true, data: result })
       } catch (error) {
-        const message =
-          error instanceof Error ? error.message : 'Erreur serveur'
+        const message = sanitizeErrorMessage(error, 'Erreur serveur')
         return reply.status(500).send({ success: false, message })
       }
     },
@@ -160,8 +156,7 @@ export async function campaignsRoutes(fastify: FastifyInstance) {
         const campaign = await campaignsService.getCampaignById(id)
         return reply.status(200).send({ success: true, data: campaign })
       } catch (error) {
-        const message =
-          error instanceof Error ? error.message : 'Erreur serveur'
+        const message = sanitizeErrorMessage(error, 'Erreur serveur')
         return reply.status(404).send({ success: false, message })
       }
     },

@@ -1,6 +1,7 @@
 import { FastifyInstance, FastifyRequest, FastifyReply } from 'fastify'
 import { medicalRecordsService } from './medical-records.service'
 import { authenticate } from '../../middleware/authenticate'
+import { sanitizeErrorMessage } from '../../utils/errors'
 import {
   updateProfileSchema,
   updateAntecedentsSchema,
@@ -71,10 +72,7 @@ export async function medicalRecordsRoutes(fastify: FastifyInstance) {
         })
       } catch (error) {
         request.log.error(error)
-        const message =
-          error instanceof Error
-            ? error.message
-            : 'Erreur lors de la mise à jour du profil'
+        const message = sanitizeErrorMessage(error, 'Erreur lors de la mise à jour du profil')
         return reply.status(400).send({ success: false, message })
       }
     },
@@ -107,10 +105,7 @@ export async function medicalRecordsRoutes(fastify: FastifyInstance) {
         })
       } catch (error) {
         request.log.error(error)
-        const message =
-          error instanceof Error
-            ? error.message
-            : 'Erreur lors de la mise à jour des antécédents'
+        const message = sanitizeErrorMessage(error, 'Erreur lors de la mise à jour des antécédents')
         return reply.status(400).send({ success: false, message })
       }
     },
@@ -363,10 +358,7 @@ export async function medicalRecordsRoutes(fastify: FastifyInstance) {
         })
       } catch (error) {
         request.log.error(error)
-        const message =
-          error instanceof Error
-            ? error.message
-            : "Erreur lors de l'ajout de la vaccination"
+        const message = sanitizeErrorMessage(error, "Erreur lors de l'ajout de la vaccination")
         return reply.status(400).send({ success: false, message })
       }
     },
@@ -395,10 +387,7 @@ export async function medicalRecordsRoutes(fastify: FastifyInstance) {
         })
       } catch (error) {
         request.log.error(error)
-        const message =
-          error instanceof Error
-            ? error.message
-            : 'Erreur lors de la suppression de la vaccination'
+        const message = sanitizeErrorMessage(error, 'Erreur lors de la suppression de la vaccination')
         return reply.status(400).send({ success: false, message })
       }
     },

@@ -1,5 +1,6 @@
 import { FastifyRequest, FastifyReply } from 'fastify'
 import { staffService } from './staff.service'
+import { sanitizeErrorMessage } from '../../utils/errors'
 
 class StaffController {
   async getDashboard(request: FastifyRequest, reply: FastifyReply) {
@@ -8,7 +9,7 @@ class StaffController {
       const data = await staffService.getDashboard(userId)
       return reply.send({ success: true, data })
     } catch (error: any) {
-      return reply.status(400).send({ success: false, message: error.message })
+      return reply.status(400).send({ success: false, message: sanitizeErrorMessage(error, 'Une erreur est survenue') })
     }
   }
 
@@ -18,7 +19,7 @@ class StaffController {
       const data = await staffService.getPractitioners(userId)
       return reply.send({ success: true, data })
     } catch (error: any) {
-      return reply.status(400).send({ success: false, message: error.message })
+      return reply.status(400).send({ success: false, message: sanitizeErrorMessage(error, 'Une erreur est survenue') })
     }
   }
 
@@ -43,7 +44,7 @@ class StaffController {
       )
       return reply.send({ success: true, data })
     } catch (error: any) {
-      return reply.status(400).send({ success: false, message: error.message })
+      return reply.status(400).send({ success: false, message: sanitizeErrorMessage(error, 'Une erreur est survenue') })
     }
   }
 
@@ -62,7 +63,7 @@ class StaffController {
       const data = await staffService.bookAppointment(userId, id, body)
       return reply.status(201).send({ success: true, data })
     } catch (error: any) {
-      return reply.status(400).send({ success: false, message: error.message })
+      return reply.status(400).send({ success: false, message: sanitizeErrorMessage(error, 'Une erreur est survenue') })
     }
   }
 
@@ -76,7 +77,7 @@ class StaffController {
         message: 'Rendez-vous annulé',
       })
     } catch (error: any) {
-      return reply.status(400).send({ success: false, message: error.message })
+      return reply.status(400).send({ success: false, message: sanitizeErrorMessage(error, 'Une erreur est survenue') })
     }
   }
 
@@ -92,7 +93,7 @@ class StaffController {
       const data = await staffService.moveAppointment(userId, id, body)
       return reply.send({ success: true, data })
     } catch (error: any) {
-      return reply.status(400).send({ success: false, message: error.message })
+      return reply.status(400).send({ success: false, message: sanitizeErrorMessage(error, 'Une erreur est survenue') })
     }
   }
 
@@ -104,7 +105,7 @@ class StaffController {
       const data = await staffService.searchPatients(userId, id, q || '')
       return reply.send({ success: true, data })
     } catch (error: any) {
-      return reply.status(400).send({ success: false, message: error.message })
+      return reply.status(400).send({ success: false, message: sanitizeErrorMessage(error, 'Une erreur est survenue') })
     }
   }
 
@@ -114,7 +115,7 @@ class StaffController {
       const data = await staffService.getStaffProfile(userId)
       return reply.send({ success: true, data })
     } catch (error: any) {
-      return reply.status(400).send({ success: false, message: error.message })
+      return reply.status(400).send({ success: false, message: sanitizeErrorMessage(error, 'Une erreur est survenue') })
     }
   }
 
@@ -129,7 +130,7 @@ class StaffController {
       const data = await staffService.updateStaffProfile(userId, body)
       return reply.send({ success: true, data })
     } catch (error: any) {
-      return reply.status(400).send({ success: false, message: error.message })
+      return reply.status(400).send({ success: false, message: sanitizeErrorMessage(error, 'Une erreur est survenue') })
     }
   }
 
@@ -145,7 +146,7 @@ class StaffController {
       const data = await staffService.updateStaffEmail(userId, body)
       return reply.send({ success: true, data })
     } catch (error: any) {
-      return reply.status(400).send({ success: false, message: error.message })
+      return reply.status(400).send({ success: false, message: sanitizeErrorMessage(error, 'Une erreur est survenue') })
     }
   }
 
@@ -172,7 +173,7 @@ class StaffController {
       const data = await staffService.updateStaffPassword(userId, body)
       return reply.send({ success: true, data })
     } catch (error: any) {
-      return reply.status(400).send({ success: false, message: error.message })
+      return reply.status(400).send({ success: false, message: sanitizeErrorMessage(error, 'Une erreur est survenue') })
     }
   }
 }

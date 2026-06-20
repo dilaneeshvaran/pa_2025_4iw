@@ -1,5 +1,6 @@
 import { FastifyRequest, FastifyReply } from 'fastify'
 import { AuthService } from './auth.service'
+import { sanitizeErrorMessage } from '../../utils/errors'
 import {
   signupSchema,
   loginSchema,
@@ -30,7 +31,7 @@ export async function signup(request: FastifyRequest, reply: FastifyReply) {
   } catch (error: any) {
     return reply.status(400).send({
       success: false,
-      message: error.message || "Erreur lors de l'inscription",
+      message: sanitizeErrorMessage(error, "Erreur lors de l'inscription"),
     })
   }
 }
@@ -48,7 +49,7 @@ export async function login(request: FastifyRequest, reply: FastifyReply) {
   } catch (error: any) {
     return reply.status(401).send({
       success: false,
-      message: error.message || 'Erreur lors de la connexion',
+      message: sanitizeErrorMessage(error, 'Erreur lors de la connexion'),
     })
   }
 }
@@ -68,7 +69,7 @@ export async function verifyEmail(
   } catch (error: any) {
     return reply.status(400).send({
       success: false,
-      message: error.message || "Erreur lors de la vérification de l'email",
+      message: sanitizeErrorMessage(error, "Erreur lors de la vérification de l'email"),
     })
   }
 }
@@ -88,8 +89,7 @@ export async function resendVerification(
   } catch (error: any) {
     return reply.status(400).send({
       success: false,
-      message:
-        error.message || "Erreur lors de l'envoi de l'email de vérification",
+      message: sanitizeErrorMessage(error, "Erreur lors de l'envoi de l'email de vérification"),
     })
   }
 }
@@ -110,9 +110,10 @@ export async function requestPasswordReset(
   } catch (error: any) {
     return reply.status(400).send({
       success: false,
-      message:
-        error.message ||
-        'Erreur lors de la demande de réinitialisation du mot de passe',
+      message: sanitizeErrorMessage(
+        error,
+        'Erreur lors de la demande de réinitialisation du mot de passe'
+      ),
     })
   }
 }
@@ -132,8 +133,7 @@ export async function resetPassword(
   } catch (error: any) {
     return reply.status(400).send({
       success: false,
-      message:
-        error.message || 'Erreur lors de la réinitialisation du mot de passe',
+      message: sanitizeErrorMessage(error, 'Erreur lors de la réinitialisation du mot de passe'),
     })
   }
 }
@@ -154,7 +154,7 @@ export async function refreshToken(
   } catch (error: any) {
     return reply.status(401).send({
       success: false,
-      message: error.message || 'Erreur lors du rafraîchissement du token',
+      message: sanitizeErrorMessage(error, 'Erreur lors du rafraîchissement du token'),
     })
   }
 }
@@ -171,7 +171,7 @@ export async function logout(request: FastifyRequest, reply: FastifyReply) {
   } catch (error: any) {
     return reply.status(400).send({
       success: false,
-      message: error.message || 'Erreur lors de la déconnexion',
+      message: sanitizeErrorMessage(error, 'Erreur lors de la déconnexion'),
     })
   }
 }

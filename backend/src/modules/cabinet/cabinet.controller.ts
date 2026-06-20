@@ -1,5 +1,6 @@
 import { FastifyRequest, FastifyReply } from 'fastify'
 import { cabinetService } from './cabinet.service'
+import { sanitizeErrorMessage } from '../../utils/errors'
 
 class CabinetController {
   async getDashboard(request: FastifyRequest, reply: FastifyReply) {
@@ -8,7 +9,7 @@ class CabinetController {
       const data = await cabinetService.getDashboard(userId)
       return reply.send({ success: true, data })
     } catch (error: any) {
-      return reply.status(400).send({ success: false, message: error.message })
+      return reply.status(400).send({ success: false, message: sanitizeErrorMessage(error, 'Une erreur est survenue') })
     }
   }
 
@@ -18,7 +19,7 @@ class CabinetController {
       const data = await cabinetService.getCabinetInfo(userId)
       return reply.send({ success: true, data })
     } catch (error: any) {
-      return reply.status(400).send({ success: false, message: error.message })
+      return reply.status(400).send({ success: false, message: sanitizeErrorMessage(error, 'Une erreur est survenue') })
     }
   }
 
@@ -29,7 +30,7 @@ class CabinetController {
       const data = await cabinetService.updateCabinetInfo(userId, body)
       return reply.send({ success: true, data })
     } catch (error: any) {
-      return reply.status(400).send({ success: false, message: error.message })
+      return reply.status(400).send({ success: false, message: sanitizeErrorMessage(error, 'Une erreur est survenue') })
     }
   }
 
@@ -39,7 +40,7 @@ class CabinetController {
       const data = await cabinetService.getPractitioners(userId)
       return reply.send({ success: true, data })
     } catch (error: any) {
-      return reply.status(400).send({ success: false, message: error.message })
+      return reply.status(400).send({ success: false, message: sanitizeErrorMessage(error, 'Une erreur est survenue') })
     }
   }
 
@@ -50,7 +51,7 @@ class CabinetController {
       const data = await cabinetService.invitePractitioner(userId, email)
       return reply.send({ success: true, data })
     } catch (error: any) {
-      return reply.status(400).send({ success: false, message: error.message })
+      return reply.status(400).send({ success: false, message: sanitizeErrorMessage(error, 'Une erreur est survenue') })
     }
   }
 
@@ -64,7 +65,7 @@ class CabinetController {
         message: 'Praticien retiré du cabinet',
       })
     } catch (error: any) {
-      return reply.status(400).send({ success: false, message: error.message })
+      return reply.status(400).send({ success: false, message: sanitizeErrorMessage(error, 'Une erreur est survenue') })
     }
   }
 
@@ -74,7 +75,7 @@ class CabinetController {
       const data = await cabinetService.getStaff(userId)
       return reply.send({ success: true, data })
     } catch (error: any) {
-      return reply.status(400).send({ success: false, message: error.message })
+      return reply.status(400).send({ success: false, message: sanitizeErrorMessage(error, 'Une erreur est survenue') })
     }
   }
 
@@ -91,7 +92,7 @@ class CabinetController {
       const data = await cabinetService.createStaff(userId, body, true)
       return reply.status(201).send({ success: true, data })
     } catch (error: any) {
-      return reply.status(400).send({ success: false, message: error.message })
+      return reply.status(400).send({ success: false, message: sanitizeErrorMessage(error, 'Une erreur est survenue') })
     }
   }
 
@@ -103,7 +104,7 @@ class CabinetController {
       const data = await cabinetService.updateStaff(userId, id, position)
       return reply.send({ success: true, data })
     } catch (error: any) {
-      return reply.status(400).send({ success: false, message: error.message })
+      return reply.status(400).send({ success: false, message: sanitizeErrorMessage(error, 'Une erreur est survenue') })
     }
   }
 
@@ -117,7 +118,7 @@ class CabinetController {
         message: 'Personnel supprimé',
       })
     } catch (error: any) {
-      return reply.status(400).send({ success: false, message: error.message })
+      return reply.status(400).send({ success: false, message: sanitizeErrorMessage(error, 'Une erreur est survenue') })
     }
   }
 
@@ -136,7 +137,7 @@ class CabinetController {
       )
       return reply.send({ success: true, data })
     } catch (error: any) {
-      return reply.status(400).send({ success: false, message: error.message })
+      return reply.status(400).send({ success: false, message: sanitizeErrorMessage(error, 'Une erreur est survenue') })
     }
   }
 }

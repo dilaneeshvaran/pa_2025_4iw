@@ -1,6 +1,7 @@
 import { FastifyReply, FastifyRequest } from 'fastify'
 import { ContactRequestStatus } from '@prisma/client'
 import { ContactRequestsService } from './contact-requests.service'
+import { sanitizeErrorMessage } from '../../utils/errors'
 import {
   createPractitionerRequestSchema,
   createCabinetRequestSchema,
@@ -63,10 +64,7 @@ export class ContactRequestsController {
         data: result,
       })
     } catch (error) {
-      const errorMessage =
-        error instanceof Error
-          ? error.message
-          : "Erreur lors de l'envoi de la demande"
+      const errorMessage = sanitizeErrorMessage(error, "Erreur lors de l'envoi de la demande")
       return reply.status(400).send({
         success: false,
         message: errorMessage,
@@ -207,10 +205,7 @@ export class ContactRequestsController {
         })
       }
     } catch (error) {
-      const errorMessage =
-        error instanceof Error
-          ? error.message
-          : "Erreur lors de l'envoi de la demande"
+      const errorMessage = sanitizeErrorMessage(error, "Erreur lors de l'envoi de la demande")
       return reply.status(400).send({
         success: false,
         message: errorMessage,
@@ -236,10 +231,7 @@ export class ContactRequestsController {
         data: contactRequests,
       })
     } catch (error) {
-      const errorMessage =
-        error instanceof Error
-          ? error.message
-          : 'Erreur lors de la récupération des demandes'
+      const errorMessage = sanitizeErrorMessage(error, 'Erreur lors de la récupération des demandes')
       return reply.status(500).send({
         success: false,
         message: errorMessage,
@@ -266,10 +258,7 @@ export class ContactRequestsController {
         data: contactRequest,
       })
     } catch (error) {
-      const errorMessage =
-        error instanceof Error
-          ? error.message
-          : 'Erreur lors de la récupération de la demande'
+      const errorMessage = sanitizeErrorMessage(error, 'Erreur lors de la récupération de la demande')
       return reply.status(500).send({
         success: false,
         message: errorMessage,
@@ -303,10 +292,7 @@ export class ContactRequestsController {
         data: contactRequest,
       })
     } catch (error) {
-      const errorMessage =
-        error instanceof Error
-          ? error.message
-          : 'Erreur lors de la mise à jour du statut'
+      const errorMessage = sanitizeErrorMessage(error, 'Erreur lors de la mise à jour du statut')
       return reply.status(500).send({
         success: false,
         message: errorMessage,
@@ -327,8 +313,7 @@ export class ContactRequestsController {
         data: result,
       })
     } catch (error) {
-      const errorMessage =
-        error instanceof Error ? error.message : "Erreur lors de l'approbation"
+      const errorMessage = sanitizeErrorMessage(error, "Erreur lors de l'approbation")
       return reply.status(400).send({
         success: false,
         message: errorMessage,
@@ -361,8 +346,7 @@ export class ContactRequestsController {
         data: result,
       })
     } catch (error) {
-      const errorMessage =
-        error instanceof Error ? error.message : 'Erreur lors du rejet'
+      const errorMessage = sanitizeErrorMessage(error, 'Erreur lors du rejet')
       return reply.status(400).send({
         success: false,
         message: errorMessage,
@@ -381,10 +365,7 @@ export class ContactRequestsController {
         message: 'Demande de contact supprimée avec succès',
       })
     } catch (error) {
-      const errorMessage =
-        error instanceof Error
-          ? error.message
-          : 'Erreur lors de la suppression de la demande'
+      const errorMessage = sanitizeErrorMessage(error, 'Erreur lors de la suppression de la demande')
       return reply.status(500).send({
         success: false,
         message: errorMessage,
@@ -471,10 +452,7 @@ export class ContactRequestsController {
       reply.header('Content-Disposition', `attachment; filename="${filename}"`)
       return reply.send(fileStream)
     } catch (error) {
-      const errorMessage =
-        error instanceof Error
-          ? error.message
-          : 'Erreur lors du téléchargement du document'
+      const errorMessage = sanitizeErrorMessage(error, 'Erreur lors du téléchargement du document')
       return reply.status(500).send({
         success: false,
         message: errorMessage,

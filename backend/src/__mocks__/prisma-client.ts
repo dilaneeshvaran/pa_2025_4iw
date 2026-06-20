@@ -37,4 +37,57 @@ export const Gender = {
   OTHER: 'OTHER',
 } as const
 
+export class PrismaClientKnownRequestError extends Error {
+  code: string
+  clientVersion: string
+  constructor(message: string, { code, clientVersion }: { code: string; clientVersion: string }) {
+    super(message)
+    this.name = 'PrismaClientKnownRequestError'
+    this.code = code
+    this.clientVersion = clientVersion
+  }
+}
+
+export class PrismaClientUnknownRequestError extends Error {
+  constructor(message: string) {
+    super(message)
+    this.name = 'PrismaClientUnknownRequestError'
+  }
+}
+
+export class PrismaClientRustPanicError extends Error {
+  constructor(message: string) {
+    super(message)
+    this.name = 'PrismaClientRustPanicError'
+  }
+}
+
+export class PrismaClientInitializationError extends Error {
+  constructor(message: string) {
+    super(message)
+    this.name = 'PrismaClientInitializationError'
+  }
+}
+
+export class PrismaClientValidationError extends Error {
+  constructor(message: string) {
+    super(message)
+    this.name = 'PrismaClientValidationError'
+  }
+}
+
+export class Decimal {
+  constructor(public value: number | string) {}
+}
+
+export const Prisma = {
+  PrismaClientKnownRequestError,
+  PrismaClientUnknownRequestError,
+  PrismaClientRustPanicError,
+  PrismaClientInitializationError,
+  PrismaClientValidationError,
+  Decimal,
+}
+
 export const PrismaClient = jest.fn().mockImplementation(() => ({}))
+
