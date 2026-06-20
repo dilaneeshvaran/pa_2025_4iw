@@ -19,7 +19,7 @@
             1. Objet du Service
           </h2>
           <p class="leading-relaxed">
-            MediCote fournit une plateforme numérique de mise en relation entre patients et praticiens de santé en Côte d'Ivoire. Elle permet la recherche de professionnels par spécialité et localisation, la prise de rendez-vous en ligne, le suivi du dossier de santé, la messagerie sécurisée, ainsi que des consultations de télémédecine (téléconsultations).
+            MediCôte fournit une plateforme numérique de mise en relation entre patients et praticiens de santé en Côte d'Ivoire. Elle permet la recherche de professionnels par spécialité et localisation, la prise de rendez-vous en ligne, le suivi du dossier de santé, la messagerie sécurisée, ainsi que des consultations de télémédecine (téléconsultations).
           </p>
         </section>
 
@@ -28,11 +28,11 @@
             2. Inscription et Vérification des Comptes
           </h2>
           <p class="leading-relaxed">
-            Pour accéder aux services de MediCote, l'inscription est obligatoire :
+            Pour accéder aux services de MediCôte, l'inscription est obligatoire :
           </p>
           <ul class="list-disc pl-5 space-y-2">
             <li><strong>Compte Patient :</strong> Accessible à toute personne physique majeure. Les données fournies doivent être exactes.</li>
-            <li><strong>Compte Praticien :</strong> Soumis à une validation administrative obligatoire. MediCote procède à la vérification de l'inscription à l'Ordre National correspondant (Médecins, Pharmaciens, Chirurgiens-Dentistes) et des diplômes d'état avant l'activation du compte.</li>
+            <li><strong>Compte Praticien :</strong> Soumis à une validation administrative obligatoire. MediCôte procède à la vérification de l'inscription à l'Ordre National correspondant (Médecins, Pharmaciens, Chirurgiens-Dentistes) et des diplômes d'état avant l'activation du compte.</li>
           </ul>
         </section>
 
@@ -69,7 +69,7 @@
             5. Responsabilité
           </h2>
           <p class="leading-relaxed">
-            MediCote agit en qualité d'intermédiaire technique. Les diagnostics, prescriptions, et soins sont de la responsabilité exclusive des praticiens de santé inscrits. MediCote ne saurait être tenu pour responsable en cas de litige médical, d'absence du praticien ou d'évaluation erronée lors d'une consultation.
+            MediCôte agit en qualité d'intermédiaire technique. Les diagnostics, prescriptions, et soins sont de la responsabilité exclusive des praticiens de santé inscrits. MediCôte ne saurait être tenu pour responsable en cas de litige médical, d'absence du praticien ou d'évaluation erronée lors d'une consultation.
           </p>
         </section>
 
@@ -78,7 +78,7 @@
             6. Modification des Conditions
           </h2>
           <p class="leading-relaxed">
-            MediCote se réserve le droit de modifier les présentes CGU à tout moment. Les utilisateurs seront informés des modifications substantielles et devront les accepter lors de leur connexion suivante.
+            MediCôte se réserve le droit de modifier les présentes CGU à tout moment. Les utilisateurs seront informés des modifications substantielles et devront les accepter lors de leur connexion suivante.
           </p>
         </section>
       </div>

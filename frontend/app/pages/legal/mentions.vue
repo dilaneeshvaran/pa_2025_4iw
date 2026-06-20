@@ -19,10 +19,10 @@
             1. Éditeur de la Plateforme
           </h2>
           <p class="leading-relaxed">
-            La plateforme <strong>MediCote</strong> est un projet étudiant réalisé dans le cadre de l'évaluation annuelle de la 4ème année d'Ingénierie du Web (4IW) à l'<strong>ESGI (École Supérieure de Génie Informatique)</strong>, année universitaire 2025-2026.
+            La plateforme <strong>MediCôte</strong> est un projet étudiant réalisé dans le cadre de l'évaluation annuelle de la 4ème année d'Ingénierie du Web (4IW) à l'<strong>ESGI (École Supérieure de Génie Informatique)</strong>, année universitaire 2025-2026.
           </p>
           <p class="leading-relaxed">
-            <strong>Responsables du projet :</strong> L'équipe étudiante de MediCote.<br />
+            <strong>Responsables du projet :</strong> L'équipe étudiante de MediCôte.<br />
             <strong>Contact Académique :</strong> ESGI Paris, 242 Rue du Faubourg Saint-Antoine, 75012 Paris, France.
           </p>
         </section>
@@ -45,7 +45,7 @@
             3. Propriété Intellectuelle
           </h2>
           <p class="leading-relaxed">
-            L'ensemble des contenus de la plateforme (textes, logos, icônes, animations, structure générale de l'application) est la propriété intellectuelle exclusive des auteurs du projet étudiant MediCote, sous réserve des droits de licence des frameworks et dépendances open-source utilisés (Vue/Nuxt, TailwindCSS, Fastify).
+            L'ensemble des contenus de la plateforme (textes, logos, icônes, animations, structure générale de l'application) est la propriété intellectuelle exclusive des auteurs du projet étudiant MediCôte, sous réserve des droits de licence des frameworks et dépendances open-source utilisés (Vue/Nuxt, TailwindCSS, Fastify).
           </p>
         </section>
 
@@ -54,7 +54,7 @@
             4. Absence d'activité commerciale
           </h2>
           <p class="leading-relaxed">
-            <strong>NOTE IMPORTANTE :</strong> MediCote est un projet pédagogique et d'évaluation. Il ne s'agit pas d'un service commercial ou d'une plateforme de santé opérationnelle en production réelle pour le grand public. Aucune transaction financière réelle n'est effectuée sur ce site et aucun acte médical réel n'y est prescrit.
+            <strong>NOTE IMPORTANTE :</strong> MediCôte est un projet pédagogique et d'évaluation. Il ne s'agit pas d'un service commercial ou d'une plateforme de santé opérationnelle en production réelle pour le grand public. Aucune transaction financière réelle n'est effectuée sur ce site et aucun acte médical réel n'y est prescrit.
           </p>
         </section>
       </div>

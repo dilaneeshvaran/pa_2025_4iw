@@ -19,7 +19,7 @@
             1. Introduction
           </h2>
           <p class="leading-relaxed">
-            MediCote est particulièrement soucieux du respect de la vie privée et de la protection des données à caractère personnel de ses utilisateurs. Nous nous engageons à traiter les données de santé et les données personnelles conformément à la réglementation applicable en Côte d'Ivoire (notamment les directives de l'ARTCI) et aux meilleures pratiques internationales, y compris le Règlement Général sur la Protection des Données (RGPD).
+            MediCôte est particulièrement soucieux du respect de la vie privée et de la protection des données à caractère personnel de ses utilisateurs. Nous nous engageons à traiter les données de santé et les données personnelles conformément à la réglementation applicable en Côte d'Ivoire (notamment les directives de l'ARTCI) et aux meilleures pratiques internationales, y compris le Règlement Général sur la Protection des Données (RGPD).
           </p>
         </section>
 
@@ -28,7 +28,7 @@
             2. Données collectées
           </h2>
           <p class="leading-relaxed">
-            Dans le cadre de l'utilisation de la plateforme MediCote, nous collectons les types d'informations suivants :
+            Dans le cadre de l'utilisation de la plateforme MediCôte, nous collectons les types d'informations suivants :
           </p>
           <ul class="list-disc pl-5 space-y-2">
             <li>

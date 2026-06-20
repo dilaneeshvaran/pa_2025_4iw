@@ -96,11 +96,14 @@ const buildAppointment = (overrides: Partial<Appointment> = {}): Appointment => 
   ...overrides,
 })
 
-// Crée une date ISO relative à maintenant
+// crée une date iso relative à maintenant dans le fuseau horaire local
 function futureDate(hours: number): string {
   const d = new Date()
   d.setHours(d.getHours() + hours, 0, 0, 0)
-  return d.toISOString().split('T')[0]!
+  const yyyy = d.getFullYear()
+  const mm = String(d.getMonth() + 1).padStart(2, '0')
+  const dd = String(d.getDate()).padStart(2, '0')
+  return `${yyyy}-${mm}-${dd}`
 }
 
 function futureTime(hours: number): string {
@@ -112,7 +115,10 @@ function futureTime(hours: number): string {
 function pastDate(hours: number): string {
   const d = new Date()
   d.setHours(d.getHours() - hours, 0, 0, 0)
-  return d.toISOString().split('T')[0]!
+  const yyyy = d.getFullYear()
+  const mm = String(d.getMonth() + 1).padStart(2, '0')
+  const dd = String(d.getDate()).padStart(2, '0')
+  return `${yyyy}-${mm}-${dd}`
 }
 
 function pastTime(hours: number): string {

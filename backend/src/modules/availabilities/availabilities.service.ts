@@ -224,7 +224,7 @@ export class AvailabilitiesService {
             ${data.reason ? `<p><em>Motif : ${data.reason}</em></p>` : ''}
             <p>Nous vous prions de bien vouloir reprogrammer votre rendez-vous à une autre date via votre espace patient.</p>
             <p>Nous nous excusons pour ce désagrément.</p>
-            <p>Cordialement,<br/>L'équipe MediCote</p>
+            <p>Cordialement,<br/>L'équipe MediCôte</p>
           </div>
           `,
         )
@@ -312,7 +312,7 @@ export class AvailabilitiesService {
             <p>Aucune prise de rendez-vous ne sera possible durant cette période.</p>
             ${absence.reason ? `<p><em>Motif : ${absence.reason}</em></p>` : ''}
             <p>Nous vous remercions de votre compréhension.</p>
-            <p>Cordialement,<br/>L'équipe MediCote</p>
+            <p>Cordialement,<br/>L'équipe MediCôte</p>
           </div>
           `,
         )
@@ -428,7 +428,7 @@ export class AvailabilitiesService {
             ${data.reason ? `<p><em>Motif : ${data.reason}</em></p>` : ''}
             <p>Nous vous prions de bien vouloir reprogrammer votre rendez-vous à une autre date via votre espace patient.</p>
             <p>Nous nous excusons pour ce désagrément.</p>
-            <p>Cordialement,<br/>L'équipe MediCote</p>
+            <p>Cordialement,<br/>L'équipe MediCôte</p>
           </div>
           `,
         )

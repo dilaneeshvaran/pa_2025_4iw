@@ -82,7 +82,7 @@
     </section>
 
     <section class="relative z-10 bg-gray-50/80 border-y border-gray-100 py-16" aria-labelledby="stats-heading">
-      <h2 id="stats-heading" class="sr-only">Statistiques de MediCote</h2>
+      <h2 id="stats-heading" class="sr-only">Statistiques de MediCôte</h2>
       <div class="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
         <div class="grid grid-cols-2 gap-8 md:grid-cols-4 text-center">
           <div class="p-4 bg-white rounded-2xl shadow-sm border border-gray-100/50">
@@ -136,7 +136,7 @@
       <div class="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
         <div class="text-center">
           <h2 id="workflow-heading" class="text-3xl font-bold tracking-tight text-gray-900 sm:text-4xl">
-            Comment fonctionne MediCote ?
+            Comment fonctionne MediCôte ?
           </h2>
           <p class="mx-auto mt-4 max-w-2xl text-lg text-gray-500">
             Une plateforme simple, fluide et sécurisée pour vous accompagner au quotidien.
@@ -253,7 +253,7 @@
               Vous êtes professionnel de santé ?
             </h2>
             <p class="text-orange-50 text-lg max-w-2xl">
-              Rejoignez MediCote pour mieux gérer vos rendez-vous, proposer des téléconsultations sécurisées à vos patients, et optimiser le fonctionnement de votre cabinet médical.
+              Rejoignez MediCôte pour mieux gérer vos rendez-vous, proposer des téléconsultations sécurisées à vos patients, et optimiser le fonctionnement de votre cabinet médical.
             </p>
           </div>
           <div class="mt-6 md:mt-0 shrink-0">
