@@ -62,7 +62,7 @@ docker compose -f docker-compose.full.dev.yml up -d
 
 Note : This is not ideal for development because it rebuild the backend every time and hot reload may not work as expected.
 
-The backend will run on `http://localhost:3000` and the frontend on `http://localhost:3001`.
+The frontend will run on `http://localhost:3000` and the backend on `http://localhost:3001`.
 
 ## Available Scripts
 
