@@ -34,50 +34,6 @@ services:
       timeout: 3s
       retries: 5
 
-  backend:
-    build:
-      context: ./backend
-      target: development
-    container_name: backend
-    env_file:
-      - ./backend/.env
-    environment:
-      BACKEND_DATABASE_URL: postgresql://admin:admin@postgresdb-dev:5432/medicote?schema=public
-      BACKEND_REDIS_URL: redis://redisdb-dev:6379
-    command: sh -c "npx prisma db push && npm run dev"
-    ports:
-      - "3001:3001"
-    volumes:
-      - ./backend/.env:/app/.env:ro
-      - ./backend/src:/app/src
-      - ./backend/prisma:/app/prisma
-      - /app/node_modules
-    depends_on:
-      postgres-db:
-        condition: service_healthy
-      redis-db:
-        condition: service_healthy
-    networks:
-      - pgnetwork
-
-  frontend:
-    build:
-      context: ./frontend
-      target: development
-    container_name: frontend
-    ports:
-      - "3000:3000"
-    environment:
-      NUXT_PUBLIC_API_BASE: http://localhost:3001/api
-    volumes:
-      - ./frontend:/app
-      - /app/node_modules
-      - /app/.nuxt
-    depends_on:
-      - backend
-    networks:
-      - pgnetwork
-
 networks:
   pgnetwork:
     driver: bridge

@@ -22,7 +22,7 @@ Ask for the .env files for backend and frontend from your project lead.
 ### 3. Start the Database (Development)
 
 ```bash
-docker compose -f docker-compose.dev.yml up -d
+docker compose -f docker-compose.yml up -d
 ```
 
 This starts the PostgreSQL database container for development.
@@ -52,19 +52,15 @@ You have two options:
 npm run dev
 ```
 
-**Option B: Run them separately in different terminals**
+**Option B: Run front and back from the compose.full.dev**
 
-Terminal 1 (Backend):
-
-```bash
-npm run dev:backend
-```
-
-Terminal 2 (Frontend):
+The following command will run everything in one command:
 
 ```bash
-npm run dev:frontend
+docker compose -f docker-compose.full.dev.yml up -d
 ```
+
+Note : This is not ideal for development because it rebuild the backend every time and hot reload may not work as expected.
 
 The backend will run on `http://localhost:3000` and the frontend on `http://localhost:3001`.
 
