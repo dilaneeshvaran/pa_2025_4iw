@@ -80,3 +80,11 @@ jobs:
         run: npm run build
         env:
           NODE_OPTIONS: --max-old-space-size=4096
+
+  ci-gate:
+    name: CI Status Gate
+    runs-on: ubuntu-latest
+    needs: [backend, frontend]
+    steps:
+      - name: Success
+        run: echo "All build and test stages completed successfully!"
