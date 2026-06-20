@@ -3,15 +3,19 @@
     <Transition name="consent-slide">
       <div
         v-if="visible"
+        role="dialog"
+        aria-modal="true"
+        aria-labelledby="consent-title"
+        aria-describedby="consent-desc"
         class="fixed inset-x-0 bottom-0 z-[9999] border-t border-gray-200 bg-white shadow-2xl"
       >
         <div class="mx-auto max-w-4xl px-4 py-6 sm:px-6">
           <div class="flex flex-col gap-4 sm:flex-row sm:items-start">
             <div class="flex-1">
-              <h3 class="text-base font-semibold text-gray-900">
+              <h3 id="consent-title" class="text-base font-semibold text-gray-900">
                 Consentement au traitement des données
               </h3>
-              <p class="mt-1 text-sm text-gray-600">
+              <p id="consent-desc" class="mt-1 text-sm text-gray-600">
                 Conformément au RGPD, nous avons besoin de votre consentement
                 pour traiter vos données personnelles. Vos données sont
                 utilisées uniquement pour vous fournir nos services médicaux et
@@ -28,7 +32,27 @@
                   >conditions générales d'utilisation</NuxtLink
                 >.
               </p>
+
+              <div class="mt-3">
+                <label class="flex cursor-pointer items-start gap-3">
+                  <input
+                    id="analytics-consent-checkbox"
+                    v-model="analyticsAccepted"
+                    type="checkbox"
+                    class="mt-0.5 h-4 w-4 rounded border-gray-300 text-orange-500 focus:ring-orange-500"
+                    aria-describedby="analytics-consent-desc"
+                  />
+                  <span class="text-sm text-gray-700">
+                    <span class="font-medium">Analytics anonymes (optionnel)</span>
+                    <span id="analytics-consent-desc" class="ml-1 text-gray-500">
+                      — Aide à améliorer MediCôte. Aucune donnée médicale ni personnelle n'est
+                      collectée.
+                    </span>
+                  </span>
+                </label>
+              </div>
             </div>
+
             <div class="flex shrink-0 gap-3">
               <button
                 class="rounded-lg border border-gray-300 bg-white px-4 py-2 text-sm font-medium text-gray-700 transition-colors hover:bg-gray-50"
@@ -41,10 +65,14 @@
                 :disabled="submitting"
                 @click="handleAccept"
               >
-                {{ submitting ? "Enregistrement..." : "Accepter tout" }}
+                {{ submitting ? 'Enregistrement...' : 'Accepter' }}
               </button>
             </div>
           </div>
+        </div>
+
+        <div aria-live="polite" aria-atomic="true" class="sr-only">
+          {{ liveMessage }}
         </div>
       </div>
     </Transition>
@@ -52,147 +80,154 @@
 </template>
 
 <script setup lang="ts">
-import { useAuthStore } from "~/stores/auth";
+import { useAuthStore } from '~/stores/auth'
 
-const authStore = useAuthStore();
-const visible = ref(false);
-const submitting = ref(false);
+const authStore = useAuthStore()
+const { initAnalytics, trackEvent } = useAnalytics()
+const { grantAnalyticsConsent, revokeAnalyticsConsent } = useConsent()
 
-const CONSENT_KEY = "medicote_consent_given";
-const CONSENT_TYPES = [
-  "data_processing",
-  "terms_of_service",
-  "privacy_policy",
-] as const;
+const visible = ref(false)
+const submitting = ref(false)
+const analyticsAccepted = ref(false)
+const liveMessage = ref('')
+
+const CONSENT_KEY = 'medicote_consent_given'
+const ESSENTIAL_CONSENT_TYPES = ['data_processing', 'terms_of_service', 'privacy_policy'] as const
 
 const checkConsent = () => {
-  // only show for authenticated users
   if (!authStore.isAuthenticated || !authStore.accessToken) {
-    visible.value = false;
-    return;
+    visible.value = false
+    return
   }
-  // check if already consented in this browser
-  const stored = localStorage.getItem(CONSENT_KEY);
-  if (stored === "true") {
-    visible.value = false;
-    return;
+  const stored = localStorage.getItem(CONSENT_KEY)
+  if (stored === 'true') {
+    visible.value = false
+    return
   }
-  // check via api call to be sure (handles multiple devices, incognito and other cases)
-  fetchConsentStatus();
-};
+  fetchConsentStatus()
+}
 
 const fetchConsentStatus = async () => {
   try {
-    const config = useRuntimeConfig();
+    const config = useRuntimeConfig()
     const res = await $fetch<{
-      success: boolean;
+      success: boolean
       data: Array<{
-        consentType: string;
-        accepted: boolean;
-        revokedAt: string | null;
-      }>;
-    }>("/settings/consents", {
+        consentType: string
+        accepted: boolean
+        revokedAt: string | null
+      }>
+    }>('/settings/consents', {
       baseURL: config.public.apiBase,
       headers: {
         Authorization: `Bearer ${authStore.accessToken}`,
       },
-    });
+    })
 
     if (res.success) {
-      const activeConsents = res.data.filter((c) => c.accepted && !c.revokedAt);
-      const hasAll = CONSENT_TYPES.every((type) =>
+      const activeConsents = res.data.filter((c) => c.accepted && !c.revokedAt)
+      const hasAll = ESSENTIAL_CONSENT_TYPES.every((type) =>
         activeConsents.some((c) => c.consentType === type),
-      );
+      )
       if (hasAll) {
-        localStorage.setItem(CONSENT_KEY, "true");
-        visible.value = false;
+        localStorage.setItem(CONSENT_KEY, 'true')
+        visible.value = false
       } else {
-        visible.value = true;
+        visible.value = true
       }
     }
   } catch {
-    // If api fails, show the banner to be safe
-    visible.value = true;
+    visible.value = true
   }
-};
+}
 
-const handleAccept = async () => {
-  submitting.value = true;
-  try {
-    const config = useRuntimeConfig();
-
-    for (const consentType of CONSENT_TYPES) {
-      await $fetch("/settings/consents", {
-        method: "POST",
-        baseURL: config.public.apiBase,
-        headers: {
-          Authorization: `Bearer ${authStore.accessToken}`,
-        },
-        body: {
-          consentType,
-          version: "1.0",
-          accepted: true,
-        },
-      });
-    }
-
-    localStorage.setItem(CONSENT_KEY, "true");
-    visible.value = false;
-  } catch (e) {
-    console.error("Error saving consent:", e);
-  } finally {
-    submitting.value = false;
-  }
-};
-
-const handleDecline = () => {
-  // still record the refusal
-  const config = useRuntimeConfig();
-
-  for (const consentType of CONSENT_TYPES) {
-    $fetch("/settings/consents", {
-      method: "POST",
+const saveConsents = async (types: string[], accepted: boolean) => {
+  const config = useRuntimeConfig()
+  for (const consentType of types) {
+    await $fetch('/settings/consents', {
+      method: 'POST',
       baseURL: config.public.apiBase,
       headers: {
         Authorization: `Bearer ${authStore.accessToken}`,
       },
       body: {
         consentType,
-        version: "1.0",
+        version: '1.0',
+        accepted,
+      },
+    })
+  }
+}
+
+const handleAccept = async () => {
+  submitting.value = true
+  try {
+    await saveConsents([...ESSENTIAL_CONSENT_TYPES], true)
+
+    if (analyticsAccepted.value) {
+      await saveConsents(['analytics'], true).catch(() => {})
+      grantAnalyticsConsent()
+      initAnalytics()
+      trackEvent('registration_completed')
+    } else {
+      revokeAnalyticsConsent()
+    }
+
+    localStorage.setItem(CONSENT_KEY, 'true')
+    liveMessage.value = 'Consentement enregistré.'
+    visible.value = false
+  } catch (e) {
+    console.error('Erreur lors de la sauvegarde du consentement :', e)
+    liveMessage.value = 'Une erreur est survenue. Veuillez réessayer.'
+  } finally {
+    submitting.value = false
+  }
+}
+
+const handleDecline = () => {
+  const config = useRuntimeConfig()
+  for (const consentType of ESSENTIAL_CONSENT_TYPES) {
+    $fetch('/settings/consents', {
+      method: 'POST',
+      baseURL: config.public.apiBase,
+      headers: {
+        Authorization: `Bearer ${authStore.accessToken}`,
+      },
+      body: {
+        consentType,
+        version: '1.0',
         accepted: false,
       },
-    }).catch(() => {});
+    }).catch(() => {})
   }
 
-  // do not store in localstorage bcoz banner will reappear on next visit
-  visible.value = false;
+  revokeAnalyticsConsent()
+  liveMessage.value = 'Consentement refusé.'
+  visible.value = false
 
-  // reshow after 30 seconds if user declined
   setTimeout(() => {
     if (authStore.isAuthenticated) {
-      visible.value = true;
+      visible.value = true
     }
-  }, 30000);
-};
+  }, 30000)
+}
 
-// watch for auth state changes
 watch(
   () => authStore.isAuthenticated,
   (isAuth) => {
     if (isAuth) {
-      checkConsent();
+      checkConsent()
     } else {
-      visible.value = false;
+      visible.value = false
     }
   },
-);
+)
 
 onMounted(() => {
-  // small delay to let auth state init  on page load
   setTimeout(() => {
-    checkConsent();
-  }, 1000);
-});
+    checkConsent()
+  }, 1000)
+})
 </script>
 
 <style scoped>
