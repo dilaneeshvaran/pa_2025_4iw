@@ -1,10 +1,14 @@
 import { FastifyInstance, FastifyRequest, FastifyReply } from 'fastify'
+import { ZodTypeProvider } from 'fastify-type-provider-zod'
 import { patientSettingsService } from './patient-settings.service'
 import { authenticate } from '../../middleware/authenticate'
 import { sanitizeErrorMessage } from '../../utils/errors'
+import { updatePatientProfileSchema } from './patient-settings.schema'
 
 export async function patientSettingsRoutes(fastify: FastifyInstance) {
-  fastify.get(
+  const app = fastify.withTypeProvider<ZodTypeProvider>()
+
+  app.get(
     '/profile',
     { preHandler: [authenticate] },
     async (request: FastifyRequest, reply: FastifyReply) => {
@@ -22,10 +26,15 @@ export async function patientSettingsRoutes(fastify: FastifyInstance) {
     },
   )
 
-  fastify.patch(
+  app.patch(
     '/profile',
-    { preHandler: [authenticate] },
-    async (request: FastifyRequest, reply: FastifyReply) => {
+    {
+      preHandler: [authenticate],
+      schema: {
+        body: updatePatientProfileSchema,
+      },
+    },
+    async (request, reply) => {
       try {
         const user = request.user as { id: string }
         const body = request.body as Record<string, unknown>
@@ -44,7 +53,7 @@ export async function patientSettingsRoutes(fastify: FastifyInstance) {
     },
   )
 
-  fastify.patch(
+  app.patch(
     '/email',
     { preHandler: [authenticate] },
     async (request: FastifyRequest, reply: FastifyReply) => {
@@ -70,7 +79,7 @@ export async function patientSettingsRoutes(fastify: FastifyInstance) {
     },
   )
 
-  fastify.patch(
+  app.patch(
     '/password',
     { preHandler: [authenticate] },
     async (request: FastifyRequest, reply: FastifyReply) => {
@@ -111,7 +120,7 @@ export async function patientSettingsRoutes(fastify: FastifyInstance) {
   )
 
   // toggle 2fa
-  fastify.patch(
+  app.patch(
     '/2fa',
     { preHandler: [authenticate] },
     async (request: FastifyRequest, reply: FastifyReply) => {
@@ -140,7 +149,7 @@ export async function patientSettingsRoutes(fastify: FastifyInstance) {
     },
   )
 
-  fastify.get(
+  app.get(
     '/notifications',
     { preHandler: [authenticate] },
     async (request: FastifyRequest, reply: FastifyReply) => {
@@ -161,7 +170,7 @@ export async function patientSettingsRoutes(fastify: FastifyInstance) {
   )
 
   // update notification preferences
-  fastify.patch(
+  app.patch(
     '/notifications',
     { preHandler: [authenticate] },
     async (request: FastifyRequest, reply: FastifyReply) => {
@@ -185,7 +194,7 @@ export async function patientSettingsRoutes(fastify: FastifyInstance) {
   )
 
   // get consents
-  fastify.get(
+  app.get(
     '/consents',
     { preHandler: [authenticate] },
     async (request: FastifyRequest, reply: FastifyReply) => {
@@ -204,7 +213,7 @@ export async function patientSettingsRoutes(fastify: FastifyInstance) {
   )
 
   // save consent
-  fastify.post(
+  app.post(
     '/consents',
     { preHandler: [authenticate] },
     async (request: FastifyRequest, reply: FastifyReply) => {
@@ -241,7 +250,7 @@ export async function patientSettingsRoutes(fastify: FastifyInstance) {
   )
 
   // request data export
-  fastify.post(
+  app.post(
     '/data-export',
     { preHandler: [authenticate] },
     async (request: FastifyRequest, reply: FastifyReply) => {
@@ -263,7 +272,7 @@ export async function patientSettingsRoutes(fastify: FastifyInstance) {
   )
 
   // request account deletion
-  fastify.post(
+  app.post(
     '/delete-account',
     { preHandler: [authenticate] },
     async (request: FastifyRequest, reply: FastifyReply) => {

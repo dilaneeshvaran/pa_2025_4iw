@@ -59,7 +59,7 @@
               <label class="mb-1 block text-sm font-medium text-gray-700"
                 >Date de naissance</label
               >
-              <UiInput v-model="profile.dateOfBirth" type="date" />
+              <UiInput v-model="profile.dateOfBirth" type="date" :max="todayDate" />
             </div>
             <div>
               <label class="mb-1 block text-sm font-medium text-gray-700"
@@ -540,6 +540,7 @@ import {
 } from "lucide-vue-next";
 import { useAuthStore } from "~/stores/auth";
 import { formatConsentDate } from "~/utils/date";
+import { isValidPhone, isValidBirthDate } from "~/utils/validation";
 
 definePageMeta({
   layout: "patient",
@@ -566,6 +567,10 @@ const profileMsg = ref("");
 const profileError = ref(false);
 const currentEmail = ref("");
 const twoFactorEnabled = ref(false);
+
+const todayDate = computed(() => {
+  return new Date().toISOString().split("T")[0];
+});
 
 const profile = reactive({
   firstName: "",
@@ -736,6 +741,21 @@ const fetchProfile = async () => {
 const saveProfile = async () => {
   savingProfile.value = true;
   profileMsg.value = "";
+
+  if (profile.dateOfBirth && !isValidBirthDate(profile.dateOfBirth)) {
+    profileError.value = true;
+    profileMsg.value = "La date de naissance doit être dans le passé.";
+    savingProfile.value = false;
+    return;
+  }
+
+  if (profile.phone && !isValidPhone(profile.phone)) {
+    profileError.value = true;
+    profileMsg.value = "Le numéro de téléphone contient des caractères non autorisés ou sa longueur est incorrecte (8-15 chiffres requis).";
+    savingProfile.value = false;
+    return;
+  }
+
   try {
     await useAuthenticatedFetch<{ success: boolean }>("/settings/profile", {
       method: "PATCH",

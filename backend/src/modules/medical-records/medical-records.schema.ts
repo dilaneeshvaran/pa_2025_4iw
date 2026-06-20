@@ -3,7 +3,14 @@ import { z } from 'zod'
 export const updateProfileSchema = z.object({
   firstName: z.string().min(1).optional(),
   lastName: z.string().min(1).optional(),
-  phone: z.string().min(1).optional(),
+  phone: z
+    .string()
+    .regex(/^\+?[0-9\s\-()]+$/, 'Le numéro de téléphone contient des caractères non autorisés')
+    .refine((val) => {
+      const digits = val.replace(/\D/g, '')
+      return digits.length >= 10 && digits.length <= 15
+    }, 'Le numéro de téléphone doit contenir entre 10 et 15 chiffres')
+    .optional(),
   address: z.string().optional(),
   city: z.string().optional(),
   bloodType: z

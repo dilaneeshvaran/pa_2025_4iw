@@ -58,8 +58,27 @@ describe('auth.schema – validation Zod', () => {
       expect(() => signupSchema.parse({ ...valid, lastName: 'D' })).toThrow()
     })
 
-    it('rejette un numéro de téléphone invalide', () => {
+    it('rejette un numéro de téléphone invalide (lettres ou mauvais format)', () => {
       expect(() => signupSchema.parse({ ...valid, phone: '123' })).toThrow()
+      expect(() => signupSchema.parse({ ...valid, phone: '+225 12345' })).toThrow()
+      expect(() => signupSchema.parse({ ...valid, phone: '+225 abc12345' })).toThrow()
+    })
+
+    it('accepte un numéro de téléphone avec des espaces, tirets et parenthèses', () => {
+      expect(() => signupSchema.parse({ ...valid, phone: '+225 01 02 03 04 05' })).not.toThrow()
+      expect(() => signupSchema.parse({ ...valid, phone: '+225-01-02-03-04-05' })).not.toThrow()
+      expect(() => signupSchema.parse({ ...valid, phone: '+225 (0) 10 20 30 40' })).not.toThrow()
+    })
+
+    it('rejette une date de naissance dans le futur', () => {
+      const tomorrow = new Date()
+      tomorrow.setDate(tomorrow.getDate() + 1)
+      const tomorrowStr = tomorrow.toISOString().split('T')[0]
+      expect(() => signupSchema.parse({ ...valid, dateOfBirth: tomorrowStr })).toThrow()
+    })
+
+    it('rejette une date de naissance invalide', () => {
+      expect(() => signupSchema.parse({ ...valid, dateOfBirth: 'not-a-date' })).toThrow()
     })
 
     it('rejette un genre invalide', () => {

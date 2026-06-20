@@ -240,6 +240,7 @@
 import { ref, onMounted, computed, watch } from "vue";
 import { User, Plus, Trash2, Eye } from "lucide-vue-next";
 import { useToast } from "vue-toastification";
+import { isValidPhone } from "~/utils/validation";
 
 definePageMeta({
   layout: "practitioner",
@@ -276,6 +277,13 @@ const fetchProfile = async () => {
 const saveProfile = async () => {
   if (!profile.value) return;
   saving.value = true;
+
+  if (profile.value.phone && !isValidPhone(profile.value.phone)) {
+    toast.error("Le numéro de téléphone contient des caractères non autorisés ou sa longueur est incorrecte (8-15 chiffres requis).");
+    saving.value = false;
+    return;
+  }
+
   try {
     const langs = languagesInput.value
       .split(",")

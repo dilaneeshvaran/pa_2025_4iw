@@ -10,6 +10,7 @@
       </slot>
     </div>
     <input
+      v-bind="$attrs"
       :type="type"
       :value="modelValue"
       :placeholder="placeholder"
@@ -24,6 +25,10 @@
 
 <script setup lang="ts">
 import { computed, type Component } from "vue";
+
+defineOptions({
+  inheritAttrs: false,
+});
 
 interface Props {
   type?: string;
