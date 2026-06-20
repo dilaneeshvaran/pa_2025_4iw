@@ -5,7 +5,7 @@ const SMTP_PORT = parseInt(process.env.BACKEND_SMTP_PORT || '587')
 const SMTP_USER = process.env.BACKEND_SMTP_USER || ''
 const SMTP_PASSWORD = process.env.BACKEND_SMTP_PASS || ''
 const SMTP_FROM = process.env.BACKEND_SMTP_FROM || 'noreply@medicote.ci'
-const APP_URL = process.env.BACKEND_APP_URL || 'http://localhost:3000'
+const APP_URL = process.env.BACKEND_FRONTEND_URL || 'http://localhost:3000'
 
 // create reusable transporter
 const transporter = nodemailer.createTransport({

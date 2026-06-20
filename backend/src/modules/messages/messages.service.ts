@@ -955,7 +955,7 @@ async function sendNewMessageEmail(
   senderName: string,
   messagePreview: string,
 ): Promise<void> {
-  const APP_URL = process.env.BACKEND_APP_URL || 'http://localhost:3000'
+  const APP_URL = process.env.BACKEND_FRONTEND_URL || 'http://localhost:3000'
 
   const html = `
     <!DOCTYPE html>
