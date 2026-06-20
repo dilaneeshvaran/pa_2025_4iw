@@ -455,72 +455,71 @@
     <!-- consents -->
     <div v-if="activeTab === 'consents'" class="space-y-6">
       <UiCard>
-        <h3 class="mb-6 text-lg font-semibold text-gray-900">Consentements</h3>
+        <h3 class="mb-2 text-lg font-semibold text-gray-900">Consentements</h3>
+        <p class="mb-6 text-sm text-gray-500">
+          Gérez vos consentements RGPD. Vous pouvez accepter ou révoquer chaque
+          consentement à tout moment.
+        </p>
 
         <div v-if="loadingConsents" class="animate-pulse space-y-4">
-          <div v-for="i in 3" :key="i" class="h-16 rounded bg-gray-200" />
+          <div v-for="i in 4" :key="i" class="h-16 rounded bg-gray-200" />
         </div>
 
-        <div v-else class="space-y-4">
-          <div
-            v-for="item in consentItems"
-            :key="item.type"
-            class="rounded-lg border border-gray-200 p-4"
-          >
-            <div class="flex items-center justify-between">
-              <div>
-                <p class="text-sm font-medium text-gray-900">
-                  {{ item.label }}
-                </p>
-                <p v-if="item.consent" class="mt-1 text-xs text-gray-500">
-                  Accepté le
-                  {{ formatConsentDate(item.consent.acceptedAt) }} - Version
-                  {{ item.consent.version }}
-                </p>
-                <p v-else class="mt-1 text-xs text-amber-600">
-                  Non encore accepté
-                </p>
-              </div>
-              <div>
-                <UiBadge
-                  :variant="item.consent?.accepted ? 'success' : 'warning'"
-                >
-                  {{ item.consent?.accepted ? "Accepté" : "En attente" }}
-                </UiBadge>
-              </div>
-            </div>
-          </div>
+        <div
+          v-if="consentsMsg"
+          :class="[
+            'mb-4 rounded-lg p-3 text-sm',
+            consentsError ? 'bg-red-50 text-red-700' : 'bg-green-50 text-green-700',
+          ]"
+        >
+          {{ consentsMsg }}
+        </div>
 
-          <div class="rounded-lg border border-gray-200 p-4">
-            <div class="flex items-center justify-between">
-              <div>
-                <p class="text-sm font-medium text-gray-900">
-                  Consentement au traitement des données
-                </p>
-                <p
-                  v-if="dataProcessingConsent"
-                  class="mt-1 text-xs text-gray-500"
-                >
-                  Accepté le
-                  {{ formatConsentDate(dataProcessingConsent.acceptedAt) }} -
-                  Version
-                  {{ dataProcessingConsent.version }}
-                </p>
-                <p v-else class="mt-1 text-xs text-amber-600">
-                  Non encore accepté
-                </p>
-              </div>
-              <div>
-                <UiBadge
-                  :variant="
-                    dataProcessingConsent?.accepted ? 'success' : 'warning'
-                  "
-                >
-                  {{
-                    dataProcessingConsent?.accepted ? "Accepté" : "En attente"
-                  }}
+        <div v-if="!loadingConsents" class="space-y-3">
+          <div
+            v-for="item in allConsentItems"
+            :key="item.type"
+            class="flex items-start justify-between rounded-lg border border-gray-200 p-4"
+          >
+            <div class="flex-1">
+              <div class="flex items-center gap-2">
+                <p class="text-sm font-medium text-gray-900">{{ item.label }}</p>
+                <UiBadge :variant="item.isActive ? 'success' : 'warning'">
+                  {{ item.isActive ? 'Accepté' : 'En attente' }}
                 </UiBadge>
+                <span
+                  v-if="item.required"
+                  class="rounded bg-orange-100 px-1.5 py-0.5 text-xs font-medium text-orange-700"
+                  >Requis</span
+                >
               </div>
+              <p class="mt-0.5 text-xs text-gray-500">{{ item.description }}</p>
+              <p v-if="item.activeRecord" class="mt-1 text-xs text-gray-400">
+                Accepté le {{ formatConsentDate(item.activeRecord.acceptedAt) }} · Version
+                {{ item.activeRecord.version }}
+              </p>
+            </div>
+            <div class="ml-4 flex shrink-0 gap-2">
+              <button
+                v-if="!item.isActive"
+                :disabled="savingConsent === item.type"
+                class="rounded-lg bg-orange-500 px-3 py-1.5 text-xs font-medium text-white transition-colors hover:bg-orange-600 disabled:opacity-50"
+                @click="acceptConsent(item.type)"
+              >
+                {{ savingConsent === item.type ? '...' : 'Accepter' }}
+              </button>
+              <button
+                v-if="item.isActive && !item.required"
+                :disabled="savingConsent === item.type"
+                class="rounded-lg border border-gray-300 px-3 py-1.5 text-xs font-medium text-gray-600 transition-colors hover:bg-gray-50 disabled:opacity-50"
+                @click="revokeConsent(item.type)"
+              >
+                {{ savingConsent === item.type ? '...' : 'Révoquer' }}
+              </button>
+              <span
+                v-if="item.isActive && item.required"
+                class="text-xs italic text-gray-400">Non révocable</span
+              >
             </div>
           </div>
         </div>
@@ -670,30 +669,121 @@ interface ConsentRecord {
 
 const consents = ref<ConsentRecord[]>([]);
 
-const consentItems = computed(() => [
+const allConsentItems = computed(() => [
   {
-    type: "terms_of_service",
+    type: 'terms_of_service',
     label: "Conditions générales d'utilisation",
-    consent: consents.value.find(
-      (c) => c.consentType === "terms_of_service" && c.accepted && !c.revokedAt,
+    description: 'Acceptation des conditions générales de la plateforme MediCôte.',
+    required: true,
+    activeRecord: consents.value.find(
+      (c) => c.consentType === 'terms_of_service' && c.accepted && !c.revokedAt,
     ),
+    get isActive() { return !!this.activeRecord },
   },
   {
-    type: "privacy_policy",
-    label: "Politique de confidentialité",
-    consent: consents.value.find(
-      (c) => c.consentType === "privacy_policy" && c.accepted && !c.revokedAt,
+    type: 'privacy_policy',
+    label: 'Politique de confidentialité',
+    description: 'Acceptation de la politique de traitement des données personnelles.',
+    required: true,
+    activeRecord: consents.value.find(
+      (c) => c.consentType === 'privacy_policy' && c.accepted && !c.revokedAt,
     ),
+    get isActive() { return !!this.activeRecord },
   },
-]);
+  {
+    type: 'data_processing',
+    label: 'Consentement au traitement des données',
+    description: 'Autorisation pour le traitement de vos données médicales dans le cadre des soins.',
+    required: true,
+    activeRecord: consents.value.find(
+      (c) => c.consentType === 'data_processing' && c.accepted && !c.revokedAt,
+    ),
+    get isActive() { return !!this.activeRecord },
+  },
+  {
+    type: 'analytics',
+    label: 'Analytics anonymes',
+    description: 'Mesures d\'audience anonymisées pour améliorer la plateforme. Aucune donnée médicale collectée.',
+    required: false,
+    activeRecord: consents.value.find(
+      (c) => c.consentType === 'analytics' && c.accepted && !c.revokedAt,
+    ),
+    get isActive() { return !!this.activeRecord },
+  },
+])
 
-const dataProcessingConsent = computed(() =>
-  consents.value.find(
-    (c) => c.consentType === "data_processing" && c.accepted && !c.revokedAt,
-  ),
-);
+const savingConsent = ref<string | null>(null)
+const consentsMsg = ref('')
+const consentsError = ref(false)
 
-//  rgpd state
+const ESSENTIAL_CONSENT_KEY = computed(() => {
+  return authStore.user?.id ? `medicote_consent_given_${authStore.user.id}` : 'medicote_consent_given'
+})
+
+const { grantAnalyticsConsent, revokeAnalyticsConsent, initAnalytics } = (() => {
+  try {
+    const a = useAnalytics()
+    const c = useConsent()
+    return { ...a, ...c }
+  } catch {
+    return {
+      grantAnalyticsConsent: () => {},
+      revokeAnalyticsConsent: () => {},
+      initAnalytics: () => {},
+    }
+  }
+})()
+
+const acceptConsent = async (consentType: string) => {
+  savingConsent.value = consentType
+  consentsMsg.value = ''
+  try {
+    await useAuthenticatedFetch('/settings/consents', {
+      method: 'POST',
+      body: { consentType, version: '1.0', accepted: true },
+    })
+    await fetchConsents()
+    if (consentType === 'analytics') {
+      grantAnalyticsConsent()
+      initAnalytics()
+    }
+    consentsError.value = false
+    consentsMsg.value = 'Consentement enregistré.'
+    setTimeout(() => (consentsMsg.value = ''), 3000)
+  } catch (e: unknown) {
+    consentsError.value = true
+    consentsMsg.value =
+      (e as { data?: { message?: string } })?.data?.message || 'Erreur lors de la mise à jour.'
+  } finally {
+    savingConsent.value = null
+  }
+}
+
+const revokeConsent = async (consentType: string) => {
+  savingConsent.value = consentType
+  consentsMsg.value = ''
+  try {
+    await useAuthenticatedFetch('/settings/consents', {
+      method: 'POST',
+      body: { consentType, version: '1.0', accepted: false },
+    })
+    await fetchConsents()
+    if (consentType === 'analytics') {
+      revokeAnalyticsConsent()
+    } else {
+      localStorage.removeItem(ESSENTIAL_CONSENT_KEY.value)
+    }
+    consentsError.value = false
+    consentsMsg.value = 'Consentement révoqué.'
+    setTimeout(() => (consentsMsg.value = ''), 3000)
+  } catch (e: unknown) {
+    consentsError.value = true
+    consentsMsg.value =
+      (e as { data?: { message?: string } })?.data?.message || 'Erreur lors de la révocation.'
+  } finally {
+    savingConsent.value = null
+  }
+}
 const requestingExport = ref(false);
 const exportMsg = ref("");
 const exportError = ref(false);

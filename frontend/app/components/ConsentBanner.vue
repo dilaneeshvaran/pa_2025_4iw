@@ -91,7 +91,9 @@ const submitting = ref(false)
 const analyticsAccepted = ref(false)
 const liveMessage = ref('')
 
-const CONSENT_KEY = 'medicote_consent_given'
+const CONSENT_KEY = computed(() => {
+  return authStore.user?.id ? `medicote_consent_given_${authStore.user.id}` : 'medicote_consent_given'
+})
 const ESSENTIAL_CONSENT_TYPES = ['data_processing', 'terms_of_service', 'privacy_policy'] as const
 
 const checkConsent = () => {
@@ -99,7 +101,7 @@ const checkConsent = () => {
     visible.value = false
     return
   }
-  const stored = localStorage.getItem(CONSENT_KEY)
+  const stored = localStorage.getItem(CONSENT_KEY.value)
   if (stored === 'true') {
     visible.value = false
     return
@@ -125,16 +127,18 @@ const fetchConsentStatus = async () => {
     })
 
     if (res.success) {
-      const activeConsents = res.data.filter((c) => c.accepted && !c.revokedAt)
+      const activeConsents = res.data.filter((c) => !c.revokedAt)
       const hasAll = ESSENTIAL_CONSENT_TYPES.every((type) =>
         activeConsents.some((c) => c.consentType === type),
       )
       if (hasAll) {
-        localStorage.setItem(CONSENT_KEY, 'true')
+        localStorage.setItem(CONSENT_KEY.value, 'true')
         visible.value = false
       } else {
         visible.value = true
       }
+    } else {
+      visible.value = true
     }
   } catch {
     visible.value = true
@@ -173,7 +177,7 @@ const handleAccept = async () => {
       revokeAnalyticsConsent()
     }
 
-    localStorage.setItem(CONSENT_KEY, 'true')
+    localStorage.setItem(CONSENT_KEY.value, 'true')
     liveMessage.value = 'Consentement enregistré.'
     visible.value = false
   } catch (e) {
@@ -202,14 +206,9 @@ const handleDecline = () => {
   }
 
   revokeAnalyticsConsent()
+  localStorage.setItem(CONSENT_KEY.value, 'true')
   liveMessage.value = 'Consentement refusé.'
   visible.value = false
-
-  setTimeout(() => {
-    if (authStore.isAuthenticated) {
-      visible.value = true
-    }
-  }, 30000)
 }
 
 watch(
@@ -221,12 +220,14 @@ watch(
       visible.value = false
     }
   },
+  { immediate: true },
 )
 
-onMounted(() => {
-  setTimeout(() => {
+const router = useRouter()
+router.afterEach(() => {
+  nextTick(() => {
     checkConsent()
-  }, 1000)
+  })
 })
 </script>
 
