@@ -984,7 +984,7 @@ export class PaymentsService {
       args: ['--no-sandbox', '--disable-setuid-sandbox'],
     })
     const page = await browser.newPage()
-    await page.setContent(html, { waitUntil: 'networkidle0' })
+    await page.setContent(html, { waitUntil: 'domcontentloaded' })
     const pdfBufferArray = await page.pdf({
       format: 'A4',
       printBackground: true,
