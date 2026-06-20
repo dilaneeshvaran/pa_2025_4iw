@@ -34,6 +34,40 @@ services:
       timeout: 3s
       retries: 5
 
+  umami-db:
+    image: postgres:16-alpine
+    container_name: umami-db-dev
+    environment:
+      POSTGRES_DB: umami
+      POSTGRES_USER: ${UMAMI_DB_USER:-umami}
+      POSTGRES_PASSWORD: ${UMAMI_DB_PASSWORD:-umami_dev_password}
+    volumes:
+      - umami-db-data-dev:/var/lib/postgresql/data
+    networks:
+      - pgnetwork
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U ${UMAMI_DB_USER:-umami} -d umami"]
+      interval: 5s
+      timeout: 5s
+      retries: 10
+      start_period: 10s
+
+  umami:
+    image: ghcr.io/umami-software/umami:postgresql-v2.15.1
+    container_name: umami-dev
+    environment:
+      DATABASE_URL: postgresql://${UMAMI_DB_USER:-umami}:${UMAMI_DB_PASSWORD:-umami_dev_password}@umami-db-dev:5432/umami
+      DATABASE_TYPE: postgresql
+      APP_SECRET: ${UMAMI_APP_SECRET:-dev_app_secret_change_in_prod}
+      DISABLE_TELEMETRY: 1
+    ports:
+      - "${UMAMI_PORT:-3002}:3000"
+    depends_on:
+      umami-db:
+        condition: service_healthy
+    networks:
+      - pgnetwork
+
 networks:
   pgnetwork:
     driver: bridge
@@ -42,4 +76,6 @@ volumes:
   postgres-data-dev:
     driver: local
   redis-data-dev:
+    driver: local
+  umami-db-data-dev:
     driver: local
