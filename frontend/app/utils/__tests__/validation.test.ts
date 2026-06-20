@@ -42,9 +42,21 @@ describe('validation utils', () => {
   })
 
   describe('isValidBirthDate', () => {
-    it('accepte les dates dans le passé', () => {
+    it('accepte les dates de naissance réalistes (entre 15 et 120 ans)', () => {
       expect(isValidBirthDate('1990-01-01')).toBe(true)
-      expect(isValidBirthDate('2020-12-31')).toBe(true)
+      expect(isValidBirthDate('2010-01-01')).toBe(true)
+    })
+
+    it('rejette les dates de naissance trop récentes (moins de 15 ans)', () => {
+      expect(isValidBirthDate('2023-01-01')).toBe(false)
+      const now = new Date()
+      const tenYearsAgo = new Date(now.getFullYear() - 10, now.getMonth(), now.getDate()).toISOString().split('T')[0]
+      expect(isValidBirthDate(tenYearsAgo)).toBe(false)
+    })
+
+    it('rejette les dates de naissance trop anciennes (plus de 120 ans, e.g. 1750)', () => {
+      expect(isValidBirthDate('1750-01-01')).toBe(false)
+      expect(isValidBirthDate('1899-12-31')).toBe(false)
     })
 
     it('rejette les dates futures', () => {
