@@ -1,5 +1,6 @@
 import { FastifyRequest, FastifyReply } from 'fastify'
 import { practitionerCabinetsService } from './practitioner-cabinets.service'
+import { sanitizeErrorMessage } from '../../utils/errors'
 
 class PractitionerCabinetsController {
   async getCabinetsAndInvitations(
@@ -14,7 +15,7 @@ class PractitionerCabinetsController {
       return reply.send({ success: true, data })
     } catch (error: any) {
       request.log.error(error)
-      return reply.status(400).send({ success: false, message: error.message })
+      return reply.status(400).send({ success: false, message: sanitizeErrorMessage(error, 'Une erreur est survenue') })
     }
   }
 
@@ -32,7 +33,7 @@ class PractitionerCabinetsController {
       return reply.send({ success: true, data })
     } catch (error: any) {
       request.log.error(error)
-      return reply.status(400).send({ success: false, message: error.message })
+      return reply.status(400).send({ success: false, message: sanitizeErrorMessage(error, 'Une erreur est survenue') })
     }
   }
 
@@ -50,7 +51,7 @@ class PractitionerCabinetsController {
       return reply.send({ success: true, data })
     } catch (error: any) {
       request.log.error(error)
-      return reply.status(400).send({ success: false, message: error.message })
+      return reply.status(400).send({ success: false, message: sanitizeErrorMessage(error, 'Une erreur est survenue') })
     }
   }
 
@@ -65,7 +66,7 @@ class PractitionerCabinetsController {
       return reply.send({ success: true, message: 'Cabinet left successfully' })
     } catch (error: any) {
       request.log.error(error)
-      return reply.status(400).send({ success: false, message: error.message })
+      return reply.status(400).send({ success: false, message: sanitizeErrorMessage(error, 'Une erreur est survenue') })
     }
   }
   async togglePauseCabinet(
@@ -79,7 +80,7 @@ class PractitionerCabinetsController {
       return reply.send({ success: true, data })
     } catch (error: any) {
       request.log.error(error)
-      return reply.status(400).send({ success: false, message: error.message })
+      return reply.status(400).send({ success: false, message: sanitizeErrorMessage(error, 'Une erreur est survenue') })
     }
   }
 }

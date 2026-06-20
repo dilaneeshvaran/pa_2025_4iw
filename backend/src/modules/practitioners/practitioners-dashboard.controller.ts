@@ -1,5 +1,6 @@
 import { FastifyRequest, FastifyReply } from 'fastify'
 import { practitionerDashboardService } from './practitioners-dashboard.service'
+import { sanitizeErrorMessage } from '../../utils/errors'
 import prisma from '../../config/database'
 import {
   createTodoSchema,
@@ -113,8 +114,7 @@ export class PractitionerDashboardController {
       })
     } catch (error) {
       request.log.error(error)
-      const message =
-        error instanceof Error ? error.message : 'Failed to toggle todo'
+      const message = sanitizeErrorMessage(error, 'Failed to toggle todo')
       return reply.status(400).send({
         success: false,
         message,
@@ -147,8 +147,7 @@ export class PractitionerDashboardController {
       })
     } catch (error) {
       request.log.error(error)
-      const message =
-        error instanceof Error ? error.message : 'Failed to delete todo'
+      const message = sanitizeErrorMessage(error, 'Failed to delete todo')
       return reply.status(400).send({
         success: false,
         message,
@@ -247,7 +246,7 @@ export class PractitionerDashboardController {
       )
       return reply.send({ success: true, data })
     } catch (e: any) {
-      return reply.status(500).send({ success: false, message: e.message })
+      return reply.status(500).send({ success: false, message: sanitizeErrorMessage(e, 'Une erreur est survenue') })
     }
   }
 
@@ -267,7 +266,7 @@ export class PractitionerDashboardController {
       )
       return reply.send({ success: true, data })
     } catch (e: any) {
-      return reply.status(500).send({ success: false, message: e.message })
+      return reply.status(500).send({ success: false, message: sanitizeErrorMessage(e, 'Une erreur est survenue') })
     }
   }
 
@@ -285,7 +284,7 @@ export class PractitionerDashboardController {
       )
       return reply.send({ success: true, data })
     } catch (e: any) {
-      return reply.status(500).send({ success: false, message: e.message })
+      return reply.status(500).send({ success: false, message: sanitizeErrorMessage(e, 'Une erreur est survenue') })
     }
   }
 
@@ -303,7 +302,7 @@ export class PractitionerDashboardController {
       )
       return reply.send({ success: true, data })
     } catch (e: any) {
-      return reply.status(500).send({ success: false, message: e.message })
+      return reply.status(500).send({ success: false, message: sanitizeErrorMessage(e, 'Une erreur est survenue') })
     }
   }
 
@@ -327,7 +326,7 @@ export class PractitionerDashboardController {
 
       return reply.send({ success: true, data: staff })
     } catch (e: any) {
-      return reply.status(500).send({ success: false, message: e.message })
+      return reply.status(500).send({ success: false, message: sanitizeErrorMessage(e, 'Une erreur est survenue') })
     }
   }
 
@@ -358,7 +357,7 @@ export class PractitionerDashboardController {
 
       return reply.status(201).send({ success: true, data })
     } catch (e: any) {
-      return reply.status(400).send({ success: false, message: e.message })
+      return reply.status(400).send({ success: false, message: sanitizeErrorMessage(e, 'Une erreur est survenue') })
     }
   }
 
@@ -392,7 +391,7 @@ export class PractitionerDashboardController {
 
       return reply.send({ success: true, data: updated })
     } catch (e: any) {
-      return reply.status(400).send({ success: false, message: e.message })
+      return reply.status(400).send({ success: false, message: sanitizeErrorMessage(e, 'Une erreur est survenue') })
     }
   }
 
@@ -420,7 +419,7 @@ export class PractitionerDashboardController {
 
       return reply.send({ success: true, message: 'Personnel supprimé' })
     } catch (e: any) {
-      return reply.status(500).send({ success: false, message: e.message })
+      return reply.status(500).send({ success: false, message: sanitizeErrorMessage(e, 'Une erreur est survenue') })
     }
   }
 }

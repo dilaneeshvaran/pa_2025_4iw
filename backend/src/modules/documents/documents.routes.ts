@@ -1,6 +1,7 @@
 import { FastifyInstance, FastifyRequest, FastifyReply } from 'fastify'
 import { documentsService } from './documents.service'
 import { authenticate } from '../../middleware/authenticate'
+import { sanitizeErrorMessage } from '../../utils/errors'
 import {
   getDocumentsQuerySchema,
   uploadDocumentSchema,
@@ -280,10 +281,7 @@ export async function documentsRoutes(fastify: FastifyInstance) {
         })
       } catch (error) {
         request.log.error(error)
-        const message =
-          error instanceof Error
-            ? error.message
-            : 'Erreur lors du téléversement du document'
+        const message = sanitizeErrorMessage(error, 'Erreur lors du téléversement du document')
         return reply.status(400).send({ success: false, message })
       }
     },
@@ -324,10 +322,7 @@ export async function documentsRoutes(fastify: FastifyInstance) {
         })
       } catch (error) {
         request.log.error(error)
-        const message =
-          error instanceof Error
-            ? error.message
-            : 'Erreur lors de la suppression du document'
+        const message = sanitizeErrorMessage(error, 'Erreur lors de la suppression du document')
         return reply.status(400).send({ success: false, message })
       }
     },

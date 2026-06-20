@@ -1,6 +1,7 @@
 import { FastifyRequest, FastifyReply } from 'fastify'
 import { teleconsultationsService } from './teleconsultations.service'
 import prisma from '../../config/database'
+import { sanitizeErrorMessage } from '../../utils/errors'
 
 export class TeleconsultationsController {
   // 4 practitioner
@@ -175,7 +176,7 @@ export class TeleconsultationsController {
       return reply.status(200).send({ success: true, data: session })
     } catch (error) {
       request.log.error(error)
-      const message = error instanceof Error ? error.message : 'Erreur serveur'
+      const message = sanitizeErrorMessage(error, 'Erreur serveur')
       return reply.status(400).send({ success: false, message })
     }
   }
@@ -190,7 +191,7 @@ export class TeleconsultationsController {
       return reply.status(200).send({ success: true, data: session })
     } catch (error) {
       request.log.error(error)
-      const message = error instanceof Error ? error.message : 'Erreur serveur'
+      const message = sanitizeErrorMessage(error, 'Erreur serveur')
       return reply.status(400).send({ success: false, message })
     }
   }
@@ -204,7 +205,7 @@ export class TeleconsultationsController {
       return reply.status(200).send({ success: true, data: session })
     } catch (error) {
       request.log.error(error)
-      const message = error instanceof Error ? error.message : 'Erreur serveur'
+      const message = sanitizeErrorMessage(error, 'Erreur serveur')
       return reply.status(400).send({ success: false, message })
     }
   }
@@ -268,7 +269,7 @@ export class TeleconsultationsController {
       return reply.status(200).send({ success: true, data: summary })
     } catch (error) {
       request.log.error(error)
-      const message = error instanceof Error ? error.message : 'Erreur serveur'
+      const message = sanitizeErrorMessage(error, 'Erreur serveur')
       return reply.status(404).send({ success: false, message })
     }
   }

@@ -1,6 +1,7 @@
 import { FastifyRequest, FastifyReply } from 'fastify'
 import { paymentsService } from './payments.service'
 import prisma from '../../config/database'
+import { sanitizeErrorMessage } from '../../utils/errors'
 
 export class PaymentsController {
   private async resolvePractitionerId(request: FastifyRequest, reply: FastifyReply, fallbackPractitionerId?: string): Promise<string | null> {
@@ -120,8 +121,7 @@ export class PaymentsController {
       })
     } catch (error) {
       request.log.error(error)
-      const message =
-        error instanceof Error ? error.message : 'Erreur lors du paiement'
+      const message = sanitizeErrorMessage(error, 'Erreur lors du paiement')
       return reply.status(400).send({ success: false, message })
     }
   }
@@ -156,8 +156,7 @@ export class PaymentsController {
       })
     } catch (error) {
       request.log.error(error)
-      const message =
-        error instanceof Error ? error.message : 'Erreur lors du remboursement'
+      const message = sanitizeErrorMessage(error, 'Erreur lors du remboursement')
       return reply.status(400).send({ success: false, message })
     }
   }
@@ -187,10 +186,7 @@ export class PaymentsController {
       return reply.send({ success: true, data: invoice })
     } catch (error) {
       request.log.error(error)
-      const message =
-        error instanceof Error
-          ? error.message
-          : 'Erreur lors de la récupération de la facture'
+      const message = sanitizeErrorMessage(error, 'Erreur lors de la récupération de la facture')
       return reply.status(400).send({ success: false, message })
     }
   }
@@ -232,8 +228,7 @@ export class PaymentsController {
         .send(pdfBuffer)
     } catch (error) {
       request.log.error(error)
-      const message =
-        error instanceof Error ? error.message : 'Erreur lors du téléchargement'
+      const message = sanitizeErrorMessage(error, 'Erreur lors du téléchargement')
       return reply.status(400).send({ success: false, message })
     }
   }
@@ -292,10 +287,7 @@ export class PaymentsController {
       })
     } catch (error) {
       request.log.error(error)
-      const message =
-        error instanceof Error
-          ? error.message
-          : "Erreur lors de l'ajout du moyen de paiement"
+      const message = sanitizeErrorMessage(error, "Erreur lors de l'ajout du moyen de paiement")
       return reply.status(400).send({ success: false, message })
     }
   }
@@ -331,10 +323,7 @@ export class PaymentsController {
       })
     } catch (error) {
       request.log.error(error)
-      const message =
-        error instanceof Error
-          ? error.message
-          : 'Erreur lors de la vérification'
+      const message = sanitizeErrorMessage(error, 'Erreur lors de la vérification')
       return reply.status(400).send({ success: false, message })
     }
   }
@@ -364,8 +353,7 @@ export class PaymentsController {
       })
     } catch (error) {
       request.log.error(error)
-      const message =
-        error instanceof Error ? error.message : 'Erreur lors de la suppression'
+      const message = sanitizeErrorMessage(error, 'Erreur lors de la suppression')
       return reply.status(400).send({ success: false, message })
     }
   }
@@ -395,8 +383,7 @@ export class PaymentsController {
       })
     } catch (error) {
       request.log.error(error)
-      const message =
-        error instanceof Error ? error.message : 'Erreur lors de la mise à jour'
+      const message = sanitizeErrorMessage(error, 'Erreur lors de la mise à jour')
       return reply.status(400).send({ success: false, message })
     }
   }
@@ -456,8 +443,7 @@ export class PaymentsController {
       })
     } catch (error) {
       request.log.error(error)
-      const message =
-        error instanceof Error ? error.message : 'Erreur lors de la facturation'
+      const message = sanitizeErrorMessage(error, 'Erreur lors de la facturation')
       return reply.status(400).send({ success: false, message })
     }
   }
@@ -480,10 +466,7 @@ export class PaymentsController {
       return reply.send({ success: true, data: appointments })
     } catch (error) {
       request.log.error(error)
-      const message =
-        error instanceof Error
-          ? error.message
-          : 'Erreur lors de la récupération des rendez-vous non payés'
+      const message = sanitizeErrorMessage(error, 'Erreur lors de la récupération des rendez-vous non payés')
       return reply.status(400).send({ success: false, message })
     }
   }
@@ -508,10 +491,7 @@ export class PaymentsController {
       return reply.send({ success: true, data: invoice })
     } catch (error) {
       request.log.error(error)
-      const message =
-        error instanceof Error
-          ? error.message
-          : 'Erreur lors de la récupération de la facture'
+      const message = sanitizeErrorMessage(error, 'Erreur lors de la récupération de la facture')
       return reply.status(400).send({ success: false, message })
     }
   }
@@ -547,8 +527,7 @@ export class PaymentsController {
         .send(pdfBuffer)
     } catch (error) {
       request.log.error(error)
-      const message =
-        error instanceof Error ? error.message : 'Erreur lors du téléchargement'
+      const message = sanitizeErrorMessage(error, 'Erreur lors du téléchargement')
       return reply.status(400).send({ success: false, message })
     }
   }

@@ -13,6 +13,8 @@ import prisma from './config/database'
 import { redis } from './config/redis'
 import { startReminderWorker } from './utils/reminder-scheduler'
 import { websocketPlugin } from './plugins/websocket'
+import { sanitizeErrorMessage } from './utils/errors'
+
 
 const app = Fastify({
   logger: {
@@ -79,9 +81,15 @@ app.setErrorHandler((error, request, reply) => {
   const err = error as Error & { statusCode?: number }
   const statusCode = err.statusCode ?? 500
   request.log.error(error)
+
+  const defaultMessage = 'Erreur interne du serveur'
+  const message = statusCode >= 500
+    ? sanitizeErrorMessage(err, defaultMessage)
+    : sanitizeErrorMessage(err, err.message || defaultMessage)
+
   return reply.code(statusCode).send({
     success: false,
-    message: err.message || 'Erreur interne du serveur',
+    message,
   })
 })
 

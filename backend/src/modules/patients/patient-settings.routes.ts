@@ -1,6 +1,7 @@
 import { FastifyInstance, FastifyRequest, FastifyReply } from 'fastify'
 import { patientSettingsService } from './patient-settings.service'
 import { authenticate } from '../../middleware/authenticate'
+import { sanitizeErrorMessage } from '../../utils/errors'
 
 export async function patientSettingsRoutes(fastify: FastifyInstance) {
   fastify.get(
@@ -16,7 +17,7 @@ export async function patientSettingsRoutes(fastify: FastifyInstance) {
         request.log.error(error)
         return reply
           .status(400)
-          .send({ success: false, message: error.message })
+          .send({ success: false, message: sanitizeErrorMessage(error, 'Une erreur est survenue') })
       }
     },
   )
@@ -38,7 +39,7 @@ export async function patientSettingsRoutes(fastify: FastifyInstance) {
         request.log.error(error)
         return reply
           .status(400)
-          .send({ success: false, message: error.message })
+          .send({ success: false, message: sanitizeErrorMessage(error, 'Une erreur est survenue') })
       }
     },
   )
@@ -64,7 +65,7 @@ export async function patientSettingsRoutes(fastify: FastifyInstance) {
         request.log.error(error)
         return reply
           .status(400)
-          .send({ success: false, message: error.message })
+          .send({ success: false, message: sanitizeErrorMessage(error, 'Une erreur est survenue') })
       }
     },
   )
@@ -104,7 +105,7 @@ export async function patientSettingsRoutes(fastify: FastifyInstance) {
         request.log.error(error)
         return reply
           .status(400)
-          .send({ success: false, message: error.message })
+          .send({ success: false, message: sanitizeErrorMessage(error, 'Une erreur est survenue') })
       }
     },
   )
@@ -134,7 +135,7 @@ export async function patientSettingsRoutes(fastify: FastifyInstance) {
         request.log.error(error)
         return reply
           .status(400)
-          .send({ success: false, message: error.message })
+          .send({ success: false, message: sanitizeErrorMessage(error, 'Une erreur est survenue') })
       }
     },
   )
@@ -154,7 +155,7 @@ export async function patientSettingsRoutes(fastify: FastifyInstance) {
         request.log.error(error)
         return reply
           .status(500)
-          .send({ success: false, message: error.message })
+          .send({ success: false, message: sanitizeErrorMessage(error, 'Erreur interne du serveur') })
       }
     },
   )
@@ -178,7 +179,7 @@ export async function patientSettingsRoutes(fastify: FastifyInstance) {
         request.log.error(error)
         return reply
           .status(500)
-          .send({ success: false, message: error.message })
+          .send({ success: false, message: sanitizeErrorMessage(error, 'Erreur interne du serveur') })
       }
     },
   )
@@ -197,7 +198,7 @@ export async function patientSettingsRoutes(fastify: FastifyInstance) {
         request.log.error(error)
         return reply
           .status(500)
-          .send({ success: false, message: error.message })
+          .send({ success: false, message: sanitizeErrorMessage(error, 'Erreur interne du serveur') })
       }
     },
   )
@@ -234,7 +235,7 @@ export async function patientSettingsRoutes(fastify: FastifyInstance) {
         request.log.error(error)
         return reply
           .status(500)
-          .send({ success: false, message: error.message })
+          .send({ success: false, message: sanitizeErrorMessage(error, 'Erreur interne du serveur') })
       }
     },
   )
@@ -256,7 +257,7 @@ export async function patientSettingsRoutes(fastify: FastifyInstance) {
         request.log.error(error)
         return reply
           .status(400)
-          .send({ success: false, message: error.message })
+          .send({ success: false, message: sanitizeErrorMessage(error, 'Une erreur est survenue') })
       }
     },
   )
@@ -280,7 +281,7 @@ export async function patientSettingsRoutes(fastify: FastifyInstance) {
         request.log.error(error)
         return reply
           .status(400)
-          .send({ success: false, message: error.message })
+          .send({ success: false, message: sanitizeErrorMessage(error, 'Une erreur est survenue') })
       }
     },
   )

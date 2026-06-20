@@ -1,5 +1,6 @@
 import { FastifyInstance } from 'fastify'
 import { availabilitiesService } from './availabilities.service'
+import { sanitizeErrorMessage } from '../../utils/errors'
 import { practitionersService } from '../practitioners/practitioners.service'
 import { authenticate } from '../../middleware/authenticate'
 import { authorize } from '../../middleware/authorize'
@@ -50,7 +51,7 @@ export async function availabilitiesRoutes(fastify: FastifyInstance) {
           .send({ success: false, message: 'Validation error', errors: error })
       return reply
         .status(400)
-        .send({ success: false, message: error.message || 'Erreur' })
+        .send({ success: false, message: sanitizeErrorMessage(error, 'Erreur') })
     }
   })
 
@@ -74,7 +75,7 @@ export async function availabilitiesRoutes(fastify: FastifyInstance) {
       } catch (error: any) {
         return reply
           .status(400)
-          .send({ success: false, message: error.message })
+          .send({ success: false, message: sanitizeErrorMessage(error, 'Erreur') })
       }
     },
   )
@@ -113,7 +114,7 @@ export async function availabilitiesRoutes(fastify: FastifyInstance) {
           .send({ success: false, message: 'Validation error', errors: error })
       return reply
         .status(400)
-        .send({ success: false, message: error.message || 'Erreur' })
+        .send({ success: false, message: sanitizeErrorMessage(error, 'Erreur') })
     }
   })
 
@@ -130,7 +131,9 @@ export async function availabilitiesRoutes(fastify: FastifyInstance) {
       await availabilitiesService.deleteAbsence(practitionerId, id)
       return reply.send({ success: true, message: 'Absence supprimée' })
     } catch (error: any) {
-      return reply.status(400).send({ success: false, message: error.message })
+      return reply
+        .status(500)
+        .send({ success: false, message: sanitizeErrorMessage(error, 'Une erreur est survenue') })
     }
   })
 
@@ -161,7 +164,7 @@ export async function availabilitiesRoutes(fastify: FastifyInstance) {
       } catch (error: any) {
         return reply
           .status(400)
-          .send({ success: false, message: error.message })
+          .send({ success: false, message: sanitizeErrorMessage(error, 'Erreur') })
       }
     },
   )
@@ -200,7 +203,7 @@ export async function availabilitiesRoutes(fastify: FastifyInstance) {
           .send({ success: false, message: 'Validation error', errors: error })
       return reply
         .status(400)
-        .send({ success: false, message: error.message || 'Erreur' })
+        .send({ success: false, message: sanitizeErrorMessage(error, 'Erreur') })
     }
   })
 
@@ -227,7 +230,7 @@ export async function availabilitiesRoutes(fastify: FastifyInstance) {
       } catch (error: any) {
         return reply
           .status(400)
-          .send({ success: false, message: error.message })
+          .send({ success: false, message: sanitizeErrorMessage(error, 'Erreur') })
       }
     },
   )
@@ -244,7 +247,7 @@ export async function availabilitiesRoutes(fastify: FastifyInstance) {
       const data = await availabilitiesService.getSettings(practitionerId)
       return reply.send({ success: true, data })
     } catch (error: any) {
-      return reply.status(500).send({ success: false, message: error.message })
+      return reply.status(500).send({ success: false, message: sanitizeErrorMessage(error, 'Une erreur est survenue') })
     }
   })
 
@@ -270,7 +273,7 @@ export async function availabilitiesRoutes(fastify: FastifyInstance) {
           .send({ success: false, message: 'Validation error', errors: error })
       return reply
         .status(400)
-        .send({ success: false, message: error.message || 'Erreur' })
+        .send({ success: false, message: sanitizeErrorMessage(error, 'Erreur') })
     }
   })
 
@@ -299,7 +302,7 @@ export async function availabilitiesRoutes(fastify: FastifyInstance) {
       )
       return reply.send({ success: true, data })
     } catch (error: any) {
-      return reply.status(500).send({ success: false, message: error.message })
+      return reply.status(500).send({ success: false, message: sanitizeErrorMessage(error, 'Une erreur est survenue') })
     }
   })
 
@@ -324,7 +327,7 @@ export async function availabilitiesRoutes(fastify: FastifyInstance) {
       )
       return reply.send({ success: true, data })
     } catch (error: any) {
-      return reply.status(500).send({ success: false, message: error.message })
+      return reply.status(500).send({ success: false, message: sanitizeErrorMessage(error, 'Une erreur est survenue') })
     }
   })
 
@@ -350,7 +353,7 @@ export async function availabilitiesRoutes(fastify: FastifyInstance) {
           .send({ success: false, message: 'Validation error', errors: error })
       return reply
         .status(400)
-        .send({ success: false, message: error.message || 'Erreur' })
+        .send({ success: false, message: sanitizeErrorMessage(error, 'Erreur') })
     }
   })
 
@@ -369,7 +372,7 @@ export async function availabilitiesRoutes(fastify: FastifyInstance) {
       const data = await availabilitiesService.searchPatients(practitionerId, q)
       return reply.send({ success: true, data })
     } catch (error: any) {
-      return reply.status(500).send({ success: false, message: error.message })
+      return reply.status(500).send({ success: false, message: sanitizeErrorMessage(error, 'Une erreur est survenue') })
     }
   })
 
@@ -406,7 +409,7 @@ export async function availabilitiesRoutes(fastify: FastifyInstance) {
           })
         return reply
           .status(400)
-          .send({ success: false, message: error.message || 'Erreur' })
+          .send({ success: false, message: sanitizeErrorMessage(error, 'Erreur') })
       }
     },
   )
@@ -444,7 +447,7 @@ export async function availabilitiesRoutes(fastify: FastifyInstance) {
           })
         return reply
           .status(400)
-          .send({ success: false, message: error.message || 'Erreur' })
+          .send({ success: false, message: sanitizeErrorMessage(error, 'Erreur') })
       }
     },
   )
@@ -473,7 +476,7 @@ export async function availabilitiesRoutes(fastify: FastifyInstance) {
       } catch (error: any) {
         return reply
           .status(400)
-          .send({ success: false, message: error.message || 'Erreur' })
+          .send({ success: false, message: sanitizeErrorMessage(error, 'Erreur') })
       }
     },
   )
@@ -502,7 +505,7 @@ export async function availabilitiesRoutes(fastify: FastifyInstance) {
       } catch (error: any) {
         return reply
           .status(400)
-          .send({ success: false, message: error.message || 'Erreur' })
+          .send({ success: false, message: sanitizeErrorMessage(error, 'Erreur') })
       }
     },
   )
@@ -533,7 +536,7 @@ export async function availabilitiesRoutes(fastify: FastifyInstance) {
       } catch (error: any) {
         return reply
           .status(500)
-          .send({ success: false, message: error.message })
+          .send({ success: false, message: sanitizeErrorMessage(error, 'Une erreur est survenue') })
       }
     },
   )
@@ -584,7 +587,7 @@ export async function availabilitiesRoutes(fastify: FastifyInstance) {
       } catch (error: any) {
         return reply
           .status(500)
-          .send({ success: false, message: error.message })
+          .send({ success: false, message: sanitizeErrorMessage(error, 'Une erreur est survenue') })
       }
     },
   )

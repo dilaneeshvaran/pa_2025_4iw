@@ -1,5 +1,6 @@
 import { FastifyInstance, FastifyRequest, FastifyReply } from 'fastify'
 import { appointmentsService } from './appointments.service'
+import { sanitizeErrorMessage } from '../../utils/errors'
 import { authenticate } from '../../middleware/authenticate'
 import prisma from '../../config/database'
 import {
@@ -42,10 +43,7 @@ export async function appointmentsRoutes(fastify: FastifyInstance) {
         })
       } catch (error) {
         request.log.error(error)
-        const message =
-          error instanceof Error
-            ? error.message
-            : 'Erreur lors de la création du rendez-vous'
+        const message = sanitizeErrorMessage(error, 'Erreur lors de la création du rendez-vous')
         return reply.status(400).send({
           success: false,
           message,
@@ -298,10 +296,7 @@ export async function appointmentsRoutes(fastify: FastifyInstance) {
         })
       } catch (error) {
         request.log.error(error)
-        const message =
-          error instanceof Error
-            ? error.message
-            : "Erreur lors de l'annulation du rendez-vous"
+        const message = sanitizeErrorMessage(error, "Erreur lors de l'annulation du rendez-vous")
         return reply.status(400).send({
           success: false,
           message,
@@ -347,10 +342,7 @@ export async function appointmentsRoutes(fastify: FastifyInstance) {
         })
       } catch (error) {
         request.log.error(error)
-        const message =
-          error instanceof Error
-            ? error.message
-            : 'Erreur lors de la modification du rendez-vous'
+        const message = sanitizeErrorMessage(error, 'Erreur lors de la modification du rendez-vous')
         return reply.status(400).send({
           success: false,
           message,
