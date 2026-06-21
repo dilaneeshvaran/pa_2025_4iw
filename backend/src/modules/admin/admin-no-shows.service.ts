@@ -1,5 +1,5 @@
 import prisma from '../../config/database'
-import { sendEmail } from '../../utils/email'
+import { sendEmail, buildEmailHtml } from '../../utils/email'
 
 const APP_URL = process.env.BACKEND_FRONTEND_URL || 'http://localhost:3000'
 
@@ -289,35 +289,27 @@ export class AdminNoShowsService {
       },
     })
 
-    const html = `
-      <!DOCTYPE html>
-      <html>
-        <head>
-          <meta charset="utf-8">
-          <meta name="viewport" content="width=device-width, initial-scale=1.0">
-          <title>Avertissement - Absences répétées</title>
-        </head>
-        <body style="font-family: Arial, sans-serif; line-height: 1.6; color: #333; max-width: 600px; margin: 0 auto; padding: 20px;">
-          <div style="background-color: #FF8200; color: white; padding: 20px; text-align: center; border-radius: 5px 5px 0 0;">
-            <h1 style="margin: 0;">MediCôte</h1>
-          </div>
-          <div style="background-color: #f9f9f9; padding: 30px; border-radius: 0 0 5px 5px;">
-            <h2 style="color: #FF8200; margin-top: 0;">⚠️ Avertissement - Absences répétées</h2>
-            <p>Bonjour ${patient.firstName} ${patient.lastName},</p>
-            <p>Nous avons constaté que vous avez accumulé <strong>${patient.noShowCount} absence(s)</strong> à vos rendez-vous sur MediCôte.</p>
-            <p>Les absences non justifiées ont un impact sur l'organisation des praticiens et empêchent d'autres patients de bénéficier de créneaux disponibles.</p>
-            <p><strong>Ceci est un avertissement officiel.</strong> En cas de récidive, votre compte pourrait être temporairement suspendu.</p>
-            <p>Si vous pensez qu'il s'agit d'une erreur, merci de nous contacter.</p>
-            <div style="text-align: center; margin: 30px 0;">
-              <a href="${APP_URL}/patient/appointments" style="background-color: #FF8200; color: white; padding: 12px 30px; text-decoration: none; border-radius: 5px; display: inline-block; font-weight: bold;">Voir mes rendez-vous</a>
-            </div>
-          </div>
-          <div style="text-align: center; margin-top: 20px; color: #999; font-size: 12px;">
-            <p>© ${new Date().getFullYear()} MediCôte. Tous droits réservés.</p>
-          </div>
-        </body>
-      </html>
-    `
+    const html = buildEmailHtml({
+      title: 'Avertissement - Absences répétées - MediCôte',
+      preheader: 'Avertissement officiel concernant vos absences répétées.',
+      contentHtml: `
+        <div style="background-color: #fff9db; border-left: 4px solid #f59e0b; padding: 12px 16px; margin-bottom: 24px; border-radius: 4px;">
+          <strong style="color: #8f6b00; font-size: 14px;">⚠️ Avertissement officiel</strong>
+        </div>
+        <h2 style="color: #1e293b; font-family: 'Outfit', sans-serif; font-size: 20px; font-weight: 600; margin-top: 0; margin-bottom: 16px;">Avertissement - Absences répétées</h2>
+        <p style="margin: 0 0 16px 0;">Bonjour ${patient.firstName} ${patient.lastName},</p>
+        <p style="margin: 0 0 16px 0;">Nous avons constaté que vous avez accumulé <strong>${patient.noShowCount} absence(s)</strong> à vos rendez-vous programmés sur MediCôte.</p>
+        <p style="margin: 0 0 16px 0;">Les absences non justifiées ont un impact sur l'organisation des praticiens et empêchent d'autres patients de bénéficier de créneaux disponibles.</p>
+        <p style="margin: 0 0 24px 0; font-weight: bold; color: #b35900;">En cas de nouvelle absence non justifiée, l'accès à votre compte pourra faire l'objet d'une suspension temporaire.</p>
+        
+        <p style="margin: 24px 0 0 0; font-size: 13px; color: #64748b; border-top: 1px solid #e2e8f0; padding-top: 16px;">
+          Si vous pensez qu'il s'agit d'une erreur, merci de nous contacter.
+        </p>
+      `,
+      actionUrl: `${APP_URL}/patient/appointments`,
+      actionText: 'Voir mes rendez-vous',
+      accentColor: '#ff8200',
+    })
 
     await sendEmail(
       patient.user.email,
@@ -361,36 +353,42 @@ export class AdminNoShowsService {
       year: 'numeric',
     })
 
-    const html = `
-      <!DOCTYPE html>
-      <html>
-        <head>
-          <meta charset="utf-8">
-          <meta name="viewport" content="width=device-width, initial-scale=1.0">
-          <title>Suspension de compte</title>
-        </head>
-        <body style="font-family: Arial, sans-serif; line-height: 1.6; color: #333; max-width: 600px; margin: 0 auto; padding: 20px;">
-          <div style="background-color: #FF8200; color: white; padding: 20px; text-align: center; border-radius: 5px 5px 0 0;">
-            <h1 style="margin: 0;">MediCôte</h1>
-          </div>
-          <div style="background-color: #f9f9f9; padding: 30px; border-radius: 0 0 5px 5px;">
-            <h2 style="color: #c62828; margin-top: 0;">🚫 Compte suspendu</h2>
-            <p>Bonjour ${patient.firstName} ${patient.lastName},</p>
-            <p>Suite à des absences répétées à vos rendez-vous, votre compte a été temporairement suspendu.</p>
-            <div style="background-color: white; border: 1px solid #e0e0e0; border-radius: 8px; padding: 20px; margin: 20px 0;">
-              <p style="margin: 8px 0;"><strong>Motif :</strong> ${reason}</p>
-              <p style="margin: 8px 0;"><strong>Durée :</strong> ${durationDays} jour(s)</p>
-              <p style="margin: 8px 0;"><strong>Suspension effective jusqu'au :</strong> ${formattedDate}</p>
-            </div>
-            <p>Pendant cette période, vous ne pourrez pas prendre de nouveaux rendez-vous.</p>
-            <p>Si vous pensez qu'il s'agit d'une erreur, merci de nous contacter.</p>
-          </div>
-          <div style="text-align: center; margin-top: 20px; color: #999; font-size: 12px;">
-            <p>© ${new Date().getFullYear()} MediCôte. Tous droits réservés.</p>
-          </div>
-        </body>
-      </html>
-    `
+    const html = buildEmailHtml({
+      title: 'Suspension de votre compte - MediCôte',
+      preheader: 'Notification temporaire de suspension de compte.',
+      contentHtml: `
+        <div style="background-color: #fef2f2; border-left: 4px solid #ef4444; padding: 12px 16px; margin-bottom: 24px; border-radius: 4px;">
+          <strong style="color: #991b1b; font-size: 14px;">🚫 Compte temporairement suspendu</strong>
+        </div>
+        <h2 style="color: #1e293b; font-family: 'Outfit', sans-serif; font-size: 20px; font-weight: 600; margin-top: 0; margin-bottom: 16px;">Suspension de compte</h2>
+        <p style="margin: 0 0 16px 0;">Bonjour ${patient.firstName} ${patient.lastName},</p>
+        <p style="margin: 0 0 20px 0;">En raison d'absences répétées non justifiées à vos rendez-vous, l'accès à la prise de rendez-vous sur votre compte a été suspendu temporairement :</p>
+        
+        <div style="background-color: #f8fafc; border: 1px solid #e2e8f0; border-radius: 8px; padding: 20px; margin: 24px 0;">
+          <table border="0" cellpadding="0" cellspacing="0" width="100%" style="font-size: 14px; font-family: 'Inter', sans-serif; color: #475569; border-collapse: collapse;">
+            <tr>
+              <td style="padding: 6px 0; font-weight: 600; color: #1e293b; width: 45%; vertical-align: top;">Motif :</td>
+              <td style="padding: 6px 0; color: #334155;">${reason}</td>
+            </tr>
+            <tr>
+              <td style="padding: 6px 0; font-weight: 600; color: #1e293b; vertical-align: top;">Durée de suspension :</td>
+              <td style="padding: 6px 0; color: #334155;">${durationDays} jour(s)</td>
+            </tr>
+            <tr>
+              <td style="padding: 6px 0; font-weight: 600; color: #1e293b; vertical-align: top;">Date de fin :</td>
+              <td style="padding: 6px 0; color: #dc2626; font-weight: bold;">Le ${formattedDate}</td>
+            </tr>
+          </table>
+        </div>
+
+        <p style="margin: 0 0 16px 0; color: #dc2626; font-weight: 500;">Pendant toute cette période, il vous sera impossible de réserver de nouveaux rendez-vous sur la plateforme.</p>
+        
+        <p style="margin: 24px 0 0 0; font-size: 13px; color: #64748b; border-top: 1px solid #e2e8f0; padding-top: 16px;">
+          Si vous souhaitez contester cette décision ou si vous pensez qu'il s'agit d'une erreur, vous pouvez contacter notre service d'assistance.
+        </p>
+      `,
+      accentColor: '#dc2626',
+    })
 
     await sendEmail(
       patient.user.email,
@@ -425,34 +423,26 @@ export class AdminNoShowsService {
       },
     })
 
-    const html = `
-      <!DOCTYPE html>
-      <html>
-        <head>
-          <meta charset="utf-8">
-          <meta name="viewport" content="width=device-width, initial-scale=1.0">
-          <title>Levée de suspension</title>
-        </head>
-        <body style="font-family: Arial, sans-serif; line-height: 1.6; color: #333; max-width: 600px; margin: 0 auto; padding: 20px;">
-          <div style="background-color: #FF8200; color: white; padding: 20px; text-align: center; border-radius: 5px 5px 0 0;">
-            <h1 style="margin: 0;">MediCôte</h1>
-          </div>
-          <div style="background-color: #f9f9f9; padding: 30px; border-radius: 0 0 5px 5px;">
-            <h2 style="color: #009A44; margin-top: 0;">✅ Suspension levée</h2>
-            <p>Bonjour ${patient.firstName} ${patient.lastName},</p>
-            <p>Nous vous informons que la suspension de votre compte a été levée.</p>
-            <p>Vous pouvez désormais reprendre vos rendez-vous sur MediCôte.</p>
-            <p>Nous vous encourageons à honorer vos futurs rendez-vous pour éviter de nouvelles sanctions.</p>
-            <div style="text-align: center; margin: 30px 0;">
-              <a href="${APP_URL}/patient/appointments" style="background-color: #FF8200; color: white; padding: 12px 30px; text-decoration: none; border-radius: 5px; display: inline-block; font-weight: bold;">Prendre un rendez-vous</a>
-            </div>
-          </div>
-          <div style="text-align: center; margin-top: 20px; color: #999; font-size: 12px;">
-            <p>© ${new Date().getFullYear()} MediCôte. Tous droits réservés.</p>
-          </div>
-        </body>
-      </html>
-    `
+    const html = buildEmailHtml({
+      title: 'Levée de suspension de votre compte - MediCôte',
+      preheader: 'L\'accès complet à votre compte MediCôte a été rétabli.',
+      contentHtml: `
+        <div style="background-color: #ecfdf5; border-left: 4px solid #10b981; padding: 12px 16px; margin-bottom: 24px; border-radius: 4px;">
+          <strong style="color: #065f46; font-size: 14px;">✅ Suspension levée</strong>
+        </div>
+        <h2 style="color: #1e293b; font-family: 'Outfit', sans-serif; font-size: 20px; font-weight: 600; margin-top: 0; margin-bottom: 16px;">Accès rétabli</h2>
+        <p style="margin: 0 0 16px 0;">Bonjour ${patient.firstName} ${patient.lastName},</p>
+        <p style="margin: 0 0 16px 0;">Nous vous informons que la suspension temporaire de votre compte a été levée.</p>
+        <p style="margin: 0 0 20px 0;">Vous pouvez désormais de nouveau planifier et prendre des rendez-vous en ligne avec vos praticiens sur MediCôte.</p>
+        
+        <p style="margin: 24px 0 0 0; font-size: 13px; color: #64748b; border-top: 1px solid #e2e8f0; padding-top: 16px;">
+          Nous vous encourageons à honorer vos futurs rendez-vous ou à les annuler à l'avance en cas d'imprévu afin d'éviter d'autres sanctions.
+        </p>
+      `,
+      actionUrl: `${APP_URL}/patient/appointments`,
+      actionText: 'Prendre un rendez-vous',
+      accentColor: '#009a44',
+    })
 
     await sendEmail(
       patient.user.email,

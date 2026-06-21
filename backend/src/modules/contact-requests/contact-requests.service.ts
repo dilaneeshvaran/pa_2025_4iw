@@ -2,7 +2,7 @@ import prisma from '../../config/database'
 import { ContactRequestStatus, UserRole, UserStatus } from '@prisma/client'
 import { hashPassword } from '../../utils/bcrypt'
 import { generateToken } from '../../utils/crypto'
-import { sendEmail, sendPasswordResetEmail } from '../../utils/email'
+import { sendEmail, sendPasswordResetEmail, buildEmailHtml } from '../../utils/email'
 import { normalizeEmail } from '../../utils/normalize-email'
 import crypto from 'crypto'
 
@@ -335,43 +335,40 @@ export class ContactRequestsService {
     const APP_URL = process.env.BACKEND_FRONTEND_URL || 'http://localhost:3000'
     const resetUrl = `${APP_URL}/auth/reset-password?token=${resetToken}`
 
-    const html = `
-      <!DOCTYPE html>
-      <html>
-        <head>
-          <meta charset="utf-8">
-          <meta name="viewport" content="width=device-width, initial-scale=1.0">
-          <title>Votre compte MediCôte a été approuvé</title>
-        </head>
-        <body style="font-family: Arial, sans-serif; line-height: 1.6; color: #333; max-width: 600px; margin: 0 auto; padding: 20px;">
-          <div style="background-color: #FF8200; color: white; padding: 20px; text-align: center; border-radius: 5px 5px 0 0;">
-            <h1 style="margin: 0;">MediCôte</h1>
-          </div>
-          <div style="background-color: #f9f9f9; padding: 30px; border-radius: 0 0 5px 5px;">
-            <h2 style="color: #009A44; margin-top: 0;">Demande approuvée ✓</h2>
-            <p>Bonjour ${firstName},</p>
-            <p>Votre demande d'inscription professionnelle sur MediCôte a été <strong>approuvée</strong>. Votre compte a été créé avec les identifiants suivants :</p>
-            
-            <div style="background-color: white; border: 1px solid #e0e0e0; border-radius: 8px; padding: 20px; margin: 20px 0;">
-              <p style="margin: 8px 0;"><strong>Email :</strong> ${to}</p>
-              <p style="margin: 8px 0;"><strong>Mot de passe temporaire :</strong> ${tempPassword}</p>
-            </div>
+    const html = buildEmailHtml({
+      title: 'Votre compte MediCôte a été approuvé',
+      preheader: 'Votre inscription professionnelle sur MediCôte est validée.',
+      contentHtml: `
+        <h2 style="color: #009a44; font-family: 'Outfit', sans-serif; font-size: 20px; font-weight: 600; margin-top: 0; margin-bottom: 16px;">Demande approuvée ✓</h2>
+        <p style="margin: 0 0 16px 0;">Bonjour ${firstName},</p>
+        <p style="margin: 0 0 20px 0;">Votre demande d'inscription professionnelle sur MediCôte a été <strong>approuvée</strong>. Votre compte a été créé avec les identifiants temporaires suivants :</p>
+        
+        <div style="background-color: #f8fafc; border: 1px solid #e2e8f0; border-radius: 8px; padding: 20px; margin: 24px 0;">
+          <table border="0" cellpadding="0" cellspacing="0" width="100%" style="font-size: 14px; font-family: 'Inter', sans-serif; color: #475569; border-collapse: collapse;">
+            <tr>
+              <td style="padding: 6px 0; font-weight: 600; color: #1e293b; width: 45%; vertical-align: top;">Email :</td>
+              <td style="padding: 6px 0; color: #334155;">${to}</td>
+            </tr>
+            <tr>
+              <td style="padding: 6px 0; font-weight: 600; color: #1e293b; vertical-align: top;">Mot de passe temporaire :</td>
+              <td style="padding: 6px 0; color: #334155; font-family: monospace; font-size: 15px; font-weight: bold; letter-spacing: 0.5px;">${tempPassword}</td>
+            </tr>
+          </table>
+        </div>
 
-            <p style="color: #dc2626; font-weight: bold;">Pour des raisons de sécurité, veuillez réinitialiser votre mot de passe dès votre première connexion :</p>
-            
-            <div style="text-align: center; margin: 30px 0;">
-              <a href="${resetUrl}" style="background-color: #FF8200; color: white; padding: 12px 30px; text-decoration: none; border-radius: 5px; display: inline-block; font-weight: bold;">Réinitialiser mon mot de passe</a>
-            </div>
-            <p>Si le bouton ne fonctionne pas, copiez et collez ce lien dans votre navigateur :</p>
-            <p style="word-break: break-all; color: #FF8200;">${resetUrl}</p>
-            <p style="color: #666; font-size: 14px; margin-top: 30px;">Ce lien de réinitialisation expirera dans 48 heures.</p>
-          </div>
-          <div style="text-align: center; margin-top: 20px; color: #999; font-size: 12px;">
-            <p>© ${new Date().getFullYear()} MediCôte. Tous droits réservés.</p>
-          </div>
-        </body>
-      </html>
-    `
+        <div style="background-color: #fef2f2; border-left: 4px solid #ef4444; border-radius: 6px; padding: 16px; margin: 24px 0; font-size: 14px; color: #991b1b;">
+          <p style="margin: 0;"><strong>Important :</strong> Pour des raisons de sécurité, veuillez réinitialiser votre mot de passe dès votre première connexion en cliquant sur le bouton ci-dessous.</p>
+        </div>
+
+        <p style="margin: 24px 0 8px 0; font-size: 13px; color: #64748b;">Si le bouton ne fonctionne pas, copiez et collez ce lien dans votre navigateur :</p>
+        <p style="margin: 0; font-size: 13px; word-break: break-all;"><a href="${resetUrl}" style="color: #ff8200; text-decoration: none;">${resetUrl}</a></p>
+        
+        <p style="margin: 24px 0 0 0; color: #64748b; font-size: 13px; border-top: 1px solid #e2e8f0; padding-top: 16px;">Ce lien de réinitialisation expirera dans 48 heures.</p>
+      `,
+      actionUrl: resetUrl,
+      actionText: 'Réinitialiser mon mot de passe',
+      accentColor: '#009a44',
+    })
 
     await sendEmail(to, 'Votre compte MediCôte a été approuvé', html)
   }
@@ -381,35 +378,24 @@ export class ContactRequestsService {
     firstName: string,
     reason: string,
   ) {
-    const html = `
-      <!DOCTYPE html>
-      <html>
-        <head>
-          <meta charset="utf-8">
-          <meta name="viewport" content="width=device-width, initial-scale=1.0">
-          <title>Demande d'inscription refusée</title>
-        </head>
-        <body style="font-family: Arial, sans-serif; line-height: 1.6; color: #333; max-width: 600px; margin: 0 auto; padding: 20px;">
-          <div style="background-color: #FF8200; color: white; padding: 20px; text-align: center; border-radius: 5px 5px 0 0;">
-            <h1 style="margin: 0;">MediCôte</h1>
-          </div>
-          <div style="background-color: #f9f9f9; padding: 30px; border-radius: 0 0 5px 5px;">
-            <h2 style="color: #dc2626; margin-top: 0;">Demande refusée</h2>
-            <p>Bonjour ${firstName},</p>
-            <p>Nous avons examiné votre demande d'inscription professionnelle sur MediCôte. Malheureusement, votre demande a été <strong>refusée</strong> pour la raison suivante :</p>
-            
-            <div style="background-color: white; border-left: 4px solid #dc2626; padding: 15px 20px; margin: 20px 0;">
-              <p style="margin: 0; color: #333;">${reason}</p>
-            </div>
+    const html = buildEmailHtml({
+      title: "Demande d'inscription refusée - MediCôte",
+      preheader: "Mise à jour concernant votre inscription professionnelle.",
+      contentHtml: `
+        <h2 style="color: #dc2626; font-family: 'Outfit', sans-serif; font-size: 20px; font-weight: 600; margin-top: 0; margin-bottom: 16px;">Demande refusée</h2>
+        <p style="margin: 0 0 16px 0;">Bonjour ${firstName},</p>
+        <p style="margin: 0 0 20px 0;">Nous avons examiné votre demande d'inscription professionnelle sur MediCôte. Malheureusement, votre demande a été <strong>refusée</strong> pour la raison suivante :</p>
+        
+        <div style="background-color: #fef2f2; border-left: 4px solid #ef4444; border-radius: 6px; padding: 16px; margin: 24px 0; font-size: 14px; color: #991b1b;">
+          <p style="margin: 0;">${reason}</p>
+        </div>
 
-            <p>Si vous pensez qu'il s'agit d'une erreur ou si vous souhaitez soumettre une nouvelle demande avec des documents complémentaires, n'hésitez pas à nous contacter à <a href="mailto:support@medicote.ci" style="color: #FF8200;">support@medicote.ci</a>.</p>
-          </div>
-          <div style="text-align: center; margin-top: 20px; color: #999; font-size: 12px;">
-            <p>© ${new Date().getFullYear()} MediCôte. Tous droits réservés.</p>
-          </div>
-        </body>
-      </html>
-    `
+        <p style="margin: 24px 0 0 0; font-size: 14px; color: #64748b;">
+          Si vous pensez qu'il s'agit d'une erreur ou si vous souhaitez soumettre une nouvelle demande avec des documents complémentaires, n'hésitez pas à nous contacter à l'adresse <a href="mailto:support@medicote.ci" style="color: #ff8200; text-decoration: none; font-weight: 500;">support@medicote.ci</a>.
+        </p>
+      `,
+      accentColor: '#dc2626',
+    })
 
     await sendEmail(to, "Demande d'inscription refusée - MediCôte", html)
   }
