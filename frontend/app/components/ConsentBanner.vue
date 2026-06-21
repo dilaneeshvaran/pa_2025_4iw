@@ -81,8 +81,10 @@
 
 <script setup lang="ts">
 import { useAuthStore } from '~/stores/auth'
+import { shouldShowConsentBannerForLayout } from '~/utils/consentVisibility'
 
 const authStore = useAuthStore()
+const route = useRoute()
 const { initAnalytics, trackEvent } = useAnalytics()
 const { grantAnalyticsConsent, revokeAnalyticsConsent } = useConsent()
 
@@ -96,16 +98,13 @@ const CONSENT_KEY = computed(() => {
 })
 const ESSENTIAL_CONSENT_TYPES = ['data_processing', 'terms_of_service', 'privacy_policy'] as const
 
-const EXCLUDED_ROUTE_PREFIXES = ['/auth/', '/legal/']
-
 const checkConsent = () => {
   if (!authStore.isAuthenticated || !authStore.accessToken) {
     visible.value = false
     return
   }
 
-  const currentPath = useRoute().path
-  if (EXCLUDED_ROUTE_PREFIXES.some((prefix) => currentPath.startsWith(prefix))) {
+  if (!shouldShowConsentBannerForLayout(route.meta.layout)) {
     visible.value = false
     return
   }
