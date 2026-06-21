@@ -1,0 +1,50 @@
+// discover docker containers running on the host
+discovery.docker "local_containers" {
+  host = "unix:///var/run/docker.sock"
+}
+
+// relabel docker container metadata into clean loki labels
+discovery.relabel "container_logs" {
+  targets = discovery.docker.local_containers.targets
+
+  // extract swarm service name (if running in swarm)
+  rule {
+    source_labels = ["__meta_docker_container_label_com_docker_swarm_service_name"]
+    regex         = "(.+)"
+    target_label  = "service_name"
+  }
+
+  // extract swarm node id (if running in swarm)
+  rule {
+    source_labels = ["__meta_docker_container_label_com_docker_swarm_node_id"]
+    regex         = "(.+)"
+    target_label  = "node_id"
+  }
+
+  // fallback to container name (for standard compose or single containers)
+  rule {
+    source_labels = ["__meta_docker_container_name"]
+    regex         = "/(.*)"
+    target_label  = "container_name"
+  }
+
+  // add job label
+  rule {
+    replacement  = "docker-logs"
+    target_label = "job"
+  }
+}
+
+// collect logs from the discovered containers
+loki.source.docker "docker_logs" {
+  host       = "unix:///var/run/docker.sock"
+  targets    = discovery.relabel.container_logs.output
+  forward_to = [loki.write.loki_endpoint.receiver]
+}
+
+// send the collected logs to loki
+loki.write "loki_endpoint" {
+  endpoint {
+    url = "http://loki:3100/loki/api/v1/push"
+  }
+}
