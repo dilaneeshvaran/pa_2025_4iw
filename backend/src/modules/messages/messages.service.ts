@@ -7,7 +7,7 @@ import {
   ConversationDetail,
   MessageAttachment,
 } from './messages.types'
-import { sendEmail } from '../../utils/email'
+import { sendEmail, buildEmailHtml } from '../../utils/email'
 
 // pending email notifications conversationId:userId -> timeout
 const pendingEmailNotifications = new Map<
@@ -957,37 +957,25 @@ async function sendNewMessageEmail(
 ): Promise<void> {
   const APP_URL = process.env.BACKEND_FRONTEND_URL || 'http://localhost:3000'
 
-  const html = `
-    <!DOCTYPE html>
-    <html>
-      <head>
-        <meta charset="utf-8">
-        <meta name="viewport" content="width=device-width, initial-scale=1.0">
-        <title>Nouveau message</title>
-      </head>
-      <body style="font-family: Arial, sans-serif; line-height: 1.6; color: #333; max-width: 600px; margin: 0 auto; padding: 20px;">
-        <div style="background-color: #FF8200; color: white; padding: 20px; text-align: center; border-radius: 5px 5px 0 0;">
-          <h1 style="margin: 0;">MediCôte</h1>
-        </div>
-        <div style="background-color: #f9f9f9; padding: 30px; border-radius: 0 0 5px 5px;">
-          <h2 style="color: #FF8200; margin-top: 0;">Nouveau message reçu</h2>
-          <p>Vous avez reçu un nouveau message de <strong>${senderName}</strong>.</p>
-          <div style="background-color: white; border: 1px solid #e0e0e0; border-radius: 8px; padding: 15px; margin: 20px 0;">
-            <p style="margin: 0; color: #555; font-style: italic;">"${messagePreview}"</p>
-          </div>
-          <div style="text-align: center; margin: 30px 0;">
-            <a href="${APP_URL}/practitioner/messages" style="background-color: #FF8200; color: white; padding: 12px 30px; text-decoration: none; border-radius: 5px; display: inline-block; font-weight: bold;">Voir mes messages</a>
-          </div>
-          <p style="color: #666; font-size: 12px; margin-top: 20px;">
-            Les messages sont chiffrés de bout en bout pour votre sécurité.
-          </p>
-        </div>
-        <div style="text-align: center; margin-top: 20px; color: #999; font-size: 12px;">
-          <p>© ${new Date().getFullYear()} MediCôte. Tous droits réservés.</p>
-        </div>
-      </body>
-    </html>
-  `
+  const html = buildEmailHtml({
+    title: 'Nouveau message - MediCôte',
+    preheader: `Vous avez reçu un nouveau message de ${senderName}.`,
+    contentHtml: `
+      <h2 style="color: #1e293b; font-family: 'Outfit', sans-serif; font-size: 20px; font-weight: 600; margin-top: 0; margin-bottom: 16px;">Nouveau message reçu</h2>
+      <p style="margin: 0 0 16px 0;">Bonjour,</p>
+      <p style="margin: 0 0 20px 0;">Vous avez reçu un nouveau message de <strong>${senderName}</strong> :</p>
+      
+      <div style="background-color: #f8fafc; border: 1px solid #e2e8f0; border-radius: 8px; padding: 20px; margin: 24px 0; border-left: 4px solid #ff8200;">
+        <p style="margin: 0; color: #475569; font-style: italic; font-size: 15px;">"${messagePreview}"</p>
+      </div>
+      
+      <p style="margin: 24px 0 0 0; color: #64748b; font-size: 13px; border-top: 1px solid #e2e8f0; padding-top: 16px;">
+        Les messages sont chiffrés de bout en bout pour garantir la confidentialité de vos échanges.
+      </p>
+    `,
+    actionUrl: `${APP_URL}/practitioner/messages`,
+    actionText: 'Voir mes messages',
+  })
 
   await sendEmail(to, 'Nouveau message - MediCôte', html)
 }

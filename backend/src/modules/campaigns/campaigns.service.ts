@@ -1,5 +1,5 @@
 import prisma from '../../config/database'
-import { sendEmail } from '../../utils/email'
+import { sendEmail, buildEmailHtml } from '../../utils/email'
 
 interface RecipientCountFilters {
   targetType: string
@@ -361,10 +361,10 @@ class CampaignsService {
       string,
       { bg: string; border: string; text: string }
     > = {
-      INFO: { bg: '#E6F5EB', border: '#009A44', text: '#006B30' },
-      WARNING: { bg: '#FFF5E6', border: '#FF8200', text: '#B35900' },
-      URGENT: { bg: '#FDEDEC', border: '#E74C3C', text: '#922B21' },
-      MAINTENANCE: { bg: '#FFF5E6', border: '#FF8200', text: '#B35900' },
+      INFO: { bg: '#ecfdf5', border: '#10b981', text: '#065f46' },
+      WARNING: { bg: '#fff5e6', border: '#ff8200', text: '#b35900' },
+      URGENT: { bg: '#fef2f2', border: '#ef4444', text: '#991b1b' },
+      MAINTENANCE: { bg: '#fff5e6', border: '#ff8200', text: '#b35900' },
     }
     const colors = typeColors[messageType] || typeColors.INFO
 
@@ -381,34 +381,22 @@ class CampaignsService {
       .replace(/>/g, '&gt;')
       .replace(/\n/g, '<br>')
 
-    return `
-      <!DOCTYPE html>
-      <html>
-        <head>
-          <meta charset="utf-8">
-          <meta name="viewport" content="width=device-width, initial-scale=1.0">
-        </head>
-        <body style="margin: 0; padding: 0; font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; background-color: #f5f5f5;">
-          <div style="max-width: 600px; margin: 0 auto; background-color: white; border-radius: 8px; overflow: hidden; box-shadow: 0 2px 10px rgba(0,0,0,0.1);">
-            <div style="background-color: #FF8200; padding: 30px; text-align: center;">
-              <h1 style="color: white; margin: 0; font-size: 24px;">MediCôte</h1>
-            </div>
-            <div style="padding: 30px;">
-              <div style="background-color: ${colors.bg}; border-left: 4px solid ${colors.border}; padding: 12px 16px; margin-bottom: 20px; border-radius: 4px;">
-                <strong style="color: ${colors.text};">${typeLabels[messageType] || messageType}</strong>
-              </div>
-              <h2 style="color: #333; margin-bottom: 20px;">${subject.replace(/</g, '&lt;').replace(/>/g, '&gt;')}</h2>
-              <div style="color: #555; line-height: 1.6; font-size: 16px;">
-                ${escapedMessage}
-              </div>
-            </div>
-            <div style="background-color: #f8f9fa; padding: 20px; text-align: center; font-size: 12px; color: #999;">
-              <p>MediCôte - Plateforme de santé en ligne</p>
-            </div>
-          </div>
-        </body>
-      </html>
-    `
+    const accentColor = colors.border
+
+    return buildEmailHtml({
+      title: subject,
+      preheader: typeLabels[messageType] || messageType,
+      contentHtml: `
+        <div style="background-color: ${colors.bg}; border-left: 4px solid ${colors.border}; padding: 12px 16px; margin-bottom: 24px; border-radius: 4px;">
+          <strong style="color: ${colors.text}; font-size: 14px;">${typeLabels[messageType] || messageType}</strong>
+        </div>
+        <h2 style="color: #1e293b; font-family: 'Outfit', sans-serif; font-size: 20px; font-weight: 600; margin-top: 0; margin-bottom: 16px;">${subject.replace(/</g, '&lt;').replace(/>/g, '&gt;')}</h2>
+        <div style="color: #334155; line-height: 1.6; font-size: 15px;">
+          ${escapedMessage}
+        </div>
+      `,
+      accentColor,
+    })
   }
 
   async getCampaigns(filters: CampaignListFilters) {

@@ -36,42 +36,153 @@ export async function sendEmail(
   }
 }
 
+export interface EmailLayoutOptions {
+  title: string
+  preheader?: string
+  contentHtml: string
+  actionUrl?: string
+  actionText?: string
+  accentColor?: string
+}
+
+export function buildEmailHtml(options: EmailLayoutOptions): string {
+  const accent = options.accentColor || '#ff8200'
+  const preheaderHtml = options.preheader
+    ? `<span style="display:none !important; visibility:hidden; opacity:0; color:transparent; height:0; width:0; mso-hide:all;">${options.preheader}</span>`
+    : ''
+
+  const actionButtonHtml = (options.actionUrl && options.actionText)
+    ? `
+      <div style="text-align: center; margin: 32px 0 16px 0;">
+        <a href="${options.actionUrl}" style="background-color: ${accent}; color: #ffffff; padding: 12px 28px; text-decoration: none; border-radius: 6px; display: inline-block; font-weight: bold; font-family: 'Outfit', 'Inter', -apple-system, sans-serif; font-size: 15px; box-shadow: 0 4px 6px rgba(255, 130, 0, 0.15); min-height: 44px; line-height: 44px; padding-top: 0; padding-bottom: 0; text-align: center;">
+          ${options.actionText}
+        </a>
+      </div>
+    `
+    : ''
+
+  return `
+<!DOCTYPE html>
+<html lang="fr">
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>${options.title}</title>
+    <!--[if !mso]><!-->
+    <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@400;500;600;700&family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
+    <!--<![endif]-->
+    <style>
+      body {
+        font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+        background-color: #f8fafc;
+        color: #334155;
+        margin: 0;
+        padding: 0;
+        -webkit-font-smoothing: antialiased;
+      }
+      a {
+        color: #ff8200;
+        text-decoration: none;
+      }
+      a:hover {
+        text-decoration: underline;
+      }
+      @media only screen and (max-width: 620px) {
+        .container {
+          width: 100% !important;
+          padding: 10px !important;
+        }
+        .content-card {
+          padding: 24px !important;
+          border-radius: 8px !important;
+        }
+      }
+    </style>
+  </head>
+  <body style="font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif; background-color: #f8fafc; color: #334155; margin: 0; padding: 0; padding-top: 32px; padding-bottom: 32px;">
+    ${preheaderHtml}
+    <table border="0" cellpadding="0" cellspacing="0" width="100%" style="table-layout: fixed; background-color: #f8fafc;">
+      <tr>
+        <td align="center">
+          <table border="0" cellpadding="0" cellspacing="0" width="600" class="container" style="width: 600px; margin: 0 auto;">
+            <!-- Brand Header -->
+            <tr>
+              <td align="center" style="padding-bottom: 24px;">
+                <table border="0" cellpadding="0" cellspacing="0" style="margin: 0 auto;">
+                  <tr>
+                    <td align="center" style="font-family: 'Outfit', 'Inter', -apple-system, sans-serif; font-size: 28px; font-weight: 700; color: #ff8200; letter-spacing: -0.5px; padding-bottom: 4px;">
+                      <span style="color: #ff8200;">Medi</span><span style="color: #009a44;">Côte</span>
+                    </td>
+                  </tr>
+                  <tr>
+                    <td align="center" style="font-family: 'Inter', -apple-system, sans-serif; font-size: 11px; color: #64748b; letter-spacing: 1px; text-transform: uppercase; font-weight: 500;">
+                      Plateforme de santé numérique
+                    </td>
+                  </tr>
+                </table>
+              </td>
+            </tr>
+            
+            <!-- Main Content Card -->
+            <tr>
+              <td style="background-color: #ffffff; border-radius: 12px; border: 1px solid #e2e8f0; overflow: hidden; box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.05), 0 2px 4px -1px rgba(0, 0, 0, 0.025);">
+                <!-- Colored top accent line -->
+                <table border="0" cellpadding="0" cellspacing="0" width="100%">
+                  <tr>
+                    <td width="50%" height="4" style="background-color: #ff8200; font-size: 1px; line-height: 1px;">&nbsp;</td>
+                    <td width="50%" height="4" style="background-color: #009a44; font-size: 1px; line-height: 1px;">&nbsp;</td>
+                  </tr>
+                </table>
+                
+                <table border="0" cellpadding="0" cellspacing="0" width="100%">
+                  <tr>
+                    <td class="content-card" style="padding: 40px; font-family: 'Inter', -apple-system, sans-serif; font-size: 15px; line-height: 1.6; color: #334155;">
+                      ${options.contentHtml}
+                      ${actionButtonHtml}
+                    </td>
+                  </tr>
+                </table>
+              </td>
+            </tr>
+            
+            <!-- Footer -->
+            <tr>
+              <td align="center" style="padding-top: 32px; padding-bottom: 16px; font-family: 'Inter', -apple-system, sans-serif; font-size: 12px; color: #94a3b8; line-height: 1.6; text-align: center;">
+                <p style="margin: 0 0 8px 0;">© ${new Date().getFullYear()} MediCôte. Tous droits réservés.</p>
+                <p style="margin: 0; font-size: 11px;">Cet e-mail automatique a été envoyé par MediCôte. Veuillez ne pas y répondre directement.</p>
+              </td>
+            </tr>
+          </table>
+        </td>
+      </tr>
+    </table>
+  </body>
+</html>
+  `
+}
+
 export async function sendVerificationEmail(
   to: string,
   token: string,
 ): Promise<void> {
   const verificationUrl = `${APP_URL}/auth/verify-email?token=${token}`
 
-  const html = `
-    <!DOCTYPE html>
-    <html>
-      <head>
-        <meta charset="utf-8">
-        <meta name="viewport" content="width=device-width, initial-scale=1.0">
-        <title>Vérification de votre email</title>
-      </head>
-      <body style="font-family: Arial, sans-serif; line-height: 1.6; color: #333; max-width: 600px; margin: 0 auto; padding: 20px;">
-        <div style="background: linear-gradient(135deg, #FF8200 0%, #009A44 100%); color: white; padding: 20px; text-align: center; border-radius: 5px 5px 0 0;">
-          <h1 style="margin: 0;"><span style="color: #FF8200; background: white; padding: 2px 6px; border-radius: 3px;">Medi</span><span style="color: #009A44; background: white; padding: 2px 6px; border-radius: 3px;">côte</span></h1>
-        </div>
-        <div style="background-color: #f9f9f9; padding: 30px; border-radius: 0 0 5px 5px;">
-          <h2 style="color: #FF8200; margin-top: 0;">Vérification de votre email</h2>
-          <p>Bonjour,</p>
-          <p>Merci de vous être inscrit sur MediCôte. Pour activer votre compte, veuillez cliquer sur le bouton ci-dessous :</p>
-          <div style="text-align: center; margin: 30px 0;">
-            <a href="${verificationUrl}" style="background-color: #FF8200; color: white; padding: 12px 30px; text-decoration: none; border-radius: 5px; display: inline-block; font-weight: bold;">Vérifier mon email</a>
-          </div>
-          <p>Si le bouton ne fonctionne pas, copiez et collez ce lien dans votre navigateur :</p>
-          <p style="word-break: break-all; color: #FF8200;">${verificationUrl}</p>
-          <p style="color: #666; font-size: 14px; margin-top: 30px;">Ce lien expirera dans 24 heures.</p>
-          <p style="color: #666; font-size: 14px;">Si vous n'avez pas créé de compte, vous pouvez ignorer cet email.</p>
-        </div>
-        <div style="text-align: center; margin-top: 20px; color: #999; font-size: 12px;">
-          <p>© ${new Date().getFullYear()} MediCôte. Tous droits réservés.</p>
-        </div>
-      </body>
-    </html>
-  `
+  const html = buildEmailHtml({
+    title: 'Vérification de votre e-mail - MediCôte',
+    preheader: 'Activez votre compte pour commencer sur MediCôte.',
+    contentHtml: `
+      <h2 style="color: #1e293b; font-family: 'Outfit', sans-serif; font-size: 20px; font-weight: 600; margin-top: 0; margin-bottom: 16px;">Vérification de votre e-mail</h2>
+      <p style="margin: 0 0 16px 0;">Bonjour,</p>
+      <p style="margin: 0 0 24px 0;">Merci de vous être inscrit sur MediCôte. Pour activer votre compte et accéder à nos services, veuillez confirmer votre adresse e-mail en cliquant sur le bouton ci-dessous :</p>
+      
+      <p style="margin: 24px 0 8px 0; font-size: 13px; color: #64748b;">Si le bouton ne fonctionne pas, copiez et collez ce lien dans votre navigateur :</p>
+      <p style="margin: 0; font-size: 13px; word-break: break-all;"><a href="${verificationUrl}" style="color: #ff8200; text-decoration: none;">${verificationUrl}</a></p>
+      
+      <p style="margin: 24px 0 0 0; color: #64748b; font-size: 13px; border-top: 1px solid #e2e8f0; padding-top: 16px;">Ce lien expirera dans 24 heures. Si vous n'avez pas créé de compte, vous pouvez ignorer cet e-mail en toute sécurité.</p>
+    `,
+    actionUrl: verificationUrl,
+    actionText: 'Vérifier mon e-mail',
+  })
 
   await sendEmail(to, 'Vérification de votre email - MediCôte', html)
 }
@@ -82,36 +193,22 @@ export async function sendPasswordResetEmail(
 ): Promise<void> {
   const resetUrl = `${APP_URL}/auth/reset-password?token=${token}`
 
-  const html = `
-    <!DOCTYPE html>
-    <html>
-      <head>
-        <meta charset="utf-8">
-        <meta name="viewport" content="width=device-width, initial-scale=1.0">
-        <title>Réinitialisation de votre mot de passe</title>
-      </head>
-      <body style="font-family: Arial, sans-serif; line-height: 1.6; color: #333; max-width: 600px; margin: 0 auto; padding: 20px;">
-        <div style="background: linear-gradient(135deg, #FF8200 0%, #009A44 100%); color: white; padding: 20px; text-align: center; border-radius: 5px 5px 0 0;">
-          <h1 style="margin: 0;"><span style="color: #FF8200; background: white; padding: 2px 6px; border-radius: 3px;">Medi</span><span style="color: #009A44; background: white; padding: 2px 6px; border-radius: 3px;">côte</span></h1>
-        </div>
-        <div style="background-color: #f9f9f9; padding: 30px; border-radius: 0 0 5px 5px;">
-          <h2 style="color: #FF8200; margin-top: 0;">Réinitialisation de mot de passe</h2>
-          <p>Bonjour,</p>
-          <p>Vous avez demandé à réinitialiser votre mot de passe. Cliquez sur le bouton ci-dessous pour continuer :</p>
-          <div style="text-align: center; margin: 30px 0;">
-            <a href="${resetUrl}" style="background-color: #FF8200; color: white; padding: 12px 30px; text-decoration: none; border-radius: 5px; display: inline-block; font-weight: bold;">Réinitialiser mon mot de passe</a>
-          </div>
-          <p>Si le bouton ne fonctionne pas, copiez et collez ce lien dans votre navigateur :</p>
-          <p style="word-break: break-all; color: #FF8200;">${resetUrl}</p>
-          <p style="color: #666; font-size: 14px; margin-top: 30px;">Ce lien expirera dans 1 heure.</p>
-          <p style="color: #666; font-size: 14px;">Si vous n'avez pas demandé de réinitialisation, vous pouvez ignorer cet email. Votre mot de passe restera inchangé.</p>
-        </div>
-        <div style="text-align: center; margin-top: 20px; color: #999; font-size: 12px;">
-          <p>© ${new Date().getFullYear()} MediCôte. Tous droits réservés.</p>
-        </div>
-      </body>
-    </html>
-  `
+  const html = buildEmailHtml({
+    title: 'Réinitialisation de votre mot de passe - MediCôte',
+    preheader: 'Demande de réinitialisation de mot de passe.',
+    contentHtml: `
+      <h2 style="color: #1e293b; font-family: 'Outfit', sans-serif; font-size: 20px; font-weight: 600; margin-top: 0; margin-bottom: 16px;">Réinitialisation de mot de passe</h2>
+      <p style="margin: 0 0 16px 0;">Bonjour,</p>
+      <p style="margin: 0 0 24px 0;">Vous avez demandé la réinitialisation du mot de passe de votre compte MediCôte. Veuillez cliquer sur le bouton ci-dessous pour définir un nouveau mot de passe :</p>
+      
+      <p style="margin: 24px 0 8px 0; font-size: 13px; color: #64748b;">Si le bouton ne fonctionne pas, copiez et collez ce lien dans votre navigateur :</p>
+      <p style="margin: 0; font-size: 13px; word-break: break-all;"><a href="${resetUrl}" style="color: #ff8200; text-decoration: none;">${resetUrl}</a></p>
+      
+      <p style="margin: 24px 0 0 0; color: #64748b; font-size: 13px; border-top: 1px solid #e2e8f0; padding-top: 16px;">Ce lien expirera dans 1 heure. Si vous n'avez pas demandé cette réinitialisation, vous pouvez ignorer cet e-mail.</p>
+    `,
+    actionUrl: resetUrl,
+    actionText: 'Réinitialiser mon mot de passe',
+  })
 
   await sendEmail(to, 'Réinitialisation de votre mot de passe - MediCôte', html)
 }
@@ -120,39 +217,23 @@ export async function sendWelcomeEmail(
   to: string,
   firstName: string,
 ): Promise<void> {
-  const html = `
-    <!DOCTYPE html>
-    <html>
-      <head>
-        <meta charset="utf-8">
-        <meta name="viewport" content="width=device-width, initial-scale=1.0">
-        <title>Bienvenue sur MediCôte</title>
-      </head>
-      <body style="font-family: Arial, sans-serif; line-height: 1.6; color: #333; max-width: 600px; margin: 0 auto; padding: 20px;">
-        <div style="background: linear-gradient(135deg, #FF8200 0%, #009A44 100%); color: white; padding: 20px; text-align: center; border-radius: 5px 5px 0 0;">
-          <h1 style="margin: 0;"><span style="color: #FF8200; background: white; padding: 2px 6px; border-radius: 3px;">Medi</span><span style="color: #009A44; background: white; padding: 2px 6px; border-radius: 3px;">côte</span></h1>
-        </div>
-        <div style="background-color: #f9f9f9; padding: 30px; border-radius: 0 0 5px 5px;">
-          <h2 style="color: #FF8200; margin-top: 0;">Bienvenue ${firstName} !</h2>
-          <p>Nous sommes ravis de vous accueillir sur MediCôte, votre plateforme de santé en ligne.</p>
-          <p>Vous pouvez désormais :</p>
-          <ul>
-            <li>Prendre rendez-vous avec des professionnels de santé</li>
-            <li>Consulter votre dossier médical</li>
-            <li>Accéder à la téléconsultation</li>
-            <li>Gérer vos documents médicaux</li>
-          </ul>
-          <div style="text-align: center; margin: 30px 0;">
-            <a href="${APP_URL}" style="background-color: #FF8200; color: white; padding: 12px 30px; text-decoration: none; border-radius: 5px; display: inline-block; font-weight: bold;">Accéder à mon compte</a>
-          </div>
-          <p style="color: #666; font-size: 14px; margin-top: 30px;">Si vous avez des questions, n'hésitez pas à nous contacter.</p>
-        </div>
-        <div style="text-align: center; margin-top: 20px; color: #999; font-size: 12px;">
-          <p>© ${new Date().getFullYear()} MediCôte. Tous droits réservés.</p>
-        </div>
-      </body>
-    </html>
-  `
+  const html = buildEmailHtml({
+    title: 'Bienvenue sur MediCôte',
+    preheader: 'Votre compte MediCôte est prêt.',
+    contentHtml: `
+      <h2 style="color: #1e293b; font-family: 'Outfit', sans-serif; font-size: 20px; font-weight: 600; margin-top: 0; margin-bottom: 16px;">Bienvenue ${firstName} !</h2>
+      <p style="margin: 0 0 16px 0;">Nous sommes ravis de vous accueillir sur MediCôte, votre plateforme de santé en ligne.</p>
+      <p style="margin: 0 0 16px 0;">Vous pouvez désormais :</p>
+      <ul style="margin: 0 0 24px 0; padding-left: 20px; color: #475569;">
+        <li style="margin-bottom: 8px;">Prendre rendez-vous avec des professionnels de santé</li>
+        <li style="margin-bottom: 8px;">Consulter votre dossier médical</li>
+        <li style="margin-bottom: 8px;">Accéder à la téléconsultation</li>
+        <li style="margin-bottom: 8px;">Gérer vos documents médicaux</li>
+      </ul>
+    `,
+    actionUrl: APP_URL,
+    actionText: 'Accéder à mon compte',
+  })
 
   await sendEmail(to, 'Bienvenue sur MediCôte', html)
 }
@@ -183,50 +264,55 @@ export async function sendAppointmentConfirmationEmail(
     ? 'Vous recevrez un lien de connexion avant votre rendez-vous.'
     : `Adresse : ${data.clinicAddress || 'À confirmer'}`
 
-  const html = `
-    <!DOCTYPE html>
-    <html>
-      <head>
-        <meta charset="utf-8">
-        <meta name="viewport" content="width=device-width, initial-scale=1.0">
-        <title>Confirmation de rendez-vous</title>
-      </head>
-      <body style="font-family: Arial, sans-serif; line-height: 1.6; color: #333; max-width: 600px; margin: 0 auto; padding: 20px;">
-        <div style="background: linear-gradient(135deg, #FF8200 0%, #009A44 100%); color: white; padding: 20px; text-align: center; border-radius: 5px 5px 0 0;">
-          <h1 style="margin: 0;"><span style="color: #FF8200; background: white; padding: 2px 6px; border-radius: 3px;">Medi</span><span style="color: #009A44; background: white; padding: 2px 6px; border-radius: 3px;">côte</span></h1>
-        </div>
-        <div style="background-color: #f9f9f9; padding: 30px; border-radius: 0 0 5px 5px;">
-          <h2 style="color: #FF8200; margin-top: 0;">Rendez-vous confirmé ✓</h2>
-          <p>Bonjour ${data.patientName},</p>
-          <p>Votre rendez-vous a été confirmé avec succès. Voici les détails :</p>
-          
-          <div style="background-color: white; border: 1px solid #e0e0e0; border-radius: 8px; padding: 20px; margin: 20px 0;">
-            <p style="margin: 8px 0;"><strong>Praticien :</strong> ${data.practitionerTitle} ${data.practitionerFirstName} ${data.practitionerLastName}</p>
-            <p style="margin: 8px 0;"><strong>Spécialité :</strong> ${data.practitionerSpecialty}</p>
-            <p style="margin: 8px 0;"><strong>Date :</strong> ${data.appointmentDate}</p>
-            <p style="margin: 8px 0;"><strong>Heure :</strong> ${data.appointmentTime}</p>
-            <p style="margin: 8px 0;"><strong>Type :</strong> ${typeLabel}</p>
-            <p style="margin: 8px 0;"><strong>Tarif :</strong> ${data.consultationFee.toLocaleString('fr-FR')} FCFA</p>
-            <p style="margin: 8px 0; color: #666;">${locationInfo}</p>
-          </div>
-
-          <div style="text-align: center; margin: 30px 0;">
-            <a href="${APP_URL}/patient/appointments" style="background-color: #FF8200; color: white; padding: 12px 30px; text-decoration: none; border-radius: 5px; display: inline-block; font-weight: bold;">Voir mes rendez-vous</a>
-          </div>
-          
-          <p style="color: #666; font-size: 14px; margin-top: 30px;">
-            Vous recevrez un rappel 24h et 1h avant votre rendez-vous.
-          </p>
-          <p style="color: #666; font-size: 14px;">
-            Pour annuler ou modifier votre rendez-vous, connectez-vous à votre espace patient.
-          </p>
-        </div>
-        <div style="text-align: center; margin-top: 20px; color: #999; font-size: 12px;">
-          <p>© ${new Date().getFullYear()} MediCôte. Tous droits réservés.</p>
-        </div>
-      </body>
-    </html>
-  `
+  const html = buildEmailHtml({
+    title: 'Confirmation de rendez-vous - MediCôte',
+    preheader: `Votre rendez-vous avec ${data.practitionerTitle} ${data.practitionerLastName} est confirmé.`,
+    contentHtml: `
+      <h2 style="color: #009a44; font-family: 'Outfit', sans-serif; font-size: 20px; font-weight: 600; margin-top: 0; margin-bottom: 16px;">Rendez-vous confirmé ✓</h2>
+      <p style="margin: 0 0 16px 0;">Bonjour ${data.patientName},</p>
+      <p style="margin: 0 0 20px 0;">Votre rendez-vous a été confirmé avec succès. Voici les détails :</p>
+      
+      <div style="background-color: #f8fafc; border: 1px solid #e2e8f0; border-radius: 8px; padding: 20px; margin: 24px 0;">
+        <table border="0" cellpadding="0" cellspacing="0" width="100%" style="font-size: 14px; font-family: 'Inter', sans-serif; color: #475569; border-collapse: collapse;">
+          <tr>
+            <td style="padding: 6px 0; font-weight: 600; color: #1e293b; width: 35%; vertical-align: top;">Praticien :</td>
+            <td style="padding: 6px 0; color: #334155;">${data.practitionerTitle} ${data.practitionerFirstName} ${data.practitionerLastName}</td>
+          </tr>
+          <tr>
+            <td style="padding: 6px 0; font-weight: 600; color: #1e293b; vertical-align: top;">Spécialité :</td>
+            <td style="padding: 6px 0; color: #334155;">${data.practitionerSpecialty}</td>
+          </tr>
+          <tr>
+            <td style="padding: 6px 0; font-weight: 600; color: #1e293b; vertical-align: top;">Date :</td>
+            <td style="padding: 6px 0; color: #334155; font-weight: 500;">${data.appointmentDate}</td>
+          </tr>
+          <tr>
+            <td style="padding: 6px 0; font-weight: 600; color: #1e293b; vertical-align: top;">Heure :</td>
+            <td style="padding: 6px 0; color: #334155; font-weight: 500;">${data.appointmentTime}</td>
+          </tr>
+          <tr>
+            <td style="padding: 6px 0; font-weight: 600; color: #1e293b; vertical-align: top;">Type :</td>
+            <td style="padding: 6px 0; color: #334155;">${typeLabel}</td>
+          </tr>
+          <tr>
+            <td style="padding: 6px 0; font-weight: 600; color: #1e293b; vertical-align: top;">Tarif :</td>
+            <td style="padding: 6px 0; color: #334155;">${data.consultationFee.toLocaleString('fr-FR')} FCFA</td>
+          </tr>
+          <tr>
+            <td style="padding: 10px 0 0 0; font-weight: 600; color: #1e293b; vertical-align: top; border-top: 1px solid #e2e8f0;">Lieu / Infos :</td>
+            <td style="padding: 10px 0 0 0; color: #64748b; border-top: 1px solid #e2e8f0; font-style: italic;">${locationInfo}</td>
+          </tr>
+        </table>
+      </div>
+      
+      <p style="margin: 24px 0 0 0; font-size: 13px; color: #64748b; border-top: 1px solid #e2e8f0; padding-top: 16px;">
+        Vous recevrez un rappel 24h et 1h avant votre rendez-vous. Pour annuler ou modifier votre rendez-vous, connectez-vous à votre espace patient.
+      </p>
+    `,
+    actionUrl: `${APP_URL}/patient/appointments`,
+    actionText: 'Voir mes rendez-vous',
+    accentColor: '#009a44',
+  })
 
   await sendEmail(to, 'Confirmation de votre rendez-vous - MediCôte', html)
 }
@@ -246,42 +332,46 @@ export async function sendAppointmentReminderEmail(
     ? 'Préparez-vous à rejoindre la téléconsultation depuis votre espace patient.'
     : `Adresse : ${data.clinicAddress || 'À confirmer'}`
 
-  const html = `
-    <!DOCTYPE html>
-    <html>
-      <head>
-        <meta charset="utf-8">
-        <meta name="viewport" content="width=device-width, initial-scale=1.0">
-        <title>Rappel de rendez-vous</title>
-      </head>
-      <body style="font-family: Arial, sans-serif; line-height: 1.6; color: #333; max-width: 600px; margin: 0 auto; padding: 20px;">
-        <div style="background: linear-gradient(135deg, #FF8200 0%, #009A44 100%); color: white; padding: 20px; text-align: center; border-radius: 5px 5px 0 0;">
-          <h1 style="margin: 0;"><span style="color: #FF8200; background: white; padding: 2px 6px; border-radius: 3px;">Medi</span><span style="color: #009A44; background: white; padding: 2px 6px; border-radius: 3px;">côte</span></h1>
-        </div>
-        <div style="background-color: #f9f9f9; padding: 30px; border-radius: 0 0 5px 5px;">
-          <h2 style="color: #FF8200; margin-top: 0;">⏰ Rappel : Rendez-vous ${reminderLabel}</h2>
-          <p>Bonjour ${data.patientName},</p>
-          <p>Nous vous rappelons que vous avez un rendez-vous ${reminderLabel}.</p>
-          
-          <div style="background-color: white; border: 1px solid #e0e0e0; border-radius: 8px; padding: 20px; margin: 20px 0;">
-            <p style="margin: 8px 0;"><strong>Praticien :</strong> ${data.practitionerTitle} ${data.practitionerFirstName} ${data.practitionerLastName}</p>
-            <p style="margin: 8px 0;"><strong>Spécialité :</strong> ${data.practitionerSpecialty}</p>
-            <p style="margin: 8px 0;"><strong>Date :</strong> ${data.appointmentDate}</p>
-            <p style="margin: 8px 0;"><strong>Heure :</strong> ${data.appointmentTime}</p>
-            <p style="margin: 8px 0;"><strong>Type :</strong> ${typeLabel}</p>
-            <p style="margin: 8px 0; color: #666;">${locationInfo}</p>
-          </div>
-
-          <div style="text-align: center; margin: 30px 0;">
-            <a href="${APP_URL}/patient/appointments" style="background-color: #FF8200; color: white; padding: 12px 30px; text-decoration: none; border-radius: 5px; display: inline-block; font-weight: bold;">Voir mes rendez-vous</a>
-          </div>
-        </div>
-        <div style="text-align: center; margin-top: 20px; color: #999; font-size: 12px;">
-          <p>© ${new Date().getFullYear()} MediCôte. Tous droits réservés.</p>
-        </div>
-      </body>
-    </html>
-  `
+  const html = buildEmailHtml({
+    title: 'Rappel de rendez-vous - MediCôte',
+    preheader: `Rappel : Votre rendez-vous ${reminderLabel} avec ${data.practitionerTitle} ${data.practitionerLastName}.`,
+    contentHtml: `
+      <h2 style="color: #ff8200; font-family: 'Outfit', sans-serif; font-size: 20px; font-weight: 600; margin-top: 0; margin-bottom: 16px;">⏰ Rappel : Rendez-vous ${reminderLabel}</h2>
+      <p style="margin: 0 0 16px 0;">Bonjour ${data.patientName},</p>
+      <p style="margin: 0 0 20px 0;">Nous vous rappelons que vous avez un rendez-vous ${reminderLabel}. Voici les détails :</p>
+      
+      <div style="background-color: #f8fafc; border: 1px solid #e2e8f0; border-radius: 8px; padding: 20px; margin: 24px 0;">
+        <table border="0" cellpadding="0" cellspacing="0" width="100%" style="font-size: 14px; font-family: 'Inter', sans-serif; color: #475569; border-collapse: collapse;">
+          <tr>
+            <td style="padding: 6px 0; font-weight: 600; color: #1e293b; width: 35%; vertical-align: top;">Praticien :</td>
+            <td style="padding: 6px 0; color: #334155;">${data.practitionerTitle} ${data.practitionerFirstName} ${data.practitionerLastName}</td>
+          </tr>
+          <tr>
+            <td style="padding: 6px 0; font-weight: 600; color: #1e293b; vertical-align: top;">Spécialité :</td>
+            <td style="padding: 6px 0; color: #334155;">${data.practitionerSpecialty}</td>
+          </tr>
+          <tr>
+            <td style="padding: 6px 0; font-weight: 600; color: #1e293b; vertical-align: top;">Date :</td>
+            <td style="padding: 6px 0; color: #334155; font-weight: 500;">${data.appointmentDate}</td>
+          </tr>
+          <tr>
+            <td style="padding: 6px 0; font-weight: 600; color: #1e293b; vertical-align: top;">Heure :</td>
+            <td style="padding: 6px 0; color: #334155; font-weight: 500;">${data.appointmentTime}</td>
+          </tr>
+          <tr>
+            <td style="padding: 6px 0; font-weight: 600; color: #1e293b; vertical-align: top;">Type :</td>
+            <td style="padding: 6px 0; color: #334155;">${typeLabel}</td>
+          </tr>
+          <tr>
+            <td style="padding: 10px 0 0 0; font-weight: 600; color: #1e293b; vertical-align: top; border-top: 1px solid #e2e8f0;">Lieu / Infos :</td>
+            <td style="padding: 10px 0 0 0; color: #64748b; border-top: 1px solid #e2e8f0; font-style: italic;">${locationInfo}</td>
+          </tr>
+        </table>
+      </div>
+    `,
+    actionUrl: `${APP_URL}/patient/appointments`,
+    actionText: 'Voir mes rendez-vous',
+  })
 
   const subject =
     reminderType === '24h'
@@ -301,37 +391,36 @@ export async function sendInvoiceEmail(
   },
   pdfBuffer: Buffer,
 ): Promise<void> {
-  const html = `
-    <!DOCTYPE html>
-    <html>
-      <head>
-        <meta charset="utf-8">
-        <meta name="viewport" content="width=device-width, initial-scale=1.0">
-        <title>Votre facture MediCôte</title>
-      </head>
-      <body style="font-family: Arial, sans-serif; line-height: 1.6; color: #333; max-width: 600px; margin: 0 auto; padding: 20px;">
-        <div style="background: linear-gradient(135deg, #FF8200 0%, #009A44 100%); color: white; padding: 20px; text-align: center; border-radius: 5px 5px 0 0;">
-          <h1 style="margin: 0;"><span style="color: #FF8200; background: white; padding: 2px 6px; border-radius: 3px;">Medi</span><span style="color: #009A44; background: white; padding: 2px 6px; border-radius: 3px;">côte</span></h1>
-        </div>
-        <div style="background-color: #f9f9f9; padding: 30px; border-radius: 0 0 5px 5px;">
-          <h2 style="color: #FF8200; margin-top: 0;">Votre facture est disponible</h2>
-          <p>Bonjour ${data.patientName},</p>
-          <p>Veuillez trouver ci-joint votre facture <strong>${data.invoiceNumber}</strong> du ${data.date} pour un montant de <strong>${data.amount.toLocaleString('fr-FR')} FCFA</strong>.</p>
-          
-          <div style="text-align: center; margin: 30px 0;">
-            <a href="${APP_URL}/patient/billing" style="background-color: #FF8200; color: white; padding: 12px 30px; text-decoration: none; border-radius: 5px; display: inline-block; font-weight: bold;">Voir mes factures</a>
-          </div>
-          
-          <p style="color: #666; font-size: 14px; margin-top: 30px;">
-            Merci de votre confiance.
-          </p>
-        </div>
-        <div style="text-align: center; margin-top: 20px; color: #999; font-size: 12px;">
-          <p>© ${new Date().getFullYear()} MediCôte. Tous droits réservés.</p>
-        </div>
-      </body>
-    </html>
-  `
+  const html = buildEmailHtml({
+    title: 'Votre facture MediCôte',
+    preheader: `Votre facture ${data.invoiceNumber} est disponible.`,
+    contentHtml: `
+      <h2 style="color: #1e293b; font-family: 'Outfit', sans-serif; font-size: 20px; font-weight: 600; margin-top: 0; margin-bottom: 16px;">Votre facture est disponible</h2>
+      <p style="margin: 0 0 16px 0;">Bonjour ${data.patientName},</p>
+      <p style="margin: 0 0 20px 0;">Veuillez trouver ci-joint votre facture <strong>${data.invoiceNumber}</strong> du ${data.date} pour un montant de <strong>${data.amount.toLocaleString('fr-FR')} FCFA</strong>.</p>
+      
+      <div style="background-color: #f8fafc; border: 1px solid #e2e8f0; border-radius: 8px; padding: 20px; margin: 24px 0;">
+        <table border="0" cellpadding="0" cellspacing="0" width="100%" style="font-size: 14px; font-family: 'Inter', sans-serif; color: #475569; border-collapse: collapse;">
+          <tr>
+            <td style="padding: 6px 0; font-weight: 600; color: #1e293b; width: 45%; vertical-align: top;">Numéro de facture :</td>
+            <td style="padding: 6px 0; color: #334155;">${data.invoiceNumber}</td>
+          </tr>
+          <tr>
+            <td style="padding: 6px 0; font-weight: 600; color: #1e293b; vertical-align: top;">Date d'émission :</td>
+            <td style="padding: 6px 0; color: #334155;">${data.date}</td>
+          </tr>
+          <tr>
+            <td style="padding: 6px 0; font-weight: 600; color: #1e293b; vertical-align: top;">Montant total :</td>
+            <td style="padding: 6px 0; color: #334155; font-weight: bold;">${data.amount.toLocaleString('fr-FR')} FCFA</td>
+          </tr>
+        </table>
+      </div>
+      
+      <p style="margin: 0 0 24px 0; color: #64748b; font-size: 14px;">Merci de votre confiance.</p>
+    `,
+    actionUrl: `${APP_URL}/patient/billing`,
+    actionText: 'Voir mes factures',
+  })
 
   try {
     await transporter.sendMail({
@@ -367,46 +456,45 @@ export async function sendAppointmentCancelledByPractitionerEmail(
   to: string,
   data: AppointmentCancellationEmailData,
 ): Promise<void> {
-  const html = `
-    <!DOCTYPE html>
-    <html>
-      <head>
-        <meta charset="utf-8">
-        <meta name="viewport" content="width=device-width, initial-scale=1.0">
-        <title>Annulation de votre rendez-vous</title>
-      </head>
-      <body style="font-family: Arial, sans-serif; line-height: 1.6; color: #333; max-width: 600px; margin: 0 auto; padding: 20px;">
-        <div style="background: linear-gradient(135deg, #FF8200 0%, #009A44 100%); color: white; padding: 20px; text-align: center; border-radius: 5px 5px 0 0;">
-          <h1 style="margin: 0;"><span style="color: #FF8200; background: white; padding: 2px 6px; border-radius: 3px;">Medi</span><span style="color: #009A44; background: white; padding: 2px 6px; border-radius: 3px;">côte</span></h1>
-        </div>
-        <div style="background-color: #f9f9f9; padding: 30px; border-radius: 0 0 5px 5px;">
-          <h2 style="color: #cc0000; margin-top: 0;">Rendez-vous annulé</h2>
-          <p>Bonjour ${data.patientName},</p>
-          <p>Nous vous informons que votre rendez-vous a été annulé par votre praticien.</p>
-          
-          <div style="background-color: white; border: 1px solid #e0e0e0; border-radius: 8px; padding: 20px; margin: 20px 0;">
-            <p style="margin: 8px 0;"><strong>Praticien :</strong> ${data.practitionerTitle} ${data.practitionerFirstName} ${data.practitionerLastName}</p>
-            <p style="margin: 8px 0;"><strong>Date :</strong> ${data.appointmentDate}</p>
-            <p style="margin: 8px 0;"><strong>Heure :</strong> ${data.appointmentTime}</p>
-            ${data.reason ? `<p style="margin: 8px 0;"><strong>Raison :</strong> ${data.reason}</p>` : ''}
-          </div>
+  const html = buildEmailHtml({
+    title: 'Annulation de votre rendez-vous - MediCôte',
+    preheader: `Votre rendez-vous avec ${data.practitionerTitle} ${data.practitionerLastName} a été annulé.`,
+    contentHtml: `
+      <h2 style="color: #dc2626; font-family: 'Outfit', sans-serif; font-size: 20px; font-weight: 600; margin-top: 0; margin-bottom: 16px;">Rendez-vous annulé</h2>
+      <p style="margin: 0 0 16px 0;">Bonjour ${data.patientName},</p>
+      <p style="margin: 0 0 20px 0;">Nous vous informons que votre rendez-vous a été annulé par votre praticien.</p>
+      
+      <div style="background-color: #f8fafc; border: 1px solid #e2e8f0; border-radius: 8px; padding: 20px; margin: 24px 0;">
+        <table border="0" cellpadding="0" cellspacing="0" width="100%" style="font-size: 14px; font-family: 'Inter', sans-serif; color: #475569; border-collapse: collapse;">
+          <tr>
+            <td style="padding: 6px 0; font-weight: 600; color: #1e293b; width: 35%; vertical-align: top;">Praticien :</td>
+            <td style="padding: 6px 0; color: #334155;">${data.practitionerTitle} ${data.practitionerFirstName} ${data.practitionerLastName}</td>
+          </tr>
+          <tr>
+            <td style="padding: 6px 0; font-weight: 600; color: #1e293b; vertical-align: top;">Date :</td>
+            <td style="padding: 6px 0; color: #334155;">${data.appointmentDate}</td>
+          </tr>
+          <tr>
+            <td style="padding: 6px 0; font-weight: 600; color: #1e293b; vertical-align: top;">Heure :</td>
+            <td style="padding: 6px 0; color: #334155;">${data.appointmentTime}</td>
+          </tr>
+          ${data.reason ? `
+          <tr>
+            <td style="padding: 10px 0 0 0; font-weight: 600; color: #1e293b; vertical-align: top; border-top: 1px solid #e2e8f0;">Raison :</td>
+            <td style="padding: 10px 0 0 0; color: #dc2626; border-top: 1px solid #e2e8f0; font-weight: 500;">${data.reason}</td>
+          </tr>
+          ` : ''}
+        </table>
+      </div>
 
-          <p>Nous vous invitons à reprogrammer votre rendez-vous à une date qui vous convient.</p>
-
-          <div style="text-align: center; margin: 30px 0;">
-            <a href="${APP_URL}/patient/appointments" style="background-color: #FF8200; color: white; padding: 12px 30px; text-decoration: none; border-radius: 5px; display: inline-block; font-weight: bold;">Reprendre rendez-vous</a>
-          </div>
-          
-          <p style="color: #666; font-size: 14px; margin-top: 30px;">
-            Nous nous excusons pour ce désagrément.
-          </p>
-        </div>
-        <div style="text-align: center; margin-top: 20px; color: #999; font-size: 12px;">
-          <p>© ${new Date().getFullYear()} MediCôte. Tous droits réservés.</p>
-        </div>
-      </body>
-    </html>
-  `
+      <p style="margin: 24px 0 0 0; font-size: 14px; color: #64748b;">
+        Nous nous excusons pour ce désagrément. Nous vous invitons à reprogrammer votre rendez-vous à une date qui vous convient.
+      </p>
+    `,
+    actionUrl: `${APP_URL}/patient/appointments`,
+    actionText: 'Reprendre rendez-vous',
+    accentColor: '#dc2626',
+  })
 
   await sendEmail(to, 'Annulation de votre rendez-vous - MediCôte', html)
 }
@@ -426,40 +514,34 @@ export async function sendAppointmentModifiedByPractitionerEmail(
   to: string,
   data: AppointmentModifiedEmailData,
 ): Promise<void> {
-  const html = `
-    <!DOCTYPE html>
-    <html>
-      <head>
-        <meta charset="utf-8">
-        <meta name="viewport" content="width=device-width, initial-scale=1.0">
-        <title>Modification de votre rendez-vous</title>
-      </head>
-      <body style="font-family: Arial, sans-serif; line-height: 1.6; color: #333; max-width: 600px; margin: 0 auto; padding: 20px;">
-        <div style="background: linear-gradient(135deg, #FF8200 0%, #009A44 100%); color: white; padding: 20px; text-align: center; border-radius: 5px 5px 0 0;">
-          <h1 style="margin: 0;"><span style="color: #FF8200; background: white; padding: 2px 6px; border-radius: 3px;">Medi</span><span style="color: #009A44; background: white; padding: 2px 6px; border-radius: 3px;">côte</span></h1>
-        </div>
-        <div style="background-color: #f9f9f9; padding: 30px; border-radius: 0 0 5px 5px;">
-          <h2 style="color: #FF8200; margin-top: 0;">Rendez-vous modifié</h2>
-          <p>Bonjour ${data.patientName},</p>
-          <p>Votre rendez-vous avec ${data.practitionerTitle} ${data.practitionerFirstName} ${data.practitionerLastName} a été modifié.</p>
-          
-          <div style="background-color: white; border: 1px solid #e0e0e0; border-radius: 8px; padding: 20px; margin: 20px 0;">
-            <p style="margin: 8px 0; color: #cc0000; text-decoration: line-through;"><strong>Ancien :</strong> ${data.oldDate} à ${data.oldTime}</p>
-            <p style="margin: 8px 0; color: #009A44;"><strong>Nouveau :</strong> ${data.newDate} à ${data.newTime}</p>
-          </div>
+  const html = buildEmailHtml({
+    title: 'Modification de votre rendez-vous - MediCôte',
+    preheader: `Votre rendez-vous avec ${data.practitionerTitle} ${data.practitionerLastName} a été modifié.`,
+    contentHtml: `
+      <h2 style="color: #ff8200; font-family: 'Outfit', sans-serif; font-size: 20px; font-weight: 600; margin-top: 0; margin-bottom: 16px;">Rendez-vous modifié</h2>
+      <p style="margin: 0 0 16px 0;">Bonjour ${data.patientName},</p>
+      <p style="margin: 0 0 20px 0;">Votre rendez-vous avec ${data.practitionerTitle} ${data.practitionerFirstName} ${data.practitionerLastName} a été modifié.</p>
+      
+      <div style="background-color: #f8fafc; border: 1px solid #e2e8f0; border-radius: 8px; padding: 20px; margin: 24px 0;">
+        <table border="0" cellpadding="0" cellspacing="0" width="100%" style="font-size: 14px; font-family: 'Inter', sans-serif; color: #475569; border-collapse: collapse;">
+          <tr>
+            <td style="padding: 6px 0; font-weight: 600; color: #1e293b; width: 35%; vertical-align: top;">Ancien créneau :</td>
+            <td style="padding: 6px 0; color: #dc2626; text-decoration: line-through;">Le ${data.oldDate} à ${data.oldTime}</td>
+          </tr>
+          <tr>
+            <td style="padding: 10px 0 0 0; font-weight: 600; color: #1e293b; vertical-align: top; border-top: 1px solid #e2e8f0;">Nouveau créneau :</td>
+            <td style="padding: 10px 0 0 0; color: #009a44; font-weight: bold; border-top: 1px solid #e2e8f0;">Le ${data.newDate} à ${data.newTime}</td>
+          </tr>
+        </table>
+      </div>
 
-          <p>Veuillez vérifier votre disponibilité pour le nouveau créneau. Si ce créneau ne vous convient pas, vous pouvez annuler et reprendre un autre rendez-vous.</p>
-
-          <div style="text-align: center; margin: 30px 0;">
-            <a href="${APP_URL}/patient/appointments" style="background-color: #FF8200; color: white; padding: 12px 30px; text-decoration: none; border-radius: 5px; display: inline-block; font-weight: bold;">Voir mes rendez-vous</a>
-          </div>
-        </div>
-        <div style="text-align: center; margin-top: 20px; color: #999; font-size: 12px;">
-          <p>© ${new Date().getFullYear()} MediCôte. Tous droits réservés.</p>
-        </div>
-      </body>
-    </html>
-  `
+      <p style="margin: 24px 0 0 0; font-size: 14px; color: #64748b;">
+        Veuillez vérifier votre disponibilité pour le nouveau créneau. Si ce créneau ne vous convient pas, vous pouvez annuler et reprendre un autre rendez-vous.
+      </p>
+    `,
+    actionUrl: `${APP_URL}/patient/appointments`,
+    actionText: 'Voir mes rendez-vous',
+  })
 
   await sendEmail(to, 'Modification de votre rendez-vous - MediCôte', html)
 }
@@ -476,44 +558,44 @@ export async function sendNoShowEmail(
     noShowCount: number
   },
 ): Promise<void> {
-  const html = `
-    <!DOCTYPE html>
-    <html>
-      <head>
-        <meta charset="utf-8">
-        <meta name="viewport" content="width=device-width, initial-scale=1.0">
-        <title>Absence à votre rendez-vous</title>
-      </head>
-      <body style="font-family: Arial, sans-serif; line-height: 1.6; color: #333; max-width: 600px; margin: 0 auto; padding: 20px;">
-        <div style="background: linear-gradient(135deg, #FF8200 0%, #009A44 100%); color: white; padding: 20px; text-align: center; border-radius: 5px 5px 0 0;">
-          <h1 style="margin: 0;"><span style="color: #FF8200; background: white; padding: 2px 6px; border-radius: 3px;">Medi</span><span style="color: #009A44; background: white; padding: 2px 6px; border-radius: 3px;">côte</span></h1>
-        </div>
-        <div style="background-color: #f9f9f9; padding: 30px; border-radius: 0 0 5px 5px;">
-          <h2 style="color: #cc0000; margin-top: 0;">Vous étiez absent à votre rendez-vous</h2>
-          <p>Bonjour ${data.patientName},</p>
-          <p>Nous avons constaté votre absence lors de votre rendez-vous prévu :</p>
-          
-          <div style="background-color: white; border: 1px solid #e0e0e0; border-radius: 8px; padding: 20px; margin: 20px 0;">
-            <p style="margin: 8px 0;"><strong>Praticien :</strong> ${data.practitionerTitle} ${data.practitionerFirstName} ${data.practitionerLastName}</p>
-            <p style="margin: 8px 0;"><strong>Date :</strong> ${data.appointmentDate}</p>
-            <p style="margin: 8px 0;"><strong>Heure :</strong> ${data.appointmentTime}</p>
-          </div>
+  const html = buildEmailHtml({
+    title: 'Absence à votre rendez-vous - MediCôte',
+    preheader: `Absence signalée à votre rendez-vous du ${data.appointmentDate}.`,
+    contentHtml: `
+      <h2 style="color: #dc2626; font-family: 'Outfit', sans-serif; font-size: 20px; font-weight: 600; margin-top: 0; margin-bottom: 16px;">Vous étiez absent à votre rendez-vous</h2>
+      <p style="margin: 0 0 16px 0;">Bonjour ${data.patientName},</p>
+      <p style="margin: 0 0 20px 0;">Nous avons constaté votre absence lors de votre rendez-vous prévu :</p>
+      
+      <div style="background-color: #f8fafc; border: 1px solid #e2e8f0; border-radius: 8px; padding: 20px; margin: 24px 0;">
+        <table border="0" cellpadding="0" cellspacing="0" width="100%" style="font-size: 14px; font-family: 'Inter', sans-serif; color: #475569; border-collapse: collapse;">
+          <tr>
+            <td style="padding: 6px 0; font-weight: 600; color: #1e293b; width: 35%; vertical-align: top;">Praticien :</td>
+            <td style="padding: 6px 0; color: #334155;">${data.practitionerTitle} ${data.practitionerFirstName} ${data.practitionerLastName}</td>
+          </tr>
+          <tr>
+            <td style="padding: 6px 0; font-weight: 600; color: #1e293b; vertical-align: top;">Date :</td>
+            <td style="padding: 6px 0; color: #334155;">${data.appointmentDate}</td>
+          </tr>
+          <tr>
+            <td style="padding: 6px 0; font-weight: 600; color: #1e293b; vertical-align: top;">Heure :</td>
+            <td style="padding: 6px 0; color: #334155;">${data.appointmentTime}</td>
+          </tr>
+        </table>
+      </div>
 
-          <p>Vous avez actuellement <strong>${data.noShowCount} absence(s)</strong> enregistrée(s).</p>
-          <p style="color: #cc0000;">Les absences répétées peuvent entraîner des restrictions sur la prise de rendez-vous.</p>
-          
-          <p>Si cette absence n'est pas de votre fait, veuillez contacter votre praticien.</p>
-
-          <div style="text-align: center; margin: 30px 0;">
-            <a href="${APP_URL}/patient/appointments" style="background-color: #FF8200; color: white; padding: 12px 30px; text-decoration: none; border-radius: 5px; display: inline-block; font-weight: bold;">Reprendre rendez-vous</a>
-          </div>
-        </div>
-        <div style="text-align: center; margin-top: 20px; color: #999; font-size: 12px;">
-          <p>© ${new Date().getFullYear()} MediCôte. Tous droits réservés.</p>
-        </div>
-      </body>
-    </html>
-  `
+      <div style="background-color: #fef2f2; border-left: 4px solid #ef4444; border-radius: 6px; padding: 16px; margin: 24px 0; font-size: 14px; color: #991b1b;">
+        <p style="margin: 0 0 8px 0; font-weight: bold;">Compteur d'absences :</p>
+        <p style="margin: 0;">Vous avez actuellement <strong>${data.noShowCount} absence(s)</strong> enregistrée(s). Les absences répétées peuvent entraîner des restrictions sur la prise de rendez-vous.</p>
+      </div>
+      
+      <p style="margin: 24px 0 0 0; font-size: 14px; color: #64748b;">
+        Si cette absence n'est pas de votre fait, veuillez contacter votre praticien.
+      </p>
+    `,
+    actionUrl: `${APP_URL}/patient/appointments`,
+    actionText: 'Reprendre rendez-vous',
+    accentColor: '#dc2626',
+  })
 
   await sendEmail(to, 'Absence à votre rendez-vous - MediCôte', html)
 }
@@ -529,39 +611,36 @@ export async function sendAutoNoShowPractitionerNotification(
     noShowCount: number
   },
 ): Promise<void> {
-  const html = `
-    <!DOCTYPE html>
-    <html>
-      <head>
-        <meta charset="utf-8">
-        <meta name="viewport" content="width=device-width, initial-scale=1.0">
-        <title>Absence patient détectée automatiquement</title>
-      </head>
-      <body style="font-family: Arial, sans-serif; line-height: 1.6; color: #333; max-width: 600px; margin: 0 auto; padding: 20px;">
-        <div style="background: linear-gradient(135deg, #FF8200 0%, #009A44 100%); color: white; padding: 20px; text-align: center; border-radius: 5px 5px 0 0;">
-          <h1 style="margin: 0;"><span style="color: #FF8200; background: white; padding: 2px 6px; border-radius: 3px;">Medi</span><span style="color: #009A44; background: white; padding: 2px 6px; border-radius: 3px;">côte</span></h1>
-        </div>
-        <div style="background-color: #f9f9f9; padding: 30px; border-radius: 0 0 5px 5px;">
-          <h2 style="color: #FF8200; margin-top: 0;">Absence patient détectée automatiquement</h2>
-          <p>Bonjour ${data.practitionerName},</p>
-          <p>Le système a automatiquement détecté l'absence du patient suivant lors de votre téléconsultation :</p>
-          
-          <div style="background-color: white; border: 1px solid #e0e0e0; border-radius: 8px; padding: 20px; margin: 20px 0;">
-            <p style="margin: 8px 0;"><strong>Patient :</strong> ${data.patientFirstName} ${data.patientLastName}</p>
-            <p style="margin: 8px 0;"><strong>Date :</strong> ${data.appointmentDate}</p>
-            <p style="margin: 8px 0;"><strong>Heure :</strong> ${data.appointmentTime}</p>
-          </div>
+  const html = buildEmailHtml({
+    title: 'Absence patient détectée automatiquement - MediCôte',
+    preheader: `Absence du patient ${data.patientFirstName} ${data.patientLastName} lors de la téléconsultation.`,
+    contentHtml: `
+      <h2 style="color: #ff8200; font-family: 'Outfit', sans-serif; font-size: 20px; font-weight: 600; margin-top: 0; margin-bottom: 16px;">Absence patient détectée automatiquement</h2>
+      <p style="margin: 0 0 16px 0;">Bonjour ${data.practitionerName},</p>
+      <p style="margin: 0 0 20px 0;">Le système a automatiquement détecté l'absence du patient suivant lors de votre téléconsultation :</p>
+      
+      <div style="background-color: #f8fafc; border: 1px solid #e2e8f0; border-radius: 8px; padding: 20px; margin: 24px 0;">
+        <table border="0" cellpadding="0" cellspacing="0" width="100%" style="font-size: 14px; font-family: 'Inter', sans-serif; color: #475569; border-collapse: collapse;">
+          <tr>
+            <td style="padding: 6px 0; font-weight: 600; color: #1e293b; width: 35%; vertical-align: top;">Patient :</td>
+            <td style="padding: 6px 0; color: #334155;">${data.patientFirstName} ${data.patientLastName}</td>
+          </tr>
+          <tr>
+            <td style="padding: 6px 0; font-weight: 600; color: #1e293b; vertical-align: top;">Date :</td>
+            <td style="padding: 6px 0; color: #334155;">${data.appointmentDate}</td>
+          </tr>
+          <tr>
+            <td style="padding: 6px 0; font-weight: 600; color: #1e293b; vertical-align: top;">Heure :</td>
+            <td style="padding: 6px 0; color: #334155;">${data.appointmentTime}</td>
+          </tr>
+        </table>
+      </div>
 
-          <div style="background-color: #FFF5E6; border: 1px solid #FF8200; border-radius: 8px; padding: 15px; margin: 20px 0;">
-            <p style="margin: 0; color: #B35900;"><strong>Note :</strong> Cette absence a été détectée automatiquement car le patient ne s'est pas connecté à la téléconsultation avant la fin du créneau. Le patient a été notifié et son compteur d'absences a été mis à jour (${data.noShowCount} absence(s) au total).</p>
-          </div>
-        </div>
-        <div style="text-align: center; margin-top: 20px; color: #999; font-size: 12px;">
-          <p>© ${new Date().getFullYear()} MediCôte. Tous droits réservés.</p>
-        </div>
-      </body>
-    </html>
-  `
+      <div style="background-color: #fef3c7; border-left: 4px solid #f59e0b; border-radius: 6px; padding: 16px; margin: 24px 0; font-size: 14px; color: #78350f;">
+        <p style="margin: 0;"><strong>Note :</strong> Cette absence a été détectée automatiquement car le patient ne s'est pas connecté à la téléconsultation avant la fin du créneau. Le patient a été notifié et son compteur d'absences a été mis à jour (${data.noShowCount} absence(s) au total).</p>
+      </div>
+    `,
+  })
 
   await sendEmail(to, 'Absence patient détectée - MediCôte', html)
 }
@@ -577,43 +656,38 @@ export async function sendPractitionerAbsentNotification(
     appointmentTime: string
   },
 ): Promise<void> {
-  const html = `
-    <!DOCTYPE html>
-    <html>
-      <head>
-        <meta charset="utf-8">
-        <meta name="viewport" content="width=device-width, initial-scale=1.0">
-        <title>Votre téléconsultation n'a pas pu avoir lieu</title>
-      </head>
-      <body style="font-family: Arial, sans-serif; line-height: 1.6; color: #333; max-width: 600px; margin: 0 auto; padding: 20px;">
-        <div style="background: linear-gradient(135deg, #FF8200 0%, #009A44 100%); color: white; padding: 20px; text-align: center; border-radius: 5px 5px 0 0;">
-          <h1 style="margin: 0;"><span style="color: #FF8200; background: white; padding: 2px 6px; border-radius: 3px;">Medi</span><span style="color: #009A44; background: white; padding: 2px 6px; border-radius: 3px;">côte</span></h1>
-        </div>
-        <div style="background-color: #f9f9f9; padding: 30px; border-radius: 0 0 5px 5px;">
-          <h2 style="color: #FF8200; margin-top: 0;">Votre téléconsultation n'a pas pu avoir lieu</h2>
-          <p>Bonjour ${data.patientName},</p>
-          <p>Nous sommes désolés de vous informer que votre praticien n'a pas pu se connecter à la téléconsultation prévue :</p>
-          
-          <div style="background-color: white; border: 1px solid #e0e0e0; border-radius: 8px; padding: 20px; margin: 20px 0;">
-            <p style="margin: 8px 0;"><strong>Praticien :</strong> ${data.practitionerTitle} ${data.practitionerFirstName} ${data.practitionerLastName}</p>
-            <p style="margin: 8px 0;"><strong>Date :</strong> ${data.appointmentDate}</p>
-            <p style="margin: 8px 0;"><strong>Heure :</strong> ${data.appointmentTime}</p>
-          </div>
+  const html = buildEmailHtml({
+    title: "Votre téléconsultation n'a pas pu avoir lieu - MediCôte",
+    preheader: `Praticien absent à votre téléconsultation du ${data.appointmentDate}.`,
+    contentHtml: `
+      <h2 style="color: #ff8200; font-family: 'Outfit', sans-serif; font-size: 20px; font-weight: 600; margin-top: 0; margin-bottom: 16px;">Votre téléconsultation n'a pas pu avoir lieu</h2>
+      <p style="margin: 0 0 16px 0;">Bonjour ${data.patientName},</p>
+      <p style="margin: 0 0 20px 0;">Nous sommes désolés de vous informer que votre praticien n'a pas pu se connecter à la téléconsultation prévue :</p>
+      
+      <div style="background-color: #f8fafc; border: 1px solid #e2e8f0; border-radius: 8px; padding: 20px; margin: 24px 0;">
+        <table border="0" cellpadding="0" cellspacing="0" width="100%" style="font-size: 14px; font-family: 'Inter', sans-serif; color: #475569; border-collapse: collapse;">
+          <tr>
+            <td style="padding: 6px 0; font-weight: 600; color: #1e293b; width: 35%; vertical-align: top;">Praticien :</td>
+            <td style="padding: 6px 0; color: #334155;">${data.practitionerTitle} ${data.practitionerFirstName} ${data.practitionerLastName}</td>
+          </tr>
+          <tr>
+            <td style="padding: 6px 0; font-weight: 600; color: #1e293b; vertical-align: top;">Date :</td>
+            <td style="padding: 6px 0; color: #334155;">${data.appointmentDate}</td>
+          </tr>
+          <tr>
+            <td style="padding: 6px 0; font-weight: 600; color: #1e293b; vertical-align: top;">Heure :</td>
+            <td style="padding: 6px 0; color: #334155;">${data.appointmentTime}</td>
+          </tr>
+        </table>
+      </div>
 
-          <div style="background-color: #E6F5EB; border: 1px solid #009A44; border-radius: 8px; padding: 15px; margin: 20px 0;">
-            <p style="margin: 0; color: #006B30;"><strong>Aucune absence ne vous est comptabilisée.</strong> Cette annulation n'est pas de votre fait. Vous pouvez reprendre un nouveau rendez-vous.</p>
-          </div>
-
-          <div style="text-align: center; margin: 30px 0;">
-            <a href="${APP_URL}/patient/appointments" style="background-color: #FF8200; color: white; padding: 12px 30px; text-decoration: none; border-radius: 5px; display: inline-block; font-weight: bold;">Reprendre rendez-vous</a>
-          </div>
-        </div>
-        <div style="text-align: center; margin-top: 20px; color: #999; font-size: 12px;">
-          <p>© ${new Date().getFullYear()} MediCôte. Tous droits réservés.</p>
-        </div>
-      </body>
-    </html>
-  `
+      <div style="background-color: #ecfdf5; border-left: 4px solid #10b981; border-radius: 6px; padding: 16px; margin: 24px 0; font-size: 14px; color: #065f46;">
+        <p style="margin: 0;"><strong>Aucune absence ne vous est comptabilisée.</strong> Cette annulation n'est pas de votre fait. Vous pouvez reprendre un nouveau rendez-vous.</p>
+      </div>
+    `,
+    actionUrl: `${APP_URL}/patient/appointments`,
+    actionText: 'Reprendre rendez-vous',
+  })
 
   await sendEmail(to, 'Téléconsultation annulée - MediCôte', html)
 }
@@ -623,42 +697,34 @@ export async function sendStaffAccountCreatedEmail(
   firstName: string,
   generatedPassword: string,
 ): Promise<void> {
-  const html = `
-    <!DOCTYPE html>
-    <html>
-      <head>
-        <meta charset="utf-8">
-        <meta name="viewport" content="width=device-width, initial-scale=1.0">
-        <title>Votre compte personnel MediCôte</title>
-      </head>
-      <body style="font-family: Arial, sans-serif; line-height: 1.6; color: #333; max-width: 600px; margin: 0 auto; padding: 20px;">
-        <div style="background: linear-gradient(135deg, #FF8200 0%, #009A44 100%); color: white; padding: 20px; text-align: center; border-radius: 5px 5px 0 0;">
-          <h1 style="margin: 0;"><span style="color: #FF8200; background: white; padding: 2px 6px; border-radius: 3px;">Medi</span><span style="color: #009A44; background: white; padding: 2px 6px; border-radius: 3px;">côte</span></h1>
-        </div>
-        <div style="background-color: #f9f9f9; padding: 30px; border-radius: 0 0 5px 5px;">
-          <h2 style="color: #FF8200; margin-top: 0;">Bienvenue ${firstName} !</h2>
-          <p>Un compte personnel a été créé pour vous sur MediCôte.</p>
-          <p>Voici vos identifiants de connexion :</p>
+  const html = buildEmailHtml({
+    title: 'Votre compte personnel MediCôte',
+    preheader: 'Votre compte personnel a été créé sur MediCôte.',
+    contentHtml: `
+      <h2 style="color: #ff8200; font-family: 'Outfit', sans-serif; font-size: 20px; font-weight: 600; margin-top: 0; margin-bottom: 16px;">Bienvenue ${firstName} !</h2>
+      <p style="margin: 0 0 16px 0;">Un compte personnel a été créé pour vous sur MediCôte.</p>
+      <p style="margin: 0 0 20px 0;">Voici vos identifiants de connexion temporaires :</p>
 
-          <div style="background-color: white; border: 1px solid #e0e0e0; border-radius: 8px; padding: 20px; margin: 20px 0;">
-            <p style="margin: 8px 0;"><strong>Email :</strong> ${to}</p>
-            <p style="margin: 8px 0;"><strong>Mot de passe temporaire :</strong> ${generatedPassword}</p>
-          </div>
+      <div style="background-color: #f8fafc; border: 1px solid #e2e8f0; border-radius: 8px; padding: 20px; margin: 24px 0;">
+        <table border="0" cellpadding="0" cellspacing="0" width="100%" style="font-size: 14px; font-family: 'Inter', sans-serif; color: #475569; border-collapse: collapse;">
+          <tr>
+            <td style="padding: 6px 0; font-weight: 600; color: #1e293b; width: 45%; vertical-align: top;">Email :</td>
+            <td style="padding: 6px 0; color: #334155;">${to}</td>
+          </tr>
+          <tr>
+            <td style="padding: 6px 0; font-weight: 600; color: #1e293b; vertical-align: top;">Mot de passe temporaire :</td>
+            <td style="padding: 6px 0; color: #334155; font-family: monospace; font-size: 15px; font-weight: bold; letter-spacing: 0.5px;">${generatedPassword}</td>
+          </tr>
+        </table>
+      </div>
 
-          <div style="background-color: #FFF5E6; border: 1px solid #FF8200; border-radius: 8px; padding: 15px; margin: 20px 0;">
-            <p style="margin: 0; color: #B35900;"><strong>Important :</strong> Nous vous recommandons de changer votre mot de passe dès votre première connexion.</p>
-          </div>
-
-          <div style="text-align: center; margin: 30px 0;">
-            <a href="${APP_URL}/auth/login" style="background-color: #FF8200; color: white; padding: 12px 30px; text-decoration: none; border-radius: 5px; display: inline-block; font-weight: bold;">Se connecter</a>
-          </div>
-        </div>
-        <div style="text-align: center; margin-top: 20px; color: #999; font-size: 12px;">
-          <p>© ${new Date().getFullYear()} MediCôte. Tous droits réservés.</p>
-        </div>
-      </body>
-    </html>
-  `
+      <div style="background-color: #fef3c7; border-left: 4px solid #f59e0b; border-radius: 6px; padding: 16px; margin: 24px 0; font-size: 14px; color: #78350f;">
+        <p style="margin: 0;"><strong>Important :</strong> Nous vous recommandons de changer votre mot de passe dès votre première connexion.</p>
+      </div>
+    `,
+    actionUrl: `${APP_URL}/auth/login`,
+    actionText: 'Se connecter',
+  })
 
   await sendEmail(to, 'Votre compte personnel MediCôte', html)
 }
@@ -667,36 +733,19 @@ export async function sendCabinetInvitationEmail(
   to: string,
   cabinetName: string,
 ): Promise<void> {
-  const html = `
-    <!DOCTYPE html>
-    <html>
-      <head>
-        <meta charset="utf-8">
-        <meta name="viewport" content="width=device-width, initial-scale=1.0">
-        <title>Invitation à rejoindre un cabinet</title>
-      </head>
-      <body style="font-family: Arial, sans-serif; line-height: 1.6; color: #333; max-width: 600px; margin: 0 auto; padding: 20px;">
-        <div style="background: linear-gradient(135deg, #FF8200 0%, #009A44 100%); color: white; padding: 20px; text-align: center; border-radius: 5px 5px 0 0;">
-          <h1 style="margin: 0;"><span style="color: #FF8200; background: white; padding: 2px 6px; border-radius: 3px;">Medi</span><span style="color: #009A44; background: white; padding: 2px 6px; border-radius: 3px;">côte</span></h1>
-        </div>
-        <div style="background-color: #f9f9f9; padding: 30px; border-radius: 0 0 5px 5px;">
-          <h2 style="color: #FF8200; margin-top: 0;">Invitation à rejoindre un cabinet</h2>
-          <p>Bonjour,</p>
-          <p>Le cabinet <strong>${cabinetName}</strong> vous invite à rejoindre leur équipe sur MediCôte.</p>
+  const html = buildEmailHtml({
+    title: 'Invitation à rejoindre un cabinet - MediCôte',
+    preheader: `Le cabinet ${cabinetName} vous invite à rejoindre son équipe sur MediCôte.`,
+    contentHtml: `
+      <h2 style="color: #ff8200; font-family: 'Outfit', sans-serif; font-size: 20px; font-weight: 600; margin-top: 0; margin-bottom: 16px;">Invitation à rejoindre un cabinet</h2>
+      <p style="margin: 0 0 16px 0;">Bonjour,</p>
+      <p style="margin: 0 0 20px 0;">Le cabinet <strong>${cabinetName}</strong> vous invite à rejoindre leur équipe sur MediCôte.</p>
 
-          <div style="text-align: center; margin: 30px 0;">
-            <a href="${APP_URL}/auth/login" style="background-color: #FF8200; color: white; padding: 12px 30px; text-decoration: none; border-radius: 5px; display: inline-block; font-weight: bold;">Voir l'invitation</a>
-          </div>
-
-          <p style="color: #666; font-size: 14px; margin-top: 30px;">Cette invitation expirera dans 7 jours.</p>
-          <p style="color: #666; font-size: 14px;">Si vous ne souhaitez pas rejoindre ce cabinet, vous pouvez ignorer cet email.</p>
-        </div>
-        <div style="text-align: center; margin-top: 20px; color: #999; font-size: 12px;">
-          <p>© ${new Date().getFullYear()} MediCôte. Tous droits réservés.</p>
-        </div>
-      </body>
-    </html>
-  `
+      <p style="color: #666; font-size: 14px; margin-top: 24px; border-top: 1px solid #e2e8f0; padding-top: 16px;">Cette invitation expirera dans 7 jours. Si vous ne souhaitez pas rejoindre ce cabinet, vous pouvez ignorer cet email.</p>
+    `,
+    actionUrl: `${APP_URL}/auth/login`,
+    actionText: "Voir l'invitation",
+  })
 
   await sendEmail(to, `Invitation à rejoindre ${cabinetName} - MediCôte`, html)
 }
@@ -714,42 +763,45 @@ export async function sendAppointmentCancelledByPatientEmail(
   to: string,
   data: AppointmentCancelledByPatientEmailData,
 ): Promise<void> {
-  const html = `
-    <!DOCTYPE html>
-    <html>
-      <head>
-        <meta charset="utf-8">
-        <meta name="viewport" content="width=device-width, initial-scale=1.0">
-        <title>Annulation de rendez-vous par un patient</title>
-      </head>
-      <body style="font-family: Arial, sans-serif; line-height: 1.6; color: #333; max-width: 600px; margin: 0 auto; padding: 20px;">
-        <div style="background: linear-gradient(135deg, #FF8200 0%, #009A44 100%); color: white; padding: 20px; text-align: center; border-radius: 5px 5px 0 0;">
-          <h1 style="margin: 0;"><span style="color: #FF8200; background: white; padding: 2px 6px; border-radius: 3px;">Medi</span><span style="color: #009A44; background: white; padding: 2px 6px; border-radius: 3px;">côte</span></h1>
-        </div>
-        <div style="background-color: #f9f9f9; padding: 30px; border-radius: 0 0 5px 5px;">
-          <h2 style="color: #cc0000; margin-top: 0;">Rendez-vous annulé par le patient</h2>
-          <p>Bonjour ${data.practitionerName},</p>
-          <p>Un patient a annulé son rendez-vous. Voici les détails :</p>
-          
-          <div style="background-color: white; border: 1px solid #e0e0e0; border-radius: 8px; padding: 20px; margin: 20px 0;">
-            <p style="margin: 8px 0;"><strong>Patient :</strong> ${data.patientFirstName} ${data.patientLastName}</p>
-            <p style="margin: 8px 0;"><strong>Date :</strong> ${data.appointmentDate}</p>
-            <p style="margin: 8px 0;"><strong>Heure :</strong> ${data.appointmentTime}</p>
-            ${data.reason ? `<p style="margin: 8px 0;"><strong>Raison :</strong> ${data.reason}</p>` : ''}
-          </div>
+  const html = buildEmailHtml({
+    title: 'Annulation de rendez-vous par un patient - MediCôte',
+    preheader: `Le patient ${data.patientFirstName} ${data.patientLastName} a annulé son rendez-vous.`,
+    contentHtml: `
+      <h2 style="color: #dc2626; font-family: 'Outfit', sans-serif; font-size: 20px; font-weight: 600; margin-top: 0; margin-bottom: 16px;">Rendez-vous annulé par le patient</h2>
+      <p style="margin: 0 0 16px 0;">Bonjour ${data.practitionerName},</p>
+      <p style="margin: 0 0 20px 0;">Un patient a annulé son rendez-vous. Voici les détails :</p>
+      
+      <div style="background-color: #f8fafc; border: 1px solid #e2e8f0; border-radius: 8px; padding: 20px; margin: 24px 0;">
+        <table border="0" cellpadding="0" cellspacing="0" width="100%" style="font-size: 14px; font-family: 'Inter', sans-serif; color: #475569; border-collapse: collapse;">
+          <tr>
+            <td style="padding: 6px 0; font-weight: 600; color: #1e293b; width: 35%; vertical-align: top;">Patient :</td>
+            <td style="padding: 6px 0; color: #334155;">${data.patientFirstName} ${data.patientLastName}</td>
+          </tr>
+          <tr>
+            <td style="padding: 6px 0; font-weight: 600; color: #1e293b; vertical-align: top; border-top: 1px solid #e2e8f0;">Date :</td>
+            <td style="padding: 6px 0; color: #334155; border-top: 1px solid #e2e8f0;">${data.appointmentDate}</td>
+          </tr>
+          <tr>
+            <td style="padding: 6px 0; font-weight: 600; color: #1e293b; vertical-align: top;">Heure :</td>
+            <td style="padding: 6px 0; color: #334155;">${data.appointmentTime}</td>
+          </tr>
+          ${data.reason ? `
+          <tr>
+            <td style="padding: 10px 0 0 0; font-weight: 600; color: #1e293b; vertical-align: top; border-top: 1px solid #e2e8f0;">Raison :</td>
+            <td style="padding: 10px 0 0 0; color: #64748b; border-top: 1px solid #e2e8f0; font-style: italic;">${data.reason}</td>
+          </tr>
+          ` : ''}
+        </table>
+      </div>
 
-          <p>Le créneau est maintenant disponible pour d'autres patients.</p>
-
-          <div style="text-align: center; margin: 30px 0;">
-            <a href="${APP_URL}/practitioner/agenda" style="background-color: #FF8200; color: white; padding: 12px 30px; text-decoration: none; border-radius: 5px; display: inline-block; font-weight: bold;">Voir mon agenda</a>
-          </div>
-        </div>
-        <div style="text-align: center; margin-top: 20px; color: #999; font-size: 12px;">
-          <p>© ${new Date().getFullYear()} MediCôte. Tous droits réservés.</p>
-        </div>
-      </body>
-    </html>
-  `
+      <p style="margin: 24px 0 0 0; font-size: 14px; color: #64748b;">
+        Le créneau est maintenant disponible pour d'autres patients.
+      </p>
+    `,
+    actionUrl: `${APP_URL}/practitioner/agenda`,
+    actionText: 'Voir mon agenda',
+    accentColor: '#dc2626',
+  })
 
   await sendEmail(to, 'Annulation de rendez-vous - MediCôte', html)
 }
@@ -768,39 +820,34 @@ export async function sendAppointmentModifiedByPatientEmail(
   to: string,
   data: AppointmentModifiedByPatientEmailData,
 ): Promise<void> {
-  const html = `
-    <!DOCTYPE html>
-    <html>
-      <head>
-        <meta charset="utf-8">
-        <meta name="viewport" content="width=device-width, initial-scale=1.0">
-        <title>Modification de rendez-vous par un patient</title>
-      </head>
-      <body style="font-family: Arial, sans-serif; line-height: 1.6; color: #333; max-width: 600px; margin: 0 auto; padding: 20px;">
-        <div style="background: linear-gradient(135deg, #FF8200 0%, #009A44 100%); color: white; padding: 20px; text-align: center; border-radius: 5px 5px 0 0;">
-          <h1 style="margin: 0;"><span style="color: #FF8200; background: white; padding: 2px 6px; border-radius: 3px;">Medi</span><span style="color: #009A44; background: white; padding: 2px 6px; border-radius: 3px;">côte</span></h1>
-        </div>
-        <div style="background-color: #f9f9f9; padding: 30px; border-radius: 0 0 5px 5px;">
-          <h2 style="color: #FF8200; margin-top: 0;">Rendez-vous modifié par le patient</h2>
-          <p>Bonjour ${data.practitionerName},</p>
-          <p>Un patient a modifié son rendez-vous. Voici les détails :</p>
-          
-          <div style="background-color: white; border: 1px solid #e0e0e0; border-radius: 8px; padding: 20px; margin: 20px 0;">
-            <p style="margin: 8px 0;"><strong>Patient :</strong> ${data.patientFirstName} ${data.patientLastName}</p>
-            <p style="margin: 8px 0; color: #cc0000; text-decoration: line-through;"><strong>Ancien :</strong> ${data.oldDate} à ${data.oldTime}</p>
-            <p style="margin: 8px 0; color: #009A44;"><strong>Nouveau :</strong> ${data.newDate} à ${data.newTime}</p>
-          </div>
-
-          <div style="text-align: center; margin: 30px 0;">
-            <a href="${APP_URL}/practitioner/agenda" style="background-color: #FF8200; color: white; padding: 12px 30px; text-decoration: none; border-radius: 5px; display: inline-block; font-weight: bold;">Voir mon agenda</a>
-          </div>
-        </div>
-        <div style="text-align: center; margin-top: 20px; color: #999; font-size: 12px;">
-          <p>© ${new Date().getFullYear()} MediCôte. Tous droits réservés.</p>
-        </div>
-      </body>
-    </html>
-  `
+  const html = buildEmailHtml({
+    title: 'Modification de rendez-vous par un patient - MediCôte',
+    preheader: `Le patient ${data.patientFirstName} ${data.patientLastName} a déplacé son rendez-vous.`,
+    contentHtml: `
+      <h2 style="color: #ff8200; font-family: 'Outfit', sans-serif; font-size: 20px; font-weight: 600; margin-top: 0; margin-bottom: 16px;">Rendez-vous modifié par le patient</h2>
+      <p style="margin: 0 0 16px 0;">Bonjour ${data.practitionerName},</p>
+      <p style="margin: 0 0 20px 0;">Un patient a modifié son rendez-vous. Voici les détails :</p>
+      
+      <div style="background-color: #f8fafc; border: 1px solid #e2e8f0; border-radius: 8px; padding: 20px; margin: 24px 0;">
+        <table border="0" cellpadding="0" cellspacing="0" width="100%" style="font-size: 14px; font-family: 'Inter', sans-serif; color: #475569; border-collapse: collapse;">
+          <tr>
+            <td style="padding: 6px 0; font-weight: 600; color: #1e293b; width: 35%; vertical-align: top;">Patient :</td>
+            <td style="padding: 6px 0; color: #334155;">${data.patientFirstName} ${data.patientLastName}</td>
+          </tr>
+          <tr>
+            <td style="padding: 6px 0; font-weight: 600; color: #1e293b; vertical-align: top; border-top: 1px solid #e2e8f0;">Ancien :</td>
+            <td style="padding: 6px 0; color: #dc2626; text-decoration: line-through; border-top: 1px solid #e2e8f0;">${data.oldDate} à ${data.oldTime}</td>
+          </tr>
+          <tr>
+            <td style="padding: 10px 0 0 0; font-weight: 600; color: #1e293b; vertical-align: top; border-top: 1px solid #e2e8f0;">Nouveau :</td>
+            <td style="padding: 10px 0 0 0; color: #009a44; font-weight: bold; border-top: 1px solid #e2e8f0;">${data.newDate} à ${data.newTime}</td>
+          </tr>
+        </table>
+      </div>
+    `,
+    actionUrl: `${APP_URL}/practitioner/agenda`,
+    actionText: 'Voir mon agenda',
+  })
 
   await sendEmail(to, 'Modification de rendez-vous - MediCôte', html)
 }
@@ -830,50 +877,54 @@ export async function sendAppointmentBookedByPractitionerEmail(
     ? 'Vous recevrez un lien de connexion avant votre rendez-vous.'
     : `Adresse : ${data.clinicAddress || 'À confirmer'}`
 
-  const html = `
-    <!DOCTYPE html>
-    <html>
-      <head>
-        <meta charset="utf-8">
-        <meta name="viewport" content="width=device-width, initial-scale=1.0">
-        <title>Nouveau rendez-vous programmé</title>
-      </head>
-      <body style="font-family: Arial, sans-serif; line-height: 1.6; color: #333; max-width: 600px; margin: 0 auto; padding: 20px;">
-        <div style="background: linear-gradient(135deg, #FF8200 0%, #009A44 100%); color: white; padding: 20px; text-align: center; border-radius: 5px 5px 0 0;">
-          <h1 style="margin: 0;"><span style="color: #FF8200; background: white; padding: 2px 6px; border-radius: 3px;">Medi</span><span style="color: #009A44; background: white; padding: 2px 6px; border-radius: 3px;">côte</span></h1>
-        </div>
-        <div style="background-color: #f9f9f9; padding: 30px; border-radius: 0 0 5px 5px;">
-          <h2 style="color: #FF8200; margin-top: 0;">Rendez-vous programmé pour vous ✓</h2>
-          <p>Bonjour ${data.patientName},</p>
-          <p>Votre praticien a programmé un rendez-vous pour vous. Voici les détails :</p>
-          
-          <div style="background-color: white; border: 1px solid #e0e0e0; border-radius: 8px; padding: 20px; margin: 20px 0;">
-            <p style="margin: 8px 0;"><strong>Praticien :</strong> ${data.practitionerTitle} ${data.practitionerFirstName} ${data.practitionerLastName}</p>
-            <p style="margin: 8px 0;"><strong>Spécialité :</strong> ${data.practitionerSpecialty}</p>
-            <p style="margin: 8px 0;"><strong>Date :</strong> ${data.appointmentDate}</p>
-            <p style="margin: 8px 0;"><strong>Heure :</strong> ${data.appointmentTime}</p>
-            <p style="margin: 8px 0;"><strong>Type :</strong> ${typeLabel}</p>
-            <p style="margin: 8px 0;"><strong>Tarif :</strong> ${data.consultationFee.toLocaleString('fr-FR')} FCFA</p>
-            <p style="margin: 8px 0; color: #666;">${locationInfo}</p>
-          </div>
+  const html = buildEmailHtml({
+    title: 'Nouveau rendez-vous programmé - MediCôte',
+    preheader: `Un rendez-vous a été programmé pour vous par ${data.practitionerTitle} ${data.practitionerLastName}.`,
+    contentHtml: `
+      <h2 style="color: #ff8200; font-family: 'Outfit', sans-serif; font-size: 20px; font-weight: 600; margin-top: 0; margin-bottom: 16px;">Rendez-vous programmé pour vous ✓</h2>
+      <p style="margin: 0 0 16px 0;">Bonjour ${data.patientName},</p>
+      <p style="margin: 0 0 20px 0;">Votre praticien a programmé un rendez-vous pour vous. Voici les détails :</p>
+      
+      <div style="background-color: #f8fafc; border: 1px solid #e2e8f0; border-radius: 8px; padding: 20px; margin: 24px 0;">
+        <table border="0" cellpadding="0" cellspacing="0" width="100%" style="font-size: 14px; font-family: 'Inter', sans-serif; color: #475569; border-collapse: collapse;">
+          <tr>
+            <td style="padding: 6px 0; font-weight: 600; color: #1e293b; width: 35%; vertical-align: top;">Praticien :</td>
+            <td style="padding: 6px 0; color: #334155;">${data.practitionerTitle} ${data.practitionerFirstName} ${data.practitionerLastName}</td>
+          </tr>
+          <tr>
+            <td style="padding: 6px 0; font-weight: 600; color: #1e293b; vertical-align: top;">Spécialité :</td>
+            <td style="padding: 6px 0; color: #334155;">${data.practitionerSpecialty}</td>
+          </tr>
+          <tr>
+            <td style="padding: 6px 0; font-weight: 600; color: #1e293b; vertical-align: top;">Date :</td>
+            <td style="padding: 6px 0; color: #334155; font-weight: 500;">${data.appointmentDate}</td>
+          </tr>
+          <tr>
+            <td style="padding: 6px 0; font-weight: 600; color: #1e293b; vertical-align: top;">Heure :</td>
+            <td style="padding: 6px 0; color: #334155; font-weight: 500;">${data.appointmentTime}</td>
+          </tr>
+          <tr>
+            <td style="padding: 6px 0; font-weight: 600; color: #1e293b; vertical-align: top;">Type :</td>
+            <td style="padding: 6px 0; color: #334155;">${typeLabel}</td>
+          </tr>
+          <tr>
+            <td style="padding: 6px 0; font-weight: 600; color: #1e293b; vertical-align: top;">Tarif :</td>
+            <td style="padding: 6px 0; color: #334155;">${data.consultationFee.toLocaleString('fr-FR')} FCFA</td>
+          </tr>
+          <tr>
+            <td style="padding: 10px 0 0 0; font-weight: 600; color: #1e293b; vertical-align: top; border-top: 1px solid #e2e8f0;">Lieu / Infos :</td>
+            <td style="padding: 10px 0 0 0; color: #64748b; border-top: 1px solid #e2e8f0; font-style: italic;">${locationInfo}</td>
+          </tr>
+        </table>
+      </div>
 
-          <div style="text-align: center; margin: 30px 0;">
-            <a href="${APP_URL}/patient/appointments" style="background-color: #FF8200; color: white; padding: 12px 30px; text-decoration: none; border-radius: 5px; display: inline-block; font-weight: bold;">Voir mes rendez-vous</a>
-          </div>
-          
-          <p style="color: #666; font-size: 14px; margin-top: 30px;">
-            Vous recevrez un rappel 24h et 1h avant votre rendez-vous.
-          </p>
-          <p style="color: #666; font-size: 14px;">
-            Pour annuler ou modifier votre rendez-vous, connectez-vous à votre espace patient.
-          </p>
-        </div>
-        <div style="text-align: center; margin-top: 20px; color: #999; font-size: 12px;">
-          <p>© ${new Date().getFullYear()} MediCôte. Tous droits réservés.</p>
-        </div>
-      </body>
-    </html>
-  `
+      <p style="margin: 24px 0 0 0; font-size: 13px; color: #64748b; border-top: 1px solid #e2e8f0; padding-top: 16px;">
+        Vous recevrez un rappel 24h et 1h avant votre rendez-vous. Pour annuler ou modifier votre rendez-vous, connectez-vous à votre espace patient.
+      </p>
+    `,
+    actionUrl: `${APP_URL}/patient/appointments`,
+    actionText: 'Voir mes rendez-vous',
+  })
 
   await sendEmail(to, 'Nouveau rendez-vous programmé - MediCôte', html)
 }
