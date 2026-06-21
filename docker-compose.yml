@@ -83,6 +83,7 @@ services:
     environment:
       BACKEND_DATABASE_URL: postgresql://admin:admin@postgresdb-dev:5432/medicote?schema=public
       BACKEND_REDIS_URL: redis://redisdb-dev:6379
+      CHOKIDAR_USEPOLLING: "true"
     command: sh -c "npx prisma generate --schema=/app/backend/prisma/schema.prisma && npx prisma db push --schema=/app/backend/prisma/schema.prisma && npm run dev"
     ports:
       - "3001:3001"
@@ -114,6 +115,8 @@ services:
       NUXT_PUBLIC_UMAMI_URL: http://localhost:3002
       NUXT_PUBLIC_UMAMI_WEBSITE_ID: ${UMAMI_WEBSITE_ID:-}
       NUXT_PUBLIC_UMAMI_ENABLED: ${UMAMI_ENABLED:-true}
+      CHOKIDAR_USEPOLLING: "true"
+      WATCHPACK_POLLING: "true"
     volumes:
       - ./frontend:/app/frontend
       - ./shared:/app/shared
