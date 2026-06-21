@@ -74,7 +74,8 @@ services:
 
   backend:
     build:
-      context: ./backend
+      context: .
+      dockerfile: backend/Dockerfile
       target: development
     container_name: backend
     env_file:
@@ -82,14 +83,16 @@ services:
     environment:
       BACKEND_DATABASE_URL: postgresql://admin:admin@postgresdb-dev:5432/medicote?schema=public
       BACKEND_REDIS_URL: redis://redisdb-dev:6379
-    command: sh -c "npx prisma db push && npm run dev"
+    command: sh -c "npx prisma db push --schema=/app/backend/prisma/schema.prisma && npm run dev"
     ports:
       - "3001:3001"
     volumes:
-      - ./backend/.env:/app/.env:ro
-      - ./backend/src:/app/src
-      - ./backend/prisma:/app/prisma
+      - ./backend/.env:/app/backend/.env:ro
+      - ./backend/src:/app/backend/src
+      - ./backend/prisma:/app/backend/prisma
+      - ./shared:/app/shared
       - /app/node_modules
+      - /app/backend/node_modules
     depends_on:
       postgres-db:
         condition: service_healthy
@@ -100,7 +103,8 @@ services:
 
   frontend:
     build:
-      context: ./frontend
+      context: .
+      dockerfile: frontend/Dockerfile
       target: development
     container_name: frontend
     ports:
@@ -111,9 +115,11 @@ services:
       NUXT_PUBLIC_UMAMI_WEBSITE_ID: ${UMAMI_WEBSITE_ID:-}
       NUXT_PUBLIC_UMAMI_ENABLED: ${UMAMI_ENABLED:-true}
     volumes:
-      - ./frontend:/app
+      - ./frontend:/app/frontend
+      - ./shared:/app/shared
       - /app/node_modules
-      - /app/.nuxt
+      - /app/frontend/node_modules
+      - /app/frontend/.nuxt
     depends_on:
       - backend
       - umami-dev
