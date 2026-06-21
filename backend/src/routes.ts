@@ -5,6 +5,7 @@ import { practitionersRoutes } from './modules/practitioners/practitioners.route
 import { appointmentsRoutes } from './modules/appointments/appointments.routes'
 import { notificationsRoutes } from './modules/notifications/notifications.routes'
 import { medicalRecordsRoutes } from './modules/medical-records/medical-records.routes'
+import { healthMetricsRoutes } from './modules/health-metrics/health-metrics.routes'
 import { documentsRoutes } from './modules/documents/documents.routes'
 import { messagesRoutes } from './modules/messages/messages.routes'
 import { paymentsRoutes } from './modules/payments/payments.routes'
@@ -28,6 +29,7 @@ export async function routes(fastify: FastifyInstance) {
   fastify.register(appointmentsRoutes, { prefix: '/api/appointments' })
   fastify.register(notificationsRoutes, { prefix: '/api/notifications' })
   fastify.register(medicalRecordsRoutes, { prefix: '/api/medical-records' })
+  fastify.register(healthMetricsRoutes, { prefix: '/api/health-metrics' })
   fastify.register(documentsRoutes, { prefix: '/api/documents' })
   fastify.register(messagesRoutes, { prefix: '/api/messages' })
   fastify.register(paymentsRoutes, { prefix: '/api/payments' })
