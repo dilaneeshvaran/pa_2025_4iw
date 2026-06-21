@@ -1068,16 +1068,17 @@ const toggleEarlierSlotAlert = async (apt: Appointment) => {
     });
 
     if (response.success) {
-      apt.earlierSlotAlertEnabled = targetState;
+      apt.earlierSlotAlertEnabled =
+        response.data?.earlierSlotAlertEnabled ?? targetState;
     }
   } catch (error: unknown) {
     console.error("Error toggling alert:", error);
     const errorMessage =
-      error instanceof Error
-        ? error.message
-        : typeof error === "object" && error !== null && "data" in error
-          ? (error as { data: { message?: string } }).data.message ||
-            "Erreur lors de la modification de l'alerte"
+      typeof error === "object" && error !== null && "data" in error
+        ? (error as { data?: { message?: string } }).data?.message ||
+          "Erreur lors de la modification de l'alerte"
+        : error instanceof Error
+          ? error.message
           : "Erreur lors de la modification de l'alerte";
     alert(errorMessage);
   } finally {

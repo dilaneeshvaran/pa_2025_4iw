@@ -19,5 +19,12 @@ export const reserveSlotSchema = z.object({
   startTime: z.string().regex(/^\d{2}:\d{2}$/, 'Time must be in HH:mm format'),
 })
 
+export const toggleEarlierSlotAlertSchema = z.object({
+  enabled: z.boolean({ error: 'Le champ "enabled" doit être un booléen' }),
+})
+
 export type CreateAppointmentInput = z.infer<typeof createAppointmentSchema>
 export type ReserveSlotInput = z.infer<typeof reserveSlotSchema>
+export type ToggleEarlierSlotAlertInput = z.infer<
+  typeof toggleEarlierSlotAlertSchema
+>
