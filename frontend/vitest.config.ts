@@ -4,6 +4,9 @@ import { resolve } from 'path'
 
 export default defineConfig({
   plugins: [vue()],
+  define: {
+    'import.meta.client': 'true',
+  },
   test: {
     environment: 'happy-dom',
     globals: true,
