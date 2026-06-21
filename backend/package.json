@@ -35,7 +35,10 @@
     "pg": "^8.18.0",
     "prisma": "^7.3.0",
     "puppeteer": "^24.37.5",
-    "zod": "^4.3.6"
+    "zod": "^4.3.6",
+    "@medicote/shared": "*",
+    "@ts-rest/core": "^3.45.2",
+    "@ts-rest/fastify": "^3.45.2"
   },
   "overrides": {
     "bullmq": {
