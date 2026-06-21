@@ -928,3 +928,50 @@ export async function sendAppointmentBookedByPractitionerEmail(
 
   await sendEmail(to, 'Nouveau rendez-vous programmé - MediCôte', html)
 }
+
+export interface EarlierSlotAlertEmailData {
+  patientName: string
+  practitionerTitle: string
+  practitionerFirstName: string
+  practitionerLastName: string
+  cancelledDate: string
+  cancelledTime: string
+  practitionerId: string
+}
+
+export async function sendEarlierSlotAlertEmail(
+  to: string,
+  data: EarlierSlotAlertEmailData,
+): Promise<void> {
+  const alertUrl = `${APP_URL}/practitioner/${data.practitionerId}?tab=availability`
+
+  const html = buildEmailHtml({
+    title: 'Disponibilité plus proche libérée - MediCôte',
+    preheader: `Une disponibilité plus proche s'est libérée avec ${data.practitionerTitle} ${data.practitionerLastName}.`,
+    contentHtml: `
+      <h2 style="color: #ff8200; font-family: 'Outfit', sans-serif; font-size: 20px; font-weight: 600; margin-top: 0; margin-bottom: 16px;">Créneau plus proche disponible !</h2>
+      <p style="margin: 0 0 16px 0;">Bonjour ${data.patientName},</p>
+      <p style="margin: 0 0 20px 0;">Vous avez activé l'alerte pour obtenir un rendez-vous plus proche avec <strong>${data.practitionerTitle} ${data.practitionerFirstName} ${data.practitionerLastName}</strong>.</p>
+      <p style="margin: 0 0 20px 0;">Bonne nouvelle ! Le créneau suivant vient de se libérer :</p>
+      
+      <div style="background-color: #f8fafc; border: 1px solid #e2e8f0; border-radius: 8px; padding: 20px; margin: 24px 0;">
+        <table border="0" cellpadding="0" cellspacing="0" width="100%" style="font-size: 14px; font-family: 'Inter', sans-serif; color: #475569; border-collapse: collapse;">
+          <tr>
+            <td style="padding: 6px 0; font-weight: 600; color: #1e293b; width: 35%; vertical-align: top;">Date :</td>
+            <td style="padding: 6px 0; color: #334155; font-weight: bold;">${data.cancelledDate}</td>
+          </tr>
+          <tr>
+            <td style="padding: 6px 0; font-weight: 600; color: #1e293b; vertical-align: top;">Heure :</td>
+            <td style="padding: 6px 0; color: #334155; font-weight: bold;">${data.cancelledTime}</td>
+          </tr>
+        </table>
+      </div>
+
+      <p style="margin: 0 0 24px 0;">Si vous souhaitez réserver ce créneau à la place de votre rendez-vous actuel, veuillez cliquer sur le bouton ci-dessous pour vous connecter et accéder aux disponibilités du praticien :</p>
+    `,
+    actionUrl: alertUrl,
+    actionText: 'Voir les disponibilités',
+  })
+
+  await sendEmail(to, 'Disponibilité plus proche libérée - MediCôte', html)
+}

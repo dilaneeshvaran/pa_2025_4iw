@@ -306,6 +306,58 @@ export async function appointmentsRoutes(fastify: FastifyInstance) {
   )
 
   fastify.patch(
+    '/:id/earlier-slot-alert',
+    { preHandler: [authenticate] },
+    async (request: FastifyRequest, reply: FastifyReply) => {
+      try {
+        const user = request.user as { id: string; role: string }
+        const { id } = request.params as { id: string }
+        const body = request.body as { enabled: boolean }
+
+        if (typeof body?.enabled !== 'boolean') {
+          return reply.status(400).send({
+            success: false,
+            message: 'Le champ "enabled" doit être un booléen',
+          })
+        }
+
+        const patient = await prisma.patient.findUnique({
+          where: { userId: user.id },
+          select: { id: true },
+        })
+
+        if (!patient) {
+          return reply.status(404).send({
+            success: false,
+            message: 'Patient profile not found',
+          })
+        }
+
+        const updated = await appointmentsService.toggleEarlierSlotAlert(
+          id,
+          patient.id,
+          body.enabled,
+        )
+
+        return reply.status(200).send({
+          success: true,
+          data: updated,
+          message: body.enabled
+            ? 'Alerte activée avec succès'
+            : 'Alerte désactivée avec succès',
+        })
+      } catch (error) {
+        request.log.error(error)
+        const message = sanitizeErrorMessage(error, "Erreur lors de la modification de l'alerte")
+        return reply.status(400).send({
+          success: false,
+          message,
+        })
+      }
+    },
+  )
+
+  fastify.patch(
     '/:id',
     { preHandler: [authenticate] },
     async (request: FastifyRequest, reply: FastifyReply) => {

@@ -46,6 +46,8 @@ jest.mock('../../../config/redis', () => ({
 
 jest.mock('../../../utils/email', () => ({
   sendAppointmentConfirmationEmail: jest.fn().mockResolvedValue(undefined),
+  sendEarlierSlotAlertEmail: jest.fn().mockResolvedValue(undefined),
+  sendAppointmentCancelledByPatientEmail: jest.fn().mockResolvedValue(undefined),
 }))
 
 jest.mock('../../../utils/reminder-scheduler', () => ({
@@ -504,6 +506,119 @@ describe('AppointmentsService.updateAppointment', () => {
 
     await expect(service.updateAppointment('apt-1', 'patient-1', { startTime: '11:00' })).rejects.toThrow(
       "Ce créneau n'est plus disponible",
+    )
+  })
+})
+
+describe('AppointmentsService.toggleEarlierSlotAlert', () => {
+  let service: AppointmentsService
+
+  beforeEach(() => {
+    service = new AppointmentsService()
+    jest.clearAllMocks()
+  })
+
+  it('active l\'alerte pour un rendez-vous à venir (plus de 48h)', async () => {
+    const futureDate = new Date()
+    futureDate.setDate(futureDate.getDate() + 3) // 72 heures dans le futur
+
+    const apt = buildAppointmentRow({
+      id: 'apt-1',
+      patientId: 'patient-1',
+      appointmentDate: futureDate,
+      startTime: '10:00',
+      status: AppointmentStatus.CONFIRMED,
+      earlierSlotAlertEnabled: false,
+    })
+
+    ;(mockPrisma.appointment.findUnique as jest.Mock).mockResolvedValue(apt)
+    ;(mockPrisma.appointment.update as jest.Mock).mockResolvedValue({
+      ...apt,
+      earlierSlotAlertEnabled: true,
+    })
+
+    const result = await service.toggleEarlierSlotAlert('apt-1', 'patient-1', true)
+
+    expect(result.earlierSlotAlertEnabled).toBe(true)
+    expect(mockPrisma.appointment.update).toHaveBeenCalledWith(
+      expect.objectContaining({
+        where: { id: 'apt-1' },
+        data: { earlierSlotAlertEnabled: true },
+      }),
+    )
+  })
+
+  it('lève une erreur si le rendez-vous est prévu dans moins de 48h', async () => {
+    const soonDate = new Date()
+    soonDate.setHours(soonDate.getHours() + 10) // 10h dans le futur
+
+    const apt = buildAppointmentRow({
+      id: 'apt-1',
+      patientId: 'patient-1',
+      appointmentDate: soonDate,
+      startTime: '10:00',
+      status: AppointmentStatus.CONFIRMED,
+    })
+
+    ;(mockPrisma.appointment.findUnique as jest.Mock).mockResolvedValue(apt)
+
+    await expect(
+      service.toggleEarlierSlotAlert('apt-1', 'patient-1', true),
+    ).rejects.toThrow('Vous ne pouvez activer ou désactiver cette alerte que')
+  })
+})
+
+describe('AppointmentsService.notifyPatientsOfEarlierSlot', () => {
+  let service: AppointmentsService
+
+  beforeEach(() => {
+    service = new AppointmentsService()
+    jest.clearAllMocks()
+  })
+
+  it('envoie un email aux patients éligibles ayant activé l\'alerte', async () => {
+    const cancelledDate = new Date()
+    cancelledDate.setDate(cancelledDate.getDate() + 2) // libéré dans 2 jours
+
+    const patientAptDate = new Date()
+    patientAptDate.setDate(patientAptDate.getDate() + 5) // rendez-vous du patient dans 5 jours
+
+    const candidates = [
+      {
+        id: 'apt-candidate-1',
+        patientId: 'patient-alerted',
+        appointmentDate: patientAptDate,
+        startTime: '10:00',
+        status: AppointmentStatus.CONFIRMED,
+        earlierSlotAlertEnabled: true,
+        patient: {
+          firstName: 'Marc',
+          lastName: 'Koffi',
+          user: { email: 'marc@koffi.ci' },
+        },
+        practitioner: {
+          id: 'pract-1',
+          title: 'Dr',
+          firstName: 'Jean',
+          lastName: 'Dupont',
+          specialties: [{ specialty: { name: 'Médecine générale' } }],
+          cabinets: [],
+        },
+      },
+    ]
+
+    ;(mockPrisma.appointment.findMany as jest.Mock).mockResolvedValue(candidates)
+
+    const { sendEarlierSlotAlertEmail } = require('../../../utils/email')
+
+    await service.notifyPatientsOfEarlierSlot('pract-1', cancelledDate, '09:00')
+
+    expect(sendEarlierSlotAlertEmail).toHaveBeenCalledWith(
+      'marc@koffi.ci',
+      expect.objectContaining({
+        patientName: 'Marc Koffi',
+        practitionerId: 'pract-1',
+      }),
     )
   })
 })
