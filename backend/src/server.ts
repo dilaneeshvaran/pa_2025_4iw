@@ -14,6 +14,7 @@ import { redis } from './config/redis'
 import { startReminderWorker } from './utils/reminder-scheduler'
 import { websocketPlugin } from './plugins/websocket'
 import { sanitizeErrorMessage } from './utils/errors'
+import securityPlugin from './plugins/security'
 
 
 const app = Fastify({
@@ -24,6 +25,8 @@ const app = Fastify({
   .setValidatorCompiler(validatorCompiler)
   .setSerializerCompiler(serializerCompiler)
   .withTypeProvider<ZodTypeProvider>()
+
+app.register(securityPlugin)
 
 app.register(cors, {
   origin: [
