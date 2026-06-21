@@ -182,7 +182,7 @@
               variant="secondary"
               size="sm"
               :disabled="togglingAlertMap[apt.id]"
-              :class-name="apt.earlierSlotAlertEnabled ? 'bg-orange-50 text-orange-600 border-orange-200 hover:bg-orange-100' : 'text-gray-600 hover:bg-gray-100'"
+              :class-name="apt.earlierSlotAlertEnabled ? '!bg-orange-50 !text-orange-600 border !border-orange-200 !hover:bg-orange-100' : 'text-gray-600 hover:bg-gray-100'"
               @click="toggleEarlierSlotAlert(apt)"
             >
               <Bell class="mr-1.5 h-4 w-4" :class="{ 'fill-orange-600': apt.earlierSlotAlertEnabled }" />
