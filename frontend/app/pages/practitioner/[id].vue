@@ -681,6 +681,27 @@ const fetchAvailableSlots = async () => {
   }
 };
 
+const fetchReviews = async () => {
+  try {
+    const tsRestClient = useTsRestClient()
+    const response = await tsRestClient.getPractitionerReviews({
+      params: { practitionerId: practitionerId.value },
+    })
+
+    if (response.status === 200 && response.body.success) {
+      reviews.value = response.body.data.map((r) => ({
+        id: r.id,
+        patientName: `${r.patient?.firstName || 'Patient'} ${r.patient?.lastName || 'Anonyme'}`,
+        rating: r.rating,
+        date: r.createdAt as string,
+        comment: r.comment || '',
+      }))
+    }
+  } catch (err: unknown) {
+    console.error("Error fetching reviews via ts-rest:", err)
+  }
+};
+
 const goToAvailability = () => {
   activeTab.value = "availability";
   if (!availableSlots.value.length && !loadingSlots.value) {
@@ -775,6 +796,9 @@ const formatDateFull = (dateString: string) => {
 watch(activeTab, (newTab) => {
   if (newTab === "availability" && !availableSlots.value.length) {
     fetchAvailableSlots();
+  }
+  if (newTab === "reviews") {
+    fetchReviews();
   }
 });
 

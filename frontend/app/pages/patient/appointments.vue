@@ -802,14 +802,19 @@ const submitReview = async () => {
   submittingReview.value = true;
   reviewError.value = "";
   try {
-    await useAuthenticatedFetch("/reviews", {
-      method: "POST",
+    const tsRestClient = useTsRestClient()
+    const response = await tsRestClient.createReview({
       body: {
         appointmentId: reviewAppointment.value.id,
         rating: reviewRating.value,
         comment: reviewComment.value || undefined,
       },
     });
+
+    if (response.status !== 201) {
+      throw new Error(response.body.message || "Erreur lors de la publication de l'avis");
+    }
+
     // update local appointment to show the review without refetching
     const idx = appointments.value.findIndex(
       (a) => a.id === reviewAppointment.value!.id
@@ -818,7 +823,7 @@ const submitReview = async () => {
       appointments.value[idx] = {
         ...appointments.value[idx],
         review: {
-          id: "",
+          id: response.body.data?.id || "",
           rating: reviewRating.value,
           comment: reviewComment.value || null,
           createdAt: new Date().toISOString(),

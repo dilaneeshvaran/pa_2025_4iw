@@ -20,7 +20,7 @@ import { adminNoShowsRoutes } from './modules/admin/admin-no-shows.routes'
 import { campaignsRoutes } from './modules/campaigns/campaigns.routes'
 import { cabinetRoutes } from './modules/cabinet/cabinet.routes'
 import { staffRoutes } from './modules/staff/staff.routes'
-import { reviewsRoutes } from './modules/reviews/reviews.routes'
+import { reviewsTsRestRoutes } from './modules/reviews/reviews.router'
 
 export async function routes(fastify: FastifyInstance) {
   fastify.register(authRoutes, { prefix: '/api/auth' })
@@ -64,8 +64,8 @@ export async function routes(fastify: FastifyInstance) {
   fastify.register(staffRoutes, {
     prefix: '/api/staff',
   })
-  fastify.register(reviewsRoutes, {
-    prefix: '/api/reviews',
+  fastify.register(reviewsTsRestRoutes, {
+    prefix: '/api',
   })
 
   fastify.get('/health', async () => {
