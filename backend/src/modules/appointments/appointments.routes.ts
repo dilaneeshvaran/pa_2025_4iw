@@ -6,6 +6,7 @@ import prisma from '../../config/database'
 import {
   createAppointmentSchema,
   reserveSlotSchema,
+  toggleEarlierSlotAlertSchema,
 } from './appointments.schema'
 import { reserveSlot, releaseSlotReservation } from '../../config/redis'
 import { bookingRateLimit } from '../../plugins/rate-limit'
@@ -312,14 +313,7 @@ export async function appointmentsRoutes(fastify: FastifyInstance) {
       try {
         const user = request.user as { id: string; role: string }
         const { id } = request.params as { id: string }
-        const body = request.body as { enabled: boolean }
-
-        if (typeof body?.enabled !== 'boolean') {
-          return reply.status(400).send({
-            success: false,
-            message: 'Le champ "enabled" doit être un booléen',
-          })
-        }
+        const body = toggleEarlierSlotAlertSchema.parse(request.body)
 
         const patient = await prisma.patient.findUnique({
           where: { userId: user.id },
