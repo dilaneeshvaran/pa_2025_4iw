@@ -1,9 +1,6 @@
 export default defineNuxtRouteMiddleware((to, _from) => {
-  if (import.meta.server) {
-    return;
-  }
-
   const authStore = useAuthStore();
+  const authenticatedCookie = useCookie("sb-authenticated");
 
   // routes that dont require authentication
   const publicRoutes = [
@@ -26,28 +23,26 @@ export default defineNuxtRouteMiddleware((to, _from) => {
     to.path === "/" ||
     publicRoutes.some((route) => to.path.startsWith(route));
 
-  // initialize auth from localstorage
-  if (!authStore.isAuthenticated) {
+  // initialize auth from localstorage on client side
+  if (import.meta.client && !authStore.isAuthenticated) {
     authStore.initAuth();
   }
 
-  // redirect login if not authenticated and trying to access protected route
-  if (!authStore.isAuthenticated && !isPublicRoute) {
-    if (import.meta.client) {
-      const isInitialLoad = !_from || _from.matched.length === 0;
-      if (isInitialLoad) {
-        window.location.replace(`/auth/login?redirect=${encodeURIComponent(to.fullPath)}`);
-        return abortNavigation();
-      }
-    }
+  // check authentication status
+  const isUserAuthenticated = import.meta.server
+    ? !!authenticatedCookie.value
+    : authStore.isAuthenticated;
+
+  // redirect to login if not authenticated and trying to access protected route
+  if (!isUserAuthenticated && !isPublicRoute) {
     return navigateTo({
       path: "/auth/login",
       query: { redirect: to.fullPath },
     });
   }
 
-  // if authenticated but token is expired
-  if (authStore.isAuthenticated && authStore.isTokenExpired && !isPublicRoute) {
+  // client-only check for expired token
+  if (import.meta.client && authStore.isAuthenticated && authStore.isTokenExpired && !isPublicRoute) {
     // try refresh token
     if (authStore.refreshToken) {
       // useAuthenticatedFetch should handle refresh
@@ -55,13 +50,6 @@ export default defineNuxtRouteMiddleware((to, _from) => {
     } else {
       // logout if no refresh token and redirect to login
       authStore.logout();
-      if (import.meta.client) {
-        const isInitialLoad = !_from || _from.matched.length === 0;
-        if (isInitialLoad) {
-          window.location.replace(`/auth/login?redirect=${encodeURIComponent(to.fullPath)}`);
-          return abortNavigation();
-        }
-      }
       return navigateTo({
         path: "/auth/login",
         query: { redirect: to.fullPath },

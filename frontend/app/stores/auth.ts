@@ -66,6 +66,8 @@ export const useAuthStore = defineStore("auth", () => {
         );
       }
     }
+    const authCookie = useCookie("sb-authenticated", { maxAge: 30 * 24 * 60 * 60 });
+    authCookie.value = "true";
   }
 
   function updateUser(userVal: Partial<User>) {
@@ -93,6 +95,8 @@ export const useAuthStore = defineStore("auth", () => {
       localStorage.removeItem("user");
       localStorage.removeItem("tokenExpiresAt");
     }
+    const authCookie = useCookie("sb-authenticated");
+    authCookie.value = null;
   }
 
   function initAuth() {

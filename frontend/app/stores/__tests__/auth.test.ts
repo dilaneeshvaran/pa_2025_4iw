@@ -1,5 +1,9 @@
-import { describe, it, expect, beforeEach, afterEach } from "vitest";
+import { describe, it, expect, beforeEach, afterEach, vi } from "vitest";
 import { setActivePinia, createPinia } from "pinia";
+
+// Mock Nuxt's useCookie composable globally for Pinia store unit tests
+const mockCookieVal = { value: null as string | null };
+vi.stubGlobal("useCookie", vi.fn().mockImplementation(() => mockCookieVal));
 
 import { useAuthStore } from "../auth";
 
