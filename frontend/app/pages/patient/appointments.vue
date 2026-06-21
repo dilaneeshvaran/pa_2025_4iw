@@ -177,6 +177,17 @@
             v-if="getActions(apt).length > 0"
             class="flex gap-3 rounded-b-lg border-t bg-gray-50 px-6 py-3"
           >
+            <UiButton
+              v-if="isBefore48h(apt)"
+              variant="secondary"
+              size="sm"
+              :disabled="togglingAlertMap[apt.id]"
+              :class-name="apt.earlierSlotAlertEnabled ? 'bg-orange-50 text-orange-600 border-orange-200 hover:bg-orange-100' : 'text-gray-600 hover:bg-gray-100'"
+              @click="toggleEarlierSlotAlert(apt)"
+            >
+              <Bell class="mr-1.5 h-4 w-4" :class="{ 'fill-orange-600': apt.earlierSlotAlertEnabled }" />
+              {{ apt.earlierSlotAlertEnabled ? "Alerte activée" : "M'avertir si plus proche" }}
+            </UiButton>
             <div class="group relative">
               <UiButton
                 variant="secondary"
@@ -685,6 +696,7 @@ import {
   Camera,
   Mic,
   Star,
+  Bell,
 } from "lucide-vue-next";
 import { useAuthStore } from "~/stores/auth";
 import { formatDateLong as formatDate } from "~/utils/date";
@@ -718,6 +730,7 @@ interface Appointment {
   status: string;
   reason: string | null;
   consultationFee: number;
+  earlierSlotAlertEnabled: boolean;
   practitioner: Practitioner;
   cabinet?: {
     id: string;
@@ -1020,6 +1033,56 @@ const canJoin = (apt: Appointment): boolean => {
   const diffMs = aptDate.getTime() - now.getTime();
   const diffMinutes = diffMs / (1000 * 60);
   return diffMinutes <= 15 && diffMinutes >= -60; // 15 min before, up to 1h after start
+};
+
+const isBefore48h = (apt: Appointment): boolean => {
+  if (
+    apt.status === "CANCELLED" ||
+    apt.status === "COMPLETED" ||
+    apt.status === "NO_SHOW"
+  )
+    return false;
+  const now = new Date();
+  const aptDate = new Date(apt.appointmentDate);
+  const parts = apt.startTime.split(":").map(Number);
+  aptDate.setHours(parts[0] || 0, parts[1] || 0, 0, 0);
+  const diffMs = aptDate.getTime() - now.getTime();
+  const diffHours = diffMs / (1000 * 60 * 60);
+  return diffHours >= 48;
+};
+
+const togglingAlertMap = ref<Record<string, boolean>>({});
+
+const toggleEarlierSlotAlert = async (apt: Appointment) => {
+  if (togglingAlertMap.value[apt.id]) return;
+  togglingAlertMap.value[apt.id] = true;
+  const targetState = !apt.earlierSlotAlertEnabled;
+  try {
+    const response = await useAuthenticatedFetch<{
+      success: boolean;
+      data: Appointment;
+      message: string;
+    }>(`/appointments/${apt.id}/earlier-slot-alert`, {
+      method: "PATCH",
+      body: { enabled: targetState },
+    });
+
+    if (response.success) {
+      apt.earlierSlotAlertEnabled = targetState;
+    }
+  } catch (error: unknown) {
+    console.error("Error toggling alert:", error);
+    const errorMessage =
+      error instanceof Error
+        ? error.message
+        : typeof error === "object" && error !== null && "data" in error
+          ? (error as { data: { message?: string } }).data.message ||
+            "Erreur lors de la modification de l'alerte"
+          : "Erreur lors de la modification de l'alerte";
+    alert(errorMessage);
+  } finally {
+    togglingAlertMap.value[apt.id] = false;
+  }
 };
 
 const getActions = (apt: Appointment): string[] => {

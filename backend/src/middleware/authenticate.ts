@@ -16,6 +16,10 @@ declare module 'fastify' {
       role: string
     }
   }
+  interface FastifySchema {
+    tags?: string[]
+    description?: string
+  }
 }
 
 // authenticate for download endpoints

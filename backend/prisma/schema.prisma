@@ -366,6 +366,7 @@ model Appointment {
   noShowMarkedAt          DateTime?
   reminderSent24h         Boolean                  @default(false)
   reminderSent1h          Boolean                  @default(false)
+  earlierSlotAlertEnabled Boolean                  @default(false)
   createdAt               DateTime                 @default(now())
   updatedAt               DateTime                 @updatedAt
   patient                 Patient                  @relation(fields: [patientId], references: [id], onDelete: Cascade)

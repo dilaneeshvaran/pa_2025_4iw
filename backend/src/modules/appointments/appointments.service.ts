@@ -12,6 +12,7 @@ import {
   sendAppointmentConfirmationEmail,
   sendAppointmentCancelledByPatientEmail,
   sendAppointmentModifiedByPatientEmail,
+  sendEarlierSlotAlertEmail,
 } from '../../utils/email'
 import { scheduleAppointmentReminders } from '../../utils/reminder-scheduler'
 
@@ -143,6 +144,7 @@ export class AppointmentsService {
         status: apt.status,
         reason: apt.reason,
         consultationFee: Number(apt.consultationFee),
+        earlierSlotAlertEnabled: apt.earlierSlotAlertEnabled,
         practitioner: {
           id: apt.practitioner.id,
           firstName: apt.practitioner.firstName,
@@ -248,6 +250,7 @@ export class AppointmentsService {
       status: nextAppointment.status,
       reason: nextAppointment.reason,
       consultationFee: Number(nextAppointment.consultationFee),
+      earlierSlotAlertEnabled: nextAppointment.earlierSlotAlertEnabled,
       practitioner: {
         id: nextAppointment.practitioner.id,
         firstName: nextAppointment.practitioner.firstName,
@@ -354,6 +357,7 @@ export class AppointmentsService {
         status: apt.status,
         reason: apt.reason,
         consultationFee: Number(apt.consultationFee),
+        earlierSlotAlertEnabled: apt.earlierSlotAlertEnabled,
         practitioner: {
           id: apt.practitioner.id,
           firstName: apt.practitioner.firstName,
@@ -778,6 +782,17 @@ export class AppointmentsService {
       },
     })
 
+    // notify patients who want a closer slot
+    try {
+      await this.notifyPatientsOfEarlierSlot(
+        appointment.practitionerId,
+        appointment.appointmentDate,
+        appointment.startTime,
+      )
+    } catch (notifyError) {
+      console.error('Failed to notify patients of earlier slot:', notifyError)
+    }
+
     // send email notification to practitioner
     const practitionerUser = await prisma.user.findFirst({
       where: { practitioner: { id: appointment.practitionerId } },
@@ -955,6 +970,7 @@ export class AppointmentsService {
       status: updated.status,
       reason: updated.reason,
       consultationFee: Number(updated.consultationFee),
+      earlierSlotAlertEnabled: updated.earlierSlotAlertEnabled,
       practitioner: {
         id: updated.practitioner.id,
         firstName: updated.practitioner.firstName,
@@ -966,6 +982,164 @@ export class AppointmentsService {
         city: updated.practitioner.city || null,
         cancellationNotice: updated.practitioner.cancellationNotice,
       },
+    }
+  }
+
+  async toggleEarlierSlotAlert(
+    appointmentId: string,
+    patientId: string,
+    enabled: boolean,
+  ): Promise<PatientAppointment> {
+    const appointment = await prisma.appointment.findUnique({
+      where: { id: appointmentId },
+      include: {
+        practitioner: {
+          include: {
+            specialties: {
+              where: { isPrimary: true },
+              include: { specialty: true },
+              take: 1,
+            },
+            cabinets: {
+              where: {
+                leftAt: null,
+                isPaused: false,
+                cabinet: { isVerified: true },
+              },
+              include: { cabinet: true },
+            },
+          },
+        },
+        cabinet: {
+          select: { id: true, name: true, address: true, city: true },
+        },
+      },
+    })
+
+    if (!appointment) {
+      throw new Error('Rendez-vous non trouvé')
+    }
+
+    if (appointment.patientId !== patientId) {
+      throw new Error('Vous ne pouvez pas modifier ce rendez-vous')
+    }
+
+    if (
+      appointment.status === 'CANCELLED' ||
+      appointment.status === 'COMPLETED' ||
+      appointment.status === 'NO_SHOW'
+    ) {
+      throw new Error('Ce rendez-vous est déjà archivé ou annulé')
+    }
+
+    // Check if the appointment is more than 48 hours away
+    const now = new Date()
+    const aptDate = new Date(appointment.appointmentDate)
+    const [hours, minutes] = appointment.startTime.split(':').map(Number)
+    aptDate.setUTCHours(hours, minutes, 0, 0)
+    const diffMs = aptDate.getTime() - now.getTime()
+    const diffHours = diffMs / (1000 * 60 * 60)
+
+    if (diffHours < 48) {
+      throw new Error(
+        'Vous ne pouvez activer ou désactiver cette alerte que pour les rendez-vous prévus dans plus de 48 heures',
+      )
+    }
+
+    const updated = await prisma.appointment.update({
+      where: { id: appointmentId },
+      data: {
+        earlierSlotAlertEnabled: enabled,
+      },
+    })
+
+    const activeCabinet =
+      appointment.practitioner.cabinets && appointment.practitioner.cabinets.length > 0
+        ? appointment.practitioner.cabinets[0].cabinet
+        : null
+
+    return {
+      id: updated.id,
+      appointmentDate: updated.appointmentDate,
+      startTime: updated.startTime,
+      endTime: updated.endTime,
+      type: updated.type,
+      status: updated.status,
+      reason: updated.reason,
+      consultationFee: Number(updated.consultationFee),
+      earlierSlotAlertEnabled: updated.earlierSlotAlertEnabled,
+      practitioner: {
+        id: appointment.practitioner.id,
+        firstName: appointment.practitioner.firstName,
+        lastName: appointment.practitioner.lastName,
+        title: appointment.practitioner.title,
+        specialty: appointment.practitioner.specialties[0]?.specialty.name || null,
+        photo: null,
+        address: activeCabinet
+          ? activeCabinet.address
+          : appointment.practitioner.address || null,
+        city: activeCabinet
+          ? activeCabinet.city
+          : appointment.practitioner.city || null,
+        cancellationNotice: appointment.practitioner.cancellationNotice,
+      },
+      cabinet: appointment.cabinet || null,
+    }
+  }
+
+  async notifyPatientsOfEarlierSlot(
+    practitionerId: string,
+    cancelledDate: Date,
+    cancelledStartTime: string,
+  ): Promise<void> {
+    const cancelledDateTime = new Date(cancelledDate)
+    const [hours, minutes] = cancelledStartTime.split(':').map(Number)
+    cancelledDateTime.setUTCHours(hours, minutes, 0, 0)
+
+    const candidates = await prisma.appointment.findMany({
+      where: {
+        practitionerId,
+        status: { in: ['CONFIRMED', 'PENDING'] },
+        earlierSlotAlertEnabled: true,
+      },
+      include: {
+        patient: {
+          include: {
+            user: { select: { email: true } },
+          },
+        },
+        practitioner: true,
+      },
+    })
+
+    const formattedCancelledDate = cancelledDate.toLocaleDateString('fr-FR', {
+      weekday: 'long',
+      day: 'numeric',
+      month: 'long',
+      year: 'numeric',
+      timeZone: 'UTC',
+    })
+
+    for (const apt of candidates) {
+      const aptDateTime = new Date(apt.appointmentDate)
+      const [aptH, aptM] = apt.startTime.split(':').map(Number)
+      aptDateTime.setUTCHours(aptH, aptM, 0, 0)
+
+      if (aptDateTime.getTime() > cancelledDateTime.getTime()) {
+        try {
+          await sendEarlierSlotAlertEmail(apt.patient.user.email, {
+            patientName: `${apt.patient.firstName} ${apt.patient.lastName}`,
+            practitionerTitle: apt.practitioner.title,
+            practitionerFirstName: apt.practitioner.firstName,
+            practitionerLastName: apt.practitioner.lastName,
+            cancelledDate: formattedCancelledDate,
+            cancelledTime: cancelledStartTime,
+            practitionerId,
+          })
+        } catch (err) {
+          console.error(`Failed to send earlier slot email to ${apt.patient.user.email}:`, err)
+        }
+      }
     }
   }
 }

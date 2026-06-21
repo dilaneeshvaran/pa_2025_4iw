@@ -7,6 +7,7 @@ export interface PatientAppointment {
   status: string
   reason: string | null
   consultationFee: number
+  earlierSlotAlertEnabled: boolean
   practitioner: {
     id: string
     firstName: string
