@@ -699,6 +699,5 @@ onMounted(() => {
 
 definePageMeta({
   layout: false,
-  middleware: "patient-only",
 });
 </script>

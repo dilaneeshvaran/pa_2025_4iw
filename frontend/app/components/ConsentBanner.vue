@@ -96,11 +96,20 @@ const CONSENT_KEY = computed(() => {
 })
 const ESSENTIAL_CONSENT_TYPES = ['data_processing', 'terms_of_service', 'privacy_policy'] as const
 
+const EXCLUDED_ROUTE_PREFIXES = ['/auth/', '/legal/']
+
 const checkConsent = () => {
   if (!authStore.isAuthenticated || !authStore.accessToken) {
     visible.value = false
     return
   }
+
+  const currentPath = useRoute().path
+  if (EXCLUDED_ROUTE_PREFIXES.some((prefix) => currentPath.startsWith(prefix))) {
+    visible.value = false
+    return
+  }
+
   const stored = localStorage.getItem(CONSENT_KEY.value)
   if (stored === 'true') {
     visible.value = false
