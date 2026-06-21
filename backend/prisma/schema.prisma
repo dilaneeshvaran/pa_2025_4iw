@@ -1268,3 +1268,47 @@ enum ContactRequestStatus {
   REJECTED
   CANCELLED
 }
+
+model EventStore {
+  id            String   @id @default(cuid())
+  aggregateType String
+  aggregateId   String
+  eventType     String
+  payload       Json
+  version       Int
+  createdAt     DateTime @default(now())
+
+  @@index([aggregateId])
+  @@index([aggregateType, aggregateId])
+  @@map("event_store")
+}
+
+model PatientMetric {
+  id             String   @id @default(cuid())
+  patientId      String
+  metricType     String
+  value          Float
+  unit           String
+  recordedAt     DateTime
+  createdAt      DateTime @default(now())
+  updatedAt      DateTime @updatedAt
+
+  @@unique([patientId, metricType])
+  @@index([patientId])
+  @@map("patient_metrics")
+}
+
+model PatientMetricHistory {
+  id             String   @id @default(cuid())
+  patientId      String
+  metricType     String
+  value          Float
+  unit           String
+  recordedAt     DateTime
+  createdAt      DateTime @default(now())
+
+  @@index([patientId])
+  @@index([patientId, metricType])
+  @@map("patient_metric_history")
+}
+

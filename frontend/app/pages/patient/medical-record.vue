@@ -802,6 +802,127 @@
       </UiCard>
     </div>
 
+    <div v-if="activeTab === 'metrics'">
+      <div class="space-y-6">
+        <div class="flex items-center justify-between">
+          <div>
+            <h2 class="text-lg font-semibold text-gray-900">Mes indicateurs de santé</h2>
+            <p class="text-sm text-gray-500">Suivez vos constantes vitales au fil du temps</p>
+          </div>
+          <UiButton size="sm" @click="openMetricModal()">
+            <Plus class="mr-1.5 h-4 w-4" />
+            Ajouter une mesure
+          </UiButton>
+        </div>
+
+        <div class="grid gap-4 sm:grid-cols-2 lg:grid-cols-5">
+          <div
+            v-for="type in ['WEIGHT', 'HEART_RATE', 'TEMPERATURE', 'BLOOD_PRESSURE', 'BLOOD_GLUCOSE']"
+            :key="type"
+            class="rounded-xl border border-gray-200 bg-white p-4 shadow-sm hover:shadow-md transition-shadow"
+          >
+            <div class="flex items-center justify-between mb-3">
+              <span class="text-xs font-semibold text-gray-500 uppercase tracking-wider">
+                {{ getMetricLabel(type) }}
+              </span>
+              <div :class="['p-1.5 rounded-lg', getMetricIconColor(type)]">
+                <Activity class="h-4 w-4" />
+              </div>
+            </div>
+            <div class="flex items-baseline gap-1">
+              <span class="text-2xl font-bold text-gray-900">
+                {{ latestMetrics.find(m => m.metricType === type)?.value ?? '--' }}
+              </span>
+              <span class="text-sm font-medium text-gray-500">
+                {{ latestMetrics.find(m => m.metricType === type)?.unit ?? '' }}
+              </span>
+            </div>
+            <p class="text-xs text-gray-400 mt-2">
+              <span v-if="latestMetrics.find(m => m.metricType === type)">
+                Le {{ formatDate(latestMetrics.find(m => m.metricType === type)!.recordedAt) }}
+              </span>
+              <span v-else>Aucune mesure</span>
+            </p>
+          </div>
+        </div>
+
+        <div class="grid gap-6 lg:grid-cols-3">
+          <div class="lg:col-span-1 space-y-2">
+            <h3 class="text-sm font-semibold text-gray-700 mb-3">Sélectionner un indicateur</h3>
+            <button
+              v-for="type in ['WEIGHT', 'HEART_RATE', 'TEMPERATURE', 'BLOOD_PRESSURE', 'BLOOD_GLUCOSE']"
+              :key="type"
+              :class="[
+                'w-full flex items-center justify-between px-4 py-3 rounded-lg border text-sm font-medium transition-all text-left',
+                activeMetricHistoryType === type
+                  ? 'border-orange-500 bg-orange-50/50 text-orange-700 ring-1 ring-orange-500'
+                  : 'border-gray-200 bg-white text-gray-700 hover:bg-gray-50'
+              ]"
+              @click="activeMetricHistoryType = type"
+            >
+              <span>{{ getMetricLabel(type) }}</span>
+              <ChevronRight class="h-4 w-4" />
+            </button>
+          </div>
+
+          <div class="lg:col-span-2">
+            <UiCard>
+              <h3 class="text-base font-semibold text-gray-900 mb-4">
+                Historique : {{ getMetricLabel(activeMetricHistoryType) }}
+              </h3>
+
+              <div v-if="loadingHistory" class="animate-pulse space-y-3">
+                <div v-for="i in 3" :key="i" class="h-12 bg-gray-100 rounded" />
+              </div>
+
+              <div v-else-if="metricHistory.length === 0" class="py-12 text-center">
+                <Activity class="mx-auto h-12 w-12 text-gray-300 mb-3" />
+                <p class="text-gray-500 text-sm">Aucun historique pour cet indicateur</p>
+                <UiButton size="sm" class="mt-4" variant="outline" @click="openMetricModal(activeMetricHistoryType)">
+                  Ajouter la première mesure
+                </UiButton>
+              </div>
+
+              <div v-else class="overflow-x-auto">
+                <table class="w-full text-left border-collapse">
+                  <thead>
+                    <tr class="border-b text-xs font-semibold text-gray-400 uppercase">
+                      <th class="py-3 px-4">Date de mesure</th>
+                      <th class="py-3 px-4 text-right">Valeur enregistrée</th>
+                      <th class="py-3 px-4 text-right">Actions</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    <tr
+                      v-for="item in metricHistory"
+                      :key="item.id"
+                      class="border-b last:border-0 hover:bg-gray-50/50 transition-colors"
+                    >
+                      <td class="py-3 px-4 text-sm text-gray-600">
+                        {{ formatDate(item.recordedAt) }}
+                      </td>
+                      <td class="py-3 px-4 text-sm font-semibold text-gray-900 text-right">
+                        {{ item.value }} {{ item.unit }}
+                      </td>
+                      <td class="py-3 px-4 text-right">
+                        <button
+                          class="rounded-lg p-1.5 text-gray-400 hover:bg-red-50 hover:text-red-600 transition-colors"
+                          title="Supprimer"
+                          @click="deleteMetric(item.id, item.metricType)"
+                        >
+                          <Trash2 class="h-4 w-4" />
+                        </button>
+                      </td>
+                    </tr>
+                  </tbody>
+                </table>
+              </div>
+            </UiCard>
+          </div>
+        </div>
+      </div>
+    </div>
+
     <!-- antecedent modal -->
     <Teleport to="body">
       <div
@@ -1080,6 +1201,81 @@
         </div>
       </div>
     </Teleport>
+
+    <Teleport to="body">
+      <div
+        v-if="showMetricModal"
+        class="fixed inset-0 z-50 flex items-center justify-center bg-black/50"
+        @click.self="showMetricModal = false"
+      >
+        <div class="mx-4 w-full max-w-md rounded-xl bg-white p-6 shadow-2xl">
+          <h3 class="mb-4 text-lg font-semibold text-gray-900">
+            Enregistrer une constante de santé
+          </h3>
+          <form class="space-y-4" @submit.prevent="confirmAddMetric">
+            <div>
+              <label class="mb-1 block text-sm font-medium text-gray-700">
+                Type de constante *
+              </label>
+              <select
+                v-model="metricForm.metricType"
+                class="w-full rounded-lg border border-gray-300 px-4 py-2.5 text-base focus:border-orange-600 focus:outline-none focus:ring-2 focus:ring-orange-600/20"
+              >
+                <option value="WEIGHT">Poids</option>
+                <option value="HEART_RATE">Fréquence cardiaque</option>
+                <option value="TEMPERATURE">Température</option>
+                <option value="BLOOD_PRESSURE">Pression artérielle</option>
+                <option value="BLOOD_GLUCOSE">Glycémie</option>
+              </select>
+            </div>
+            <div>
+              <label class="mb-1 block text-sm font-medium text-gray-700">
+                Valeur *
+              </label>
+              <div class="relative">
+                <UiInput
+                  v-model="metricForm.value"
+                  type="number"
+                  step="any"
+                  placeholder="ex: 70"
+                  class="pr-16"
+                  required
+                />
+                <div class="absolute inset-y-0 right-0 flex items-center pr-3 pointer-events-none">
+                  <span class="text-sm font-semibold text-gray-400">
+                    {{ metricForm.unit }}
+                  </span>
+                </div>
+              </div>
+            </div>
+            <div>
+              <label class="mb-1 block text-sm font-medium text-gray-700">
+                Date et heure *
+              </label>
+              <input
+                v-model="metricForm.recordedAt"
+                type="date"
+                class="w-full rounded-lg border border-gray-300 px-4 py-2.5 text-base focus:border-orange-600 focus:outline-none focus:ring-2 focus:ring-orange-600/20"
+                required
+              />
+            </div>
+
+            <p v-if="metricError" class="text-sm text-red-600">
+              {{ metricError }}
+            </p>
+
+            <div class="flex gap-3 pt-2">
+              <UiButton type="submit" :disabled="savingMetric || !metricForm.value">
+                {{ savingMetric ? "Enregistrement..." : "Enregistrer" }}
+              </UiButton>
+              <UiButton variant="outline" @click="showMetricModal = false">
+                Annuler
+              </UiButton>
+            </div>
+          </form>
+        </div>
+      </div>
+    </Teleport>
   </div>
 </template>
 
@@ -1096,6 +1292,7 @@ import {
   Activity,
   Scissors,
   ChevronDown,
+  ChevronRight,
   Stethoscope,
   Pill,
   Syringe,
@@ -1135,7 +1332,8 @@ type TabKey =
   | "antecedents"
   | "consultations"
   | "documents"
-  | "vaccinations";
+  | "vaccinations"
+  | "metrics";
 
 const tabs: { key: TabKey; label: string; icon: Component }[] = [
   { key: "profile", label: "Informations personnelles", icon: UserIcon },
@@ -1147,6 +1345,7 @@ const tabs: { key: TabKey; label: string; icon: Component }[] = [
   },
   { key: "documents", label: "Documents de mon dossier", icon: FolderOpen },
   { key: "vaccinations", label: "Carnet de vaccination", icon: Shield },
+  { key: "metrics", label: "Indicateurs de santé", icon: Activity },
 ];
 
 const activeTab = ref<TabKey>("profile");
@@ -1901,6 +2100,166 @@ const deleteVaccination = async (id: string) => {
   }
 };
 
+interface HealthMetric {
+  id: string;
+  patientId: string;
+  metricType: string;
+  value: number;
+  unit: string;
+  recordedAt: string;
+}
+
+const latestMetrics = ref<HealthMetric[]>([]);
+const loadingMetrics = ref(false);
+const activeMetricHistoryType = ref<string>("WEIGHT");
+const metricHistory = ref<HealthMetric[]>([]);
+const loadingHistory = ref(false);
+
+const showMetricModal = ref(false);
+const savingMetric = ref(false);
+const metricError = ref("");
+
+const metricForm = reactive({
+  metricType: "WEIGHT",
+  value: "" as string | number,
+  unit: "kg",
+  recordedAt: "",
+});
+
+watch(() => metricForm.metricType, (type) => {
+  const units: Record<string, string> = {
+    WEIGHT: "kg",
+    HEART_RATE: "bpm",
+    TEMPERATURE: "°C",
+    BLOOD_PRESSURE: "mmHg",
+    BLOOD_GLUCOSE: "mg/dL",
+  };
+  metricForm.unit = units[type] || "";
+});
+
+watch(activeMetricHistoryType, (newType) => {
+  fetchMetricHistory(newType);
+});
+
+const fetchLatestMetrics = async () => {
+  loadingMetrics.value = true;
+  try {
+    const response = await useAuthenticatedFetch<{
+      success: boolean;
+      data: HealthMetric[];
+    }>("/health-metrics/latest");
+    if (response.success) {
+      latestMetrics.value = response.data;
+    }
+  } catch (error) {
+    console.error("Error fetching latest metrics:", error);
+  } finally {
+    loadingMetrics.value = false;
+  }
+};
+
+const fetchMetricHistory = async (type: string) => {
+  loadingHistory.value = true;
+  try {
+    const response = await useAuthenticatedFetch<{
+      success: boolean;
+      data: HealthMetric[];
+    }>(`/health-metrics/history/${type.toLowerCase()}`);
+    if (response.success) {
+      metricHistory.value = response.data;
+    }
+  } catch (error) {
+    console.error("Error fetching history:", error);
+  } finally {
+    loadingHistory.value = false;
+  }
+};
+
+const openMetricModal = (type?: string) => {
+  metricForm.metricType = type || "WEIGHT";
+  const units: Record<string, string> = {
+    WEIGHT: "kg",
+    HEART_RATE: "bpm",
+    TEMPERATURE: "°C",
+    BLOOD_PRESSURE: "mmHg",
+    BLOOD_GLUCOSE: "mg/dL",
+  };
+  metricForm.unit = units[metricForm.metricType] || "";
+  metricForm.value = "";
+  metricForm.recordedAt = new Date().toISOString().substring(0, 10);
+  metricError.value = "";
+  showMetricModal.value = true;
+};
+
+const confirmAddMetric = async () => {
+  if (!metricForm.value) return;
+  savingMetric.value = true;
+  metricError.value = "";
+  try {
+    const response = await useAuthenticatedFetch<{
+      success: boolean;
+      message: string;
+    }>("/health-metrics", {
+      method: "POST",
+      body: {
+        metricType: metricForm.metricType,
+        value: Number(metricForm.value),
+        unit: metricForm.unit,
+        recordedAt: metricForm.recordedAt ? new Date(metricForm.recordedAt).toISOString() : undefined,
+      },
+    });
+    if (response.success) {
+      showMetricModal.value = false;
+      await fetchLatestMetrics();
+      if (activeMetricHistoryType.value === metricForm.metricType) {
+        await fetchMetricHistory(activeMetricHistoryType.value);
+      }
+    }
+  } catch (error: any) {
+    metricError.value = error?.data?.message || "Erreur lors de l'enregistrement";
+  } finally {
+    savingMetric.value = false;
+  }
+};
+
+const deleteMetric = async (id: string, type: string) => {
+  if (!confirm("Supprimer cette mesure ?")) return;
+  try {
+    await useAuthenticatedFetch(`/health-metrics/${id}`, {
+      method: "DELETE",
+    });
+    await fetchLatestMetrics();
+    if (activeMetricHistoryType.value === type) {
+      await fetchMetricHistory(type);
+    }
+  } catch (error) {
+    console.error("Error deleting metric:", error);
+    alert("Erreur lors de la suppression");
+  }
+};
+
+const getMetricLabel = (type: string) => {
+  const labels: Record<string, string> = {
+    WEIGHT: "Poids",
+    HEART_RATE: "Fréquence cardiaque",
+    TEMPERATURE: "Température",
+    BLOOD_PRESSURE: "Pression artérielle",
+    BLOOD_GLUCOSE: "Glycémie",
+  };
+  return labels[type] || type;
+};
+
+const getMetricIconColor = (type: string) => {
+  const colors: Record<string, string> = {
+    WEIGHT: "text-blue-500 bg-blue-50",
+    HEART_RATE: "text-red-500 bg-red-50",
+    TEMPERATURE: "text-yellow-500 bg-yellow-50",
+    BLOOD_PRESSURE: "text-purple-500 bg-purple-50",
+    BLOOD_GLUCOSE: "text-green-500 bg-green-50",
+  };
+  return colors[type] || "text-gray-500 bg-gray-50";
+};
+
 watch(activeTab, (tab) => {
   if (tab === "consultations" && consultations.value.length === 0) {
     fetchConsultations();
@@ -1908,6 +2267,9 @@ watch(activeTab, (tab) => {
     fetchDocuments();
   } else if (tab === "vaccinations" && vaccinations.value.length === 0) {
     fetchVaccinations();
+  } else if (tab === "metrics") {
+    fetchLatestMetrics();
+    fetchMetricHistory(activeMetricHistoryType.value);
   }
 });
 
