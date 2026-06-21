@@ -691,7 +691,6 @@ const handleReserve = (practitioner: Practitioner) => {
 };
 
 onMounted(() => {
-  authStore.initAuth();
   loadSpecialties();
   loadCabinets();
   searchPractitioners();

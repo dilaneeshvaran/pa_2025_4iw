@@ -501,6 +501,10 @@ import { useRoute, navigateTo } from "#app";
 import { useAuthStore } from "~/stores/auth";
 import { formatDateLong as formatDate } from "~/utils/date";
 import {
+  parsePractitionerProfileTab,
+  type PractitionerProfileTab,
+} from "~/utils/practitionerProfile";
+import {
   Star as IconStar,
   MapPin as IconMapPin,
   CheckCircle2 as IconCheckCircle,
@@ -597,8 +601,8 @@ const reviews = ref<Review[]>([]);
 const loading = ref(true);
 const loadingSlots = ref(false);
 const error = ref<string | null>(null);
-const activeTab = ref<"about" | "availability" | "reviews" | "location">(
-  "about",
+const activeTab = ref<PractitionerProfileTab>(
+  parsePractitionerProfileTab(route.query.tab),
 );
 const isBookingModalOpen = ref(false);
 const preselectedDate = ref<string | null>(null);
@@ -802,6 +806,16 @@ watch(activeTab, (newTab) => {
   }
 });
 
+watch(
+  () => route.query.tab,
+  (tab) => {
+    const nextTab = parsePractitionerProfileTab(tab);
+    if (nextTab !== activeTab.value) {
+      activeTab.value = nextTab;
+    }
+  },
+);
+
 onMounted(async () => {
   // init auth state from localStorage
   if (import.meta.client && !authStore.isAuthenticated) {
@@ -809,6 +823,10 @@ onMounted(async () => {
   }
 
   await fetchPractitioner();
+
+  if (activeTab.value === "availability") {
+    await fetchAvailableSlots();
+  }
 
   if (route.query.bookDate && route.query.bookTime) {
     if (authStore.isAuthenticated) {
