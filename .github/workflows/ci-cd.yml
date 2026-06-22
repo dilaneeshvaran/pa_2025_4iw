@@ -88,7 +88,22 @@ jobs:
       packages: write
     strategy:
       matrix:
-        service: [backend, frontend]
+        include:
+          # backend/frontend build from the repo root (Dockerfiles COPY root
+          # manifests + the shared/ workspace), targeting the production stage.
+          - service: backend
+            context: .
+            dockerfile: backend/Dockerfile
+            target: production
+          - service: frontend
+            context: .
+            dockerfile: frontend/Dockerfile
+            target: production
+          # swarm reverse proxy (single-stage image, no target).
+          - service: nginx
+            context: infrastructure/nginx
+            dockerfile: infrastructure/nginx/Dockerfile
+            target: ""
     steps:
       - uses: actions/checkout@v4
 
@@ -114,11 +129,9 @@ jobs:
       - name: Build and push
         uses: docker/build-push-action@v6
         with:
-          # Build from the repo root: the Dockerfiles COPY root manifests and
-          # the shared/ workspace, so the context must be the monorepo root.
-          context: .
-          file: ${{ matrix.service }}/Dockerfile
-          target: production
+          context: ${{ matrix.context }}
+          file: ${{ matrix.dockerfile }}
+          target: ${{ matrix.target }}
           push: true
           tags: ${{ steps.meta.outputs.tags }}
           labels: ${{ steps.meta.outputs.labels }}
@@ -136,19 +149,19 @@ jobs:
     steps:
       - uses: actions/checkout@v4
 
-      # Ship only the compose file to the VPS — no git checkout required on the
-      # server. The .env files (root + backend/.env) live persistently on the VPS.
-      - name: Copy compose file to VPS
+      # Ship the swarm stack file + the observability configs it bind-mounts.
+      # The .env files (root + backend/.env) and Docker secrets live on the VPS.
+      - name: Copy stack files to VPS
         uses: appleboy/scp-action@v0.1.7
         with:
           host: ${{ secrets.SSH_HOST }}
           username: ${{ secrets.SSH_USER }}
           key: ${{ secrets.SSH_KEY }}
           port: ${{ secrets.SSH_PORT || 22 }}
-          source: docker-compose.prod.yml
+          source: "docker-compose.swarm.yml,infrastructure"
           target: ${{ secrets.DEPLOY_PATH }}
 
-      - name: Pull images and restart on VPS
+      - name: Deploy swarm stack on VPS
         uses: appleboy/ssh-action@v1
         with:
           host: ${{ secrets.SSH_HOST }}
@@ -159,6 +172,7 @@ jobs:
             set -e
             cd ${{ secrets.DEPLOY_PATH }}
             echo "${{ secrets.GITHUB_TOKEN }}" | docker login ghcr.io -u ${{ github.actor }} --password-stdin
-            docker compose -f docker-compose.prod.yml pull
-            docker compose -f docker-compose.prod.yml up -d --remove-orphans
+            # Load the root .env so ${...} vars in the stack file are interpolated.
+            set -a; [ -f .env ] && . ./.env; set +a
+            docker stack deploy -c docker-compose.swarm.yml --with-registry-auth --prune medicote
             docker image prune -f
