@@ -34,8 +34,8 @@
               >
                 Tableau de bord
               </NuxtLink>
-              <span v-if="authStore.user?.email" class="text-sm text-gray-700">
-                Bonjour, {{ authStore.user?.email }}
+              <span v-if="authStore.user" class="text-sm text-gray-700">
+                Bonjour, {{ displayName }}
               </span>
               <button
                 class="rounded-md px-3 py-2 text-sm font-medium text-gray-700 transition-colors hover:text-red-600"
@@ -62,6 +62,13 @@ const dashboardPath = computed(() => getDashboardPath(authStore.currentRole));
 const brandTarget = computed(() =>
   authStore.isAuthenticated ? dashboardPath.value : "/",
 );
+
+const displayName = computed(() => {
+  if (authStore.user?.firstName && authStore.user?.lastName) {
+    return `${authStore.user.firstName} ${authStore.user.lastName}`;
+  }
+  return authStore.user?.email || "";
+});
 
 // initialize auth state on mount
 onMounted(() => {

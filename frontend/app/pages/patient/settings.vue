@@ -859,6 +859,10 @@ const saveProfile = async () => {
       method: "PATCH",
       body: { ...profile },
     });
+    authStore.updateUser({
+      firstName: profile.firstName,
+      lastName: profile.lastName,
+    });
     profileError.value = false;
     profileMsg.value = "Profil mis à jour avec succès";
   } catch (e: unknown) {

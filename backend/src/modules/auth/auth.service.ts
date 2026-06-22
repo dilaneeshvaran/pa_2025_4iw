@@ -75,6 +75,8 @@ export class AuthService {
         role: user.role,
         status: user.status,
         emailVerified: !!user.emailVerified,
+        firstName: data.firstName,
+        lastName: data.lastName,
       },
       tokens,
     }
@@ -140,6 +142,38 @@ export class AuthService {
       },
     })
 
+    let firstName: string | null = null
+    let lastName: string | null = null
+
+    if (user.role === UserRole.PATIENT) {
+      const patient = await prisma.patient.findUnique({
+        where: { userId: user.id },
+        select: { firstName: true, lastName: true },
+      })
+      if (patient) {
+        firstName = patient.firstName
+        lastName = patient.lastName
+      }
+    } else if (user.role === UserRole.PRACTITIONER) {
+      const practitioner = await prisma.practitioner.findUnique({
+        where: { userId: user.id },
+        select: { firstName: true, lastName: true },
+      })
+      if (practitioner) {
+        firstName = practitioner.firstName
+        lastName = practitioner.lastName
+      }
+    } else if (user.role === UserRole.STAFF) {
+      const staff = await prisma.staff.findUnique({
+        where: { userId: user.id },
+        select: { firstName: true, lastName: true },
+      })
+      if (staff) {
+        firstName = staff.firstName
+        lastName = staff.lastName
+      }
+    }
+
     const tokens = await this.generateTokens(user.id, user.email, user.role)
 
     return {
@@ -149,6 +183,8 @@ export class AuthService {
         role: user.role,
         status: user.status,
         emailVerified: !!user.emailVerified,
+        firstName,
+        lastName,
       },
       tokens,
     }
