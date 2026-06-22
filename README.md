@@ -52,15 +52,13 @@ You have two options:
 npm run dev
 ```
 
-**Option B: Run front and back from the compose.full.dev**
+**Option B: Run the Dockerized development environment**
 
 The following command will run everything in one command:
 
 ```bash
-docker compose -f docker-compose.full.dev.yml up -d
+docker compose up --build
 ```
-
-Note : This is not ideal for development because it rebuild the backend every time and hot reload may not work as expected.
 
 The frontend will run on `http://localhost:3000` and the backend on `http://localhost:3001`.
 

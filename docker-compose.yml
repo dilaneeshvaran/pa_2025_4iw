@@ -115,8 +115,10 @@ services:
       NUXT_PUBLIC_UMAMI_URL: http://localhost:3002
       NUXT_PUBLIC_UMAMI_WEBSITE_ID: ${UMAMI_WEBSITE_ID:-}
       NUXT_PUBLIC_UMAMI_ENABLED: ${UMAMI_ENABLED:-true}
-      CHOKIDAR_USEPOLLING: "true"
-      WATCHPACK_POLLING: "true"
+      NUXT_HMR_HOST: localhost
+      NUXT_HMR_CLIENT_PORT: "3000"
+      NUXT_VITE_USE_POLLING: "true"
+      NUXT_VITE_POLLING_INTERVAL: "250"
     volumes:
       - ./frontend:/app/frontend
       - ./shared:/app/shared
