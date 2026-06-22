@@ -150,6 +150,7 @@ model Patient {
   reviews                  Review[]
   savedPaymentMethods      SavedPaymentMethod[]
   sharedRecords            SharedMedicalRecord[]
+  healthReminders          HealthReminder[]
   teleconsultationSessions TeleconsultationSession[]
   vaccinationRecords       VaccinationRecord[]
   virtualQueueEntries      VirtualQueue[]
@@ -226,6 +227,7 @@ model Practitioner {
   sharedRecordsAccess      SharedMedicalRecord[]
   staffMembers             Staff[]
   subscription             Subscription?
+  healthReminders          HealthReminder[]
   teleconsultationSessions TeleconsultationSession[]
   virtualQueueEntries      VirtualQueue[]
   cabinets                 CabinetPractitioner[]
@@ -1076,6 +1078,53 @@ model NotificationPreference {
   @@map("notification_preferences")
 }
 
+model HealthReminder {
+  id              String                         @id @default(cuid())
+  patientId       String
+  practitionerId  String
+  message         String
+  times           String[]
+  startDate       DateTime
+  endDate         DateTime
+  durationValue   Int
+  durationUnit    HealthReminderDurationUnit
+  recurrenceType  HealthReminderRecurrenceType
+  intervalValue   Int?
+  intervalUnit    HealthReminderIntervalUnit?
+  daysOfWeek      DayOfWeek[]                    @default([])
+  status          HealthReminderStatus           @default(ACTIVE)
+  cancelledAt     DateTime?
+  completedAt     DateTime?
+  createdAt       DateTime                       @default(now())
+  updatedAt       DateTime                       @updatedAt
+  deliveries      HealthReminderDelivery[]
+  patient         Patient                        @relation(fields: [patientId], references: [id], onDelete: Cascade)
+  practitioner    Practitioner                   @relation(fields: [practitionerId], references: [id], onDelete: Cascade)
+
+  @@index([patientId, status, endDate])
+  @@index([practitionerId, patientId])
+  @@index([status, startDate, endDate])
+  @@map("health_reminders")
+}
+
+model HealthReminderDelivery {
+  id               String         @id @default(cuid())
+  healthReminderId String
+  scheduledFor     DateTime
+  notificationId   String?
+  notificationAt   DateTime?
+  emailSentAt      DateTime?
+  emailError       String?
+  createdAt        DateTime       @default(now())
+  updatedAt        DateTime       @updatedAt
+  healthReminder   HealthReminder @relation(fields: [healthReminderId], references: [id], onDelete: Cascade)
+
+  @@unique([healthReminderId, scheduledFor])
+  @@index([scheduledFor])
+  @@index([healthReminderId])
+  @@map("health_reminder_deliveries")
+}
+
 model Subscription {
   id                String       @id @default(cuid())
   practitionerId    String       @unique
@@ -1181,6 +1230,7 @@ enum NotificationType {
   DOCUMENT_SHARED
   PAYMENT_RECEIVED
   CAMPAIGN_MESSAGE
+  HEALTH_REMINDER
   SYSTEM_ALERT
 }
 
@@ -1189,6 +1239,28 @@ enum NotificationChannel {
   SMS
   PUSH
   IN_APP
+}
+
+enum HealthReminderStatus {
+  ACTIVE
+  CANCELLED
+  COMPLETED
+}
+
+enum HealthReminderRecurrenceType {
+  INTERVAL
+  WEEKDAYS
+}
+
+enum HealthReminderIntervalUnit {
+  DAY
+  WEEK
+}
+
+enum HealthReminderDurationUnit {
+  DAY
+  WEEK
+  MONTH
 }
 
 enum AuditAction {
@@ -1312,4 +1384,3 @@ model PatientMetricHistory {
   @@index([patientId, metricType])
   @@map("patient_metric_history")
 }
-
