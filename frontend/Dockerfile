@@ -13,7 +13,7 @@ USER medicote
 # stage 2: dependencies
 FROM base AS deps
 
-COPY --chown=medicote:appgroup package*.json ./
+COPY --chown=medicote:appgroup package*.json .npmrc ./
 COPY --chown=medicote:appgroup frontend/package*.json ./frontend/
 COPY --chown=medicote:appgroup shared/package*.json ./shared/
 COPY --chown=medicote:appgroup shared ./shared
