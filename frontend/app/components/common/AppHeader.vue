@@ -34,7 +34,7 @@
               >
                 Tableau de bord
               </NuxtLink>
-              <span class="text-sm text-gray-700">
+              <span v-if="authStore.user?.email" class="text-sm text-gray-700">
                 Bonjour, {{ authStore.user?.email }}
               </span>
               <button
@@ -58,7 +58,7 @@ import { getDashboardPath } from "~/utils/authNavigation";
 
 const router = useRouter();
 const authStore = useAuthStore();
-const dashboardPath = computed(() => getDashboardPath(authStore.user?.role));
+const dashboardPath = computed(() => getDashboardPath(authStore.currentRole));
 const brandTarget = computed(() =>
   authStore.isAuthenticated ? dashboardPath.value : "/",
 );
