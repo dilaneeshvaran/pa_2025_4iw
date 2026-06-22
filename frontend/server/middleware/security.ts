@@ -3,15 +3,22 @@ import { defineEventHandler, setResponseHeaders } from 'h3'
 export default defineEventHandler((event) => {
   const config = useRuntimeConfig()
   const umamiUrl = config.public?.umamiUrl || ''
+  const apiBase = config.public?.apiBase || ''
 
-  let umamiOrigin = ''
-  if (umamiUrl) {
+  // Derive the origin (scheme://host:port) from a full URL; '' if invalid/empty.
+  const toOrigin = (value: string): string => {
+    if (!value) return ''
     try {
-      const url = new URL(umamiUrl as string)
-      umamiOrigin = url.origin
+      return new URL(value).origin
     } catch {
+      return ''
     }
   }
+
+  const umamiOrigin = toOrigin(umamiUrl as string)
+  // The browser must be allowed to reach the backend API. In dev this resolves
+  // to http://localhost:3001; in prod to whatever NUXT_PUBLIC_API_BASE points at.
+  const apiOrigin = toOrigin(apiBase as string)
 
   const csp = [
     "default-src 'self'",
@@ -23,8 +30,8 @@ export default defineEventHandler((event) => {
     "font-src 'self' https://fonts.gstatic.com data:",
     // img-src: self, data:, blob:, openstreetmap tile subdomains
     "img-src 'self' data: blob: https://*.openstreetmap.org https://tile.openstreetmap.org",
-    // connect-src: self, websocket protocols, backend API local port, stripe API, google accounts, and optional umami
-    "connect-src 'self' ws: wss: http://localhost:3001 https://api.stripe.com https://accounts.google.com" + (umamiOrigin ? ` ${umamiOrigin}` : ''),
+    // connect-src: self, websocket protocols, backend API origin, stripe API, google accounts, and optional umami
+    "connect-src 'self' ws: wss: https://api.stripe.com https://accounts.google.com" + (apiOrigin ? ` ${apiOrigin}` : '') + (umamiOrigin ? ` ${umamiOrigin}` : ''),
     // frame-src: self, stripe checkout, google accounts
     "frame-src 'self' https://js.stripe.com https://accounts.google.com",
     // frame-ancestors: self (protect against clickjacking)
