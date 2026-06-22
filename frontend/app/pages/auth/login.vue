@@ -102,6 +102,7 @@
 import { ref } from "vue";
 import { useAuthStore } from "~/stores/auth";
 import { useAuth } from "~/composables/useAuth";
+import { getDashboardPath } from "~/utils/authNavigation";
 
 definePageMeta({
   middleware: "guest",
@@ -151,19 +152,7 @@ const handleLogin = async () => {
     // redirect to the appropriate dashboard based on user role
     let redirectTo = route.query.redirect as string;
     if (!redirectTo) {
-      // role based default redirects
-      const role = response.data.user.role;
-      if (role === "CABINET_ADMIN") {
-        redirectTo = "/cabinet/dashboard";
-      } else if (role === "STAFF") {
-        redirectTo = "/staff/dashboard";
-      } else if (role === "PRACTITIONER") {
-        redirectTo = "/practitioner/dashboard";
-      } else if (role === "ADMIN") {
-        redirectTo = "/admin/dashboard";
-      } else {
-        redirectTo = "/patient/dashboard";
-      }
+      redirectTo = getDashboardPath(response.data.user.role);
     }
     await router.push(redirectTo);
   } catch (error: unknown) {

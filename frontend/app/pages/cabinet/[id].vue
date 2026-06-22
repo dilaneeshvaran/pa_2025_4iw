@@ -4,7 +4,7 @@
       <div class="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
         <div class="flex h-16 items-center justify-between">
           <NuxtLink
-            to="/"
+            :to="dashboardPath"
             class="text-2xl font-bold text-[var(--color-primary)]"
           >
             MediCôte
@@ -183,7 +183,7 @@
 </template>
 
 <script setup lang="ts">
-import { ref, onMounted } from "vue";
+import { computed, ref, onMounted } from "vue";
 import { useRoute } from "vue-router";
 import { useRuntimeConfig, navigateTo } from "#imports";
 import {
@@ -194,9 +194,13 @@ import {
 import Card from "~/components/ui/Card.vue";
 import Button from "~/components/ui/Button.vue";
 import Badge from "~/components/ui/Badge.vue";
+import { useAuthStore } from "~/stores/auth";
+import { getDashboardPath } from "~/utils/authNavigation";
 
 const route = useRoute();
 const config = useRuntimeConfig();
+const authStore = useAuthStore();
+const dashboardPath = computed(() => getDashboardPath(authStore.currentRole));
 
 const cabinetId = route.params.id as string;
 
