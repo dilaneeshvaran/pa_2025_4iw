@@ -50,6 +50,10 @@ export default defineNuxtRouteMiddleware((to, _from) => {
     ? isEmailVerifiedCookieValue(emailVerifiedCookie.value)
     : authStore.user?.emailVerified !== false;
 
+  if (import.meta.server && isUserAuthenticated) {
+    authStore.initServerAuth(userRole);
+  }
+
   if (isUserAuthenticated && to.path === "/") {
     if (!isEmailVerified) {
       return navigateTo("/auth/verify-email-notice");
@@ -67,7 +71,12 @@ export default defineNuxtRouteMiddleware((to, _from) => {
   }
 
   // client-only check for expired token
-  if (import.meta.client && authStore.isAuthenticated && authStore.isTokenExpired && !isPublicRoute) {
+  if (
+    import.meta.client &&
+    authStore.isAuthenticated &&
+    authStore.isTokenExpired &&
+    !isPublicRoute
+  ) {
     // try refresh token
     if (authStore.refreshToken) {
       // useAuthenticatedFetch should handle refresh
