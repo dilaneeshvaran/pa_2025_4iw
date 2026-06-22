@@ -597,6 +597,7 @@ definePageMeta({
 
 // state
 const authStore = useAuthStore();
+const route = useRoute();
 const currentUserId = computed(() => authStore.user?.id || "");
 
 interface ConversationSummary {
@@ -692,6 +693,13 @@ const wsSend = messagingStore.send;
 const wsOn = messagingStore.on;
 const wsOff = messagingStore.off;
 
+const getRequestedConversationId = () => {
+  const value = route.query.conversationId;
+  if (typeof value === "string") return value;
+  if (Array.isArray(value)) return value[0] ?? null;
+  return null;
+};
+
 const fileConstraintsInfo = reactive({
   maxSize: 10 * 1024 * 1024,
   maxSizeLabel: "10 Mo",
@@ -786,6 +794,17 @@ const openConversation = async (conversationId: string) => {
   if (conversationLoaded) {
     await nextTick();
     scrollToBottom();
+  }
+};
+
+const openRequestedConversation = async () => {
+  const requestedConversationId = getRequestedConversationId();
+
+  if (
+    requestedConversationId &&
+    requestedConversationId !== activeConversationId.value
+  ) {
+    await openConversation(requestedConversationId);
   }
 };
 
@@ -1079,6 +1098,13 @@ watch(showNewConversation, (value) => {
   }
 });
 
+watch(
+  () => route.query.conversationId,
+  () => {
+    openRequestedConversation();
+  },
+);
+
 // ws event
 const handleNewMessage = (data: Message) => {
   // if were in the same conversation, add the message
@@ -1149,13 +1175,14 @@ const handleTypingStop = (data: { conversationId: string }) => {
 };
 
 //init
-onMounted(() => {
+onMounted(async () => {
   if (!authStore.isAuthenticated) {
     authStore.initAuth();
   }
 
   if (authStore.accessToken) {
-    fetchConversations();
+    await fetchConversations();
+    await openRequestedConversation();
     // ws is connected at layout,  register handlers
     wsOn("new_message", handleNewMessage);
     wsOn("messages_read", handleMessagesRead);
