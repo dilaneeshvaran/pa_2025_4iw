@@ -168,7 +168,7 @@ const markAllAsRead = async () => {
 };
 
 const openNotification = async (notification: AppNotification) => {
-  const role = authStore.user?.role ?? "PATIENT";
+  const role = authStore.currentRole ?? "PATIENT";
   const target = getNotificationTarget(notification, role);
   isOpen.value = false;
 

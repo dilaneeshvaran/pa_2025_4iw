@@ -9,9 +9,9 @@ export const AUTH_COOKIE_OPTIONS = {
 };
 
 export const isAuthenticatedCookieValue = (
-  value: string | null | undefined,
-): boolean => value === "true";
+  value: unknown,
+): boolean => value === true || value === "true";
 
 export const isEmailVerifiedCookieValue = (
-  value: string | null | undefined,
-): boolean => value !== "false";
+  value: unknown,
+): boolean => value !== false && value !== "false";
