@@ -278,24 +278,13 @@ import { Search as SearchIcon, MapPin, ArrowRight, User, Stethoscope } from "luc
 import Card from "~/components/ui/Card.vue";
 import Input from "~/components/ui/Input.vue";
 import Button from "~/components/ui/Button.vue";
+import { getDashboardPath } from "~/utils/authNavigation";
 
 const authStore = useAuthStore();
 const specialty = ref("");
 const location = ref("");
 
-// compute dashboard path based on user role
-const dashboardPath = computed(() => {
-  switch (authStore.user?.role) {
-    case "PATIENT":
-      return "/patient/dashboard";
-    case "PRACTITIONER":
-      return "/practitioner/dashboard";
-    case "ADMIN":
-      return "/admin/dashboard";
-    default:
-      return "/patient/dashboard";
-  }
-});
+const dashboardPath = computed(() => getDashboardPath(authStore.currentRole));
 
 const handleSearch = () => {
   const query: Record<string, string> = {};
@@ -334,5 +323,6 @@ onMounted(() => {
 
 definePageMeta({
   layout: "default",
+  middleware: "guest",
 });
 </script>
