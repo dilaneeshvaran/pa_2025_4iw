@@ -95,6 +95,11 @@
     min-height: 44px;
     min-width: 44px;
   }
+
+  button.toggle-switch {
+    min-height: 0;
+    min-width: 0;
+  }
 }
 
 /* custom animations */
