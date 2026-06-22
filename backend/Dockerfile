@@ -63,9 +63,10 @@ ENV NODE_ENV=production
 EXPOSE 3001
 
 # Use a GET (-O /dev/null), not wget --spider's HEAD: the /health route only
-# answers GET, so a HEAD probe reports the container as unhealthy.
+# answers GET. Hit 127.0.0.1 (not localhost): Fastify binds IPv4 (0.0.0.0), but
+# localhost can resolve to ::1 (IPv6) inside the container, which nothing listens on.
 HEALTHCHECK --interval=30s --timeout=3s --start-period=15s --retries=3 \
- CMD wget -q -O /dev/null http://localhost:3001/health || exit 1
+ CMD wget -q -O /dev/null http://127.0.0.1:3001/health || exit 1
 
 WORKDIR /app/backend
 CMD ["sh", "-c", "npx prisma migrate deploy && npx tsx src/index.ts"]
