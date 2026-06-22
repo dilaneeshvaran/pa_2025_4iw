@@ -3,10 +3,10 @@ name: CD
 on:
   push:
     branches:
-      - main
+      - production
 
 concurrency:
-  group: cd-main
+  group: cd-production
   cancel-in-progress: false
 
 env:
@@ -31,16 +31,12 @@ jobs:
         with:
           node-version: 20
           cache: npm
-          cache-dependency-path: ${{ matrix.workspace }}/package-lock.json
+          cache-dependency-path: package-lock.json
 
-      # Isolate from the monorepo root (mirrors the Docker build context) so the
-      # per-workspace lockfile and its `overrides` are honoured instead of being
-      # hoisted to the workspace root.
-      - name: Isolate workspace
-        working-directory: .
-        run: rm -f package.json package-lock.json
-
+      # Install from the monorepo root with workspaces intact (mirrors the
+      # Dockerfile) so the @medicote/shared workspace resolves.
       - name: Install dependencies
+        working-directory: .
         run: npm ci
 
       - name: Generate Prisma client
