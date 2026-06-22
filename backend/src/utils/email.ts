@@ -7,6 +7,15 @@ const SMTP_PASSWORD = process.env.BACKEND_SMTP_PASS || ''
 const SMTP_FROM = process.env.BACKEND_SMTP_FROM || 'noreply@medicote.ci'
 const APP_URL = process.env.BACKEND_FRONTEND_URL || 'http://localhost:3000'
 
+function escapeEmailHtml(value: string): string {
+  return value
+    .replace(/&/g, '&amp;')
+    .replace(/</g, '&lt;')
+    .replace(/>/g, '&gt;')
+    .replace(/"/g, '&quot;')
+    .replace(/'/g, '&#39;')
+}
+
 // create reusable transporter
 const transporter = nodemailer.createTransport({
   host: SMTP_HOST,
@@ -174,7 +183,7 @@ export async function sendVerificationEmail(
       <h2 style="color: #1e293b; font-family: 'Outfit', sans-serif; font-size: 20px; font-weight: 600; margin-top: 0; margin-bottom: 16px;">Vérification de votre e-mail</h2>
       <p style="margin: 0 0 16px 0;">Bonjour,</p>
       <p style="margin: 0 0 24px 0;">Merci de vous être inscrit sur MediCôte. Pour activer votre compte et accéder à nos services, veuillez confirmer votre adresse e-mail en cliquant sur le bouton ci-dessous :</p>
-      
+
       <p style="margin: 24px 0 8px 0; font-size: 13px; color: #64748b;">Si le bouton ne fonctionne pas, copiez et collez ce lien dans votre navigateur :</p>
       <p style="margin: 0; font-size: 13px; word-break: break-all;"><a href="${verificationUrl}" style="color: #ff8200; text-decoration: none;">${verificationUrl}</a></p>
       
@@ -379,6 +388,57 @@ export async function sendAppointmentReminderEmail(
       : 'Rappel : Votre rendez-vous dans 1 heure - MediCôte'
 
   await sendEmail(to, subject, html)
+}
+
+export interface HealthReminderEmailData {
+  patientName: string
+  practitionerTitle: string
+  practitionerFirstName: string
+  practitionerLastName: string
+  message: string
+  scheduledDate: string
+  scheduledTime: string
+}
+
+export async function sendHealthReminderEmail(
+  to: string,
+  data: HealthReminderEmailData,
+): Promise<void> {
+  const html = buildEmailHtml({
+    title: 'Rappel santé - MediCôte',
+    preheader: `Rappel santé programmé par ${data.practitionerTitle} ${data.practitionerLastName}.`,
+    contentHtml: `
+      <h2 style="color: #009a44; font-family: 'Outfit', sans-serif; font-size: 20px; font-weight: 600; margin-top: 0; margin-bottom: 16px;">Rappel santé</h2>
+      <p style="margin: 0 0 16px 0;">Bonjour ${escapeEmailHtml(data.patientName)},</p>
+      <p style="margin: 0 0 20px 0;">Votre praticien vous a programmé le rappel suivant :</p>
+
+      <div style="background-color: #f8fafc; border: 1px solid #e2e8f0; border-radius: 8px; padding: 20px; margin: 24px 0;">
+        <table border="0" cellpadding="0" cellspacing="0" width="100%" style="font-size: 14px; font-family: 'Inter', sans-serif; color: #475569; border-collapse: collapse;">
+          <tr>
+            <td style="padding: 6px 0; font-weight: 600; color: #1e293b; width: 35%; vertical-align: top;">Praticien :</td>
+            <td style="padding: 6px 0; color: #334155;">${escapeEmailHtml(data.practitionerTitle)} ${escapeEmailHtml(data.practitionerFirstName)} ${escapeEmailHtml(data.practitionerLastName)}</td>
+          </tr>
+          <tr>
+            <td style="padding: 6px 0; font-weight: 600; color: #1e293b; vertical-align: top;">Date :</td>
+            <td style="padding: 6px 0; color: #334155;">${escapeEmailHtml(data.scheduledDate)}</td>
+          </tr>
+          <tr>
+            <td style="padding: 6px 0; font-weight: 600; color: #1e293b; vertical-align: top;">Heure :</td>
+            <td style="padding: 6px 0; color: #334155;">${escapeEmailHtml(data.scheduledTime)}</td>
+          </tr>
+        </table>
+      </div>
+
+      <div style="background-color: #ecfdf5; border-left: 4px solid #009a44; border-radius: 6px; padding: 16px; margin: 24px 0; font-size: 15px; color: #064e3b;">
+        <p style="margin: 0; white-space: pre-line;">${escapeEmailHtml(data.message)}</p>
+      </div>
+    `,
+    actionUrl: `${APP_URL}/patient/dashboard`,
+    actionText: 'Voir mon tableau de bord',
+    accentColor: '#009a44',
+  })
+
+  await sendEmail(to, 'Rappel santé - MediCôte', html)
 }
 
 export async function sendInvoiceEmail(
