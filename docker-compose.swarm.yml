@@ -74,28 +74,19 @@ services:
 
   umami:
     image: ghcr.io/umami-software/umami:postgresql-v2.15.1
+    # Use the image's default entrypoint; pass config via env (umami DB password
+    # and APP_SECRET come from the root .env). The previous custom entrypoint
+    # called a non-existent /entrypoint.sh and exited 127.
     environment:
-      DATABASE_URL: postgresql://umami:${UMAMI_DB_PASSWORD}@umami-db:5432/umami
+      DATABASE_URL: postgresql://${UMAMI_DB_USER:-umami}:${UMAMI_DB_PASSWORD}@umami-db:5432/umami
       DATABASE_TYPE: postgresql
-      DISABLE_TELEMETRY: 1
+      APP_SECRET: ${UMAMI_APP_SECRET}
+      DISABLE_TELEMETRY: "1"
       ALLOWED_FRAME_ANCESTORS: ${PUBLIC_FRONTEND_URL:-http://localhost:3000}
-    secrets:
-      - umami_app_secret
-      - umami_db_password
-    entrypoint:
-      - sh
-      - -c
-      - |
-        export UMAMI_DB_PASS=$$(cat /run/secrets/umami_db_password)
-        export APP_SECRET=$$(cat /run/secrets/umami_app_secret)
-        export DATABASE_URL=postgresql://umami:$${UMAMI_DB_PASS}@umami-db:5432/umami
-        /entrypoint.sh
-    depends_on:
-      - umami-db
     networks:
       - pgnetwork
     deploy:
-      replicas: 2
+      replicas: 1
       restart_policy:
         condition: on-failure
 
