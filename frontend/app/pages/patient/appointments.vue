@@ -186,7 +186,7 @@
               @click="toggleEarlierSlotAlert(apt)"
             >
               <Bell class="mr-1.5 h-4 w-4" :class="{ 'fill-orange-600': apt.earlierSlotAlertEnabled }" />
-              {{ apt.earlierSlotAlertEnabled ? "Alerte activéesss" : "M'avertir si plus proche" }}
+              {{ apt.earlierSlotAlertEnabled ? "Alerte activée" : "M'avertir si plus proche" }}
             </UiButton>
             <div class="group relative">
               <UiButton
