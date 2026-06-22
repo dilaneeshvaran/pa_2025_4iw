@@ -1,24 +1,32 @@
+import type { Prisma } from '@prisma/client'
 import prisma from '../../config/database'
 import { UserNotification } from './notifications.types'
 
 export class NotificationsService {
+  private readonly defaultLimit = 10
+  private readonly maxLimit = 50
+
   async getUserNotifications(
     userId: string,
-    limit = 10,
+    limit = this.defaultLimit,
     unreadOnly = false,
   ): Promise<UserNotification[]> {
-    const where: any = {
+    const where: Prisma.NotificationWhereInput = {
       userId,
-      channel: 'IN_APP', // only get in app notifications for dashboard
+      channel: 'IN_APP',
     }
 
     if (unreadOnly) {
       where.read = false
     }
 
+    const take = Number.isFinite(limit)
+      ? Math.min(Math.max(Math.trunc(limit), 1), this.maxLimit)
+      : this.defaultLimit
+
     const notifications = await prisma.notification.findMany({
       where,
-      take: limit,
+      take,
       orderBy: {
         createdAt: 'desc',
       },
@@ -41,6 +49,7 @@ export class NotificationsService {
       where: {
         id: notificationId,
         userId,
+        channel: 'IN_APP',
       },
     })
 
@@ -57,6 +66,22 @@ export class NotificationsService {
     })
 
     return true
+  }
+
+  async markAllAsRead(userId: string): Promise<number> {
+    const result = await prisma.notification.updateMany({
+      where: {
+        userId,
+        channel: 'IN_APP',
+        read: false,
+      },
+      data: {
+        read: true,
+        readAt: new Date(),
+      },
+    })
+
+    return result.count
   }
 
   async getUnreadCount(userId: string): Promise<number> {
