@@ -1,3 +1,5 @@
+import { getDashboardPath } from "~/utils/authNavigation";
+
 export default defineNuxtRouteMiddleware((to, _from) => {
   if (import.meta.server) {
     return;
@@ -17,14 +19,6 @@ export default defineNuxtRouteMiddleware((to, _from) => {
 
   // redirect non staff users to their appropriate dashboard
   if (authStore.user.role !== "STAFF") {
-    const dashboardMap: Record<string, string> = {
-      PATIENT: "/patient/dashboard",
-      PRACTITIONER: "/practitioner/dashboard",
-      CABINET_ADMIN: "/cabinet/dashboard",
-      ADMIN: "/admin/dashboard",
-    };
-
-    const redirectPath = dashboardMap[authStore.user.role] || "/";
-    return navigateTo(redirectPath);
+    return navigateTo(getDashboardPath(authStore.user.role));
   }
 });

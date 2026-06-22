@@ -1,10 +1,9 @@
-export type NotificationUserRole =
-  | "PATIENT"
-  | "PRACTITIONER"
-  | "ADMIN"
-  | "STAFF"
-  | "CABINET_ADMIN"
-  | string;
+import {
+  getDashboardPath,
+  type DashboardRole,
+} from "./authNavigation";
+
+export type NotificationUserRole = DashboardRole;
 
 export type NotificationMetadata = Record<string, unknown> | null | undefined;
 
@@ -49,22 +48,6 @@ const withQuery = (
   return queryString ? `${path}?${queryString}` : path;
 };
 
-const roleDashboard = (role: NotificationUserRole) => {
-  switch (role) {
-    case "PRACTITIONER":
-      return "/practitioner/dashboard";
-    case "ADMIN":
-      return "/admin/dashboard";
-    case "STAFF":
-      return "/staff/dashboard";
-    case "CABINET_ADMIN":
-      return "/cabinet/dashboard";
-    case "PATIENT":
-    default:
-      return "/patient/dashboard";
-  }
-};
-
 const messageTarget = (
   role: NotificationUserRole,
   metadata: NotificationMetadata,
@@ -79,7 +62,7 @@ const messageTarget = (
     return withQuery("/patient/messages", { conversationId });
   }
 
-  return roleDashboard(role);
+  return getDashboardPath(role);
 };
 
 const appointmentTarget = (
@@ -112,7 +95,7 @@ const appointmentTarget = (
     });
   }
 
-  return role === "ADMIN" ? "/admin/dashboard#appointments" : roleDashboard(role);
+  return role === "ADMIN" ? "/admin/dashboard#appointments" : getDashboardPath(role);
 };
 
 const documentTarget = (
@@ -135,7 +118,7 @@ const documentTarget = (
     return withQuery("/patient/documents", { documentId });
   }
 
-  return role === "ADMIN" ? "/admin/audit-logs" : roleDashboard(role);
+  return role === "ADMIN" ? "/admin/audit-logs" : getDashboardPath(role);
 };
 
 const paymentTarget = (role: NotificationUserRole) => {
@@ -147,7 +130,7 @@ const paymentTarget = (role: NotificationUserRole) => {
     return "/patient/billing?tab=invoices";
   }
 
-  return role === "ADMIN" ? "/admin/subscriptions" : roleDashboard(role);
+  return role === "ADMIN" ? "/admin/subscriptions" : getDashboardPath(role);
 };
 
 const healthReminderTarget = (role: NotificationUserRole) => {
@@ -155,7 +138,7 @@ const healthReminderTarget = (role: NotificationUserRole) => {
     return "/patient/dashboard#health-reminders";
   }
 
-  return roleDashboard(role);
+  return getDashboardPath(role);
 };
 
 export const getNotificationTarget = (
@@ -183,9 +166,9 @@ export const getNotificationTarget = (
     case "HEALTH_REMINDER":
       return healthReminderTarget(role);
     case "CAMPAIGN_MESSAGE":
-      return role === "ADMIN" ? "/admin/campaigns" : roleDashboard(role);
+      return role === "ADMIN" ? "/admin/campaigns" : getDashboardPath(role);
     case "SYSTEM_ALERT":
     default:
-      return roleDashboard(role);
+      return getDashboardPath(role);
   }
 };
