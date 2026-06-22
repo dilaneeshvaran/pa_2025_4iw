@@ -35,6 +35,10 @@ export default defineNuxtRouteMiddleware((_to, _from) => {
     ? isEmailVerifiedCookieValue(emailVerifiedCookie.value)
     : authStore.user?.emailVerified !== false;
 
+  if (import.meta.server && isUserAuthenticated) {
+    authStore.initServerAuth(userRole);
+  }
+
   if (isUserAuthenticated) {
     // if user is not verified, redirect to verification notice
     if (!isEmailVerified) {

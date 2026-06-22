@@ -4,7 +4,7 @@
       <div class="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
         <div class="flex h-16 items-center justify-between">
           <NuxtLink
-            to="/"
+            :to="brandTarget"
             class="text-2xl font-bold text-[var(--color-primary)]"
           >
             MediCôte
@@ -12,11 +12,7 @@
           <div class="flex items-center gap-4">
             <template v-if="authStore.isAuthenticated">
               <NuxtLink
-                :to="
-                  authStore.user?.role === 'PATIENT'
-                    ? '/patient/dashboard'
-                    : '/'
-                "
+                :to="dashboardPath"
                 class="text-sm font-medium text-gray-700 hover:text-[var(--color-primary)]"
               >
                 Mon tableau de bord
@@ -493,7 +489,7 @@
 </template>
 
 <script setup lang="ts">
-import { ref, reactive, onMounted } from "vue";
+import { ref, reactive, computed, onMounted } from "vue";
 import {
   Search as IconSearch,
   Filter as IconFilter,
@@ -507,10 +503,15 @@ import Card from "~/components/ui/Card.vue";
 import Button from "~/components/ui/Button.vue";
 import Badge from "~/components/ui/Badge.vue";
 import { useAuthStore } from "~/stores/auth";
+import { getDashboardPath } from "~/utils/authNavigation";
 
 const config = useRuntimeConfig();
 const authStore = useAuthStore();
 const router = useRouter();
+const dashboardPath = computed(() => getDashboardPath(authStore.currentRole));
+const brandTarget = computed(() =>
+  authStore.isAuthenticated ? dashboardPath.value : "/",
+);
 
 const handleLogout = () => {
   authStore.logout();

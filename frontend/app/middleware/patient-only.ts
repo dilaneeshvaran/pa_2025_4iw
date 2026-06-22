@@ -10,9 +10,6 @@ export default defineNuxtRouteMiddleware((to, _from) => {
   const authenticatedCookie = useCookie<string | null>(AUTHENTICATED_COOKIE);
   const roleCookie = useCookie<string | null>(AUTH_ROLE_COOKIE);
 
-  // auth check is handled by global middleware
-  // this middleware only checks role authorization
-
   if (import.meta.client && !authStore.isAuthenticated) {
     authStore.initAuth();
   }
@@ -22,7 +19,7 @@ export default defineNuxtRouteMiddleware((to, _from) => {
     : authStore.isAuthenticated;
   const userRole = import.meta.server
     ? roleCookie.value
-    : authStore.user?.role;
+    : authStore.currentRole;
 
   if (!isUserAuthenticated || (import.meta.client && !authStore.user)) {
     return navigateTo({
