@@ -1,36 +1,46 @@
-export default defineNuxtRouteMiddleware((_to, _from) => {
-  if (import.meta.server) {
-    return;
-  }
+import { getDashboardPath } from "~/utils/authNavigation";
+import {
+  AUTH_EMAIL_VERIFIED_COOKIE,
+  AUTH_ROLE_COOKIE,
+  AUTHENTICATED_COOKIE,
+  isAuthenticatedCookieValue,
+  isEmailVerifiedCookieValue,
+} from "~/utils/authSessionCookies";
 
+export default defineNuxtRouteMiddleware((_to, _from) => {
   const authStore = useAuthStore();
+  const authenticatedCookie = useCookie<string | null>(AUTHENTICATED_COOKIE);
+  const roleCookie = useCookie<string | null>(AUTH_ROLE_COOKIE);
+  const emailVerifiedCookie = useCookie<string | null>(
+    AUTH_EMAIL_VERIFIED_COOKIE,
+  );
 
   // init auth state from localstorage if not already done
-  if (!authStore.isAuthenticated) {
+  if (import.meta.client && !authStore.isAuthenticated) {
     authStore.initAuth();
   }
 
   // check if token is expired
-  if (authStore.isAuthenticated && authStore.isTokenExpired) {
+  if (import.meta.client && authStore.isAuthenticated && authStore.isTokenExpired) {
     authStore.logout();
   }
 
-  if (authStore.isAuthenticated) {
+  const isUserAuthenticated = import.meta.server
+    ? isAuthenticatedCookieValue(authenticatedCookie.value)
+    : authStore.isAuthenticated;
+  const userRole = import.meta.server
+    ? roleCookie.value
+    : authStore.user?.role;
+  const isEmailVerified = import.meta.server
+    ? isEmailVerifiedCookieValue(emailVerifiedCookie.value)
+    : authStore.user?.emailVerified !== false;
+
+  if (isUserAuthenticated) {
     // if user is not verified, redirect to verification notice
-    if (authStore.user && !authStore.user.emailVerified) {
+    if (!isEmailVerified) {
       return navigateTo("/auth/verify-email-notice");
     }
 
-    // redirect to dashboard based on role
-    const dashboardMap: Record<string, string> = {
-      PATIENT: "/patient/dashboard",
-      PRACTITIONER: "/practitioner/dashboard",
-      STAFF: "/staff/dashboard",
-      CABINET_ADMIN: "/cabinet/dashboard",
-      ADMIN: "/admin/dashboard",
-    };
-
-    const redirectPath = dashboardMap[authStore.user?.role || ""] || "/";
-    return navigateTo(redirectPath);
+    return navigateTo(getDashboardPath(userRole));
   }
 });

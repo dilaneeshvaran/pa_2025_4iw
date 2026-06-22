@@ -1,3 +1,5 @@
+import { getDashboardPath } from "~/utils/authNavigation";
+
 export default defineNuxtRouteMiddleware((to, _from) => {
   if (import.meta.server) {
     return;
@@ -17,14 +19,6 @@ export default defineNuxtRouteMiddleware((to, _from) => {
 
   // redirect non cabinet-admin users to their appropriate dashboard
   if (authStore.user.role !== "CABINET_ADMIN") {
-    const dashboardMap: Record<string, string> = {
-      PATIENT: "/patient/dashboard",
-      PRACTITIONER: "/practitioner/dashboard",
-      STAFF: "/staff/dashboard",
-      ADMIN: "/admin/dashboard",
-    };
-
-    const redirectPath = dashboardMap[authStore.user.role] || "/";
-    return navigateTo(redirectPath);
+    return navigateTo(getDashboardPath(authStore.user.role));
   }
 });
