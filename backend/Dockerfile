@@ -62,8 +62,10 @@ ENV NODE_ENV=production
 
 EXPOSE 3001
 
-HEALTHCHECK --interval=30s --timeout=3s --start-period=10s --retries=3 \
- CMD wget --no-verbose --spider http://localhost:3001/health || exit 1
+# Use a GET (-O /dev/null), not wget --spider's HEAD: the /health route only
+# answers GET, so a HEAD probe reports the container as unhealthy.
+HEALTHCHECK --interval=30s --timeout=3s --start-period=15s --retries=3 \
+ CMD wget -q -O /dev/null http://localhost:3001/health || exit 1
 
 WORKDIR /app/backend
 CMD ["sh", "-c", "npx prisma migrate deploy && npx tsx src/index.ts"]
