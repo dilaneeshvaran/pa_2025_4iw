@@ -43,11 +43,16 @@ export const useAuthStore = defineStore("auth", () => {
   const refreshToken = ref<string | null>(null);
   const isAuthenticated = ref(false);
   const tokenExpiresAt = ref<number | null>(null);
+  const sessionRole = ref<string | null>(null);
 
   const isTokenExpired = computed((): boolean => {
     if (!tokenExpiresAt.value) return true;
     // add 30 second buffer to refresh before actual expiration
     return Date.now() >= (tokenExpiresAt.value - 30) * 1000;
+  });
+
+  const currentRole = computed((): string | null => {
+    return user.value?.role ?? sessionRole.value;
   });
 
   function syncAuthCookies(userVal: User) {
@@ -88,8 +93,12 @@ export const useAuthStore = defineStore("auth", () => {
     emailVerifiedCookie.value = null;
   }
 
-  function setAuth(userVal: User, tokens: { accessToken: string; refreshToken: string }) {
+  function setAuth(
+    userVal: User,
+    tokens: { accessToken: string; refreshToken: string },
+  ) {
     user.value = userVal;
+    sessionRole.value = userVal.role;
     accessToken.value = tokens.accessToken;
     refreshToken.value = tokens.refreshToken;
     isAuthenticated.value = true;
@@ -116,6 +125,7 @@ export const useAuthStore = defineStore("auth", () => {
   function updateUser(userVal: Partial<User>) {
     if (user.value) {
       user.value = { ...user.value, ...userVal };
+      sessionRole.value = user.value.role;
 
       // update user in localstorage
       if (isClient) {
@@ -131,6 +141,7 @@ export const useAuthStore = defineStore("auth", () => {
     refreshToken.value = null;
     isAuthenticated.value = false;
     tokenExpiresAt.value = null;
+    sessionRole.value = null;
 
     // remove tokens from localstorage
     if (isClient) {
@@ -160,6 +171,7 @@ export const useAuthStore = defineStore("auth", () => {
         accessToken.value = accessTokenVal;
         refreshToken.value = refreshTokenVal;
         user.value = storedUser;
+        sessionRole.value = storedUser.role;
         tokenExpiresAt.value = tokenExpiresAtVal
           ? parseInt(tokenExpiresAtVal)
           : null;
@@ -179,17 +191,29 @@ export const useAuthStore = defineStore("auth", () => {
     }
   }
 
+  function initServerAuth(role: string | null | undefined) {
+    if (!role) {
+      return;
+    }
+
+    sessionRole.value = role;
+    isAuthenticated.value = true;
+  }
+
   return {
     user,
     accessToken,
     refreshToken,
     isAuthenticated,
     tokenExpiresAt,
+    sessionRole,
+    currentRole,
     isTokenExpired,
     setAuth,
     updateUser,
     logout,
     initAuth,
+    initServerAuth,
   };
 });
 

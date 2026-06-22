@@ -129,6 +129,6 @@ import { getDashboardPath } from '~/utils/authNavigation'
 
 const authStore = useAuthStore()
 const brandTarget = computed(() =>
-  authStore.isAuthenticated ? getDashboardPath(authStore.user?.role) : '/',
+  authStore.isAuthenticated ? getDashboardPath(authStore.currentRole) : '/',
 )
 </script>
