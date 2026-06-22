@@ -57,6 +57,30 @@ export async function notificationsRoutes(fastify: FastifyInstance) {
     },
   )
 
+  fastify.put(
+    '/read-all',
+    { preHandler: [authenticate] },
+    async (request: FastifyRequest, reply: FastifyReply) => {
+      try {
+        const user = request.user as { id: string }
+
+        const count = await notificationsService.markAllAsRead(user.id)
+
+        return reply.status(200).send({
+          success: true,
+          data: { count },
+          message: 'Notifications marquées comme lues',
+        })
+      } catch (error) {
+        request.log.error(error)
+        return reply.status(500).send({
+          success: false,
+          message: 'Impossible de marquer les notifications comme lues',
+        })
+      }
+    },
+  )
+
   // mark notification as read
   fastify.put(
     '/:id/read',
