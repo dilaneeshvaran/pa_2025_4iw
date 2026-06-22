@@ -1,0 +1,36 @@
+# The Docker build context is the monorepo root, so this is the only
+# .dockerignore Docker reads. Keep it in sync for both backend & frontend images.
+
+# Dependencies — reinstalled inside the image
+**/node_modules
+
+# Secrets — must never enter the build context
+**/.env
+**/.env.*
+
+# Build artifacts
+**/dist
+**/.nuxt
+**/.output
+
+# VCS & CI
+.git
+.gitignore
+.github
+
+# Editor / OS
+.vscode
+.idea
+.DS_Store
+
+# Logs & docs
+**/*.log
+**/*.md
+
+# Docker & compose (not needed inside images)
+**/Dockerfile
+**/.dockerignore
+docker-compose*.yml
+
+# Local tooling
+Makefile

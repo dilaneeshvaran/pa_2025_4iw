@@ -38,7 +38,8 @@
     "zod": "^4.3.6",
     "@medicote/shared": "*",
     "@ts-rest/core": "^3.45.2",
-    "@ts-rest/fastify": "^3.45.2"
+    "@ts-rest/fastify": "^3.45.2",
+    "tsx": "^4.21.0"
   },
   "overrides": {
     "bullmq": {
@@ -59,7 +60,6 @@
     "jest": "^30.3.0",
     "ts-jest": "^29.4.6",
     "ts-node": "^10.9.2",
-    "tsx": "^4.21.0",
     "typescript": "^5.9.3"
   }
 }
