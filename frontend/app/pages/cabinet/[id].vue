@@ -1,18 +1,5 @@
 <template>
   <div class="min-h-screen bg-gray-50">
-    <header class="border-b border-gray-200 bg-white">
-      <div class="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
-        <div class="flex h-16 items-center justify-between">
-          <NuxtLink
-            :to="dashboardPath"
-            class="text-2xl font-bold text-[var(--color-primary)]"
-          >
-            MediCôte
-          </NuxtLink>
-        </div>
-      </div>
-    </header>
-
     <main class="mx-auto max-w-7xl px-4 py-8 sm:px-6 lg:px-8">
       <div class="mb-6">
         <Button variant="outline" @click="navigateTo('/search')">
@@ -194,13 +181,8 @@ import {
 import Card from "~/components/ui/Card.vue";
 import Button from "~/components/ui/Button.vue";
 import Badge from "~/components/ui/Badge.vue";
-import { useAuthStore } from "~/stores/auth";
-import { getDashboardPath } from "~/utils/authNavigation";
-
 const route = useRoute();
 const config = useRuntimeConfig();
-const authStore = useAuthStore();
-const dashboardPath = computed(() => getDashboardPath(authStore.currentRole));
 
 const cabinetId = route.params.id as string;
 
@@ -279,7 +261,7 @@ onMounted(() => {
 });
 
 definePageMeta({
-  layout: false,
+  layout: "default",
   middleware: "patient-only",
 });
 </script>
