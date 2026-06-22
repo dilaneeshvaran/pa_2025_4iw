@@ -141,7 +141,7 @@
 
     <div class="grid gap-6 lg:grid-cols-2">
       <!-- notifications /  reminders -->
-      <UiCard>
+      <UiCard id="health-reminders">
         <div class="mb-4 flex items-center justify-between">
           <h3 class="text-lg font-semibold text-gray-900">Rappels santé</h3>
         </div>
