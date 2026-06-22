@@ -1,4 +1,19 @@
 // https://nuxt.com/docs/api/configuration/nuxt-config
+const parsePositiveInteger = (value: string | undefined) => {
+  if (!value) {
+    return undefined;
+  }
+
+  const parsed = Number.parseInt(value, 10);
+
+  return Number.isFinite(parsed) && parsed > 0 ? parsed : undefined;
+};
+
+const hmrClientPort = parsePositiveInteger(process.env.NUXT_HMR_CLIENT_PORT);
+const pollingInterval = parsePositiveInteger(
+  process.env.NUXT_VITE_POLLING_INTERVAL,
+);
+
 export default defineNuxtConfig({
   compatibilityDate: "2025-07-15",
 
@@ -16,6 +31,29 @@ export default defineNuxtConfig({
   css: ["~/assets/css/main.css"],
 
   vite: {
+    server: {
+      hmr:
+        process.env.NUXT_HMR_HOST || hmrClientPort
+          ? {
+              protocol: "ws",
+              host: process.env.NUXT_HMR_HOST,
+              clientPort: hmrClientPort,
+            }
+          : undefined,
+      watch:
+        process.env.NUXT_VITE_USE_POLLING === "true"
+          ? {
+              usePolling: true,
+              interval: pollingInterval ?? 250,
+              ignored: [
+                "**/node_modules/**",
+                "**/.git/**",
+                "**/.nuxt/**",
+                "**/.output/**",
+              ],
+            }
+          : undefined,
+    },
     optimizeDeps: {
       include: ["leaflet"],
     },
