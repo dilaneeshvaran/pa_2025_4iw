@@ -35,6 +35,48 @@ export const Gender = {
   MALE: 'MALE',
   FEMALE: 'FEMALE',
   OTHER: 'OTHER',
+  PREFER_NOT_TO_SAY: 'PREFER_NOT_TO_SAY',
+} as const
+
+export const NotificationType = {
+  APPOINTMENT_REMINDER: 'APPOINTMENT_REMINDER',
+  APPOINTMENT_CONFIRMATION: 'APPOINTMENT_CONFIRMATION',
+  APPOINTMENT_CANCELLATION: 'APPOINTMENT_CANCELLATION',
+  MESSAGE_RECEIVED: 'MESSAGE_RECEIVED',
+  DOCUMENT_SHARED: 'DOCUMENT_SHARED',
+  PAYMENT_RECEIVED: 'PAYMENT_RECEIVED',
+  CAMPAIGN_MESSAGE: 'CAMPAIGN_MESSAGE',
+  HEALTH_REMINDER: 'HEALTH_REMINDER',
+  SYSTEM_ALERT: 'SYSTEM_ALERT',
+} as const
+
+export const NotificationChannel = {
+  EMAIL: 'EMAIL',
+  SMS: 'SMS',
+  PUSH: 'PUSH',
+  IN_APP: 'IN_APP',
+} as const
+
+export const HealthReminderStatus = {
+  ACTIVE: 'ACTIVE',
+  CANCELLED: 'CANCELLED',
+  COMPLETED: 'COMPLETED',
+} as const
+
+export const HealthReminderRecurrenceType = {
+  INTERVAL: 'INTERVAL',
+  WEEKDAYS: 'WEEKDAYS',
+} as const
+
+export const HealthReminderIntervalUnit = {
+  DAY: 'DAY',
+  WEEK: 'WEEK',
+} as const
+
+export const HealthReminderDurationUnit = {
+  DAY: 'DAY',
+  WEEK: 'WEEK',
+  MONTH: 'MONTH',
 } as const
 
 export class PrismaClientKnownRequestError extends Error {
