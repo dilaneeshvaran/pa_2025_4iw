@@ -4,7 +4,7 @@
       <div class="flex h-16 items-center justify-between">
         <!-- logo -->
         <div class="flex-shrink-0">
-          <NuxtLink to="/" class="text-2xl font-bold">
+          <NuxtLink :to="brandTarget" class="text-2xl font-bold">
             <span class="text-orange-500">Medi</span
             ><span class="text-green-600">côte</span>
           </NuxtLink>
@@ -29,17 +29,13 @@
           <template v-else>
             <div class="flex items-center space-x-4">
               <NuxtLink
-                :to="
-                  authStore.user?.role === 'PATIENT'
-                    ? '/patient/dashboard'
-                    : '/practitioner/dashboard'
-                "
+                :to="dashboardPath"
                 class="text-sm font-medium text-gray-700 transition-colors hover:text-orange-600"
               >
                 Tableau de bord
               </NuxtLink>
-              <span class="text-sm text-gray-700">
-                Bonjour, {{ authStore.user?.email }}
+              <span v-if="authStore.user" class="text-sm text-gray-700">
+                Bonjour, {{ displayName }}
               </span>
               <button
                 class="rounded-md px-3 py-2 text-sm font-medium text-gray-700 transition-colors hover:text-red-600"
@@ -56,10 +52,23 @@
 </template>
 
 <script setup lang="ts">
+import { computed } from "vue";
 import { useAuthStore } from "~/stores/auth";
+import { getDashboardPath } from "~/utils/authNavigation";
 
 const router = useRouter();
 const authStore = useAuthStore();
+const dashboardPath = computed(() => getDashboardPath(authStore.currentRole));
+const brandTarget = computed(() =>
+  authStore.isAuthenticated ? dashboardPath.value : "/",
+);
+
+const displayName = computed(() => {
+  if (authStore.user?.firstName && authStore.user?.lastName) {
+    return `${authStore.user.firstName} ${authStore.user.lastName}`;
+  }
+  return authStore.user?.email || "";
+});
 
 // initialize auth state on mount
 onMounted(() => {

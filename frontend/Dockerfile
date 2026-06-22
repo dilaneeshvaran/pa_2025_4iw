@@ -37,7 +37,7 @@ COPY --chown=medicote:appgroup frontend ./frontend
 EXPOSE 3000
 
 WORKDIR /app/frontend
-CMD ["npm", "run", "dev"]
+CMD ["npm", "run", "dev", "--", "--host", "0.0.0.0"]
 
 
 # stage 5: production

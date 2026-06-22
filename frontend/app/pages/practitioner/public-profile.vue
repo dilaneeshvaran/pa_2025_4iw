@@ -241,6 +241,7 @@ import { ref, onMounted, computed, watch } from "vue";
 import { User, Plus, Trash2, Eye } from "lucide-vue-next";
 import { useToast } from "vue-toastification";
 import { isValidPhone } from "~/utils/validation";
+import { useAuthStore } from "~/stores/auth";
 
 definePageMeta({
   layout: "practitioner",
@@ -248,6 +249,7 @@ definePageMeta({
 });
 
 const toast = useToast();
+const authStore = useAuthStore();
 
 const profile = ref<any>(null);
 const loading = ref(true);
@@ -310,6 +312,10 @@ const saveProfile = async () => {
     await useAuthenticatedFetch("/practitioner/dashboard/profile", {
       method: "PATCH",
       body,
+    });
+    authStore.updateUser({
+      firstName: profile.value.firstName,
+      lastName: profile.value.lastName,
     });
     toast.success("Profil mis à jour avec succès");
   } catch (error) {

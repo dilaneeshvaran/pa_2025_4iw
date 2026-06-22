@@ -2,7 +2,7 @@
 export interface User {
   id: string;
   email: string;
-  role: "PATIENT" | "DOCTOR" | "ADMIN";
+  role: "PATIENT" | "PRACTITIONER" | "STAFF" | "CABINET_ADMIN" | "ADMIN";
   firstName: string;
   lastName: string;
 }
@@ -10,10 +10,17 @@ export interface User {
 export interface Appointment {
   id: string;
   patientId: string;
-  doctorId: string;
-  startTime: Date;
-  endTime: Date;
-  status: "SCHEDULED" | "COMPLETED" | "CANCELLED";
+  practitionerId: string;
+  appointmentDate: Date;
+  startTime: string;
+  endTime: string;
+  status:
+    | "PENDING"
+    | "CONFIRMED"
+    | "CANCELLED"
+    | "COMPLETED"
+    | "NO_SHOW"
+    | "RESCHEDULED";
 }
 
 export interface ApiResponse<T> {
@@ -23,3 +30,4 @@ export interface ApiResponse<T> {
 }
 
 export * from './reviews.contract';
+export * from './health-reminders.contract';

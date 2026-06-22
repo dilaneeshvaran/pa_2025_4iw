@@ -1,14 +1,27 @@
+import { getDashboardPath } from "~/utils/authNavigation";
+import {
+  AUTH_ROLE_COOKIE,
+  AUTHENTICATED_COOKIE,
+  isAuthenticatedCookieValue,
+} from "~/utils/authSessionCookies";
+
 export default defineNuxtRouteMiddleware((to, _from) => {
-  if (import.meta.server) {
-    return;
+  const authStore = useAuthStore();
+  const authenticatedCookie = useCookie<string | null>(AUTHENTICATED_COOKIE);
+  const roleCookie = useCookie<string | null>(AUTH_ROLE_COOKIE);
+
+  if (import.meta.client && !authStore.isAuthenticated) {
+    authStore.initAuth();
   }
 
-  const authStore = useAuthStore();
+  const isUserAuthenticated = import.meta.server
+    ? isAuthenticatedCookieValue(authenticatedCookie.value)
+    : authStore.isAuthenticated;
+  const userRole = import.meta.server
+    ? roleCookie.value
+    : authStore.currentRole;
 
-  // auth check is handled by global middleware
-  // this middleware only checks role authorization
-
-  if (!authStore.isAuthenticated || !authStore.user) {
+  if (!isUserAuthenticated || (import.meta.client && !authStore.user)) {
     return navigateTo({
       path: "/auth/login",
       query: { redirect: to.fullPath },
@@ -16,15 +29,7 @@ export default defineNuxtRouteMiddleware((to, _from) => {
   }
 
   // redirect non staff users to their appropriate dashboard
-  if (authStore.user.role !== "STAFF") {
-    const dashboardMap: Record<string, string> = {
-      PATIENT: "/patient/dashboard",
-      PRACTITIONER: "/practitioner/dashboard",
-      CABINET_ADMIN: "/cabinet/dashboard",
-      ADMIN: "/admin/dashboard",
-    };
-
-    const redirectPath = dashboardMap[authStore.user.role] || "/";
-    return navigateTo(redirectPath);
+  if (userRole && userRole !== "STAFF") {
+    return navigateTo(getDashboardPath(userRole));
   }
 });

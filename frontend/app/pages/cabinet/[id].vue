@@ -1,18 +1,5 @@
 <template>
   <div class="min-h-screen bg-gray-50">
-    <header class="border-b border-gray-200 bg-white">
-      <div class="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
-        <div class="flex h-16 items-center justify-between">
-          <NuxtLink
-            to="/"
-            class="text-2xl font-bold text-[var(--color-primary)]"
-          >
-            MediCôte
-          </NuxtLink>
-        </div>
-      </div>
-    </header>
-
     <main class="mx-auto max-w-7xl px-4 py-8 sm:px-6 lg:px-8">
       <div class="mb-6">
         <Button variant="outline" @click="navigateTo('/search')">
@@ -183,7 +170,7 @@
 </template>
 
 <script setup lang="ts">
-import { ref, onMounted } from "vue";
+import { computed, ref, onMounted } from "vue";
 import { useRoute } from "vue-router";
 import { useRuntimeConfig, navigateTo } from "#imports";
 import {
@@ -194,7 +181,6 @@ import {
 import Card from "~/components/ui/Card.vue";
 import Button from "~/components/ui/Button.vue";
 import Badge from "~/components/ui/Badge.vue";
-
 const route = useRoute();
 const config = useRuntimeConfig();
 
@@ -275,7 +261,7 @@ onMounted(() => {
 });
 
 definePageMeta({
-  layout: false,
+  layout: "default",
   middleware: "patient-only",
 });
 </script>

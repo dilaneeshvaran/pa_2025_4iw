@@ -9,6 +9,8 @@ export interface User {
   role: string;
   status: string;
   emailVerified: boolean;
+  firstName?: string | null;
+  lastName?: string | null;
 }
 
 export interface AuthData {

@@ -1,6 +1,19 @@
+import { getDashboardPath } from "~/utils/authNavigation";
+import {
+  AUTH_EMAIL_VERIFIED_COOKIE,
+  AUTH_ROLE_COOKIE,
+  AUTHENTICATED_COOKIE,
+  isAuthenticatedCookieValue,
+  isEmailVerifiedCookieValue,
+} from "~/utils/authSessionCookies";
+
 export default defineNuxtRouteMiddleware((to, _from) => {
   const authStore = useAuthStore();
-  const authenticatedCookie = useCookie("sb-authenticated");
+  const authenticatedCookie = useCookie<string | null>(AUTHENTICATED_COOKIE);
+  const roleCookie = useCookie<string | null>(AUTH_ROLE_COOKIE);
+  const emailVerifiedCookie = useCookie<string | null>(
+    AUTH_EMAIL_VERIFIED_COOKIE,
+  );
 
   // routes that dont require authentication
   const publicRoutes = [
@@ -14,8 +27,6 @@ export default defineNuxtRouteMiddleware((to, _from) => {
     "/about",
     "/search",
     "/legal",
-    "/practitioner/",
-    "/cabinet/",
   ];
 
   //  if route is public checker
@@ -30,8 +41,26 @@ export default defineNuxtRouteMiddleware((to, _from) => {
 
   // check authentication status
   const isUserAuthenticated = import.meta.server
-    ? !!authenticatedCookie.value
+    ? isAuthenticatedCookieValue(authenticatedCookie.value)
     : authStore.isAuthenticated;
+  const userRole = import.meta.server
+    ? roleCookie.value
+    : authStore.user?.role;
+  const isEmailVerified = import.meta.server
+    ? isEmailVerifiedCookieValue(emailVerifiedCookie.value)
+    : authStore.user?.emailVerified !== false;
+
+  if (import.meta.server && isUserAuthenticated) {
+    authStore.initServerAuth(userRole);
+  }
+
+  if (isUserAuthenticated && to.path === "/") {
+    if (!isEmailVerified) {
+      return navigateTo("/auth/verify-email-notice");
+    }
+
+    return navigateTo(getDashboardPath(userRole));
+  }
 
   // redirect to login if not authenticated and trying to access protected route
   if (!isUserAuthenticated && !isPublicRoute) {
@@ -42,7 +71,12 @@ export default defineNuxtRouteMiddleware((to, _from) => {
   }
 
   // client-only check for expired token
-  if (import.meta.client && authStore.isAuthenticated && authStore.isTokenExpired && !isPublicRoute) {
+  if (
+    import.meta.client &&
+    authStore.isAuthenticated &&
+    authStore.isTokenExpired &&
+    !isPublicRoute
+  ) {
     // try refresh token
     if (authStore.refreshToken) {
       // useAuthenticatedFetch should handle refresh

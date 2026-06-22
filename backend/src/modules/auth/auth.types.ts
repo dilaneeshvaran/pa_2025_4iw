@@ -13,6 +13,8 @@ export interface AuthResponse {
     role: UserRole
     status: UserStatus
     emailVerified: boolean
+    firstName?: string | null
+    lastName?: string | null
   }
   tokens: AuthTokens
 }

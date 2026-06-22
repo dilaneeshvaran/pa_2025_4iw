@@ -1,9 +1,23 @@
 import { describe, it, expect, beforeEach, afterEach, vi } from "vitest";
 import { setActivePinia, createPinia } from "pinia";
+import {
+  AUTH_EMAIL_VERIFIED_COOKIE,
+  AUTH_ROLE_COOKIE,
+  AUTHENTICATED_COOKIE,
+} from "~/utils/authSessionCookies";
 
 // Mock Nuxt's useCookie composable globally for Pinia store unit tests
-const mockCookieVal = { value: null as string | null };
-vi.stubGlobal("useCookie", vi.fn().mockImplementation(() => mockCookieVal));
+const mockCookies = new Map<string, { value: string | null }>();
+vi.stubGlobal(
+  "useCookie",
+  vi.fn().mockImplementation((name: string) => {
+    if (!mockCookies.has(name)) {
+      mockCookies.set(name, { value: null });
+    }
+
+    return mockCookies.get(name);
+  }),
+);
 
 import { useAuthStore } from "../auth";
 
@@ -23,10 +37,12 @@ describe("auth store", () => {
   beforeEach(() => {
     setActivePinia(createPinia());
     localStorage.clear();
+    mockCookies.clear();
   });
 
   afterEach(() => {
     localStorage.clear();
+    mockCookies.clear();
   });
 
   it("should initialize with default values", () => {
@@ -65,6 +81,9 @@ describe("auth store", () => {
     expect(localStorage.getItem("refreshToken")).toBe(refreshToken);
     expect(JSON.parse(localStorage.getItem("user") || "{}")).toEqual(mockUser);
     expect(localStorage.getItem("tokenExpiresAt")).toBe(expTime.toString());
+    expect(mockCookies.get(AUTHENTICATED_COOKIE)?.value).toBe("true");
+    expect(mockCookies.get(AUTH_ROLE_COOKIE)?.value).toBe("PATIENT");
+    expect(mockCookies.get(AUTH_EMAIL_VERIFIED_COOKIE)?.value).toBe("true");
   });
 
   it("should updateUser state and update localStorage", () => {
@@ -91,6 +110,8 @@ describe("auth store", () => {
     const storedUser = JSON.parse(localStorage.getItem("user") || "{}");
     expect(storedUser.email).toBe("new@medicote.ci");
     expect(storedUser.emailVerified).toBe(false);
+    expect(mockCookies.get(AUTH_ROLE_COOKIE)?.value).toBe("PATIENT");
+    expect(mockCookies.get(AUTH_EMAIL_VERIFIED_COOKIE)?.value).toBe("false");
   });
 
   it("should not updateUser if user is null", () => {
@@ -126,6 +147,9 @@ describe("auth store", () => {
     expect(localStorage.getItem("refreshToken")).toBeNull();
     expect(localStorage.getItem("user")).toBeNull();
     expect(localStorage.getItem("tokenExpiresAt")).toBeNull();
+    expect(mockCookies.get(AUTHENTICATED_COOKIE)?.value).toBeNull();
+    expect(mockCookies.get(AUTH_ROLE_COOKIE)?.value).toBeNull();
+    expect(mockCookies.get(AUTH_EMAIL_VERIFIED_COOKIE)?.value).toBeNull();
   });
 
   it("should initAuth correctly from localStorage if token is not expired", () => {
@@ -154,6 +178,20 @@ describe("auth store", () => {
     expect(store.isAuthenticated).toBe(true);
     expect(store.tokenExpiresAt).toBe(expTime);
     expect(store.isTokenExpired).toBe(false);
+    expect(mockCookies.get(AUTHENTICATED_COOKIE)?.value).toBe("true");
+    expect(mockCookies.get(AUTH_ROLE_COOKIE)?.value).toBe("PATIENT");
+    expect(mockCookies.get(AUTH_EMAIL_VERIFIED_COOKIE)?.value).toBe("true");
+  });
+
+  it("should initialize minimal server auth state from session cookie role", () => {
+    const store = useAuthStore();
+
+    store.initServerAuth("PRACTITIONER");
+
+    expect(store.isAuthenticated).toBe(true);
+    expect(store.user).toBeNull();
+    expect(store.sessionRole).toBe("PRACTITIONER");
+    expect(store.currentRole).toBe("PRACTITIONER");
   });
 
   it("should clear auth during initAuth if token is expired", () => {

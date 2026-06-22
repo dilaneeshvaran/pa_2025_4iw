@@ -1,5 +1,11 @@
 import { defineStore } from "pinia";
 import { ref, computed } from "vue";
+import {
+  AUTH_COOKIE_OPTIONS,
+  AUTH_EMAIL_VERIFIED_COOKIE,
+  AUTH_ROLE_COOKIE,
+  AUTHENTICATED_COOKIE,
+} from "~/utils/authSessionCookies";
 
 const isClient = typeof window !== "undefined";
 
@@ -9,6 +15,8 @@ interface User {
   role: string;
   status: string;
   emailVerified: boolean;
+  firstName?: string | null;
+  lastName?: string | null;
 }
 
 // decode jwt to get expiration time
@@ -37,6 +45,7 @@ export const useAuthStore = defineStore("auth", () => {
   const refreshToken = ref<string | null>(null);
   const isAuthenticated = ref(false);
   const tokenExpiresAt = ref<number | null>(null);
+  const sessionRole = ref<string | null>(null);
 
   const isTokenExpired = computed((): boolean => {
     if (!tokenExpiresAt.value) return true;
@@ -44,8 +53,54 @@ export const useAuthStore = defineStore("auth", () => {
     return Date.now() >= (tokenExpiresAt.value - 30) * 1000;
   });
 
-  function setAuth(userVal: User, tokens: { accessToken: string; refreshToken: string }) {
+  const currentRole = computed((): string | null => {
+    return user.value?.role ?? sessionRole.value;
+  });
+
+  function syncAuthCookies(userVal: User) {
+    const authCookie = useCookie<string | null>(
+      AUTHENTICATED_COOKIE,
+      AUTH_COOKIE_OPTIONS,
+    );
+    const roleCookie = useCookie<string | null>(
+      AUTH_ROLE_COOKIE,
+      AUTH_COOKIE_OPTIONS,
+    );
+    const emailVerifiedCookie = useCookie<string | null>(
+      AUTH_EMAIL_VERIFIED_COOKIE,
+      AUTH_COOKIE_OPTIONS,
+    );
+
+    authCookie.value = "true";
+    roleCookie.value = userVal.role;
+    emailVerifiedCookie.value = userVal.emailVerified ? "true" : "false";
+  }
+
+  function clearAuthCookies() {
+    const authCookie = useCookie<string | null>(
+      AUTHENTICATED_COOKIE,
+      AUTH_COOKIE_OPTIONS,
+    );
+    const roleCookie = useCookie<string | null>(
+      AUTH_ROLE_COOKIE,
+      AUTH_COOKIE_OPTIONS,
+    );
+    const emailVerifiedCookie = useCookie<string | null>(
+      AUTH_EMAIL_VERIFIED_COOKIE,
+      AUTH_COOKIE_OPTIONS,
+    );
+
+    authCookie.value = null;
+    roleCookie.value = null;
+    emailVerifiedCookie.value = null;
+  }
+
+  function setAuth(
+    userVal: User,
+    tokens: { accessToken: string; refreshToken: string },
+  ) {
     user.value = userVal;
+    sessionRole.value = userVal.role;
     accessToken.value = tokens.accessToken;
     refreshToken.value = tokens.refreshToken;
     isAuthenticated.value = true;
@@ -66,18 +121,19 @@ export const useAuthStore = defineStore("auth", () => {
         );
       }
     }
-    const authCookie = useCookie("sb-authenticated", { maxAge: 30 * 24 * 60 * 60 });
-    authCookie.value = "true";
+    syncAuthCookies(userVal);
   }
 
   function updateUser(userVal: Partial<User>) {
     if (user.value) {
       user.value = { ...user.value, ...userVal };
+      sessionRole.value = user.value.role;
 
       // update user in localstorage
       if (isClient) {
         localStorage.setItem("user", JSON.stringify(user.value));
       }
+      syncAuthCookies(user.value);
     }
   }
 
@@ -87,6 +143,7 @@ export const useAuthStore = defineStore("auth", () => {
     refreshToken.value = null;
     isAuthenticated.value = false;
     tokenExpiresAt.value = null;
+    sessionRole.value = null;
 
     // remove tokens from localstorage
     if (isClient) {
@@ -95,8 +152,7 @@ export const useAuthStore = defineStore("auth", () => {
       localStorage.removeItem("user");
       localStorage.removeItem("tokenExpiresAt");
     }
-    const authCookie = useCookie("sb-authenticated");
-    authCookie.value = null;
+    clearAuthCookies();
   }
 
   function initAuth() {
@@ -107,24 +163,43 @@ export const useAuthStore = defineStore("auth", () => {
       const userStr = localStorage.getItem("user");
       const tokenExpiresAtVal = localStorage.getItem("tokenExpiresAt");
 
-      if (accessTokenVal && refreshTokenVal && userStr) {
+      if (!accessTokenVal || !refreshTokenVal || !userStr) {
+        logout();
+        return;
+      }
+
+      try {
+        const storedUser = JSON.parse(userStr) as User;
         accessToken.value = accessTokenVal;
         refreshToken.value = refreshTokenVal;
-        user.value = JSON.parse(userStr);
+        user.value = storedUser;
+        sessionRole.value = storedUser.role;
         tokenExpiresAt.value = tokenExpiresAtVal
           ? parseInt(tokenExpiresAtVal)
           : null;
 
-        //check if token is expired
         if (isTokenExpired.value) {
-          // token expired, clear auth
           logout();
           isAuthenticated.value = false;
-        } else {
-          isAuthenticated.value = true;
+          return;
         }
+
+        isAuthenticated.value = true;
+        syncAuthCookies(storedUser);
+      } catch (error: unknown) {
+        console.error("Auth initialization error:", error);
+        logout();
       }
     }
+  }
+
+  function initServerAuth(role: string | null | undefined) {
+    if (!role) {
+      return;
+    }
+
+    sessionRole.value = role;
+    isAuthenticated.value = true;
   }
 
   return {
@@ -133,11 +208,14 @@ export const useAuthStore = defineStore("auth", () => {
     refreshToken,
     isAuthenticated,
     tokenExpiresAt,
+    sessionRole,
+    currentRole,
     isTokenExpired,
     setAuth,
     updateUser,
     logout,
     initAuth,
+    initServerAuth,
   };
 });
 
