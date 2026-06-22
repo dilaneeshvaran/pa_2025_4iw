@@ -144,18 +144,10 @@
       <UiCard>
         <div class="mb-4 flex items-center justify-between">
           <h3 class="text-lg font-semibold text-gray-900">Rappels santé</h3>
-          <UiButton
-            v-if="notifications.length > 0"
-            variant="secondary"
-            size="sm"
-            @click="navigateTo('/patient/settings')"
-          >
-            Voir tout
-          </UiButton>
         </div>
 
         <!-- loading  -->
-        <div v-if="loadingNotifications" class="animate-pulse space-y-3">
+        <div v-if="loadingHealthReminders" class="animate-pulse space-y-3">
           <div
             v-for="i in 3"
             :key="i"
@@ -170,7 +162,7 @@
         </div>
 
         <!-- no reminders -->
-        <div v-else-if="notifications.length === 0" class="py-6 text-center">
+        <div v-else-if="healthReminders.length === 0" class="py-6 text-center">
           <Bell class="mx-auto mb-3 h-12 w-12 text-gray-300" />
           <p class="text-gray-500">Aucun rappel pour le moment</p>
         </div>
@@ -178,22 +170,24 @@
         <!-- notifications list -->
         <div v-else class="max-h-[300px] space-y-3 overflow-y-auto">
           <div
-            v-for="notification in notifications"
-            :key="notification.id"
+            v-for="reminder in healthReminders"
+            :key="reminder.id"
             class="flex gap-3 rounded-lg bg-gray-50 p-3"
           >
             <div
               class="flex h-10 w-10 flex-shrink-0 items-center justify-center rounded-lg bg-orange-100"
             >
-              <component
-                :is="getNotificationIcon(notification.type)"
-                class="h-5 w-5 text-orange-600"
-              />
+              <Activity class="h-5 w-5 text-orange-600" />
             </div>
             <div class="flex-1">
-              <p class="mb-1 text-sm font-medium">{{ notification.title }}</p>
+              <p class="mb-1 text-sm font-medium text-gray-900">
+                {{ reminder.message }}
+              </p>
               <p class="text-xs text-gray-600">
-                {{ formatNotificationTime(notification.createdAt) }}
+                {{ reminder.practitioner.title }}
+                {{ reminder.practitioner.firstName }}
+                {{ reminder.practitioner.lastName }} ·
+                {{ formatNotificationTime(reminder.scheduledFor) }}
               </p>
             </div>
           </div>
@@ -415,6 +409,7 @@ import {
 import { useAuthStore } from "~/stores/auth";
 import { formatDate, formatNotificationTime } from "~/utils/date";
 import { getStatusVariant, getStatusLabel } from "~/utils/status";
+import type { PatientHealthReminderOccurrence } from "@medicote/shared";
 
 definePageMeta({
   layout: "patient",
@@ -446,21 +441,12 @@ interface Appointment {
   practitioner: Practitioner;
 }
 
-interface Notification {
-  id: string;
-  type: string;
-  title: string;
-  message: string;
-  read: boolean;
-  createdAt: string;
-}
-
 const nextAppointment = ref<Appointment | null>(null);
 const pastAppointments = ref<Appointment[]>([]);
-const notifications = ref<Notification[]>([]);
+const healthReminders = ref<PatientHealthReminderOccurrence[]>([]);
 const loadingNext = ref(true);
 const loadingPast = ref(true);
-const loadingNotifications = ref(true);
+const loadingHealthReminders = ref(true);
 
 // cancel modal state
 const showCancelModal = ref(false);
@@ -577,37 +563,19 @@ const fetchPastAppointments = async () => {
   }
 };
 
-const fetchNotifications = async () => {
+const fetchHealthReminders = async () => {
   try {
     const response = await useAuthenticatedFetch<{
       success: boolean;
-      data: Notification[];
-    }>("/notifications?limit=10");
+      data: PatientHealthReminderOccurrence[];
+    }>("/health-reminders/patient/dashboard?limit=5");
     if (response.success) {
-      // filter out message notifications
-      notifications.value = response.data
-        .filter(
-          (n) => n.type !== "MESSAGE_RECEIVED" && n.type !== "NEW_MESSAGE",
-        )
-        .slice(0, 5);
+      healthReminders.value = response.data;
     }
   } catch (error) {
-    console.error("Error fetching notifications:", error);
+    console.error("Error fetching health reminders:", error);
   } finally {
-    loadingNotifications.value = false;
-  }
-};
-
-const getNotificationIcon = (type: string) => {
-  switch (type) {
-    case "APPOINTMENT_REMINDER":
-      return Bell;
-    case "DOCUMENT_SHARED":
-      return FileText;
-    case "HEALTH_REMINDER":
-      return Activity;
-    default:
-      return Bell;
+    loadingHealthReminders.value = false;
   }
 };
 
@@ -712,11 +680,11 @@ onMounted(() => {
   if (authStore.accessToken) {
     fetchNextAppointment();
     fetchPastAppointments();
-    fetchNotifications();
+    fetchHealthReminders();
   } else {
     loadingNext.value = false;
     loadingPast.value = false;
-    loadingNotifications.value = false;
+    loadingHealthReminders.value = false;
   }
 });
 </script>

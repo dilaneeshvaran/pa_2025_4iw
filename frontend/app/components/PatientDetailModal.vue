@@ -7,7 +7,7 @@
         @click.self="emit('close')"
       >
         <div
-          class="max-h-[90vh] w-full max-w-lg overflow-y-auto rounded-lg bg-white shadow-xl"
+          class="max-h-[90vh] w-full max-w-2xl overflow-y-auto rounded-lg bg-white shadow-xl"
         >
           <!-- for practitioner dash -->
           <!-- loading -->
@@ -220,6 +220,8 @@
               </div>
             </div>
 
+            <HealthReminderPanel :patient-id="patient.id" />
+
             <div class="flex flex-wrap gap-3 p-6">
               <UiButton
                 variant="primary"
@@ -269,6 +271,7 @@ import {
   MessageSquare,
   AlertCircle,
 } from "lucide-vue-next";
+import HealthReminderPanel from "~/components/practitioner/HealthReminderPanel.vue";
 
 interface AppointmentBrief {
   id: string;
@@ -404,15 +407,15 @@ const formatMonthYear = (dateStr: string): string => {
 .modal-leave-active {
   transition: opacity 0.2s ease;
 }
-.modal-enter-active .max-w-lg,
-.modal-leave-active .max-w-lg {
+.modal-enter-active .max-w-2xl,
+.modal-leave-active .max-w-2xl {
   transition: transform 0.2s ease;
 }
 .modal-enter-from,
 .modal-leave-to {
   opacity: 0;
 }
-.modal-enter-from .max-w-lg {
+.modal-enter-from .max-w-2xl {
   transform: scale(0.95);
 }
 </style>
