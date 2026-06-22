@@ -3,10 +3,10 @@ name: CI
 on:
   push:
     branches:
-      - main
+      - production
   pull_request:
     branches:
-      - main
+      - production
 
 # Cancel superseded runs on the same ref to save CI minutes
 concurrency:
@@ -17,9 +17,6 @@ jobs:
   backend:
     name: Backend (test + build)
     runs-on: ubuntu-latest
-    defaults:
-      run:
-        working-directory: backend
     steps:
       - uses: actions/checkout@v4
 
@@ -27,34 +24,28 @@ jobs:
         with:
           node-version: 20
           cache: npm
-          cache-dependency-path: backend/package-lock.json
+          cache-dependency-path: package-lock.json
 
-      # Install in isolation, exactly like the Docker build context (which only
-      # contains ./backend). Removing the root workspace manifests prevents npm
-      # from hoisting to the monorepo root, so backend's package-lock.json and
-      # its `overrides` (e.g. bullmq -> single ioredis) are honoured.
-      - name: Isolate workspace
-        working-directory: .
-        run: rm -f package.json package-lock.json
-
+      # Install from the monorepo root with workspaces intact (mirrors the
+      # Dockerfile). This is what resolves the @medicote/shared workspace that
+      # the backend depends on; legacy-peer-deps (.npmrc) clears the
+      # @ts-rest/fastify peer mismatch with fastify@5.
       - name: Install dependencies
         run: npm ci
 
       - name: Generate Prisma client
         run: npx prisma generate
+        working-directory: backend
 
       - name: Run tests
-        run: npm test
+        run: npm test --workspace=backend
 
       - name: Type-check & build
-        run: npm run build
+        run: npm run build --workspace=backend
 
   frontend:
     name: Frontend (test + build)
     runs-on: ubuntu-latest
-    defaults:
-      run:
-        working-directory: frontend
     steps:
       - uses: actions/checkout@v4
 
@@ -62,22 +53,16 @@ jobs:
         with:
           node-version: 20
           cache: npm
-          cache-dependency-path: frontend/package-lock.json
-
-      # Isolate from the monorepo root so npm uses frontend/package-lock.json
-      # and does not hoist to the workspace root (mirrors the Docker build).
-      - name: Isolate workspace
-        working-directory: .
-        run: rm -f package.json package-lock.json
+          cache-dependency-path: package-lock.json
 
       - name: Install dependencies
         run: npm ci
 
       - name: Run tests
-        run: npm test
+        run: npm test --workspace=frontend
 
       - name: Build
-        run: npm run build
+        run: npm run build --workspace=frontend
         env:
           NODE_OPTIONS: --max-old-space-size=4096
 
