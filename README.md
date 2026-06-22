@@ -5,29 +5,19 @@ We also have an ai assistant that can guide you to the right doctor based on you
 
 ## Quick Start
 
-### 1. Install Dependencies
-
-From the root directory, install all workspace dependencies:
-
-```bash
-npm install
-```
-
-This will install dependencies for backend, frontend and shared.
-
-### 2. Environment Setup
+### Environment Setup
 
 Ask for the .env files for backend and frontend from your project lead.
 
-### 3. Start the Database (Development)
+### 1. Start the containers (Development)
 
 ```bash
-docker compose -f docker-compose.yml up -d
+docker compose up -d
 ```
 
-This starts the PostgreSQL database container for development.
+The frontend will run on `http://localhost:3000` and the backend on `http://localhost:3001`.
 
-### 4. Run Database Migrations
+### 2. Run Database Migrations
 
 ```bash
 cd backend
@@ -35,32 +25,12 @@ npx prisma migrate dev
 npx prisma generate
 ```
 
-### 5. Seed the Database (Optional)
+### 3. Seed the Database (Optional)
 
 ```bash
 cd backend
 npm run seed:dev
 ```
-
-### 6. Start Development Servers
-
-You have two options:
-
-**Option A: Run both backend and frontend together**
-
-```bash
-npm run dev
-```
-
-**Option B: Run the Dockerized development environment**
-
-The following command will run everything in one command:
-
-```bash
-docker compose up --build
-```
-
-The frontend will run on `http://localhost:3000` and the backend on `http://localhost:3001`.
 
 ## Available Scripts
 
