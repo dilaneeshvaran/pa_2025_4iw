@@ -4,14 +4,17 @@
     <div class="mx-auto max-w-7xl px-4 py-12 sm:px-6 lg:px-8">
       <div class="xl:grid xl:grid-cols-3 xl:gap-8">
         <div class="space-y-6">
-          <div class="flex items-center gap-3">
+          <NuxtLink
+            :to="brandTarget"
+            class="flex items-center gap-3 transition-opacity hover:opacity-80"
+          >
             <div class="flex h-10 w-10 items-center justify-center rounded-lg bg-orange-500">
               <Heart class="h-6 w-6 text-white" />
             </div>
             <span class="text-xl font-bold text-gray-900">
               <span class="text-orange-500">Medi</span><span class="text-green-600">côte</span>
             </span>
-          </div>
+          </NuxtLink>
           <p class="max-w-md text-sm text-gray-500 leading-relaxed">
             « À côté des patients, nous sommes là à vos côtés »<br />
             Votre plateforme de confiance pour la prise de rendez-vous médicaux et la téléconsultation en Côte d'Ivoire.
@@ -119,5 +122,13 @@
 </template>
 
 <script setup lang="ts">
+import { computed } from 'vue'
 import { Heart, MapPin, Mail, Phone, Facebook, Twitter, Linkedin } from 'lucide-vue-next'
+import { useAuthStore } from '~/stores/auth'
+import { getDashboardPath } from '~/utils/authNavigation'
+
+const authStore = useAuthStore()
+const brandTarget = computed(() =>
+  authStore.isAuthenticated ? getDashboardPath(authStore.user?.role) : '/',
+)
 </script>

@@ -4,14 +4,18 @@
       class="fixed left-0 top-0 z-40 h-full w-64 border-r border-gray-200 bg-white shadow-sm"
     >
       <div class="flex h-full flex-col">
-        <div class="flex items-center gap-3 border-b border-gray-100 px-6 py-5">
+        <NuxtLink
+          to="/admin/dashboard"
+          class="flex items-center gap-3 border-b border-gray-100 px-6 py-5 transition-colors hover:bg-orange-50"
+          aria-label="Aller au tableau de bord administrateur"
+        >
           <div
             class="flex h-10 w-10 items-center justify-center rounded-lg bg-orange-500"
           >
             <ShieldCheck class="h-6 w-6 text-white" />
           </div>
           <span class="text-xl font-bold text-gray-900">MediCôte Admin</span>
-        </div>
+        </NuxtLink>
 
         <nav class="flex-1 overflow-y-auto px-3 py-4">
           <ul class="space-y-1">

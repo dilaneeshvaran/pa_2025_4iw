@@ -6,7 +6,11 @@
     >
       <div class="flex h-full flex-col">
         <!-- logo -->
-        <div class="flex items-center gap-3 border-b border-gray-100 px-6 py-5">
+        <NuxtLink
+          to="/cabinet/dashboard"
+          class="flex items-center gap-3 border-b border-gray-100 px-6 py-5 transition-colors hover:bg-orange-50"
+          aria-label="Aller au tableau de bord cabinet"
+        >
           <div
             class="flex h-10 w-10 items-center justify-center rounded-lg bg-orange-500"
           >
@@ -16,7 +20,7 @@
             <span class="text-xl font-bold text-gray-900">MediCôte</span>
             <p class="text-xs text-orange-600">Cabinet Admin</p>
           </div>
-        </div>
+        </NuxtLink>
 
         <!-- navigation -->
         <nav class="flex-1 overflow-y-auto px-3 py-4">

@@ -4,7 +4,7 @@
       <div class="flex h-16 items-center justify-between">
         <!-- logo -->
         <div class="flex-shrink-0">
-          <NuxtLink to="/" class="text-2xl font-bold">
+          <NuxtLink :to="brandTarget" class="text-2xl font-bold">
             <span class="text-orange-500">Medi</span
             ><span class="text-green-600">côte</span>
           </NuxtLink>
@@ -29,11 +29,7 @@
           <template v-else>
             <div class="flex items-center space-x-4">
               <NuxtLink
-                :to="
-                  authStore.user?.role === 'PATIENT'
-                    ? '/patient/dashboard'
-                    : '/practitioner/dashboard'
-                "
+                :to="dashboardPath"
                 class="text-sm font-medium text-gray-700 transition-colors hover:text-orange-600"
               >
                 Tableau de bord
@@ -56,10 +52,16 @@
 </template>
 
 <script setup lang="ts">
+import { computed } from "vue";
 import { useAuthStore } from "~/stores/auth";
+import { getDashboardPath } from "~/utils/authNavigation";
 
 const router = useRouter();
 const authStore = useAuthStore();
+const dashboardPath = computed(() => getDashboardPath(authStore.user?.role));
+const brandTarget = computed(() =>
+  authStore.isAuthenticated ? dashboardPath.value : "/",
+);
 
 // initialize auth state on mount
 onMounted(() => {
