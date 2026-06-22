@@ -76,6 +76,11 @@
 
     <!-- main content -->
     <div class="ml-64 flex-1">
+      <header
+        class="sticky top-0 z-30 flex justify-end border-b border-gray-200 bg-gray-50/95 px-6 py-3 backdrop-blur"
+      >
+        <CommonNotificationBell />
+      </header>
       <main class="p-6">
         <slot />
       </main>
