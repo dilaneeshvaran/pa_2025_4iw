@@ -92,7 +92,7 @@ services:
 
   backend:
     image: ${BACKEND_IMAGE:-ghcr.io/dilaneeshvaran/pa_2025_4iw-backend:latest}
-    # Provides every non-secret var (SMTP, Google OAuth, JWT refresh, Stripe...).
+    # Provides every non-secret var (Resend, Google OAuth, JWT refresh, Stripe...).
     # The entrypoint below re-exports the sensitive ones from Docker secrets,
     # which therefore take precedence over anything in this file.
     env_file:
