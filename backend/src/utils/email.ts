@@ -1,10 +1,9 @@
-import nodemailer from 'nodemailer'
+import { Resend } from 'resend'
 
-const SMTP_HOST = process.env.BACKEND_SMTP_HOST || 'smtp.gmail.com'
-const SMTP_PORT = parseInt(process.env.BACKEND_SMTP_PORT || '587')
-const SMTP_USER = process.env.BACKEND_SMTP_USER || ''
-const SMTP_PASSWORD = process.env.BACKEND_SMTP_PASS || ''
-const SMTP_FROM = process.env.BACKEND_SMTP_FROM || 'noreply@medicote.ci'
+const RESEND_API_KEY = process.env.BACKEND_RESEND_API_KEY || ''
+// Must be an address on a domain verified in Resend (e.g. medicote.me)
+const EMAIL_FROM =
+  process.env.BACKEND_EMAIL_FROM || 'MediCôte <noreply@medicote.me>'
 const APP_URL = process.env.BACKEND_FRONTEND_URL || 'http://localhost:3000'
 
 function escapeEmailHtml(value: string): string {
@@ -16,16 +15,8 @@ function escapeEmailHtml(value: string): string {
     .replace(/'/g, '&#39;')
 }
 
-// create reusable transporter
-const transporter = nodemailer.createTransport({
-  host: SMTP_HOST,
-  port: SMTP_PORT,
-  secure: SMTP_PORT === 465,
-  auth: {
-    user: SMTP_USER,
-    pass: SMTP_PASSWORD,
-  },
-})
+// reusable Resend client (HTTP API — avoids blocked SMTP ports on the VPS)
+const resend = new Resend(RESEND_API_KEY)
 
 export async function sendEmail(
   to: string,
@@ -33,12 +24,16 @@ export async function sendEmail(
   html: string,
 ): Promise<void> {
   try {
-    await transporter.sendMail({
-      from: SMTP_FROM,
+    const { error } = await resend.emails.send({
+      from: EMAIL_FROM,
       to,
       subject,
       html,
     })
+    if (error) {
+      console.error('Error sending email:', error)
+      throw new Error('Failed to send email')
+    }
   } catch (error) {
     console.error('Error sending email:', error)
     throw new Error('Failed to send email')
@@ -483,8 +478,8 @@ export async function sendInvoiceEmail(
   })
 
   try {
-    await transporter.sendMail({
-      from: SMTP_FROM,
+    const { error } = await resend.emails.send({
+      from: EMAIL_FROM,
       to,
       subject: `Votre facture ${data.invoiceNumber} - MediCôte`,
       html,
@@ -492,10 +487,13 @@ export async function sendInvoiceEmail(
         {
           filename: `Facture-${data.invoiceNumber}.pdf`,
           content: pdfBuffer,
-          contentType: 'application/pdf',
         },
       ],
     })
+    if (error) {
+      console.error('Error sending invoice email:', error)
+      throw new Error('Failed to send invoice email')
+    }
   } catch (error) {
     console.error('Error sending invoice email:', error)
     throw new Error('Failed to send invoice email')
