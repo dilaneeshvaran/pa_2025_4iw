@@ -23,7 +23,11 @@ services:
         constraints:
           - node.role == manager
       restart_policy:
-        condition: on-failure
+        # `any`, not `on-failure`: a clean SIGTERM (reboot, daemon restart,
+        # redeploy) exits 0, which `on-failure` treats as success and never
+        # restarts — leaving the DB dead at 0/1 and cascading to backend/nginx.
+        condition: any
+        delay: 5s
 
   redis-db:
     image: redis:7-alpine
@@ -42,7 +46,9 @@ services:
         constraints:
           - node.role == manager
       restart_policy:
-        condition: on-failure
+        # See postgres-db: a clean exit (0) must still restart a long-running DB.
+        condition: any
+        delay: 5s
 
   umami-db:
     image: postgres:16-alpine
@@ -68,7 +74,9 @@ services:
         constraints:
           - node.role == manager
       restart_policy:
-        condition: on-failure
+        # See postgres-db: a clean exit (0) must still restart a long-running DB.
+        condition: any
+        delay: 5s
 
   umami:
     image: ghcr.io/umami-software/umami:postgresql-v2.15.1
