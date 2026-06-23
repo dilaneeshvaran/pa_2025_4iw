@@ -1,9 +1,12 @@
 import { Resend } from 'resend'
 
 const RESEND_API_KEY = process.env.BACKEND_RESEND_API_KEY || ''
-// Must be an address on a domain verified in Resend (e.g. medicote.me)
-const EMAIL_FROM =
+// Must be an address on a domain verified in Resend (e.g. medicote.me).
+// Strip surrounding quotes: docker `env_file` keeps them literally, which makes
+// Resend reject the `from` field with a 422 validation_error.
+const EMAIL_FROM = (
   process.env.BACKEND_EMAIL_FROM || 'MediCôte <noreply@medicote.me>'
+).replace(/^["']|["']$/g, '')
 const APP_URL = process.env.BACKEND_FRONTEND_URL || 'http://localhost:3000'
 
 function escapeEmailHtml(value: string): string {
