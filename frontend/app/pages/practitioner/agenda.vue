@@ -5,7 +5,30 @@
         <h1 class="mb-1 text-2xl font-bold text-gray-900">Agenda</h1>
         <p class="text-gray-600">Gérez vos rendez-vous et disponibilités</p>
       </div>
-      <div class="flex flex-wrap gap-2">
+      <div class="flex flex-wrap items-center gap-3">
+        <!-- Cabinet Selector styled beautifully -->
+        <div class="flex items-center gap-2 rounded-xl border border-gray-200 bg-white p-1.5 shadow-sm">
+          <span class="pl-2.5 text-xs font-semibold uppercase tracking-wider text-gray-400">Planning :</span>
+          <div class="relative">
+            <select
+              id="cabinet-select"
+              v-model="selectedCabinetId"
+              @change="handleCabinetChange"
+              class="appearance-none rounded-lg bg-orange-50/50 hover:bg-orange-50 px-3.5 pr-8 py-1.5 text-sm font-semibold text-orange-700 transition-colors focus:outline-none cursor-pointer"
+            >
+              <option :value="null">À titre personnel (Privé)</option>
+              <option
+                v-for="item in cabinets"
+                :key="item.cabinet.id"
+                :value="item.cabinet.id"
+              >
+                {{ item.cabinet.name }}
+              </option>
+            </select>
+            <ChevronDown class="pointer-events-none absolute right-2.5 top-1/2 h-4 w-4 -translate-y-1/2 text-orange-600" />
+          </div>
+        </div>
+
         <UiButton size="sm" @click="openNewAppointmentModal">
           <Plus class="mr-1.5 h-4 w-4" />
           Ajouter un rdv
@@ -1599,6 +1622,7 @@ import {
   CalendarX2,
   ChevronLeft,
   ChevronRight,
+  ChevronDown,
   Plus,
   Ban,
   X,
@@ -1623,6 +1647,13 @@ definePageMeta({
 });
 
 const authStore = useAuthStore();
+
+const selectedCabinetId = ref<string | null>(null);
+const cabinets = ref<any[]>([]);
+
+const cabinetQueryParam = computed(() => {
+  return selectedCabinetId.value === null ? "null" : selectedCabinetId.value;
+});
 
 interface PatientInfo {
   id: string;
@@ -2105,7 +2136,7 @@ async function fetchAvailabilities() {
     const response = await useAuthenticatedFetch<{
       success: boolean;
       data: AvailabilitySlot[];
-    }>("/practitioner/agenda/availabilities");
+    }>(`/practitioner/agenda/availabilities?cabinetId=${cabinetQueryParam.value}`);
     if (response.success) {
       availabilities.value = response.data;
     }
@@ -2122,7 +2153,7 @@ async function fetchAbsences() {
     const response = await useAuthenticatedFetch<{
       success: boolean;
       data: AbsenceInfo[];
-    }>("/practitioner/agenda/absences");
+    }>(`/practitioner/agenda/absences?cabinetId=${cabinetQueryParam.value}`);
     if (response.success) {
       absences.value = response.data;
     }
@@ -2139,7 +2170,7 @@ async function fetchBlockedSlots() {
     const response = await useAuthenticatedFetch<{
       success: boolean;
       data: BlockedSlotInfo[];
-    }>("/practitioner/agenda/blocked-slots");
+    }>(`/practitioner/agenda/blocked-slots?cabinetId=${cabinetQueryParam.value}`);
     if (response.success) {
       blockedSlots.value = response.data;
     }
@@ -2180,11 +2211,17 @@ async function toggleDayActive(dayValue: string, event: Event) {
         endTime: existing?.endTime || "17:00",
         isActive,
         isEmergencySlot: false,
+        cabinetId: selectedCabinetId.value,
       },
     });
     await fetchAvailabilities();
   } catch (error) {
     console.error("Error toggling day:", error);
+    const errorMsg =
+      (error as { data?: { message?: string } })?.data?.message ||
+      "Erreur lors de la modification des disponibilités";
+    showToast(errorMsg, "error");
+    target.checked = !isActive;
   }
 }
 
@@ -2222,11 +2259,17 @@ async function updateDayTime(dayValue: string, field: string, value: string) {
         endTime,
         isActive: true,
         isEmergencySlot: false,
+        cabinetId: selectedCabinetId.value,
       },
     });
     await fetchAvailabilities();
   } catch (error) {
     console.error("Error updating day time:", error);
+    const errorMsg =
+      (error as { data?: { message?: string } })?.data?.message ||
+      "Erreur lors de la modification des disponibilités";
+    showToast(errorMsg, "error");
+    await fetchAvailabilities();
   }
 }
 
@@ -2242,7 +2285,10 @@ async function addAbsence() {
       };
     }>("/practitioner/agenda/absences", {
       method: "POST",
-      body: newAbsence.value,
+      body: {
+        ...newAbsence.value,
+        cabinetId: selectedCabinetId.value,
+      },
     });
     if (response.success) {
       absences.value.push(response.data.absence);
@@ -2338,7 +2384,10 @@ async function blockSlot() {
       };
     }>("/practitioner/agenda/blocked-slots", {
       method: "POST",
-      body: newBlockedSlot.value,
+      body: {
+        ...newBlockedSlot.value,
+        cabinetId: selectedCabinetId.value,
+      },
     });
     if (response.success) {
       blockedSlots.value.push(response.data.blockedSlot);
@@ -2428,6 +2477,7 @@ async function createAppointment() {
       method: "POST",
       body: {
         patientId: selectedPatient.value.id,
+        cabinetId: selectedCabinetId.value,
         ...newAppointment.value,
       },
     });
@@ -2496,11 +2546,39 @@ watch(activeTab, (tab) => {
   }
 });
 
-onMounted(() => {
+async function fetchCabinets() {
+  try {
+    const response = await useAuthenticatedFetch<{
+      success: boolean;
+      data: {
+        activeCabinets: any[];
+        invitations: any[];
+      };
+    }>("/practitioner/cabinets");
+    if (response.success) {
+      cabinets.value = response.data.activeCabinets;
+    }
+  } catch (error) {
+    console.error("Error fetching cabinets:", error);
+  }
+}
+
+async function handleCabinetChange() {
+  if (activeTab.value === "calendar") {
+    await fetchAvailabilities();
+  } else if (activeTab.value === "absences") {
+    await Promise.all([fetchAbsences(), fetchBlockedSlots()]);
+  } else if (activeTab.value === "settings") {
+    await Promise.all([fetchAvailabilities(), fetchSettings()]);
+  }
+}
+
+onMounted(async () => {
   if (!authStore.isAuthenticated) {
     authStore.initAuth();
   }
   if (authStore.accessToken) {
+    await fetchCabinets();
     fetchAppointments();
     fetchDaySummary();
   } else {
