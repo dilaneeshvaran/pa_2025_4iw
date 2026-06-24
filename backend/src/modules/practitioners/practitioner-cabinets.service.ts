@@ -1,4 +1,6 @@
 import prisma from '../../config/database'
+import { AppointmentStatus } from '@prisma/client'
+import { sendCabinetLeaveAppointmentCancelledEmail } from '../../utils/email'
 
 class PractitionerCabinetsService {
   async getCabinetsAndInvitations(userId: string) {
@@ -69,22 +71,19 @@ class PractitionerCabinetsService {
       throw new Error('Invitation is not valid anymore')
     }
 
-    // check if practitioner already has an active cabinet
-    const activeCabinet = await prisma.cabinetPractitioner.findFirst({
+    const alreadyMember = await prisma.cabinetPractitioner.findFirst({
       where: {
         practitionerId: practitioner.id,
+        cabinetId: invitation.cabinetId,
         leftAt: null,
       },
     })
 
-    if (activeCabinet) {
-      throw new Error(
-        "Vous appartenez déjà à un cabinet. Veuillez le quitter d'abord.",
-      )
+    if (alreadyMember) {
+      throw new Error('Vous êtes déjà membre de ce cabinet.')
     }
 
     return await prisma.$transaction(async (tx) => {
-      // update invitation
       const updatedInvitation = await tx.cabinetInvitation.update({
         where: { id: invitationId },
         data: {
@@ -93,7 +92,6 @@ class PractitionerCabinetsService {
         },
       })
 
-      // add to cabinet (upsert to handle rejoining)
       const cabinetPractitioner = await tx.cabinetPractitioner.upsert({
         where: {
           cabinetId_practitionerId: {
@@ -167,12 +165,14 @@ class PractitionerCabinetsService {
       throw new Error('Practitioner not found')
     }
 
-    // try to find the active association
     const cabinetPractitioner = await prisma.cabinetPractitioner.findFirst({
       where: {
-        cabinetId: cabinetId,
+        cabinetId,
         practitionerId: practitioner.id,
         leftAt: null,
+      },
+      include: {
+        cabinet: true,
       },
     })
 
@@ -180,11 +180,23 @@ class PractitionerCabinetsService {
       throw new Error('Not a member of this cabinet')
     }
 
-    return await prisma.cabinetPractitioner.update({
-      where: { id: cabinetPractitioner.id },
-      data: {
-        leftAt: new Date(),
-      },
+    return await prisma.$transaction(async (tx) => {
+      await tx.cabinetPractitioner.update({
+        where: { id: cabinetPractitioner.id },
+        data: { leftAt: new Date() },
+      })
+
+      await this.cancelFutureCabinetAppointments(
+        tx,
+        practitioner.id,
+        cabinetId,
+        cabinetPractitioner.cabinet.name,
+        practitioner.title,
+        practitioner.firstName,
+        practitioner.lastName,
+      )
+
+      return { success: true }
     })
   }
 
@@ -197,10 +209,9 @@ class PractitionerCabinetsService {
       throw new Error('Practitioner not found')
     }
 
-    // finding the active association
     const cabinetPractitioner = await prisma.cabinetPractitioner.findFirst({
       where: {
-        cabinetId: cabinetId,
+        cabinetId,
         practitionerId: practitioner.id,
         leftAt: null,
       },
@@ -216,6 +227,135 @@ class PractitionerCabinetsService {
         isPaused: !cabinetPractitioner.isPaused,
       },
     })
+  }
+
+  async getCabinetColleagues(userId: string, cabinetId: string) {
+    const practitioner = await prisma.practitioner.findUnique({
+      where: { userId },
+    })
+
+    if (!practitioner) {
+      throw new Error('Practitioner not found')
+    }
+
+    const membership = await prisma.cabinetPractitioner.findFirst({
+      where: {
+        cabinetId,
+        practitionerId: practitioner.id,
+        leftAt: null,
+      },
+    })
+
+    if (!membership) {
+      throw new Error("Vous n'êtes pas membre de ce cabinet")
+    }
+
+    const colleagues = await prisma.cabinetPractitioner.findMany({
+      where: {
+        cabinetId,
+        leftAt: null,
+        practitionerId: { not: practitioner.id },
+      },
+      include: {
+        practitioner: {
+          select: {
+            id: true,
+            firstName: true,
+            lastName: true,
+            title: true,
+            phone: true,
+            specialties: {
+              include: { specialty: true },
+            },
+          },
+        },
+      },
+    })
+
+    return colleagues.map((cp) => ({
+      id: cp.practitioner.id,
+      firstName: cp.practitioner.firstName,
+      lastName: cp.practitioner.lastName,
+      title: cp.practitioner.title,
+      phone: cp.practitioner.phone,
+      isPaused: cp.isPaused,
+      joinedAt: cp.joinedAt,
+      specialties: cp.practitioner.specialties.map((s) => s.specialty.name),
+    }))
+  }
+
+  async cancelFutureCabinetAppointments(
+    tx: Parameters<Parameters<typeof prisma.$transaction>[0]>[0],
+    practitionerId: string,
+    cabinetId: string,
+    cabinetName: string,
+    practitionerTitle: string,
+    practitionerFirstName: string,
+    practitionerLastName: string,
+  ) {
+    const today = new Date()
+    today.setUTCHours(0, 0, 0, 0)
+
+    const futureAppointments = await tx.appointment.findMany({
+      where: {
+        practitionerId,
+        cabinetId,
+        appointmentDate: { gte: today },
+        status: { in: [AppointmentStatus.PENDING, AppointmentStatus.CONFIRMED] },
+      },
+      include: {
+        patient: {
+          include: {
+            user: { select: { email: true } },
+          },
+        },
+      },
+    })
+
+    if (futureAppointments.length === 0) return
+
+    await tx.appointment.updateMany({
+      where: {
+        id: { in: futureAppointments.map((a) => a.id) },
+      },
+      data: {
+        status: AppointmentStatus.CANCELLED,
+        cancelledAt: new Date(),
+        cancelledBy: 'CABINET',
+        cancellationReason: `Praticien a quitté le cabinet ${cabinetName}`,
+      },
+    })
+
+    for (const apt of futureAppointments) {
+      if (apt.patient.user?.email) {
+        const dateStr = apt.appointmentDate.toLocaleDateString('fr-FR', {
+          weekday: 'long',
+          year: 'numeric',
+          month: 'long',
+          day: 'numeric',
+        })
+
+        try {
+          await sendCabinetLeaveAppointmentCancelledEmail(
+            apt.patient.user.email,
+            {
+              patientName: `${apt.patient.firstName} ${apt.patient.lastName}`,
+              practitionerTitle,
+              practitionerFirstName,
+              practitionerLastName,
+              cabinetName,
+              appointmentDate: dateStr,
+              appointmentTime: apt.startTime,
+            },
+          )
+        } catch (emailError) {
+          console.error(
+            `Failed to send cancellation email for appointment ${apt.id}:`,
+            emailError,
+          )
+        }
+      }
+    }
   }
 }
 
