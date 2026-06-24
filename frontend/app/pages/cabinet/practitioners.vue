@@ -32,7 +32,8 @@
         <div
           v-for="prac in practitioners"
           :key="prac.id"
-          class="flex items-center justify-between p-4 transition-colors hover:bg-gray-50"
+          class="flex items-center justify-between p-4 transition-colors hover:bg-gray-50 cursor-pointer"
+          @click="$router.push(`/cabinet/practitioners/${prac.id}`)"
         >
           <div class="flex items-center gap-4">
             <div
@@ -72,7 +73,7 @@
               {{ prac.licenseVerified ? "Vérifié" : "Non vérifié" }}
             </span>
             <button
-              @click="removePractitioner(prac.id)"
+              @click.stop="removePractitioner(prac.id)"
               class="rounded-lg p-2 text-gray-400 transition-colors hover:bg-red-50 hover:text-red-500"
               title="Retirer du cabinet"
             >

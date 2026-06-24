@@ -82,58 +82,90 @@
       <UiCard
         v-for="item in cabinets"
         :key="item.id"
-        class="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between"
       >
-        <div class="flex items-start gap-4 sm:items-center">
-          <div
-            class="flex h-12 w-12 flex-shrink-0 items-center justify-center rounded-lg bg-orange-50"
-          >
-            <Building class="h-6 w-6 text-orange-600" />
-          </div>
-          <div>
-            <h3 class="text-lg font-medium text-gray-900">
-              {{ item.cabinet.name }}
-            </h3>
+        <div class="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
+          <div class="flex items-start gap-4 sm:items-center">
             <div
-              class="mt-1 flex flex-col gap-1 text-sm text-gray-500 sm:flex-row sm:items-center sm:gap-4"
+              class="flex h-12 w-12 flex-shrink-0 items-center justify-center rounded-lg bg-orange-50"
             >
-              <span class="flex items-center gap-1">
-                <MapPin class="h-4 w-4" />
-                {{ item.cabinet.address }}
-              </span>
-              <span class="flex items-center gap-1">
-                <Calendar class="h-4 w-4" />
-                Rejoint le {{ formatDate(item.joinedAt) }}
-              </span>
-              <span
-                v-if="item.isPaused"
-                class="flex items-center gap-1 rounded-full bg-yellow-100 px-2 py-0.5 text-xs font-medium text-yellow-600"
+              <Building class="h-6 w-6 text-orange-600" />
+            </div>
+            <div>
+              <h3 class="text-lg font-medium text-gray-900">
+                {{ item.cabinet.name }}
+              </h3>
+              <div
+                class="mt-1 flex flex-col gap-1 text-sm text-gray-500 sm:flex-row sm:items-center sm:gap-4"
               >
-                En pause
-              </span>
+                <span class="flex items-center gap-1">
+                  <MapPin class="h-4 w-4" />
+                  {{ item.cabinet.address }}
+                </span>
+                <span class="flex items-center gap-1">
+                  <Calendar class="h-4 w-4" />
+                  Rejoint le {{ formatDate(item.joinedAt) }}
+                </span>
+                <span
+                  v-if="item.isPaused"
+                  class="flex items-center gap-1 rounded-full bg-yellow-100 px-2 py-0.5 text-xs font-medium text-yellow-600"
+                >
+                  En pause
+                </span>
+              </div>
             </div>
           </div>
+          <div class="flex items-center gap-3">
+            <UiButton
+              variant="secondary"
+              size="sm"
+              @click="toggleColleagues(item.cabinet.id)"
+            >
+              <Users class="mr-1 h-4 w-4" />
+              <span>{{ expandedColleagues[item.cabinet.id] ? 'Masquer praticiens' : 'Voir praticiens' }}</span>
+            </UiButton>
+            <UiButton
+              variant="secondary"
+              size="sm"
+              @click="togglePauseCabinet(item.cabinet.id, item.isPaused)"
+              :disabled="actionLoading === item.cabinet.id"
+            >
+              <span v-if="item.isPaused">Reprendre</span>
+              <span v-else>Pauser</span>
+            </UiButton>
+            <UiButton
+              variant="danger"
+              size="sm"
+              @click="leaveCabinet(item.cabinet.id)"
+              :disabled="actionLoading === item.cabinet.id"
+            >
+              <LogOut class="mr-2 h-4 w-4" />
+              <span v-if="actionLoading === item.cabinet.id">Patientez...</span>
+              <span v-else>Quitter le cabinet</span>
+            </UiButton>
+          </div>
         </div>
-        <div class="flex items-center gap-3">
-          <UiButton
-            variant="secondary"
-            size="sm"
-            @click="togglePauseCabinet(item.cabinet.id, item.isPaused)"
-            :disabled="actionLoading === item.cabinet.id"
-          >
-            <span v-if="item.isPaused">Reprendre</span>
-            <span v-else>Pauser</span>
-          </UiButton>
-          <UiButton
-            variant="danger"
-            size="sm"
-            @click="leaveCabinet(item.cabinet.id)"
-            :disabled="actionLoading === item.cabinet.id"
-          >
-            <LogOut class="mr-2 h-4 w-4" />
-            <span v-if="actionLoading === item.cabinet.id">Patientez...</span>
-            <span v-else>Quitter le cabinet</span>
-          </UiButton>
+
+        <div v-if="expandedColleagues[item.cabinet.id]" class="mt-4 border-t border-gray-100 pt-4">
+          <h4 class="text-sm font-semibold text-gray-700 mb-2">Praticiens de ce cabinet</h4>
+          <div v-if="colleaguesLoading[item.cabinet.id]" class="text-xs text-gray-500">
+            Chargement...
+          </div>
+          <div v-else-if="!colleagues[item.cabinet.id]?.length" class="text-xs text-gray-500">
+            Aucun autre praticien dans ce cabinet.
+          </div>
+          <div v-else class="space-y-2">
+            <div
+              v-for="col in colleagues[item.cabinet.id]"
+              :key="col.id"
+              class="flex justify-between items-center bg-gray-50 p-2 rounded text-sm"
+            >
+              <div>
+                <span class="font-medium text-gray-900">{{ col.title }} {{ col.firstName }} {{ col.lastName }}</span>
+                <span class="text-xs text-gray-500 ml-2">({{ col.specialties.join(', ') || 'Généraliste' }})</span>
+              </div>
+              <span class="text-xs text-gray-500">{{ col.phone }}</span>
+            </div>
+          </div>
         </div>
       </UiCard>
     </div>
@@ -213,6 +245,7 @@ import {
   Clock,
   Check,
   X,
+  Users,
 } from "lucide-vue-next";
 import { useToast } from "vue-toastification";
 
@@ -228,6 +261,29 @@ const currentTab = ref<"active" | "invitations">("active");
 
 const cabinets = ref<any[]>([]);
 const invitations = ref<any[]>([]);
+
+const expandedColleagues = ref<Record<string, boolean>>({});
+const colleagues = ref<Record<string, any[]>>({});
+const colleaguesLoading = ref<Record<string, boolean>>({});
+
+const toggleColleagues = async (cabinetId: string) => {
+  expandedColleagues.value[cabinetId] = !expandedColleagues.value[cabinetId];
+  if (expandedColleagues.value[cabinetId] && !colleagues.value[cabinetId]) {
+    colleaguesLoading.value[cabinetId] = true;
+    try {
+      const response = await useAuthenticatedFetch<{ success: boolean; data: any[] }>(
+        `/practitioner/cabinets/${cabinetId}/practitioners`
+      );
+      if (response.success) {
+        colleagues.value[cabinetId] = response.data;
+      }
+    } catch (error) {
+      toast.error("Erreur lors du chargement des praticiens");
+    } finally {
+      colleaguesLoading.value[cabinetId] = false;
+    }
+  }
+};
 
 const formatDate = (date: string) => {
   return new Date(date).toLocaleDateString("fr-FR", {

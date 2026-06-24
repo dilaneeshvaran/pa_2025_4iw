@@ -7,6 +7,8 @@ import {
   invitePractitionerSchema,
   createStaffSchema,
   updateStaffSchema,
+  bookCabinetAppointmentSchema,
+  transferOwnershipSchema,
 } from './cabinet.schema'
 
 export async function cabinetRoutes(fastify: FastifyInstance) {
@@ -14,10 +16,10 @@ export async function cabinetRoutes(fastify: FastifyInstance) {
   fastify.get(
     '/dashboard',
     {
-      preHandler: [authenticate, authorize(['CABINET_ADMIN'])],
+      preHandler: [authenticate, authorize(['CABINET_ADMIN', 'STAFF'])],
       schema: {
         tags: ['cabinet'],
-        description: 'Get cabinet admin dashboard data',
+        description: 'Get cabinet dashboard data',
       },
     },
     cabinetController.getDashboard.bind(cabinetController),
@@ -27,7 +29,7 @@ export async function cabinetRoutes(fastify: FastifyInstance) {
   fastify.get(
     '/info',
     {
-      preHandler: [authenticate, authorize(['CABINET_ADMIN'])],
+      preHandler: [authenticate, authorize(['CABINET_ADMIN', 'STAFF'])],
       schema: { tags: ['cabinet'] },
     },
     cabinetController.getCabinetInfo.bind(cabinetController),
@@ -49,7 +51,7 @@ export async function cabinetRoutes(fastify: FastifyInstance) {
   fastify.get(
     '/practitioners',
     {
-      preHandler: [authenticate, authorize(['CABINET_ADMIN'])],
+      preHandler: [authenticate, authorize(['CABINET_ADMIN', 'STAFF'])],
       schema: { tags: ['cabinet'] },
     },
     cabinetController.getPractitioners.bind(cabinetController),
@@ -123,9 +125,75 @@ export async function cabinetRoutes(fastify: FastifyInstance) {
   fastify.get(
     '/practitioners/:id/appointments',
     {
-      preHandler: [authenticate, authorize(['CABINET_ADMIN'])],
+      preHandler: [authenticate, authorize(['CABINET_ADMIN', 'STAFF'])],
       schema: { tags: ['cabinet'] },
     },
     cabinetController.getPractitionerAppointments.bind(cabinetController),
+  )
+
+  // Practitioner schedule
+  fastify.get(
+    '/practitioners/:id/schedule',
+    {
+      preHandler: [authenticate, authorize(['CABINET_ADMIN', 'STAFF'])],
+      schema: { tags: ['cabinet'] },
+    },
+    cabinetController.getPractitionerSchedule.bind(cabinetController),
+  )
+
+  // Practitioner cabinet-scoped patients
+  fastify.get(
+    '/practitioners/:id/patients',
+    {
+      preHandler: [authenticate, authorize(['CABINET_ADMIN', 'STAFF'])],
+      schema: { tags: ['cabinet'] },
+    },
+    cabinetController.getPractitionerPatients.bind(cabinetController),
+  )
+
+  // Patient search for booking (email + cabinet history)
+  fastify.get(
+    '/practitioners/:id/patients/search',
+    {
+      preHandler: [authenticate, authorize(['CABINET_ADMIN', 'STAFF'])],
+      schema: { tags: ['cabinet'] },
+    },
+    cabinetController.searchPatientsForBooking.bind(cabinetController),
+  )
+
+  // Book appointment for a practitioner
+  fastify.post(
+    '/practitioners/:id/appointments',
+    {
+      preHandler: [authenticate, authorize(['CABINET_ADMIN', 'STAFF'])],
+      schema: {
+        body: bookCabinetAppointmentSchema,
+        tags: ['cabinet'],
+      },
+    },
+    cabinetController.bookAppointmentForPractitioner.bind(cabinetController),
+  )
+
+  // Delete cabinet
+  fastify.delete(
+    '/',
+    {
+      preHandler: [authenticate, authorize(['CABINET_ADMIN'])],
+      schema: { tags: ['cabinet'] },
+    },
+    cabinetController.deleteCabinet.bind(cabinetController),
+  )
+
+  // Transfer ownership
+  fastify.post(
+    '/transfer-ownership',
+    {
+      preHandler: [authenticate, authorize(['CABINET_ADMIN'])],
+      schema: {
+        body: transferOwnershipSchema,
+        tags: ['cabinet'],
+      },
+    },
+    cabinetController.transferOwnership.bind(cabinetController),
   )
 }
