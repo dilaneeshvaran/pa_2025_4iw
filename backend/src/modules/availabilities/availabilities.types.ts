@@ -2,6 +2,7 @@ import { DayOfWeek } from '@prisma/client'
 
 export interface AvailabilitySlot {
   id: string
+  cabinetId?: string | null
   dayOfWeek: DayOfWeek
   startTime: string
   endTime: string
@@ -14,6 +15,7 @@ export interface AvailabilitySlot {
 
 export interface AbsenceInfo {
   id: string
+  cabinetId?: string | null
   startDate: Date
   endDate: Date
   reason: string | null
@@ -23,6 +25,7 @@ export interface AbsenceInfo {
 
 export interface BlockedSlotInfo {
   id: string
+  cabinetId?: string | null
   date: Date
   startTime: string
   endTime: string
