@@ -3,6 +3,7 @@ import { z } from 'zod'
 const timeRegex = /^([01]\d|2[0-3]):([0-5]\d)$/
 
 export const upsertAvailabilitySchema = z.object({
+  cabinetId: z.string().cuid().nullable().optional(),
   dayOfWeek: z.enum([
     'MONDAY',
     'TUESDAY',
@@ -30,12 +31,14 @@ export const upsertAvailabilitySchema = z.object({
 })
 
 export const createAbsenceSchema = z.object({
+  cabinetId: z.string().cuid().nullable().optional(),
   startDate: z.string().min(1, 'Date de début requise'),
   endDate: z.string().min(1, 'Date de fin requise'),
   reason: z.string().max(500).optional(),
 })
 
 export const createBlockedSlotSchema = z.object({
+  cabinetId: z.string().cuid().nullable().optional(),
   date: z.string().min(1, 'Date requise'),
   startTime: z.string().regex(timeRegex, 'Format HH:mm requis'),
   endTime: z.string().regex(timeRegex, 'Format HH:mm requis'),
@@ -62,6 +65,7 @@ export const updateSettingsSchema = z.object({
 })
 
 export const createPractitionerAppointmentSchema = z.object({
+  cabinetId: z.string().cuid().nullable().optional(),
   patientId: z.string().min(1, 'Patient requis'),
   appointmentDate: z.string().min(1, 'Date requise'),
   startTime: z.string().regex(timeRegex, 'Format HH:mm requis'),
