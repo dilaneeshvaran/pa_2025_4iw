@@ -194,7 +194,7 @@ describe("auth store", () => {
     expect(store.currentRole).toBe("PRACTITIONER");
   });
 
-  it("should clear auth during initAuth if token is expired", () => {
+  it("should not clear auth during initAuth if token is expired but refresh token is present", () => {
     const store = useAuthStore();
     const mockUser = {
       id: "user-1",
@@ -210,6 +210,33 @@ describe("auth store", () => {
 
     localStorage.setItem("accessToken", accessToken);
     localStorage.setItem("refreshToken", refreshToken);
+    localStorage.setItem("user", JSON.stringify(mockUser));
+    localStorage.setItem("tokenExpiresAt", expTime.toString());
+
+    store.initAuth();
+
+    expect(store.user).toEqual(mockUser);
+    expect(store.accessToken).toBe(accessToken);
+    expect(store.refreshToken).toBe(refreshToken);
+    expect(store.isAuthenticated).toBe(true);
+    expect(store.tokenExpiresAt).toBe(expTime);
+    expect(store.isTokenExpired).toBe(true);
+  });
+
+  it("should clear auth during initAuth if token is expired and no refresh token is present", () => {
+    const store = useAuthStore();
+    const mockUser = {
+      id: "user-1",
+      email: "test@medicote.ci",
+      role: "PATIENT",
+      status: "ACTIVE",
+      emailVerified: true,
+    };
+    // expired 1 hour ago
+    const expTime = Math.floor(Date.now() / 1000) - 3600;
+    const accessToken = createMockJWT(expTime);
+
+    localStorage.setItem("accessToken", accessToken);
     localStorage.setItem("user", JSON.stringify(mockUser));
     localStorage.setItem("tokenExpiresAt", expTime.toString());
 

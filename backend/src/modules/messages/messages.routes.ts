@@ -753,20 +753,33 @@ async function notifyRecipients(
 
   for (const recipientUserId of recipientUserIds) {
     try {
-      // send ws if online
+      // 1. Always create the in-app notification in DB
+      const notification = await messagesService.createInAppMessageNotification(
+        recipientUserId,
+        senderName,
+        messagePreview,
+        conversationId,
+        message.id,
+      )
+
+      // 2. send ws if online
       const isOnline = sendToUser(recipientUserId, 'new_message', {
         ...message,
         conversationId,
       })
 
-      if (!isOnline) {
-        await messagesService.createInAppMessageNotification(
-          recipientUserId,
-          senderName,
-          messagePreview,
-          conversationId,
-          message.id,
-        )
+      // 3. if recipient is online, also push the notification update in real time
+      if (isOnline && notification) {
+        sendToUser(recipientUserId, 'new_notification', {
+          id: notification.id,
+          type: notification.type,
+          title: notification.title,
+          message: notification.message,
+          metadata: notification.metadata,
+          read: notification.read,
+          readAt: notification.readAt,
+          createdAt: notification.createdAt.toISOString(),
+        })
       }
 
       // schedule email if off

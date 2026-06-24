@@ -116,6 +116,7 @@ import {
   Loader2,
 } from "lucide-vue-next";
 import { useAuthStore } from "~/stores/auth";
+import { useMessagingStore } from "~/stores/messaging";
 import {
   useNotificationsStore,
   type AppNotification,
@@ -129,8 +130,35 @@ const markingAll = ref(false);
 const statusMessage = ref("");
 const notificationsStore = useNotificationsStore();
 const authStore = useAuthStore();
+const messagingStore = useMessagingStore();
 
 let pollInterval: ReturnType<typeof setInterval> | null = null;
+
+const handleNewNotification = (notification: any) => {
+  const route = useRoute();
+  const isMessagePage = route.path.endsWith("/messages");
+  const activeConvId = route.query.conversationId;
+  const isViewingThisConversation =
+    isMessagePage &&
+    activeConvId === notification.metadata?.conversationId;
+
+  if (notification.type === "MESSAGE_RECEIVED" && isViewingThisConversation) {
+    // Already viewing, ignore or add as read
+    notification.read = true;
+    notification.readAt = new Date().toISOString();
+  }
+
+  // Check if notification already exists in the list to avoid duplicates
+  if (notificationsStore.notifications.some((n) => n.id === notification.id)) {
+    return;
+  }
+
+  notificationsStore.notifications.unshift(notification);
+  if (!notification.read) {
+    notificationsStore.unreadCount++;
+  }
+};
+
 
 const badgeCount = computed(() =>
   notificationsStore.unreadCount > 99
@@ -215,6 +243,10 @@ const formatNotificationDate = (value: string) => {
 
 onMounted(() => {
   notificationsStore.refresh();
+  if (authStore.isAuthenticated) {
+    messagingStore.connect();
+    messagingStore.on("new_notification", handleNewNotification);
+  }
   pollInterval = setInterval(() => {
     notificationsStore.fetchUnreadCount();
   }, 60000);
@@ -227,6 +259,7 @@ onUnmounted(() => {
     pollInterval = null;
   }
 
+  messagingStore.off("new_notification", handleNewNotification);
   document.removeEventListener("click", handleDocumentClick);
 });
 </script>
