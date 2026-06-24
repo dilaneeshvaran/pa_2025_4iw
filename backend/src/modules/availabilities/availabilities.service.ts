@@ -26,13 +26,18 @@ import type {
 } from './availabilities.schema'
 
 export class AvailabilitiesService {
-  async getAvailabilities(practitionerId: string): Promise<AvailabilitySlot[]> {
+  async getAvailabilities(practitionerId: string, cabinetId?: string | null): Promise<AvailabilitySlot[]> {
+    const where: any = { practitionerId }
+    if (cabinetId !== undefined) {
+      where.cabinetId = cabinetId
+    }
     const rows = await prisma.availability.findMany({
-      where: { practitionerId },
+      where,
       orderBy: { dayOfWeek: 'asc' },
     })
     return rows.map((r) => ({
       id: r.id,
+      cabinetId: r.cabinetId,
       dayOfWeek: r.dayOfWeek,
       startTime: r.startTime,
       endTime: r.endTime,
@@ -48,6 +53,8 @@ export class AvailabilitiesService {
     practitionerId: string,
     data: UpsertAvailabilityInput,
   ): Promise<AvailabilitySlot> {
+    const targetCabinetId = data.cabinetId ?? null
+
     // fetch practitioner's current consultationDuration as default slotDuration
     const practitioner = await prisma.practitioner.findUnique({
       where: { id: practitionerId },
@@ -61,8 +68,26 @@ export class AvailabilitiesService {
         practitionerId,
         dayOfWeek: data.dayOfWeek as DayOfWeek,
         isEmergencySlot: data.isEmergencySlot || false,
+        cabinetId: targetCabinetId,
       },
     })
+
+    // Check overlap with other availabilities of the practitioner on the same day
+    const otherAvailabilities = await prisma.availability.findMany({
+      where: {
+        practitionerId,
+        dayOfWeek: data.dayOfWeek as DayOfWeek,
+        id: existing ? { not: existing.id } : undefined,
+      },
+    })
+
+    for (const other of otherAvailabilities) {
+      if (data.startTime < other.endTime && data.endTime > other.startTime) {
+        throw new Error(
+          `Conflit d'horaire : vous êtes déjà disponible sur ce créneau dans un autre cabinet ou à titre personnel (${other.startTime} - ${other.endTime})`,
+        )
+      }
+    }
 
     const row = existing
       ? await prisma.availability.update({
@@ -80,6 +105,7 @@ export class AvailabilitiesService {
       : await prisma.availability.create({
           data: {
             practitionerId,
+            cabinetId: targetCabinetId,
             dayOfWeek: data.dayOfWeek as DayOfWeek,
             startTime: data.startTime,
             endTime: data.endTime,
@@ -93,6 +119,7 @@ export class AvailabilitiesService {
 
     return {
       id: row.id,
+      cabinetId: row.cabinetId,
       dayOfWeek: row.dayOfWeek,
       startTime: row.startTime,
       endTime: row.endTime,
@@ -115,13 +142,18 @@ export class AvailabilitiesService {
     await prisma.availability.delete({ where: { id: availabilityId } })
   }
 
-  async getAbsences(practitionerId: string): Promise<AbsenceInfo[]> {
+  async getAbsences(practitionerId: string, cabinetId?: string | null): Promise<AbsenceInfo[]> {
+    const where: any = { practitionerId }
+    if (cabinetId !== undefined) {
+      where.cabinetId = cabinetId
+    }
     const rows = await prisma.absence.findMany({
-      where: { practitionerId },
+      where,
       orderBy: { startDate: 'asc' },
     })
     return rows.map((r) => ({
       id: r.id,
+      cabinetId: r.cabinetId,
       startDate: r.startDate,
       endDate: r.endDate,
       reason: r.reason,
@@ -143,10 +175,13 @@ export class AvailabilitiesService {
       throw new Error('La date de fin doit être après la date de début')
     }
 
+    const targetCabinetId = data.cabinetId ?? null
+
     // check for overlapping absences
     const overlapping = await prisma.absence.findFirst({
       where: {
         practitionerId,
+        cabinetId: targetCabinetId,
         AND: [{ startDate: { lte: endDate } }, { endDate: { gte: startDate } }],
       },
     })
@@ -159,6 +194,7 @@ export class AvailabilitiesService {
     const row = await prisma.absence.create({
       data: {
         practitionerId,
+        cabinetId: targetCabinetId,
         startDate,
         endDate,
         reason: data.reason || null,
@@ -174,6 +210,7 @@ export class AvailabilitiesService {
     const affectedAppointments = await prisma.appointment.findMany({
       where: {
         practitionerId,
+        cabinetId: targetCabinetId,
         appointmentDate: {
           gte: startDate,
           lte: endDate,
@@ -236,6 +273,7 @@ export class AvailabilitiesService {
     return {
       absence: {
         id: row.id,
+        cabinetId: row.cabinetId,
         startDate: row.startDate,
         endDate: row.endDate,
         reason: row.reason,
@@ -330,19 +368,25 @@ export class AvailabilitiesService {
     return { notifiedCount }
   }
 
-  async getBlockedSlots(practitionerId: string): Promise<BlockedSlotInfo[]> {
+  async getBlockedSlots(practitionerId: string, cabinetId?: string | null): Promise<BlockedSlotInfo[]> {
     const today = new Date()
     today.setHours(0, 0, 0, 0)
 
+    const where: any = {
+      practitionerId,
+      date: { gte: today },
+    }
+    if (cabinetId !== undefined) {
+      where.cabinetId = cabinetId
+    }
+
     const rows = await prisma.blockedSlot.findMany({
-      where: {
-        practitionerId,
-        date: { gte: today },
-      },
+      where,
       orderBy: [{ date: 'asc' }, { startTime: 'asc' }],
     })
     return rows.map((r) => ({
       id: r.id,
+      cabinetId: r.cabinetId,
       date: r.date,
       startTime: r.startTime,
       endTime: r.endTime,
@@ -360,9 +404,12 @@ export class AvailabilitiesService {
     const date = new Date(data.date)
     date.setHours(0, 0, 0, 0)
 
+    const targetCabinetId = data.cabinetId ?? null
+
     const row = await prisma.blockedSlot.create({
       data: {
         practitionerId,
+        cabinetId: targetCabinetId,
         date,
         startTime: data.startTime,
         endTime: data.endTime,
@@ -376,10 +423,11 @@ export class AvailabilitiesService {
       select: { firstName: true, lastName: true, title: true },
     })
 
-    // find all appointments on this date
+    // find all appointments on this date in the same cabinet
     const allAppointments = await prisma.appointment.findMany({
       where: {
         practitionerId,
+        cabinetId: targetCabinetId,
         appointmentDate: date,
         status: {
           in: [AppointmentStatus.PENDING, AppointmentStatus.CONFIRMED],
@@ -440,6 +488,7 @@ export class AvailabilitiesService {
     return {
       blockedSlot: {
         id: row.id,
+        cabinetId: row.cabinetId,
         date: row.date,
         startTime: row.startTime,
         endTime: row.endTime,
@@ -686,6 +735,7 @@ export class AvailabilitiesService {
       where: {
         practitionerId,
         dayOfWeek,
+        cabinetId: data.cabinetId || null,
         isActive: true,
         isEmergencySlot: false,
       },
@@ -809,6 +859,7 @@ export class AvailabilitiesService {
       data: {
         patientId: data.patientId,
         practitionerId,
+        cabinetId: data.cabinetId || null,
         appointmentDate,
         startTime: data.startTime,
         endTime,
