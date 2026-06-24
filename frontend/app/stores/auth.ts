@@ -155,6 +155,27 @@ export const useAuthStore = defineStore("auth", () => {
     clearAuthCookies();
   }
 
+  async function refresh() {
+    if (!refreshToken.value) {
+      throw new Error("No refresh token available");
+    }
+    const config = useRuntimeConfig();
+    const response = await $fetch<{
+      success: boolean;
+      data: { accessToken: string; refreshToken: string };
+    }>("/auth/refresh", {
+      baseURL: config.public.apiBase as string,
+      method: "POST",
+      body: { refreshToken: refreshToken.value },
+    });
+
+    if (response.success && response.data && user.value) {
+      setAuth(user.value, response.data);
+    } else {
+      throw new Error("Failed to refresh token");
+    }
+  }
+
   function initAuth() {
     // initialize auth state from localstorage
     if (isClient) {
@@ -178,7 +199,7 @@ export const useAuthStore = defineStore("auth", () => {
           ? parseInt(tokenExpiresAtVal)
           : null;
 
-        if (isTokenExpired.value) {
+        if (isTokenExpired.value && !refreshTokenVal) {
           logout();
           isAuthenticated.value = false;
           return;
@@ -216,6 +237,7 @@ export const useAuthStore = defineStore("auth", () => {
     logout,
     initAuth,
     initServerAuth,
+    refresh,
   };
 });
 

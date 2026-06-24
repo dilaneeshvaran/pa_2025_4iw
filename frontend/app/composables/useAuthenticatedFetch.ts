@@ -27,7 +27,7 @@ export const useAuthenticatedFetch = async <T>(
     } else {
       // start refresh process
       isRefreshing = true;
-      refreshPromise = refreshAccessToken(authStore, config.public.apiBase);
+      refreshPromise = authStore.refresh();
 
       try {
         await refreshPromise;
@@ -62,7 +62,7 @@ export const useAuthenticatedFetch = async <T>(
       // if we have a refresh token, try to refresh
       if (authStore.refreshToken && !isRefreshing) {
         try {
-          await refreshAccessToken(authStore, config.public.apiBase);
+          await authStore.refresh();
 
           // retry original request with new token
           // @ts-expect-error - nuxt $fetch type inference with spread operator
@@ -89,24 +89,3 @@ export const useAuthenticatedFetch = async <T>(
     throw err;
   }
 };
-
-async function refreshAccessToken(
-  authStore: ReturnType<typeof useAuthStore>,
-  apiBase: string,
-) {
-  const response = await $fetch<{
-    success: boolean;
-    data: { accessToken: string; refreshToken: string };
-  }>("/auth/refresh", {
-    baseURL: apiBase,
-    method: "POST",
-    body: { refreshToken: authStore.refreshToken },
-  });
-
-  if (response.success && response.data && authStore.user) {
-    // update store with new tokens
-    authStore.setAuth(authStore.user, response.data);
-  } else {
-    throw new Error("Failed to refresh token");
-  }
-}

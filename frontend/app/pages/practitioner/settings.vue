@@ -78,6 +78,30 @@
             </div>
           </div>
 
+          <div class="rounded-lg border border-gray-200 bg-gray-50 p-4">
+            <div class="mb-3 flex items-start justify-between">
+              <div class="flex-1">
+                <h4 class="font-medium text-gray-800">
+                  Activer la messagerie
+                </h4>
+                <p class="mt-1 text-sm text-gray-500">
+                  Permet aux patients de vous envoyer des messages pour des questions de suivi ou administratives.
+                </p>
+              </div>
+              <label class="relative inline-flex cursor-pointer items-center">
+                <input
+                  type="checkbox"
+                  v-model="profileVisibility.messagingEnabled"
+                  class="peer sr-only"
+                  @change="updateMessagingVisibility"
+                />
+                <div
+                  class="peer h-6 w-11 rounded-full bg-gray-200 after:absolute after:left-[2px] after:top-[2px] after:h-5 after:w-5 after:rounded-full after:border after:border-gray-300 after:bg-white after:transition-all after:content-[''] peer-checked:bg-orange-500 peer-checked:after:translate-x-full peer-checked:after:border-white peer-focus:outline-none peer-focus:ring-4 peer-focus:ring-orange-300"
+                ></div>
+              </label>
+            </div>
+          </div>
+
           <div class="rounded-lg border border-gray-100 bg-white p-4">
             <h5 class="mb-2 text-sm font-semibold text-gray-700">
               Statut des tarifs
@@ -416,6 +440,7 @@ const invoices = ref<InvoiceInfo[]>([]);
 
 const profileVisibility = ref({
   isProfilePublic: false,
+  messagingEnabled: false,
   tarifsAreDefined: false,
   tarifs: {
     baseConsultationFee: undefined as number | undefined,
@@ -426,6 +451,7 @@ const profileVisibility = ref({
 
 interface ProfileData {
   isProfilePublic: boolean;
+  messagingEnabled?: boolean;
   baseConsultationFee?: number;
   teleconsultationFee?: number;
   emergencyFee?: number;
@@ -479,6 +505,8 @@ const fetchData = async () => {
     if (profileRes.success) {
       profileVisibility.value.isProfilePublic =
         profileRes.data.isProfilePublic || false;
+      profileVisibility.value.messagingEnabled =
+        profileRes.data.messagingEnabled || false;
       profileVisibility.value.tarifs.baseConsultationFee =
         profileRes.data.baseConsultationFee;
       profileVisibility.value.tarifs.teleconsultationFee =
@@ -562,6 +590,30 @@ const updateProfileVisibility = async () => {
     // revert the toggle on error
     profileVisibility.value.isProfilePublic =
       !profileVisibility.value.isProfilePublic;
+    const apiError = err as { message?: string };
+    toast.error(apiError.message || "Erreur lors de la mise à jour");
+  }
+};
+
+const updateMessagingVisibility = async () => {
+  try {
+    const res = await useAuthenticatedFetch<{
+      success: boolean;
+      message?: string;
+    }>("/practitioner/dashboard/profile", {
+      method: "PATCH",
+      body: { messagingEnabled: profileVisibility.value.messagingEnabled },
+    });
+    if (res.success) {
+      toast.success(
+        profileVisibility.value.messagingEnabled
+          ? "Messagerie activée avec succès"
+          : "Messagerie désactivée",
+      );
+    }
+  } catch (err: unknown) {
+    profileVisibility.value.messagingEnabled =
+      !profileVisibility.value.messagingEnabled; // revert
     const apiError = err as { message?: string };
     toast.error(apiError.message || "Erreur lors de la mise à jour");
   }
