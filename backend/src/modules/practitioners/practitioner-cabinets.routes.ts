@@ -82,4 +82,19 @@ export async function practitionerCabinetsRoutes(fastify: FastifyInstance) {
       practitionerCabinetsController,
     ),
   )
+
+  fastify.get(
+    '/:id/practitioners',
+    {
+      preHandler: [authenticate, authorize(['PRACTITIONER'])],
+      schema: {
+        params: paramsSchema,
+        tags: ['practitioner-cabinets'],
+        description: 'Get other practitioners in a specific cabinet',
+      },
+    },
+    practitionerCabinetsController.getCabinetColleagues.bind(
+      practitionerCabinetsController,
+    ),
+  )
 }
