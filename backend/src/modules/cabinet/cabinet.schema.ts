@@ -53,3 +53,24 @@ export const updateStaffSchema = z.object({
 })
 
 export type UpdateStaffInput = z.infer<typeof updateStaffSchema>
+
+const timeRegex = /^([01]\d|2[0-3]):([0-5]\d)$/
+
+export const bookCabinetAppointmentSchema = z.object({
+  patientId: z.string().min(1, 'Patient requis'),
+  appointmentDate: z.string().min(1, 'Date requise'),
+  startTime: z.string().regex(timeRegex, 'Format HH:mm requis'),
+  endTime: z.string().regex(timeRegex, 'Format HH:mm requis'),
+  type: z.enum(['IN_PERSON', 'TELECONSULTATION']),
+  reason: z.string().max(500).optional(),
+})
+
+export type BookCabinetAppointmentInput = z.infer<
+  typeof bookCabinetAppointmentSchema
+>
+
+export const transferOwnershipSchema = z.object({
+  email: z.string().trim().toLowerCase().email(),
+})
+
+export type TransferOwnershipInput = z.infer<typeof transferOwnershipSchema>
