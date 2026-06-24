@@ -12,6 +12,9 @@ jest.mock('../../../config/database', () => ({
       create: jest.fn(),
       update: jest.fn(),
     },
+    appointment: {
+      findMany: jest.fn(),
+    },
   },
 }))
 
@@ -74,5 +77,54 @@ describe('Availability Overlap Validation', () => {
         endTime: '14:00',
       })
     ).rejects.toThrow("Conflit d'horaire : vous êtes déjà disponible sur ce créneau")
+  })
+
+  describe('getAppointments and getDaySummary cabinet filtering', () => {
+    it('should filter getAppointments by cabinetId when specified', async () => {
+      mockPrisma.appointment.findMany.mockResolvedValue([
+        {
+          id: 'apt-1',
+          appointmentDate: new Date(),
+          startTime: '09:00',
+          endTime: '09:30',
+          duration: 30,
+          type: 'IN_PERSON',
+          status: 'CONFIRMED',
+          consultationFee: 1000,
+          patient: { id: 'patient-1', firstName: 'John', lastName: 'Doe', phone: '123' }
+        }
+      ] as any)
+
+      const result = await service.getAppointments('pract-1', '2026-06-24', '2026-06-24', 'cab-1')
+
+      expect(result).toHaveLength(1)
+      expect(mockPrisma.appointment.findMany).toHaveBeenCalledWith(
+        expect.objectContaining({
+          where: expect.objectContaining({
+            practitionerId: 'pract-1',
+            cabinetId: 'cab-1',
+          })
+        })
+      )
+    })
+
+    it('should filter getDaySummary by cabinetId when specified', async () => {
+      mockPrisma.appointment.findMany.mockResolvedValue([
+        { type: 'IN_PERSON' }
+      ] as any)
+
+      const result = await service.getDaySummary('pract-1', '2026-06-24', 'cab-1')
+
+      expect(result.total).toBe(1)
+      expect(result.cabinet).toBe(1)
+      expect(mockPrisma.appointment.findMany).toHaveBeenCalledWith(
+        expect.objectContaining({
+          where: expect.objectContaining({
+            practitionerId: 'pract-1',
+            cabinetId: 'cab-1',
+          })
+        })
+      )
+    })
   })
 })
