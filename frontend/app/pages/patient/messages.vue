@@ -877,18 +877,13 @@ const sendAttachmentMessage = async () => {
   newMessage.value = "";
 
   try {
-    const config = useRuntimeConfig();
-    const response = await $fetch<{
+    const response = await useAuthenticatedFetch<{
       success: boolean;
       data: Message;
-    }>(
-      `${config.public.apiBase}/messages/conversations/${activeConversationId.value}/messages/attachment`,
-      {
-        method: "POST",
-        headers: { Authorization: `Bearer ${authStore.accessToken}` },
-        body: formData,
-      },
-    );
+    }>(`/messages/conversations/${activeConversationId.value}/messages/attachment`, {
+      method: "POST",
+      body: formData,
+    });
 
     if (response.success && activeConversation.value) {
       activeConversation.value.messages.push(response.data);
@@ -1181,9 +1176,17 @@ onMounted(async () => {
   }
 
   if (authStore.accessToken) {
-    await fetchConversations();
-    await openRequestedConversation();
-    // ws is connected at layout,  register handlers
+    // Ensure WebSocket is connected
+    messagingStore.connect();
+
+    try {
+      await fetchConversations();
+      await openRequestedConversation();
+    } catch (error) {
+      console.error("Error loading messaging data on mount:", error);
+    }
+
+    // Register WebSocket page-level handlers (even if initial fetch failed)
     wsOn("new_message", handleNewMessage);
     wsOn("messages_read", handleMessagesRead);
     wsOn("typing", handleTypingStart);

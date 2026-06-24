@@ -1,5 +1,5 @@
 import { defineStore } from "pinia";
-import { ref } from "vue";
+import { ref, watch } from "vue";
 import { useAuthStore } from "~/stores/auth";
 
 // ws connection for everyone
@@ -19,9 +19,18 @@ export const useMessagingStore = defineStore("messaging", () => {
   let reconnectTimeout: ReturnType<typeof setTimeout> | null = null;
   let intentionalClose = false;
 
-  function connect() {
+  async function connect() {
     if (socket.value?.readyState === WebSocket.OPEN) return;
     if (socket.value?.readyState === WebSocket.CONNECTING) return;
+
+    if (authStore.isTokenExpired && authStore.refreshToken) {
+      try {
+        await authStore.refresh();
+      } catch (err) {
+        console.error("Failed to refresh token before WS connection:", err);
+        return;
+      }
+    }
 
     const token = authStore.accessToken;
     if (!token) return;
@@ -134,6 +143,19 @@ export const useMessagingStore = defineStore("messaging", () => {
       // silent fail
     }
   }
+
+  // reconnect/disconnect automatically when access token changes (e.g. refreshed or logged out)
+  watch(
+    () => authStore.accessToken,
+    (newToken) => {
+      if (!newToken) {
+        disconnect();
+      } else {
+        disconnect();
+        connect();
+      }
+    }
+  );
 
   return {
     socket,

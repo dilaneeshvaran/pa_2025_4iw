@@ -468,6 +468,7 @@ async function main() {
         acceptsInsurance: true,
         acceptsNewPatients: true,
         isProfilePublic: true,
+        messagingEnabled: true,
       },
     })
 

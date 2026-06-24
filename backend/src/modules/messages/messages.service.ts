@@ -416,6 +416,23 @@ export class MessagesService {
       this.cancelPendingEmailNotifications(conversationId, userId)
     }
 
+    // mark in-app message notifications as read
+    await prisma.notification.updateMany({
+      where: {
+        userId,
+        type: 'MESSAGE_RECEIVED',
+        read: false,
+        metadata: {
+          path: ['conversationId'],
+          equals: conversationId,
+        },
+      },
+      data: {
+        read: true,
+        readAt: new Date(),
+      },
+    })
+
     const emailMuted = conversation.userSettings[0]?.emailMuted ?? false
 
     return {
@@ -632,6 +649,23 @@ export class MessagesService {
     // cancel pending email notifications
     this.cancelPendingEmailNotifications(conversationId, userId)
 
+    // mark in-app message notifications as read
+    await prisma.notification.updateMany({
+      where: {
+        userId,
+        type: 'MESSAGE_RECEIVED',
+        read: false,
+        metadata: {
+          path: ['conversationId'],
+          equals: conversationId,
+        },
+      },
+      data: {
+        read: true,
+        readAt: new Date(),
+      },
+    })
+
     return result.count
   }
 
@@ -764,15 +798,15 @@ export class MessagesService {
     messagePreview: string,
     conversationId: string,
     messageId: string,
-  ): Promise<void> {
+  ): Promise<any> {
     const prefs = await prisma.notificationPreference.findUnique({
       where: { userId: recipientUserId },
       select: { newMessages: true },
     })
 
-    if (prefs && !prefs.newMessages) return
+    if (prefs && !prefs.newMessages) return null
 
-    await prisma.notification.create({
+    return prisma.notification.create({
       data: {
         userId: recipientUserId,
         type: 'MESSAGE_RECEIVED',

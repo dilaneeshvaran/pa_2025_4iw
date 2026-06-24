@@ -444,6 +444,7 @@ export class PractitionerDashboardService {
       postalCode: p.postalCode,
       country: p.country,
       isProfilePublic: p.isProfilePublic,
+      messagingEnabled: p.messagingEnabled,
       baseConsultationFee: p.baseConsultationFee
         ? Number(p.baseConsultationFee)
         : null,
@@ -456,7 +457,7 @@ export class PractitionerDashboardService {
   }
 
   async updateProfile(practitionerId: string, data: any) {
-    const { qualifications, isProfilePublic, ...rest } = data
+    const { qualifications, isProfilePublic, messagingEnabled, ...rest } = data
 
     // validate tarifs are defined if trying to make profile public
     if (isProfilePublic === true) {
@@ -494,6 +495,9 @@ export class PractitionerDashboardService {
     if (isProfilePublic !== undefined) {
       updateData.isProfilePublic = isProfilePublic
     }
+    if (messagingEnabled !== undefined) {
+      updateData.messagingEnabled = messagingEnabled
+    }
 
     const p = await prisma.practitioner.update({
       where: { id: practitionerId },
@@ -510,6 +514,7 @@ export class PractitionerDashboardService {
       languages: p.languages,
       photoUrl: p.photoUrl,
       isProfilePublic: p.isProfilePublic,
+      messagingEnabled: p.messagingEnabled,
       qualifications: p.qualifications,
     }
   }
