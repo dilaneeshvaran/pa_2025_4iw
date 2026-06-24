@@ -296,6 +296,7 @@ model Staff {
 model Availability {
   id               String       @id @default(cuid())
   practitionerId   String
+  cabinetId        String?
   dayOfWeek        DayOfWeek
   startTime        String
   endTime          String
@@ -308,8 +309,10 @@ model Availability {
   createdAt        DateTime     @default(now())
   updatedAt        DateTime     @updatedAt
   practitioner     Practitioner @relation(fields: [practitionerId], references: [id], onDelete: Cascade)
+  cabinet          Cabinet?     @relation(fields: [cabinetId], references: [id], onDelete: Cascade)
 
   @@index([practitionerId])
+  @@index([cabinetId])
   @@index([dayOfWeek])
   @@map("availabilities")
 }
@@ -317,6 +320,7 @@ model Availability {
 model Absence {
   id               String       @id @default(cuid())
   practitionerId   String
+  cabinetId        String?
   startDate        DateTime
   endDate          DateTime
   reason           String?
@@ -325,8 +329,10 @@ model Absence {
   updatedAt        DateTime     @updatedAt
   notifiedPatients Boolean      @default(false)
   practitioner     Practitioner @relation(fields: [practitionerId], references: [id], onDelete: Cascade)
+  cabinet          Cabinet?     @relation(fields: [cabinetId], references: [id], onDelete: Cascade)
 
   @@index([practitionerId])
+  @@index([cabinetId])
   @@index([startDate, endDate])
   @@map("absences")
 }
@@ -334,6 +340,7 @@ model Absence {
 model BlockedSlot {
   id             String       @id @default(cuid())
   practitionerId String
+  cabinetId      String?
   date           DateTime
   startTime      String
   endTime        String
@@ -341,8 +348,10 @@ model BlockedSlot {
   createdAt      DateTime     @default(now())
   updatedAt      DateTime     @updatedAt
   practitioner   Practitioner @relation(fields: [practitionerId], references: [id], onDelete: Cascade)
+  cabinet        Cabinet?     @relation(fields: [cabinetId], references: [id], onDelete: Cascade)
 
   @@index([practitionerId])
+  @@index([cabinetId])
   @@index([date])
   @@map("blocked_slots")
 }
@@ -990,6 +999,9 @@ model Cabinet {
   staffMembers        Staff[]
   invitations         CabinetInvitation[]
   appointments        Appointment[]
+  availabilities      Availability[]
+  absences            Absence[]
+  blockedSlots        BlockedSlot[]
   adminUser           User?                 @relation("CabinetAdmin", fields: [adminUserId], references: [id])
 
   @@index([name])
