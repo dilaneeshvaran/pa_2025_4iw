@@ -613,20 +613,27 @@ export class AvailabilitiesService {
     practitionerId: string,
     startDate: string,
     endDate: string,
+    cabinetId?: string | null,
   ): Promise<AgendaAppointment[]> {
     const start = new Date(startDate)
     start.setHours(0, 0, 0, 0)
     const end = new Date(endDate)
     end.setHours(23, 59, 59, 999)
 
-    const appointments = await prisma.appointment.findMany({
-      where: {
-        practitionerId,
-        appointmentDate: { gte: start, lte: end },
-        status: {
-          notIn: [AppointmentStatus.CANCELLED],
-        },
+    const where: any = {
+      practitionerId,
+      appointmentDate: { gte: start, lte: end },
+      status: {
+        notIn: [AppointmentStatus.CANCELLED],
       },
+    }
+
+    if (cabinetId !== undefined) {
+      where.cabinetId = cabinetId
+    }
+
+    const appointments = await prisma.appointment.findMany({
+      where,
       orderBy: [{ appointmentDate: 'asc' }, { startTime: 'asc' }],
       include: {
         patient: {
@@ -657,20 +664,27 @@ export class AvailabilitiesService {
   async getDaySummary(
     practitionerId: string,
     date: string,
+    cabinetId?: string | null,
   ): Promise<DaySummary> {
     const d = new Date(date)
     d.setHours(0, 0, 0, 0)
     const next = new Date(d)
     next.setDate(next.getDate() + 1)
 
-    const appointments = await prisma.appointment.findMany({
-      where: {
-        practitionerId,
-        appointmentDate: { gte: d, lt: next },
-        status: {
-          notIn: [AppointmentStatus.CANCELLED],
-        },
+    const where: any = {
+      practitionerId,
+      appointmentDate: { gte: d, lt: next },
+      status: {
+        notIn: [AppointmentStatus.CANCELLED],
       },
+    }
+
+    if (cabinetId !== undefined) {
+      where.cabinetId = cabinetId
+    }
+
+    const appointments = await prisma.appointment.findMany({
+      where,
       select: { type: true },
     })
 

@@ -310,19 +310,28 @@ export async function availabilitiesRoutes(fastify: FastifyInstance) {
           .status(404)
           .send({ success: false, message: 'Profil praticien non trouvé' })
 
-      const { startDate, endDate } = request.query as {
+      const { startDate, endDate, cabinetId } = request.query as {
         startDate: string
         endDate: string
+        cabinetId?: string
       }
       if (!startDate || !endDate)
         return reply
           .status(400)
           .send({ success: false, message: 'startDate et endDate requis' })
 
+      let filterCabinetId: string | null | undefined = undefined
+      if (cabinetId === 'null') {
+        filterCabinetId = null
+      } else if (cabinetId) {
+        filterCabinetId = cabinetId
+      }
+
       const data = await availabilitiesService.getAppointments(
         practitionerId,
         startDate,
         endDate,
+        filterCabinetId,
       )
       return reply.send({ success: true, data })
     } catch (error: any) {
@@ -339,15 +348,23 @@ export async function availabilitiesRoutes(fastify: FastifyInstance) {
           .status(404)
           .send({ success: false, message: 'Profil praticien non trouvé' })
 
-      const { date } = request.query as { date: string }
+      const { date, cabinetId } = request.query as { date: string; cabinetId?: string }
       if (!date)
         return reply
           .status(400)
           .send({ success: false, message: 'date requise' })
 
+      let filterCabinetId: string | null | undefined = undefined
+      if (cabinetId === 'null') {
+        filterCabinetId = null
+      } else if (cabinetId) {
+        filterCabinetId = cabinetId
+      }
+
       const data = await availabilitiesService.getDaySummary(
         practitionerId,
         date,
+        filterCabinetId,
       )
       return reply.send({ success: true, data })
     } catch (error: any) {
