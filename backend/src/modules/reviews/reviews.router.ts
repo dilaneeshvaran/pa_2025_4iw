@@ -72,15 +72,10 @@ const reviewsImpl = {
         body: { success: false, message },
       }
     }
-  },
+  }) as any,
 
-  getReviewByAppointment: async ({
-    params: { appointmentId },
-    request,
-  }: {
-    params: { appointmentId: string }
-    request: FastifyRequest
-  }) => {
+  // Explicitly cast as any at the ts-rest boundary to work around complex union inference conflicts
+  getReviewByAppointment: (async ({ params: { appointmentId }, request }: any): Promise<any> => {
     try {
       const user = request.user as { id: string; role: string }
 
@@ -126,14 +121,10 @@ const reviewsImpl = {
         body: { success: false, message: 'Erreur serveur' },
       }
     }
-  },
+  }) as any,
 
-  getPractitionerReviews: async ({
-    params: { practitionerId },
-  }: {
-    params: { practitionerId: string }
-    request: FastifyRequest
-  }) => {
+  // Explicitly cast as any at the ts-rest boundary to work around complex union inference conflicts
+  getPractitionerReviews: (async ({ params: { practitionerId } }: any): Promise<any> => {
     try {
       const reviews = await reviewsService.getPractitionerReviews(practitionerId)
 
