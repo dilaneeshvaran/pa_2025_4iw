@@ -140,6 +140,104 @@ class CabinetController {
       return reply.status(400).send({ success: false, message: sanitizeErrorMessage(error, 'Une erreur est survenue') })
     }
   }
+
+  async getPractitionerSchedule(
+    request: FastifyRequest,
+    reply: FastifyReply,
+  ) {
+    try {
+      const userId = request.user!.id
+      const { id } = request.params as { id: string }
+      const data = await cabinetService.getPractitionerSchedule(userId, id)
+      return reply.send({ success: true, data })
+    } catch (error: any) {
+      return reply.status(400).send({ success: false, message: sanitizeErrorMessage(error, 'Une erreur est survenue') })
+    }
+  }
+
+  async getPractitionerPatients(
+    request: FastifyRequest,
+    reply: FastifyReply,
+  ) {
+    try {
+      const userId = request.user!.id
+      const { id } = request.params as { id: string }
+      const { search } = request.query as { search?: string }
+      const data = await cabinetService.getPractitionerPatients(
+        userId,
+        id,
+        search,
+      )
+      return reply.send({ success: true, data })
+    } catch (error: any) {
+      return reply.status(400).send({ success: false, message: sanitizeErrorMessage(error, 'Une erreur est survenue') })
+    }
+  }
+
+  async searchPatientsForBooking(
+    request: FastifyRequest,
+    reply: FastifyReply,
+  ) {
+    try {
+      const userId = request.user!.id
+      const { id } = request.params as { id: string }
+      const { q } = request.query as { q: string }
+      if (!q || q.length < 2) {
+        return reply.send({ success: true, data: [] })
+      }
+      const data = await cabinetService.searchPatientsForBooking(userId, id, q)
+      return reply.send({ success: true, data })
+    } catch (error: any) {
+      return reply.status(400).send({ success: false, message: sanitizeErrorMessage(error, 'Une erreur est survenue') })
+    }
+  }
+
+  async bookAppointmentForPractitioner(
+    request: FastifyRequest,
+    reply: FastifyReply,
+  ) {
+    try {
+      const userId = request.user!.id
+      const { id } = request.params as { id: string }
+      const body = request.body as {
+        patientId: string
+        appointmentDate: string
+        startTime: string
+        endTime: string
+        type: string
+        reason?: string
+      }
+      const data = await cabinetService.bookAppointmentForPractitioner(
+        userId,
+        id,
+        body,
+      )
+      return reply.status(201).send({ success: true, data })
+    } catch (error: any) {
+      return reply.status(400).send({ success: false, message: sanitizeErrorMessage(error, 'Une erreur est survenue') })
+    }
+  }
+
+  async deleteCabinet(request: FastifyRequest, reply: FastifyReply) {
+    try {
+      const userId = request.user!.id
+      await cabinetService.deleteCabinet(userId)
+      return reply.send({ success: true, message: 'Cabinet supprimé' })
+    } catch (error: any) {
+      return reply.status(400).send({ success: false, message: sanitizeErrorMessage(error, 'Une erreur est survenue') })
+    }
+  }
+
+  async transferOwnership(request: FastifyRequest, reply: FastifyReply) {
+    try {
+      const userId = request.user!.id
+      const { email } = request.body as { email: string }
+      const data = await cabinetService.transferOwnership(userId, email)
+      return reply.send({ success: true, data })
+    } catch (error: any) {
+      return reply.status(400).send({ success: false, message: sanitizeErrorMessage(error, 'Une erreur est survenue') })
+    }
+  }
 }
 
 export const cabinetController = new CabinetController()
