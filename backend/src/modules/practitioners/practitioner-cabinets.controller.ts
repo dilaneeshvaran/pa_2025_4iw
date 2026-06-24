@@ -83,6 +83,21 @@ class PractitionerCabinetsController {
       return reply.status(400).send({ success: false, message: sanitizeErrorMessage(error, 'Une erreur est survenue') })
     }
   }
+
+  async getCabinetColleagues(
+    request: FastifyRequest,
+    reply: FastifyReply,
+  ) {
+    try {
+      const userId = request.user!.id
+      const { id } = request.params as { id: string }
+      const data = await practitionerCabinetsService.getCabinetColleagues(userId, id)
+      return reply.send({ success: true, data })
+    } catch (error: any) {
+      request.log.error(error)
+      return reply.status(400).send({ success: false, message: sanitizeErrorMessage(error, 'Une erreur est survenue') })
+    }
+  }
 }
 
 export const practitionerCabinetsController = new PractitionerCabinetsController()
