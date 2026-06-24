@@ -169,4 +169,35 @@ describe('CabinetService', () => {
       expect(result[0].id).toBe('patient-1')
     })
   })
+
+  describe('searchPatientsForBooking', () => {
+    it('should search patients who have had appointments in the cabinet without filtering by practitionerId', async () => {
+      mockPrisma.cabinet.findFirst.mockResolvedValue({ id: 'cab-1' } as any)
+      mockPrisma.cabinetPractitioner.findFirst.mockResolvedValue({ id: 'cp-1' } as any)
+      
+      mockPrisma.appointment.findMany.mockResolvedValue([
+        { patientId: 'patient-1' }
+      ] as any)
+
+      mockPrisma.patient.findMany.mockResolvedValue([
+        {
+          id: 'patient-1',
+          firstName: 'Jane',
+          lastName: 'Smith',
+          phone: '123456',
+          user: { email: 'jane@example.com' }
+        }
+      ] as any)
+
+      const result = await cabinetService.searchPatientsForBooking('admin-1', 'pract-1', 'Jane')
+
+      expect(result).toHaveLength(1)
+      expect(result[0].id).toBe('patient-1')
+      expect(mockPrisma.appointment.findMany).toHaveBeenCalledWith({
+        where: { cabinetId: 'cab-1' },
+        select: { patientId: true },
+        distinct: ['patientId'],
+      })
+    })
+  })
 })
