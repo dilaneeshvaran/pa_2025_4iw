@@ -2103,7 +2103,7 @@ async function fetchAppointments() {
       success: boolean;
       data: AgendaAppointment[];
     }>(
-      `/practitioner/agenda/appointments?startDate=${startDate}&endDate=${endDate}`,
+      `/practitioner/agenda/appointments?startDate=${startDate}&endDate=${endDate}&cabinetId=${cabinetQueryParam.value}`,
     );
     if (response.success) {
       appointments.value = response.data;
@@ -2121,7 +2121,7 @@ async function fetchDaySummary() {
     const response = await useAuthenticatedFetch<{
       success: boolean;
       data: DaySummary;
-    }>(`/practitioner/agenda/day-summary?date=${dateStr}`);
+    }>(`/practitioner/agenda/day-summary?date=${dateStr}&cabinetId=${cabinetQueryParam.value}`);
     if (response.success) {
       daySummary.value = response.data;
     }
@@ -2517,7 +2517,7 @@ async function saveSettings() {
   }
 }
 
-watch([currentDate, calendarView], () => {
+watch([currentDate, calendarView, selectedCabinetId], () => {
   fetchAppointments();
   fetchDaySummary();
 });

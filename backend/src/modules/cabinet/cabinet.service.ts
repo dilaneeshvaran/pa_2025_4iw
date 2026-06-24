@@ -646,7 +646,6 @@ class CabinetService {
 
     const cabinetPatientIds = await prisma.appointment.findMany({
       where: {
-        practitionerId,
         cabinetId: cabinet.id,
       },
       select: { patientId: true },
