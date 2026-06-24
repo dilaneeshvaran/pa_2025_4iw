@@ -25,7 +25,15 @@ export async function availabilitiesRoutes(fastify: FastifyInstance) {
         .status(404)
         .send({ success: false, message: 'Profil praticien non trouvé' })
 
-    const data = await availabilitiesService.getAvailabilities(practitionerId)
+    const { cabinetId } = request.query as { cabinetId?: string }
+    let filterCabinetId: string | null | undefined = undefined
+    if (cabinetId === 'null') {
+      filterCabinetId = null
+    } else if (cabinetId) {
+      filterCabinetId = cabinetId
+    }
+
+    const data = await availabilitiesService.getAvailabilities(practitionerId, filterCabinetId)
     return reply.send({ success: true, data })
   })
 
@@ -88,7 +96,15 @@ export async function availabilitiesRoutes(fastify: FastifyInstance) {
         .status(404)
         .send({ success: false, message: 'Profil praticien non trouvé' })
 
-    const data = await availabilitiesService.getAbsences(practitionerId)
+    const { cabinetId } = request.query as { cabinetId?: string }
+    let filterCabinetId: string | null | undefined = undefined
+    if (cabinetId === 'null') {
+      filterCabinetId = null
+    } else if (cabinetId) {
+      filterCabinetId = cabinetId
+    }
+
+    const data = await availabilitiesService.getAbsences(practitionerId, filterCabinetId)
     return reply.send({ success: true, data })
   })
 
@@ -177,7 +193,15 @@ export async function availabilitiesRoutes(fastify: FastifyInstance) {
         .status(404)
         .send({ success: false, message: 'Profil praticien non trouvé' })
 
-    const data = await availabilitiesService.getBlockedSlots(practitionerId)
+    const { cabinetId } = request.query as { cabinetId?: string }
+    let filterCabinetId: string | null | undefined = undefined
+    if (cabinetId === 'null') {
+      filterCabinetId = null
+    } else if (cabinetId) {
+      filterCabinetId = cabinetId
+    }
+
+    const data = await availabilitiesService.getBlockedSlots(practitionerId, filterCabinetId)
     return reply.send({ success: true, data })
   })
 

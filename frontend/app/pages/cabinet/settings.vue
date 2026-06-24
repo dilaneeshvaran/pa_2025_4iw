@@ -131,11 +131,70 @@
         </button>
       </div>
     </form>
+
+    <!-- Danger Zone -->
+    <div class="rounded-xl border border-red-200 bg-red-50/50 p-6 shadow-sm space-y-6">
+      <h3 class="text-lg font-semibold text-red-900 flex items-center gap-2">
+        <ShieldAlert class="h-5 w-5 text-red-600" />
+        Zone de danger
+      </h3>
+      
+      <div class="divide-y divide-red-200">
+        <!-- Transfer Ownership -->
+        <div class="py-4 first:pt-0 flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+          <div class="max-w-md">
+            <p class="font-medium text-gray-900">Transférer la propriété du cabinet</p>
+            <p class="text-sm text-gray-500">Transférez les droits d'administrateur à un autre utilisateur via son adresse email.</p>
+          </div>
+          <div class="flex flex-col sm:flex-row gap-2 self-start sm:self-center">
+            <input
+              v-model="transferEmail"
+              type="email"
+              placeholder="nouveau.admin@email.com"
+              class="rounded-lg border border-red-300 px-3 py-2 text-sm focus:border-red-500 focus:outline-none"
+            />
+            <button
+              type="button"
+              @click="handleTransferOwnership"
+              :disabled="transferring || !transferEmail"
+              class="rounded-lg bg-red-600 px-4 py-2 text-sm font-medium text-white hover:bg-red-700 transition-colors disabled:opacity-50"
+            >
+              Transférer
+            </button>
+          </div>
+        </div>
+
+        <!-- Delete Cabinet -->
+        <div class="py-4 last:pb-0 flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+          <div class="max-w-md">
+            <p class="font-medium text-gray-900">Supprimer le cabinet</p>
+            <p class="text-sm text-gray-500">Cette action est irréversible. Elle annulera tous les rendez-vous à venir et supprimera toutes les données associées du cabinet.</p>
+          </div>
+          <button
+            type="button"
+            @click="handleDeleteCabinet"
+            :disabled="deleting"
+            class="rounded-lg border border-red-300 bg-white text-red-600 px-4 py-2 text-sm font-medium hover:bg-red-50 transition-colors disabled:opacity-50 self-start sm:self-center"
+          >
+            Supprimer le cabinet
+          </button>
+        </div>
+      </div>
+
+      <div v-if="dangerError" class="rounded-lg bg-red-100 p-3 text-sm text-red-800">
+        {{ dangerError }}
+      </div>
+      <div v-if="dangerSuccess" class="rounded-lg bg-green-100 p-3 text-sm text-green-800">
+        {{ dangerSuccess }}
+      </div>
+    </div>
   </div>
 </template>
 
 <script setup lang="ts">
 import { useAuthStore } from "~/stores/auth";
+import { ShieldAlert } from 'lucide-vue-next';
+import { ref } from 'vue';
 
 definePageMeta({
   layout: "cabinet",
@@ -236,6 +295,65 @@ const handleSave = async () => {
     saving.value = false;
   }
 };
+
+const transferEmail = ref('')
+const transferring = ref(false)
+const deleting = ref(false)
+const dangerError = ref('')
+const dangerSuccess = ref('')
+
+const handleTransferOwnership = async () => {
+  if (!confirm(`Êtes-vous sûr de vouloir transférer la propriété du cabinet à ${transferEmail.value} ? Cette action vous déconnectera.`)) {
+    return
+  }
+  transferring.value = true
+  dangerError.value = ''
+  dangerSuccess.value = ''
+  try {
+    const res = await useAuthenticatedFetch<{ success: boolean }>('/cabinet/transfer-ownership', {
+      method: 'POST',
+      body: { email: transferEmail.value }
+    })
+    if (res.success) {
+      dangerSuccess.value = 'Propriété transférée avec succès. Déconnexion...'
+      setTimeout(() => {
+        authStore.logout()
+        navigateTo('/auth/login')
+      }, 2000)
+    }
+  } catch (err: any) {
+    dangerError.value = err?.data?.message || 'Erreur lors du transfert'
+  } finally {
+    transferring.value = false
+  }
+}
+
+const handleDeleteCabinet = async () => {
+  const confirmText = prompt('Pour confirmer la suppression, veuillez saisir le nom du cabinet :')
+  if (confirmText !== form.value.name) {
+    alert('Le nom saisi ne correspond pas. Suppression annulée.')
+    return
+  }
+  deleting.value = true
+  dangerError.value = ''
+  dangerSuccess.value = ''
+  try {
+    const res = await useAuthenticatedFetch<{ success: boolean }>('/cabinet', {
+      method: 'DELETE'
+    })
+    if (res.success) {
+      dangerSuccess.value = 'Cabinet supprimé avec succès. Déconnexion...'
+      setTimeout(() => {
+        authStore.logout()
+        navigateTo('/auth/login')
+      }, 2000)
+    }
+  } catch (err: any) {
+    dangerError.value = err?.data?.message || 'Erreur lors de la suppression'
+  } finally {
+    deleting.value = false
+  }
+}
 
 onMounted(() => {
   if (!authStore.isAuthenticated) {
