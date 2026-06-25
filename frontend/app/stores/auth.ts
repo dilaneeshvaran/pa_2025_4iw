@@ -137,7 +137,9 @@ export const useAuthStore = defineStore("auth", () => {
     }
   }
 
-  function logout() {
+  async function logout() {
+    const token = refreshToken.value;
+
     user.value = null;
     accessToken.value = null;
     refreshToken.value = null;
@@ -151,8 +153,23 @@ export const useAuthStore = defineStore("auth", () => {
       localStorage.removeItem("refreshToken");
       localStorage.removeItem("user");
       localStorage.removeItem("tokenExpiresAt");
+      localStorage.removeItem("lastActivity");
     }
     clearAuthCookies();
+
+    // Call backend to revoke refresh token if it was present
+    if (token) {
+      try {
+        const config = useRuntimeConfig();
+        await $fetch("/auth/logout", {
+          baseURL: config.public.apiBase as string,
+          method: "POST",
+          body: { refreshToken: token },
+        });
+      } catch (err) {
+        console.error("Failed to revoke refresh token on backend:", err);
+      }
+    }
   }
 
   async function refresh() {
