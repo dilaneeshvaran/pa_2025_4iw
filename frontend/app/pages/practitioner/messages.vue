@@ -1132,9 +1132,12 @@ const openConversation = async (conversationId: string) => {
       const conv = conversations.value.find((c) => c.id === conversationId);
       if (conv) {
         conv.unreadCount = 0;
-        //  global count (layout badge)
-        messagingStore.fetchUnreadCount();
       }
+      // Always refresh global unread message badge count
+      messagingStore.fetchUnreadCount();
+      // Always refresh notification bell unread count
+      const notificationsStore = useNotificationsStore();
+      notificationsStore.fetchUnreadCount();
       conversationLoaded = true;
     }
   } catch (error) {
@@ -1533,7 +1536,11 @@ const handleNewMessage = (data: ConversationMessage) => {
     useAuthenticatedFetch(
       `/messages/conversations/${data.conversationId}/read`,
       { method: "PATCH" },
-    ).catch(() => {});
+    ).then(() => {
+      // Refresh bell count after marking as read
+      const notificationsStore = useNotificationsStore();
+      notificationsStore.fetchUnreadCount();
+    }).catch(() => {});
 
     // No manual decrement needed as layout handles it conditionally
   }
