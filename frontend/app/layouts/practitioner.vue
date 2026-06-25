@@ -117,8 +117,18 @@ const authStore = useAuthStore();
 const messagingStore = useMessagingStore();
 
 // ws connection + unread badge
-const onNewMessage = () => {
-  messagingStore.unreadCount++;
+const onNewMessage = (message) => {
+  const isMessagePage = route.path.includes("/messages");
+  const activeConvId = route.query.conversationId;
+  const isViewingThisConversation =
+    isMessagePage &&
+    activeConvId &&
+    message &&
+    String(activeConvId) === String(message.conversationId);
+
+  if (!isViewingThisConversation) {
+    messagingStore.unreadCount++;
+  }
 };
 
 onMounted(() => {
