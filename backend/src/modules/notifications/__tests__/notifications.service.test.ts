@@ -57,9 +57,10 @@ describe('NotificationsService', () => {
           read: false,
         },
         take: 50,
-        orderBy: {
-          createdAt: 'desc',
-        },
+        orderBy: [
+          { read: 'asc' },
+          { createdAt: 'desc' },
+        ],
       })
       expect(result).toEqual([
         {

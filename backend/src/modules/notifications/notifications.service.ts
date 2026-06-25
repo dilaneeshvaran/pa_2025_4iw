@@ -27,9 +27,10 @@ export class NotificationsService {
     const notifications = await prisma.notification.findMany({
       where,
       take,
-      orderBy: {
-        createdAt: 'desc',
-      },
+      orderBy: [
+        { read: 'asc' },
+        { createdAt: 'desc' },
+      ],
     })
 
     return notifications.map((n) => ({

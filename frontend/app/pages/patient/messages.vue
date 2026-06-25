@@ -1116,10 +1116,7 @@ const handleNewMessage = (data: Message) => {
       { method: "PATCH" },
     ).catch(() => {});
 
-    // minus global unread since we read msg
-    if (messagingStore.unreadCount > 0) {
-      messagingStore.unreadCount--;
-    }
+    // No manual decrement needed as layout handles it conditionally
   }
 
   // update conversation list
