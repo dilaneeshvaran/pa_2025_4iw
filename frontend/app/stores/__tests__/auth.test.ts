@@ -19,6 +19,21 @@ vi.stubGlobal(
   }),
 );
 
+//  fetch and useRuntimeConfig for api calls like logout / refresh
+vi.stubGlobal(
+  "useRuntimeConfig",
+  vi.fn().mockReturnValue({
+    public: {
+      apiBase: "http://localhost:3001/api",
+    },
+  }),
+);
+
+vi.stubGlobal(
+  "$fetch",
+  vi.fn().mockResolvedValue({ success: true }),
+);
+
 import { useAuthStore } from "../auth";
 
 // helper to create a mock jwt token with custom exp
