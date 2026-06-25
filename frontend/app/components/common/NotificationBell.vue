@@ -249,7 +249,9 @@ onMounted(() => {
     messagingStore.on("new_notification", handleNewNotification);
   }
   pollInterval = setInterval(() => {
-    notificationsStore.fetchUnreadCount();
+    if (authStore.isAuthenticated) {
+      notificationsStore.fetchUnreadCount();
+    }
   }, 60000);
   document.addEventListener("click", handleDocumentClick);
 });
