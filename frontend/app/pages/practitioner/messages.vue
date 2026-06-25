@@ -1535,10 +1535,7 @@ const handleNewMessage = (data: ConversationMessage) => {
       { method: "PATCH" },
     ).catch(() => {});
 
-    //  minus global unread since we read it
-    if (messagingStore.unreadCount > 0) {
-      messagingStore.unreadCount--;
-    }
+    // No manual decrement needed as layout handles it conditionally
   }
 
   const conv = conversations.value.find((c) => c.id === data.conversationId);

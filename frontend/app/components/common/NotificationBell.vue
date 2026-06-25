@@ -124,6 +124,7 @@ import {
 import { getNotificationTarget } from "~/utils/notificationTargets";
 
 const router = useRouter();
+const route = useRoute();
 const root = ref<HTMLElement | null>(null);
 const isOpen = ref(false);
 const markingAll = ref(false);
@@ -135,17 +136,17 @@ const messagingStore = useMessagingStore();
 let pollInterval: ReturnType<typeof setInterval> | null = null;
 
 const handleNewNotification = (notification: any) => {
-  const route = useRoute();
-  const isMessagePage = route.path.endsWith("/messages");
+  const isMessagePage = route.path.includes("/messages");
   const activeConvId = route.query.conversationId;
   const isViewingThisConversation =
     isMessagePage &&
-    activeConvId === notification.metadata?.conversationId;
+    activeConvId &&
+    notification.metadata?.conversationId &&
+    String(activeConvId) === String(notification.metadata.conversationId);
 
   if (notification.type === "MESSAGE_RECEIVED" && isViewingThisConversation) {
-    // Already viewing, ignore or add as read
-    notification.read = true;
-    notification.readAt = new Date().toISOString();
+    // Already viewing this conversation, do not show or track this message notification
+    return;
   }
 
   // Check if notification already exists in the list to avoid duplicates
