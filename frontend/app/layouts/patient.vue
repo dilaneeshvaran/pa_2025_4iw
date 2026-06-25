@@ -111,11 +111,12 @@ import { useAuthStore } from "~/stores/auth";
 import { useMessagingStore } from "~/stores/messaging";
 
 const router = useRouter();
+const route = useRoute();
 const authStore = useAuthStore();
 const messagingStore = useMessagingStore();
 
 // ws connection + unread badge
-const onNewMessage = (message) => {
+const onNewMessage = (message: any) => {
   const isMessagePage = route.path.includes("/messages");
   const activeConvId = route.query.conversationId;
   const isViewingThisConversation =
