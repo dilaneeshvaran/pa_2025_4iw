@@ -598,6 +598,7 @@ definePageMeta({
 // state
 const authStore = useAuthStore();
 const route = useRoute();
+const router = useRouter();
 const currentUserId = computed(() => authStore.user?.id || "");
 
 interface ConversationSummary {
@@ -665,6 +666,15 @@ const conversations = ref<ConversationSummary[]>([]);
 const loadingConversations = ref(true);
 const searchQuery = ref("");
 const activeConversationId = ref<string | null>(null);
+watch(activeConversationId, (newId) => {
+  const query = { ...route.query };
+  if (newId) {
+    query.conversationId = newId;
+  } else {
+    delete query.conversationId;
+  }
+  router.replace({ query });
+});
 const activeConversation = ref<ConversationDetail | null>(null);
 const loadingMessages = ref(false);
 const newMessage = ref("");
@@ -803,11 +813,18 @@ const openConversation = async (conversationId: string) => {
 const openRequestedConversation = async () => {
   const requestedConversationId = getRequestedConversationId();
 
-  if (
-    requestedConversationId &&
-    requestedConversationId !== activeConversationId.value
-  ) {
-    await openConversation(requestedConversationId);
+  if (requestedConversationId) {
+    if (requestedConversationId !== activeConversationId.value) {
+      await openConversation(requestedConversationId);
+    } else {
+      const notificationsStore = useNotificationsStore();
+      await notificationsStore.fetchUnreadCount();
+      await messagingStore.fetchUnreadCount();
+      const conv = conversations.value.find((c) => c.id === requestedConversationId);
+      if (conv) {
+        conv.unreadCount = 0;
+      }
+    }
   }
 };
 
