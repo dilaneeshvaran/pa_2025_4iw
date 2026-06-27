@@ -18,8 +18,17 @@ function escapeEmailHtml(value: string): string {
     .replace(/'/g, '&#39;')
 }
 
-// reusable Resend client (HTTP API — avoids blocked SMTP ports on the VPS)
-const resend = new Resend(RESEND_API_KEY)
+// reusable Resend client (HTTP API — avoids blocked SMTP ports on the VPS).
+// Lazily instantiated: `new Resend('')` throws "Missing API key", which would
+// break any module that merely imports this file (e.g. test suites that never
+// send mail). We only build the client on the first actual send.
+let resendClient: Resend | null = null
+function getResend(): Resend {
+  if (!resendClient) {
+    resendClient = new Resend(RESEND_API_KEY)
+  }
+  return resendClient
+}
 
 export async function sendEmail(
   to: string,
@@ -27,7 +36,7 @@ export async function sendEmail(
   html: string,
 ): Promise<void> {
   try {
-    const { error } = await resend.emails.send({
+    const { error } = await getResend().emails.send({
       from: EMAIL_FROM,
       to,
       subject,
@@ -481,7 +490,7 @@ export async function sendInvoiceEmail(
   })
 
   try {
-    const { error } = await resend.emails.send({
+    const { error } = await getResend().emails.send({
       from: EMAIL_FROM,
       to,
       subject: `Votre facture ${data.invoiceNumber} - MediCôte`,
