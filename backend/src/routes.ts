@@ -21,6 +21,7 @@ import { adminNoShowsRoutes } from './modules/admin/admin-no-shows.routes'
 import { adminUsersRoutes } from './modules/admin/admin-users.routes'
 import { adminSubscriptionsRoutes } from './modules/admin/admin-subscriptions.routes'
 import { adminStatisticsRoutes } from './modules/admin/admin-statistics.routes'
+import { adminSettingsRoutes } from './modules/admin/admin-settings.routes'
 import { campaignsRoutes } from './modules/campaigns/campaigns.routes'
 import { cabinetRoutes } from './modules/cabinet/cabinet.routes'
 import { staffRoutes } from './modules/staff/staff.routes'
@@ -70,6 +71,9 @@ export async function routes(fastify: FastifyInstance) {
   })
   fastify.register(adminStatisticsRoutes, {
     prefix: '/api/admin/statistics',
+  })
+  fastify.register(adminSettingsRoutes, {
+    prefix: '/api/admin/settings',
   })
   fastify.register(campaignsRoutes, {
     prefix: '/api/admin/campaigns',
