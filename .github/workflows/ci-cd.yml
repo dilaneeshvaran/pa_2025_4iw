@@ -171,7 +171,11 @@ jobs:
           script: |
             set -e
             cd ${{ secrets.DEPLOY_PATH }}
-            echo "${{ secrets.GITHUB_TOKEN }}" | docker login ghcr.io -u ${{ github.actor }} --password-stdin
+            # Use a long-lived PAT (read:packages), not the ephemeral GITHUB_TOKEN:
+            # --with-registry-auth ships this credential to swarm for ongoing
+            # image pulls (restarts/rescheduling), and GITHUB_TOKEN expires ~1h
+            # after the run, breaking later pulls with "No such image".
+            echo "${{ secrets.GHCR_PAT }}" | docker login ghcr.io -u ${{ github.repository_owner }} --password-stdin
             # Load the root .env so ${...} vars in the stack file are interpolated.
             set -a; [ -f .env ] && . ./.env; set +a
             docker stack deploy -c docker-compose.swarm.yml --with-registry-auth --prune medicote
