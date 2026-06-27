@@ -14,7 +14,7 @@ const s = initServer()
 // params and `status` codes matching the contract — so we assert the
 // implementation to bypass the upstream zod 4 / ts-rest type mismatch.
 const reviewsImpl = {
-  createReview: async ({
+  createReview: (async ({
     body,
     request,
   }: {
@@ -152,7 +152,7 @@ const reviewsImpl = {
         body: { success: false, message: 'Erreur serveur' },
       }
     }
-  },
+  }) as any,
 }
 
 export const reviewsRouter = s.router(reviewsContract, reviewsImpl as any)
