@@ -1,5 +1,3 @@
-version: '3.8'
-
 services:
   postgres-db:
     image: postgres:16-alpine
@@ -25,7 +23,11 @@ services:
         constraints:
           - node.role == manager
       restart_policy:
-        condition: on-failure
+        # `any`, not `on-failure`: a clean SIGTERM (reboot, daemon restart,
+        # redeploy) exits 0, which `on-failure` treats as success and never
+        # restarts — leaving the DB dead at 0/1 and cascading to backend/nginx.
+        condition: any
+        delay: 5s
 
   redis-db:
     image: redis:7-alpine
@@ -44,7 +46,9 @@ services:
         constraints:
           - node.role == manager
       restart_policy:
-        condition: on-failure
+        # See postgres-db: a clean exit (0) must still restart a long-running DB.
+        condition: any
+        delay: 5s
 
   umami-db:
     image: postgres:16-alpine
@@ -70,7 +74,9 @@ services:
         constraints:
           - node.role == manager
       restart_policy:
-        condition: on-failure
+        # See postgres-db: a clean exit (0) must still restart a long-running DB.
+        condition: any
+        delay: 5s
 
   umami:
     image: ghcr.io/umami-software/umami:postgresql-v2.15.1
@@ -92,7 +98,7 @@ services:
 
   backend:
     image: ${BACKEND_IMAGE:-ghcr.io/dilaneeshvaran/pa_2025_4iw-backend:latest}
-    # Provides every non-secret var (SMTP, Google OAuth, JWT refresh, Stripe...).
+    # Provides every non-secret var (Resend, Google OAuth, JWT refresh, Stripe...).
     # The entrypoint below re-exports the sensitive ones from Docker secrets,
     # which therefore take precedence over anything in this file.
     env_file:
@@ -125,11 +131,11 @@ services:
     networks:
       - pgnetwork
     deploy:
-      replicas: 2
+      replicas: 1
       update_config:
         parallelism: 1
         delay: 10s
-        order: start-first
+        order: stop-first
       rollback_config:
         parallelism: 1
         delay: 10s
@@ -143,8 +149,8 @@ services:
           cpus: '0.50'
           memory: 512M
         reservations:
-          cpus: '0.25'
-          memory: 256M
+          cpus: '0.10'
+          memory: 128M
 
   frontend:
     image: ${FRONTEND_IMAGE:-ghcr.io/dilaneeshvaran/pa_2025_4iw-frontend:latest}
@@ -159,11 +165,11 @@ services:
     networks:
       - pgnetwork
     deploy:
-      replicas: 2
+      replicas: 1
       update_config:
         parallelism: 1
         delay: 10s
-        order: start-first
+        order: stop-first
       rollback_config:
         parallelism: 1
         delay: 10s
@@ -177,8 +183,8 @@ services:
           cpus: '0.50'
           memory: 512M
         reservations:
-          cpus: '0.25'
-          memory: 256M
+          cpus: '0.10'
+          memory: 128M
 
   nginx:
     image: ${NGINX_IMAGE:-ghcr.io/dilaneeshvaran/pa_2025_4iw-nginx:latest}
@@ -193,77 +199,11 @@ services:
     networks:
       - pgnetwork
     deploy:
-      replicas: 2
+      replicas: 1
       update_config:
         parallelism: 1
         delay: 10s
-        order: start-first
-      restart_policy:
-        condition: on-failure
-
-  # Observability Stack
-  prometheus:
-    image: prom/prometheus:v2.52.0
-    volumes:
-      - ./infrastructure/observability/prometheus/prometheus.yml:/etc/prometheus/prometheus.yml:ro
-      - prometheus-data:/prometheus
-    networks:
-      - pgnetwork
-    deploy:
-      replicas: 1
-      placement:
-        constraints:
-          - node.role == manager
-      restart_policy:
-        condition: on-failure
-
-  loki:
-    image: grafana/loki:3.0.0
-    volumes:
-      - ./infrastructure/observability/loki/loki-config.yml:/etc/loki/local-config.yaml:ro
-    command: -config.file=/etc/loki/local-config.yaml
-    networks:
-      - pgnetwork
-    deploy:
-      replicas: 1
-      placement:
-        constraints:
-          - node.role == manager
-      restart_policy:
-        condition: on-failure
-
-  grafana:
-    image: grafana/grafana:10.4.2
-    environment:
-      GF_SECURITY_ADMIN_PASSWORD_FILE: /run/secrets/grafana_admin_password
-    volumes:
-      - ./infrastructure/observability/grafana/provisioning:/etc/grafana/provisioning:ro
-      - ./infrastructure/observability/grafana/provisioning/dashboards/medicote-dashboard.json:/var/lib/grafana/dashboards/medicote-dashboard.json:ro
-      - grafana-data:/var/lib/grafana
-    ports:
-      - "3000:3000"
-    secrets:
-      - grafana_admin_password
-    networks:
-      - pgnetwork
-    deploy:
-      replicas: 1
-      placement:
-        constraints:
-          - node.role == manager
-      restart_policy:
-        condition: on-failure
-
-  alloy:
-    image: grafana/alloy:v1.1.1
-    volumes:
-      - ./infrastructure/observability/alloy/config.alloy:/etc/alloy/config.alloy:ro
-      - /var/run/docker.sock:/var/run/docker.sock:ro
-    command: run --storage.path=/var/lib/alloy/data /etc/alloy/config.alloy
-    networks:
-      - pgnetwork
-    deploy:
-      mode: global
+        order: stop-first
       restart_policy:
         condition: on-failure
 
@@ -279,10 +219,6 @@ volumes:
     driver: local
   umami-db-data:
     driver: local
-  prometheus-data:
-    driver: local
-  grafana-data:
-    driver: local
 
 secrets:
   postgres_password:
@@ -294,6 +230,4 @@ secrets:
   jwt_secret:
     external: true
   encryption_key:
-    external: true
-  grafana_admin_password:
     external: true
