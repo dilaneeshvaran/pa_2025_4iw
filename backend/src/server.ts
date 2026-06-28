@@ -22,6 +22,7 @@ const app = Fastify({
   logger: {
     level: process.env.BACKEND_NODE_ENV === 'development' ? 'info' : 'error',
   },
+  trustProxy: true,
 })
   .setValidatorCompiler(validatorCompiler)
   .setSerializerCompiler(serializerCompiler)

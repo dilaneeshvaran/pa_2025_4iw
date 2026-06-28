@@ -119,6 +119,8 @@ services:
       BACKEND_MAX_FILE_SIZE: ${BACKEND_MAX_FILE_SIZE:-10485760}
       BACKEND_RATE_LIMIT_MAX: ${BACKEND_RATE_LIMIT_MAX:-100}
       BACKEND_RATE_LIMIT_TIME_WINDOW: ${BACKEND_RATE_LIMIT_TIME_WINDOW:-60000}
+      BACKEND_POSTGRES_USER: ${BACKEND_POSTGRES_USER:-admin}
+      BACKEND_POSTGRES_DB: ${BACKEND_POSTGRES_DB:-medicote}
     secrets:
       - postgres_password
       - jwt_secret
@@ -130,7 +132,7 @@ services:
         export BACKEND_POSTGRES_PASS=$$(cat /run/secrets/postgres_password)
         export BACKEND_JWT_SECRET=$$(cat /run/secrets/jwt_secret)
         export BACKEND_ENCRYPTION_KEY=$$(cat /run/secrets/encryption_key)
-        export BACKEND_DATABASE_URL=postgresql://$${BACKEND_POSTGRES_USER:-admin}:$${BACKEND_POSTGRES_PASS}@postgres-db:5432/$${BACKEND_POSTGRES_DB:-medicote}?schema=public
+        export BACKEND_DATABASE_URL=postgresql://${BACKEND_POSTGRES_USER:-admin}:$${BACKEND_POSTGRES_PASS}@postgres-db:5432/${BACKEND_POSTGRES_DB:-medicote}?schema=public
         npx prisma migrate deploy && npx tsx src/index.ts
     depends_on:
       - postgres-db
