@@ -23,9 +23,6 @@ services:
         constraints:
           - node.role == manager
       restart_policy:
-        # `any`, not `on-failure`: a clean SIGTERM (reboot, daemon restart,
-        # redeploy) exits 0, which `on-failure` treats as success and never
-        # restarts — leaving the DB dead at 0/1 and cascading to backend/nginx.
         condition: any
         delay: 5s
 
@@ -46,7 +43,6 @@ services:
         constraints:
           - node.role == manager
       restart_policy:
-        # See postgres-db: a clean exit (0) must still restart a long-running DB.
         condition: any
         delay: 5s
 
@@ -74,15 +70,11 @@ services:
         constraints:
           - node.role == manager
       restart_policy:
-        # See postgres-db: a clean exit (0) must still restart a long-running DB.
         condition: any
         delay: 5s
 
   umami:
     image: ghcr.io/umami-software/umami:postgresql-v2.15.1
-    # Use the image's default entrypoint; pass config via env (umami DB password
-    # and APP_SECRET come from the root .env). The previous custom entrypoint
-    # called a non-existent /entrypoint.sh and exited 127.
     environment:
       DATABASE_URL: postgresql://${UMAMI_DB_USER:-umami}:${UMAMI_DB_PASSWORD}@umami-db:5432/umami
       DATABASE_TYPE: postgresql
@@ -98,9 +90,6 @@ services:
 
   backend:
     image: ${BACKEND_IMAGE:-ghcr.io/dilaneeshvaran/pa_2025_4iw-backend:latest}
-    # Provides every non-secret var (Resend, Google OAuth, JWT refresh, Stripe...).
-    # The entrypoint below re-exports the sensitive ones from Docker secrets,
-    # which therefore take precedence over anything in this file.
     configs:
       - source: backend_env
         target: /app/backend/.env
@@ -115,6 +104,7 @@ services:
       FRONTEND_URL: ${PUBLIC_FRONTEND_URL:-http://localhost:3000}
       BACKEND_JWT_SECRET_FILE: /run/secrets/jwt_secret
       BACKEND_ENCRYPTION_KEY_FILE: /run/secrets/encryption_key
+      UPLOAD_DIR: /app/backend/uploads
     secrets:
       - postgres_password
       - jwt_secret
@@ -191,8 +181,6 @@ services:
 
   nginx:
     image: ${NGINX_IMAGE:-ghcr.io/dilaneeshvaran/pa_2025_4iw-nginx:latest}
-    # TLS is terminated by the host nginx + certbot, which forwards to this
-    # service on 8080. The swarm nginx only does HTTP routing (/, /api, /umami).
     ports:
       - "8080:80"
     depends_on:

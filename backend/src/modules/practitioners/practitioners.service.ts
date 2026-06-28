@@ -545,9 +545,12 @@ export class PractitionersService {
       const dateStr = this.formatDateLocal(currentDate)
 
       // check if practitioner is absent on this date
-      const isAbsent = absences.some(
-        (a) => currentDate >= a.startDate && currentDate <= a.endDate,
-      )
+      const isAbsent = absences.some((a) => {
+        const absentStart = a.startDate.toISOString().substring(0, 10)
+        const absentEnd = a.endDate.toISOString().substring(0, 10)
+        return dateStr >= absentStart && dateStr <= absentEnd
+      })
+
 
       if (!isAbsent) {
         const dayAvailabilities = availabilities.filter(
@@ -610,9 +613,13 @@ export class PractitionersService {
         // if practitioner has an active cabinet, only show slots on days the cabinet is open
         let finalSlots = slots
         if (cabinetOpenHours) {
-          const dayHours = cabinetOpenHours[dayOfWeek]
-          if (dayHours?.closed) {
-            finalSlots = []
+          try {
+            const dayHours = cabinetOpenHours[dayOfWeek]
+            if (dayHours && typeof dayHours === 'object' && dayHours.closed === true) {
+              finalSlots = []
+            }
+          } catch {
+            // openHours jso is malformed — treat as no restriction
           }
         }
 

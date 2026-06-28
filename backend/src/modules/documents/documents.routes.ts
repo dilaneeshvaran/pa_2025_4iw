@@ -12,6 +12,10 @@ import { randomUUID } from 'crypto'
 import '@fastify/multipart'
 import prisma from '../../config/database'
 
+// UPLOAD_DIR can be overridden via environment variable (useful for Docker volume mounts).
+// Default mirrors the relative path used in development (cwd = backend/).
+const UPLOAD_DIR = process.env.UPLOAD_DIR ?? path.resolve('uploads')
+
 export async function documentsRoutes(fastify: FastifyInstance) {
   // docs received from practitioners
   fastify.get(
@@ -139,6 +143,7 @@ export async function documentsRoutes(fastify: FastifyInstance) {
         const filePath = path.resolve(document.filePath)
 
         if (!fs.existsSync(filePath)) {
+          fastify.log.warn({ filePath, documentId: params.id }, 'Document file not found on disk')
           return reply.status(404).send({
             success: false,
             message: 'Fichier non trouvé sur le serveur',
@@ -251,7 +256,7 @@ export async function documentsRoutes(fastify: FastifyInstance) {
         const validated = uploadDocumentSchema.parse(fields)
 
         // Ensure uploads directory exists
-        const uploadsDir = path.resolve('uploads', 'patient-documents')
+        const uploadsDir = path.join(UPLOAD_DIR, 'patient-documents')
         if (!fs.existsSync(uploadsDir)) {
           fs.mkdirSync(uploadsDir, { recursive: true })
         }
