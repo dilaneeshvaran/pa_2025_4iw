@@ -101,8 +101,11 @@ services:
     # Provides every non-secret var (Resend, Google OAuth, JWT refresh, Stripe...).
     # The entrypoint below re-exports the sensitive ones from Docker secrets,
     # which therefore take precedence over anything in this file.
-    env_file:
-      - ./backend/.env
+    configs:
+      - source: backend_env
+        target: /app/backend/.env
+    volumes:
+      - backend-uploads:/app/backend/uploads
     environment:
       BACKEND_PORT: 3001
       BACKEND_HOST: 0.0.0.0
@@ -219,6 +222,8 @@ volumes:
     driver: local
   umami-db-data:
     driver: local
+  backend-uploads:
+    driver: local
 
 secrets:
   postgres_password:
@@ -231,3 +236,7 @@ secrets:
     external: true
   encryption_key:
     external: true
+
+configs:
+  backend_env:
+    file: ./backend/.env
