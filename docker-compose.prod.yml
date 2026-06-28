@@ -91,8 +91,8 @@ services:
     ports:
       - "3000:3000"
     environment:
-      NUXT_PUBLIC_API_BASE: ${PUBLIC_API_BASE:-http://localhost:3001/api}
-      NUXT_PUBLIC_UMAMI_URL: ${PUBLIC_UMAMI_URL:-http://localhost:3002}
+      NUXT_PUBLIC_API_BASE: ${PUBLIC_API_BASE:-/api}
+      NUXT_PUBLIC_UMAMI_URL: ${PUBLIC_UMAMI_URL:-/umami}
       NUXT_PUBLIC_UMAMI_WEBSITE_ID: ${UMAMI_WEBSITE_ID:-}
       NUXT_PUBLIC_UMAMI_ENABLED: ${UMAMI_ENABLED:-true}
     depends_on:

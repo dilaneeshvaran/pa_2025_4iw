@@ -29,6 +29,11 @@ FROM deps AS builder
 
 COPY --chown=medicote:appgroup frontend ./frontend
 
+ARG NUXT_PUBLIC_API_BASE=/api
+ARG NUXT_PUBLIC_UMAMI_URL=/umami
+ENV NUXT_PUBLIC_API_BASE=${NUXT_PUBLIC_API_BASE}
+ENV NUXT_PUBLIC_UMAMI_URL=${NUXT_PUBLIC_UMAMI_URL}
+
 RUN NODE_OPTIONS="--max-old-space-size=4096" npm run build --workspace=frontend
 
 
