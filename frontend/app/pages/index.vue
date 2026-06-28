@@ -3,16 +3,21 @@
     class="flex min-h-[calc(100vh-4rem)] flex-col items-center justify-center px-4"
   >
     <div class="mx-auto max-w-4xl space-y-8 text-center">
-      <h1 class="text-5xl font-bold text-gray-900 md:text-6xl">
-        Bienvenue sur <span class="text-orange-500">Medi</span
-        ><span class="text-green-600">côte</span>
+      <h1
+        class="text-5xl font-bold text-gray-900 dark:text-gray-100 md:text-6xl"
+      >
+        Bienvenue sur
+        <span class="text-orange-500 dark:text-orange-400">Medi</span
+        ><span class="text-green-600 dark:text-green-400">côte</span>
       </h1>
 
-      <p class="mx-auto max-w-2xl text-lg italic text-gray-500">
+      <p
+        class="mx-auto max-w-2xl text-lg italic text-gray-500 dark:text-gray-400"
+      >
         « À côté des patients, nous sommes là à vos côtés »
       </p>
 
-      <p class="mx-auto max-w-2xl text-xl text-gray-600">
+      <p class="mx-auto max-w-2xl text-xl text-gray-600 dark:text-gray-400">
         Plateforme de mise en relation entre patients et praticiens de santé en
         Côte d'Ivoire
       </p>
@@ -31,14 +36,14 @@
         <NuxtLink
           v-if="!authStore.isAuthenticated"
           to="/auth/login"
-          class="rounded-md border-2 border-green-600 px-8 py-3 text-lg font-medium text-green-600 transition-colors hover:bg-green-50"
+          class="rounded-md border-2 border-green-600 px-8 py-3 text-lg font-medium text-green-600 transition-colors hover:bg-green-50 dark:text-green-400 dark:hover:bg-green-950/40"
         >
           Se connecter
         </NuxtLink>
 
         <div
           v-else
-          class="rounded-md border border-green-300 bg-green-50 px-6 py-3 text-green-800"
+          class="rounded-md border border-green-300 bg-green-50 px-6 py-3 text-green-800 dark:bg-green-950/40 dark:text-green-200"
         >
           Vous êtes connecté(e) en tant que {{ authStore.user?.email }}
         </div>
@@ -71,7 +76,7 @@
         <NuxtLink
           v-if="!authStore.isAuthenticated"
           to="/contact/practitioner"
-          class="inline-flex items-center gap-2 rounded-md border-2 border-gray-300 bg-white px-6 py-3 text-base font-medium text-gray-700 transition-colors hover:border-orange-500 hover:bg-orange-50 hover:text-orange-600"
+          class="inline-flex items-center gap-2 rounded-md border-2 border-gray-300 bg-white px-6 py-3 text-base font-medium text-gray-700 transition-colors hover:border-orange-500 hover:bg-orange-50 hover:text-orange-600 dark:border-gray-700 dark:bg-gray-900 dark:text-gray-300 dark:hover:bg-orange-950/40"
         >
           <span class="text-xl">⚕️</span>
           <span>Vous êtes soignant ?</span>
@@ -89,32 +94,42 @@
       </div>
 
       <div class="grid grid-cols-1 gap-6 pt-12 md:grid-cols-3">
-        <div class="rounded-lg bg-white p-6 shadow-sm">
-          <div class="mb-3 text-4xl text-orange-500">📅</div>
-          <h3 class="mb-2 text-lg font-semibold text-gray-900">
+        <div class="rounded-lg bg-white p-6 shadow-sm dark:bg-gray-900">
+          <div class="mb-3 text-4xl text-orange-500 dark:text-orange-400">
+            📅
+          </div>
+          <h3
+            class="mb-2 text-lg font-semibold text-gray-900 dark:text-gray-100"
+          >
             Prendre rendez-vous
           </h3>
-          <p class="text-sm text-gray-600">
+          <p class="text-sm text-gray-600 dark:text-gray-400">
             Trouvez et réservez facilement un rendez-vous avec un praticien
           </p>
         </div>
 
-        <div class="rounded-lg bg-white p-6 shadow-sm">
-          <div class="mb-3 text-4xl text-green-600">👨‍⚕️</div>
-          <h3 class="mb-2 text-lg font-semibold text-gray-900">
+        <div class="rounded-lg bg-white p-6 shadow-sm dark:bg-gray-900">
+          <div class="mb-3 text-4xl text-green-600 dark:text-green-400">👨‍⚕️</div>
+          <h3
+            class="mb-2 text-lg font-semibold text-gray-900 dark:text-gray-100"
+          >
             Praticiens qualifiés
           </h3>
-          <p class="text-sm text-gray-600">
+          <p class="text-sm text-gray-600 dark:text-gray-400">
             Accédez à un réseau de professionnels de santé vérifiés
           </p>
         </div>
 
-        <div class="rounded-lg bg-white p-6 shadow-sm">
-          <div class="mb-3 text-4xl text-orange-500">💬</div>
-          <h3 class="mb-2 text-lg font-semibold text-gray-900">
+        <div class="rounded-lg bg-white p-6 shadow-sm dark:bg-gray-900">
+          <div class="mb-3 text-4xl text-orange-500 dark:text-orange-400">
+            💬
+          </div>
+          <h3
+            class="mb-2 text-lg font-semibold text-gray-900 dark:text-gray-100"
+          >
             Suivi personnalisé
           </h3>
-          <p class="text-sm text-gray-600">
+          <p class="text-sm text-gray-600 dark:text-gray-400">
             Communiquez et suivez votre dossier médical en ligne
           </p>
         </div>

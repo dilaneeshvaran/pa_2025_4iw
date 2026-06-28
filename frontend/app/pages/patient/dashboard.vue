@@ -1,32 +1,42 @@
 <template>
   <div class="space-y-6">
     <div>
-      <h1 class="mb-2 text-2xl font-bold text-gray-900">Tableau de bord</h1>
-      <p class="text-gray-600">Bienvenue sur votre espace patient</p>
+      <h1 class="mb-2 text-2xl font-bold text-gray-900 dark:text-gray-100">
+        Tableau de bord
+      </h1>
+      <p class="text-gray-600 dark:text-gray-400">
+        Bienvenue sur votre espace patient
+      </p>
     </div>
 
     <div class="grid gap-6 lg:grid-cols-2">
       <UiCard>
-        <h3 class="mb-4 text-lg font-semibold text-gray-900">
+        <h3 class="mb-4 text-lg font-semibold text-gray-900 dark:text-gray-100">
           Prochain rendez-vous
         </h3>
 
         <!-- loading  -->
         <div v-if="loadingNext" class="animate-pulse">
           <div class="flex gap-4">
-            <div class="h-20 w-20 rounded-full bg-gray-200"></div>
+            <div
+              class="h-20 w-20 rounded-full bg-gray-200 dark:bg-gray-700"
+            ></div>
             <div class="flex-1 space-y-3">
-              <div class="h-4 w-1/2 rounded bg-gray-200"></div>
-              <div class="h-3 w-1/3 rounded bg-gray-200"></div>
-              <div class="h-3 w-1/4 rounded bg-gray-200"></div>
+              <div class="h-4 w-1/2 rounded bg-gray-200 dark:bg-gray-700"></div>
+              <div class="h-3 w-1/3 rounded bg-gray-200 dark:bg-gray-700"></div>
+              <div class="h-3 w-1/4 rounded bg-gray-200 dark:bg-gray-700"></div>
             </div>
           </div>
         </div>
 
         <!-- no appointment -->
         <div v-else-if="!nextAppointment" class="py-6 text-center">
-          <Calendar class="mx-auto mb-3 h-12 w-12 text-gray-300" />
-          <p class="mb-4 text-gray-500">Aucun rendez-vous à venir</p>
+          <Calendar
+            class="mx-auto mb-3 h-12 w-12 text-gray-300 dark:text-gray-600"
+          />
+          <p class="mb-4 text-gray-500 dark:text-gray-400">
+            Aucun rendez-vous à venir
+          </p>
           <UiButton size="sm" @click="navigateTo('/search')">
             Prendre un rendez-vous
           </UiButton>
@@ -46,13 +56,13 @@
                 {{ nextAppointment.practitioner.firstName }}
                 {{ nextAppointment.practitioner.lastName }}
               </h3>
-              <p class="mb-2 text-gray-600">
+              <p class="mb-2 text-gray-600 dark:text-gray-400">
                 {{
                   nextAppointment.practitioner.specialty || "Médecine générale"
                 }}
               </p>
               <div class="mb-3 flex items-center gap-2">
-                <Clock class="h-4 w-4 text-gray-500" />
+                <Clock class="h-4 w-4 text-gray-500 dark:text-gray-400" />
                 <span class="text-sm"
                   >{{ formatDate(nextAppointment.appointmentDate) }} à
                   {{ nextAppointment.startTime }}</span
@@ -119,7 +129,7 @@
 
       <!--  actions -->
       <UiCard>
-        <h3 class="mb-4 text-lg font-semibold text-gray-900">
+        <h3 class="mb-4 text-lg font-semibold text-gray-900 dark:text-gray-100">
           Actions rapides
         </h3>
         <div class="grid grid-cols-2 gap-3">
@@ -143,7 +153,9 @@
       <!-- notifications /  reminders -->
       <UiCard>
         <div class="mb-4 flex items-center justify-between">
-          <h3 class="text-lg font-semibold text-gray-900">Rappels santé</h3>
+          <h3 class="text-lg font-semibold text-gray-900 dark:text-gray-100">
+            Rappels santé
+          </h3>
           <UiButton
             v-if="notifications.length > 0"
             variant="secondary"
@@ -159,20 +171,26 @@
           <div
             v-for="i in 3"
             :key="i"
-            class="flex gap-3 rounded-lg bg-gray-50 p-3"
+            class="flex gap-3 rounded-lg bg-gray-50 p-3 dark:bg-gray-950"
           >
-            <div class="h-10 w-10 rounded-lg bg-gray-200"></div>
+            <div
+              class="h-10 w-10 rounded-lg bg-gray-200 dark:bg-gray-700"
+            ></div>
             <div class="flex-1 space-y-2">
-              <div class="h-4 w-3/4 rounded bg-gray-200"></div>
-              <div class="h-3 w-1/2 rounded bg-gray-200"></div>
+              <div class="h-4 w-3/4 rounded bg-gray-200 dark:bg-gray-700"></div>
+              <div class="h-3 w-1/2 rounded bg-gray-200 dark:bg-gray-700"></div>
             </div>
           </div>
         </div>
 
         <!-- no reminders -->
         <div v-else-if="notifications.length === 0" class="py-6 text-center">
-          <Bell class="mx-auto mb-3 h-12 w-12 text-gray-300" />
-          <p class="text-gray-500">Aucun rappel pour le moment</p>
+          <Bell
+            class="mx-auto mb-3 h-12 w-12 text-gray-300 dark:text-gray-600"
+          />
+          <p class="text-gray-500 dark:text-gray-400">
+            Aucun rappel pour le moment
+          </p>
         </div>
 
         <!-- notifications list -->
@@ -180,19 +198,19 @@
           <div
             v-for="notification in notifications"
             :key="notification.id"
-            class="flex gap-3 rounded-lg bg-gray-50 p-3"
+            class="flex gap-3 rounded-lg bg-gray-50 p-3 dark:bg-gray-950"
           >
             <div
-              class="flex h-10 w-10 flex-shrink-0 items-center justify-center rounded-lg bg-orange-100"
+              class="flex h-10 w-10 flex-shrink-0 items-center justify-center rounded-lg bg-orange-100 dark:bg-orange-900/40"
             >
               <component
                 :is="getNotificationIcon(notification.type)"
-                class="h-5 w-5 text-orange-600"
+                class="h-5 w-5 text-orange-600 dark:text-orange-400"
               />
             </div>
             <div class="flex-1">
               <p class="mb-1 text-sm font-medium">{{ notification.title }}</p>
-              <p class="text-xs text-gray-600">
+              <p class="text-xs text-gray-600 dark:text-gray-400">
                 {{ formatNotificationTime(notification.createdAt) }}
               </p>
             </div>
@@ -202,7 +220,7 @@
 
       <UiCard>
         <div class="mb-4 flex items-center justify-between">
-          <h3 class="text-lg font-semibold text-gray-900">
+          <h3 class="text-lg font-semibold text-gray-900 dark:text-gray-100">
             Rendez-vous passés
           </h3>
           <UiButton
@@ -216,15 +234,25 @@
 
         <!-- loading  -->
         <div v-if="loadingPast" class="animate-pulse space-y-3">
-          <div v-for="i in 2" :key="i" class="rounded-lg bg-gray-50 p-3">
-            <div class="mb-2 h-4 w-1/2 rounded bg-gray-200"></div>
-            <div class="h-3 w-1/3 rounded bg-gray-200"></div>
+          <div
+            v-for="i in 2"
+            :key="i"
+            class="rounded-lg bg-gray-50 p-3 dark:bg-gray-950"
+          >
+            <div
+              class="mb-2 h-4 w-1/2 rounded bg-gray-200 dark:bg-gray-700"
+            ></div>
+            <div class="h-3 w-1/3 rounded bg-gray-200 dark:bg-gray-700"></div>
           </div>
         </div>
 
         <div v-else-if="pastAppointments.length === 0" class="py-6 text-center">
-          <FileText class="mx-auto mb-3 h-12 w-12 text-gray-300" />
-          <p class="text-gray-500">Aucun rendez-vous passé</p>
+          <FileText
+            class="mx-auto mb-3 h-12 w-12 text-gray-300 dark:text-gray-600"
+          />
+          <p class="text-gray-500 dark:text-gray-400">
+            Aucun rendez-vous passé
+          </p>
         </div>
 
         <!-- past appointments list -->
@@ -232,17 +260,17 @@
           <div
             v-for="apt in pastAppointments"
             :key="apt.id"
-            class="flex items-center justify-between rounded-lg bg-gray-50 p-3"
+            class="flex items-center justify-between rounded-lg bg-gray-50 p-3 dark:bg-gray-950"
           >
             <div>
               <p class="font-medium">
                 {{ apt.practitioner.title }} {{ apt.practitioner.firstName }}
                 {{ apt.practitioner.lastName }}
               </p>
-              <p class="text-sm text-gray-600">
+              <p class="text-sm text-gray-600 dark:text-gray-400">
                 {{ apt.practitioner.specialty || "Médecine générale" }}
               </p>
-              <p class="mt-1 text-xs text-gray-500">
+              <p class="mt-1 text-xs text-gray-500 dark:text-gray-400">
                 {{ formatDate(apt.appointmentDate) }}
               </p>
             </div>
@@ -261,19 +289,21 @@
         class="fixed inset-0 z-50 flex items-center justify-center bg-black/50"
         @click.self="closeCancelModal"
       >
-        <div class="mx-4 w-full max-w-md rounded-xl bg-white p-6 shadow-2xl">
+        <div
+          class="mx-4 w-full max-w-md rounded-xl bg-white p-6 shadow-2xl dark:bg-gray-900"
+        >
           <div class="mb-4 flex items-center gap-3">
             <div
-              class="flex h-10 w-10 items-center justify-center rounded-full bg-red-100"
+              class="flex h-10 w-10 items-center justify-center rounded-full bg-red-100 dark:bg-red-900/40"
             >
-              <AlertTriangle class="h-5 w-5 text-red-600" />
+              <AlertTriangle class="h-5 w-5 text-red-600 dark:text-red-400" />
             </div>
-            <h3 class="text-lg font-semibold text-gray-900">
+            <h3 class="text-lg font-semibold text-gray-900 dark:text-gray-100">
               Annuler le rendez-vous
             </h3>
           </div>
 
-          <p class="mb-4 text-sm text-gray-600">
+          <p class="mb-4 text-sm text-gray-600 dark:text-gray-400">
             Êtes-vous sûr de vouloir annuler votre rendez-vous avec
             <strong>
               {{ nextAppointment?.practitioner.title }}
@@ -288,14 +318,16 @@
           </p>
 
           <div class="mb-4">
-            <label class="mb-1 block text-sm font-medium text-gray-700">
+            <label
+              class="mb-1 block text-sm font-medium text-gray-700 dark:text-gray-300"
+            >
               Raison (optionnelle)
             </label>
             <textarea
               v-model="cancelReason"
               rows="3"
               placeholder="Indiquez la raison de l'annulation..."
-              class="w-full rounded-lg border border-gray-300 px-3 py-2 text-sm focus:border-orange-500 focus:outline-none focus:ring-1 focus:ring-orange-500"
+              class="w-full rounded-lg border border-gray-300 px-3 py-2 text-sm focus:border-orange-500 focus:outline-none focus:ring-1 focus:ring-orange-500 dark:border-gray-700"
             ></textarea>
           </div>
 
@@ -328,19 +360,21 @@
         class="fixed inset-0 z-50 flex items-center justify-center bg-black/50"
         @click.self="closeModifyModal"
       >
-        <div class="mx-4 w-full max-w-md rounded-xl bg-white p-6 shadow-2xl">
+        <div
+          class="mx-4 w-full max-w-md rounded-xl bg-white p-6 shadow-2xl dark:bg-gray-900"
+        >
           <div class="mb-4 flex items-center gap-3">
             <div
-              class="flex h-10 w-10 items-center justify-center rounded-full bg-orange-100"
+              class="flex h-10 w-10 items-center justify-center rounded-full bg-orange-100 dark:bg-orange-900/40"
             >
-              <Pencil class="h-5 w-5 text-orange-600" />
+              <Pencil class="h-5 w-5 text-orange-600 dark:text-orange-400" />
             </div>
-            <h3 class="text-lg font-semibold text-gray-900">
+            <h3 class="text-lg font-semibold text-gray-900 dark:text-gray-100">
               Modifier le rendez-vous
             </h3>
           </div>
 
-          <p class="mb-4 text-sm text-gray-600">
+          <p class="mb-4 text-sm text-gray-600 dark:text-gray-400">
             Modifier votre rendez-vous avec
             <strong>
               {{ nextAppointment?.practitioner.title }}
@@ -351,29 +385,36 @@
 
           <div class="mb-4 space-y-3">
             <div>
-              <label class="mb-1 block text-sm font-medium text-gray-700">
+              <label
+                class="mb-1 block text-sm font-medium text-gray-700 dark:text-gray-300"
+              >
                 Nouvelle date
               </label>
               <input
                 v-model="modifyDate"
                 type="date"
                 :min="minModifyDate"
-                class="w-full rounded-lg border border-gray-300 px-3 py-2 text-sm focus:border-orange-500 focus:outline-none focus:ring-1 focus:ring-orange-500"
+                class="w-full rounded-lg border border-gray-300 px-3 py-2 text-sm focus:border-orange-500 focus:outline-none focus:ring-1 focus:ring-orange-500 dark:border-gray-700"
               />
             </div>
             <div>
-              <label class="mb-1 block text-sm font-medium text-gray-700">
+              <label
+                class="mb-1 block text-sm font-medium text-gray-700 dark:text-gray-300"
+              >
                 Nouvel horaire
               </label>
               <input
                 v-model="modifyTime"
                 type="time"
-                class="w-full rounded-lg border border-gray-300 px-3 py-2 text-sm focus:border-orange-500 focus:outline-none focus:ring-1 focus:ring-orange-500"
+                class="w-full rounded-lg border border-gray-300 px-3 py-2 text-sm focus:border-orange-500 focus:outline-none focus:ring-1 focus:ring-orange-500 dark:border-gray-700"
               />
             </div>
           </div>
 
-          <p v-if="modifyError" class="mb-3 text-sm text-red-600">
+          <p
+            v-if="modifyError"
+            class="mb-3 text-sm text-red-600 dark:text-red-400"
+          >
             {{ modifyError }}
           </p>
 
@@ -523,25 +564,29 @@ const quickActions = [
     icon: Calendar,
     label: "Prendre RDV",
     action: () => router.push("/search"),
-    color: "bg-orange-100 text-orange-600",
+    color:
+      "bg-orange-100 dark:bg-orange-900/40 text-orange-600 dark:text-orange-400",
   },
   {
     icon: Video,
     label: "Téléconsultation",
     action: () => router.push("/patient/teleconsultations"),
-    color: "bg-green-100 text-green-600",
+    color:
+      "bg-green-100 dark:bg-green-900/40 text-green-600 dark:text-green-400",
   },
   {
     icon: FileText,
     label: "Mes documents",
     action: () => router.push("/patient/documents"),
-    color: "bg-orange-100 text-orange-600",
+    color:
+      "bg-orange-100 dark:bg-orange-900/40 text-orange-600 dark:text-orange-400",
   },
   {
     icon: MessageSquare,
     label: "Messages",
     action: () => router.push("/patient/messages"),
-    color: "bg-purple-100 text-purple-600",
+    color:
+      "bg-purple-100 dark:bg-purple-900/40 text-purple-600 dark:text-purple-400",
   },
 ];
 

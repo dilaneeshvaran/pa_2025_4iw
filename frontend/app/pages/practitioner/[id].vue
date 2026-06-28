@@ -1,22 +1,28 @@
 <template>
-  <div class="min-h-screen bg-gray-50">
+  <div class="min-h-screen bg-gray-50 dark:bg-gray-950">
     <div class="mx-auto max-w-7xl px-4 py-8 sm:px-6 lg:px-8">
       <!-- loading -->
       <div v-if="loading" class="flex items-center justify-center py-12">
         <div class="text-center">
           <div
-            class="mx-auto h-12 w-12 animate-spin rounded-full border-4 border-gray-300 border-t-[var(--color-primary)]"
+            class="mx-auto h-12 w-12 animate-spin rounded-full border-4 border-gray-300 border-t-[var(--color-primary)] dark:border-gray-700"
           />
-          <p class="mt-4 text-gray-600">Chargement...</p>
+          <p class="mt-4 text-gray-600 dark:text-gray-400">Chargement...</p>
         </div>
       </div>
 
       <!-- error State -->
       <Card v-else-if="error" class="text-center">
         <div class="py-8">
-          <IconAlertCircle class="mx-auto mb-4 h-12 w-12 text-red-500" />
-          <h3 class="mb-2 text-xl font-semibold text-gray-900">Erreur</h3>
-          <p class="text-gray-600">{{ error }}</p>
+          <IconAlertCircle
+            class="mx-auto mb-4 h-12 w-12 text-red-500 dark:text-red-400"
+          />
+          <h3
+            class="mb-2 text-xl font-semibold text-gray-900 dark:text-gray-100"
+          >
+            Erreur
+          </h3>
+          <p class="text-gray-600 dark:text-gray-400">{{ error }}</p>
           <Button class="mt-4" @click="navigateTo('/search')">
             Retour à la recherche
           </Button>
@@ -29,7 +35,9 @@
           <div class="flex flex-col gap-6 md:flex-row">
             <!-- avatar -->
             <div class="flex-shrink-0">
-              <div class="h-32 w-32 overflow-hidden rounded-full bg-gray-200">
+              <div
+                class="h-32 w-32 overflow-hidden rounded-full bg-gray-200 dark:bg-gray-700"
+              >
                 <img
                   v-if="practitioner.photo"
                   :src="practitioner.photo"
@@ -61,7 +69,7 @@
                       class="h-6 w-6 text-[var(--color-success)]"
                     />
                   </div>
-                  <p class="mb-2 text-xl text-gray-600">
+                  <p class="mb-2 text-xl text-gray-600 dark:text-gray-400">
                     {{
                       practitioner.specialties?.[0]?.name ||
                       "Médecin généraliste"
@@ -75,17 +83,19 @@
                       <span class="text-lg font-medium">{{
                         practitioner.averageRating?.toFixed(1) || "N/A"
                       }}</span>
-                      <span class="text-gray-600"
+                      <span class="text-gray-600 dark:text-gray-400"
                         >({{ practitioner.totalReviews }} avis)</span
                       >
                     </div>
-                    <div class="flex items-center gap-1 text-gray-600">
+                    <div
+                      class="flex items-center gap-1 text-gray-600 dark:text-gray-400"
+                    >
                       <IconMapPin class="h-5 w-5" />
                       {{ practitioner.city }}
                     </div>
                     <div
                       v-if="practitioner.yearsOfExperience"
-                      class="flex items-center gap-1 text-gray-600"
+                      class="flex items-center gap-1 text-gray-600 dark:text-gray-400"
                     >
                       <IconBriefcase class="h-5 w-5" />
                       {{ practitioner.yearsOfExperience }} ans d'expérience
@@ -102,7 +112,7 @@
 
         <!-- tabs -->
         <div class="tabs-section mb-6">
-          <div class="flex gap-2 border-b border-gray-200">
+          <div class="flex gap-2 border-b border-gray-200 dark:border-gray-800">
             <button
               v-for="tab in tabs"
               :key="tab.id"
@@ -110,7 +120,7 @@
                 'px-6 py-3 font-medium transition-colors',
                 activeTab === tab.id
                   ? 'border-b-2 border-[var(--color-primary)] text-[var(--color-primary)]'
-                  : 'text-gray-600 hover:text-gray-900',
+                  : 'text-gray-600 hover:text-gray-900 dark:text-gray-400',
               ]"
               @click="activeTab = tab.id"
             >
@@ -122,7 +132,7 @@
         <div v-show="activeTab === 'about'" class="grid gap-6 md:grid-cols-2">
           <Card>
             <h3 class="mb-4 text-xl font-semibold">Biographie</h3>
-            <p class="leading-relaxed text-gray-700">
+            <p class="leading-relaxed text-gray-700 dark:text-gray-300">
               {{ practitioner.bio || "Aucune biographie disponible." }}
             </p>
           </Card>
@@ -137,7 +147,7 @@
               <li
                 v-for="edu in practitioner.qualifications"
                 :key="edu.id"
-                class="flex items-start gap-2 text-gray-700"
+                class="flex items-start gap-2 text-gray-700 dark:text-gray-300"
               >
                 <IconCheckCircle
                   class="mt-0.5 h-5 w-5 flex-shrink-0 text-[var(--color-success)]"
@@ -149,7 +159,9 @@
                 </span>
               </li>
             </ul>
-            <p v-else class="text-gray-600">Aucune formation renseignée.</p>
+            <p v-else class="text-gray-600 dark:text-gray-400">
+              Aucune formation renseignée.
+            </p>
           </Card>
 
           <!-- languages -->
@@ -183,7 +195,9 @@
             </div>
             <div class="space-y-3">
               <div class="flex items-center justify-between">
-                <span class="text-gray-700">Consultation au cabinet</span>
+                <span class="text-gray-700 dark:text-gray-300"
+                  >Consultation au cabinet</span
+                >
                 <span class="text-lg font-medium">
                   {{ practitioner.baseConsultationFee.toLocaleString() }} FCFA
                 </span>
@@ -195,13 +209,17 @@
                 "
                 class="flex items-center justify-between"
               >
-                <span class="text-gray-700">Téléconsultation</span>
+                <span class="text-gray-700 dark:text-gray-300"
+                  >Téléconsultation</span
+                >
                 <span class="text-lg font-medium">
                   {{ practitioner.teleconsultationFee.toLocaleString() }} FCFA
                 </span>
               </div>
               <div class="flex items-center justify-between">
-                <span class="text-gray-700">Durée de consultation</span>
+                <span class="text-gray-700 dark:text-gray-300"
+                  >Durée de consultation</span
+                >
                 <span class="text-lg font-medium">
                   {{ practitioner.consultationDuration }} min
                 </span>
@@ -234,24 +252,39 @@
                   v-if="practitioner.acceptsInsurance"
                   class="h-5 w-5 text-[var(--color-success)]"
                 />
-                <IconX v-else class="h-5 w-5 text-gray-400" />
-                <span class="text-gray-700">Assurance acceptée</span>
+                <IconX
+                  v-else
+                  class="h-5 w-5 text-gray-400 dark:text-gray-500"
+                />
+                <span class="text-gray-700 dark:text-gray-300"
+                  >Assurance acceptée</span
+                >
               </div>
               <div class="flex items-center gap-2">
                 <IconCheckCircle
                   v-if="practitioner.acceptsNewPatients"
                   class="h-5 w-5 text-[var(--color-success)]"
                 />
-                <IconX v-else class="h-5 w-5 text-gray-400" />
-                <span class="text-gray-700">Accepte nouveaux patients</span>
+                <IconX
+                  v-else
+                  class="h-5 w-5 text-gray-400 dark:text-gray-500"
+                />
+                <span class="text-gray-700 dark:text-gray-300"
+                  >Accepte nouveaux patients</span
+                >
               </div>
               <div class="flex items-center gap-2">
                 <IconCheckCircle
                   v-if="practitioner.teleconsultationEnabled"
                   class="h-5 w-5 text-[var(--color-success)]"
                 />
-                <IconX v-else class="h-5 w-5 text-gray-400" />
-                <span class="text-gray-700">Téléconsultation disponible</span>
+                <IconX
+                  v-else
+                  class="h-5 w-5 text-gray-400 dark:text-gray-500"
+                />
+                <span class="text-gray-700 dark:text-gray-300"
+                  >Téléconsultation disponible</span
+                >
               </div>
             </div>
           </Card>
@@ -262,13 +295,15 @@
           <Card>
             <div class="mb-6 flex items-center justify-between">
               <h3 class="text-xl font-semibold">Créneaux disponibles</h3>
-              <span class="text-sm text-gray-500">7 prochains jours</span>
+              <span class="text-sm text-gray-500 dark:text-gray-400"
+                >7 prochains jours</span
+              >
             </div>
 
             <!-- loading state -->
             <div v-if="loadingSlots" class="flex justify-center py-8">
               <div
-                class="h-8 w-8 animate-spin rounded-full border-4 border-gray-300 border-t-[var(--color-primary)]"
+                class="h-8 w-8 animate-spin rounded-full border-4 border-gray-300 border-t-[var(--color-primary)] dark:border-gray-700"
               />
             </div>
 
@@ -277,7 +312,7 @@
               <div
                 v-for="day in filteredAvailableSlots"
                 :key="day.date"
-                class="rounded-xl border border-gray-200 bg-gradient-to-r from-gray-50 to-white p-4 transition-shadow hover:shadow-md"
+                class="rounded-xl border border-gray-200 bg-gradient-to-r from-gray-50 to-white p-4 transition-shadow hover:shadow-md dark:border-gray-800"
               >
                 <div class="mb-4 flex items-center justify-between">
                   <div class="flex items-center gap-3">
@@ -292,10 +327,12 @@
                       }}</span>
                     </div>
                     <div>
-                      <h4 class="font-semibold text-gray-900">
+                      <h4
+                        class="font-semibold text-gray-900 dark:text-gray-100"
+                      >
                         {{ formatDateFull(day.date) }}
                       </h4>
-                      <p class="text-sm text-gray-500">
+                      <p class="text-sm text-gray-500 dark:text-gray-400">
                         {{ day.slots.length }} créneau{{
                           day.slots.length > 1 ? "x" : ""
                         }}
@@ -307,17 +344,19 @@
 
                 <!-- morning slots -->
                 <div
-                  class="max-h-48 overflow-y-auto rounded-lg border border-gray-100 p-2"
+                  class="max-h-48 overflow-y-auto rounded-lg border border-gray-100 p-2 dark:border-gray-800"
                 >
                   <div v-if="getMorningSlots(day.slots).length" class="mb-3">
-                    <p class="mb-2 text-xs font-medium uppercase text-gray-500">
+                    <p
+                      class="mb-2 text-xs font-medium uppercase text-gray-500 dark:text-gray-400"
+                    >
                       Matin
                     </p>
                     <div class="flex flex-wrap gap-2">
                       <button
                         v-for="slot in getMorningSlots(day.slots)"
                         :key="slot"
-                        class="rounded-lg border border-gray-200 bg-white px-3 py-2 text-sm font-medium text-gray-700 transition-all hover:border-[var(--color-primary)] hover:bg-orange-50 hover:text-[var(--color-primary)]"
+                        class="rounded-lg border border-gray-200 bg-white px-3 py-2 text-sm font-medium text-gray-700 transition-all hover:border-[var(--color-primary)] hover:bg-orange-50 hover:text-[var(--color-primary)] dark:border-gray-800 dark:bg-gray-900 dark:text-gray-300 dark:hover:bg-orange-950/40"
                         @click="selectTimeSlot(day.date, slot)"
                       >
                         {{ slot }}
@@ -327,14 +366,16 @@
 
                   <!-- afternoon slots -->
                   <div v-if="getAfternoonSlots(day.slots).length">
-                    <p class="mb-2 text-xs font-medium uppercase text-gray-500">
+                    <p
+                      class="mb-2 text-xs font-medium uppercase text-gray-500 dark:text-gray-400"
+                    >
                       Après-midi
                     </p>
                     <div class="flex flex-wrap gap-2">
                       <button
                         v-for="slot in getAfternoonSlots(day.slots)"
                         :key="slot"
-                        class="rounded-lg border border-gray-200 bg-white px-3 py-2 text-sm font-medium text-gray-700 transition-all hover:border-[var(--color-primary)] hover:bg-orange-50 hover:text-[var(--color-primary)]"
+                        class="rounded-lg border border-gray-200 bg-white px-3 py-2 text-sm font-medium text-gray-700 transition-all hover:border-[var(--color-primary)] hover:bg-orange-50 hover:text-[var(--color-primary)] dark:border-gray-800 dark:bg-gray-900 dark:text-gray-300 dark:hover:bg-orange-950/40"
                         @click="selectTimeSlot(day.date, slot)"
                       >
                         {{ slot }}
@@ -347,7 +388,7 @@
               <!-- voir plus button -->
               <div class="mt-4 text-center">
                 <button
-                  class="inline-flex items-center gap-1.5 rounded-lg border border-[var(--color-primary)] px-4 py-2 text-sm font-medium text-[var(--color-primary)] transition-colors hover:bg-orange-50"
+                  class="inline-flex items-center gap-1.5 rounded-lg border border-[var(--color-primary)] px-4 py-2 text-sm font-medium text-[var(--color-primary)] transition-colors hover:bg-orange-50 dark:hover:bg-orange-950/40"
                   @click="openBookingModalFromAvailability"
                 >
                   <IconCalendar class="h-4 w-4" />
@@ -358,16 +399,18 @@
 
             <!-- no slots -->
             <div v-else class="py-8 text-center">
-              <IconCalendar class="mx-auto mb-4 h-12 w-12 text-gray-400" />
-              <p class="text-gray-600">
+              <IconCalendar
+                class="mx-auto mb-4 h-12 w-12 text-gray-400 dark:text-gray-500"
+              />
+              <p class="text-gray-600 dark:text-gray-400">
                 Aucun créneau disponible pour les prochains jours.
               </p>
-              <p class="mt-2 text-sm text-gray-500">
+              <p class="mt-2 text-sm text-gray-500 dark:text-gray-400">
                 Veuillez contacter directement le praticien pour plus
                 d'informations.
               </p>
               <button
-                class="mt-4 inline-flex items-center gap-1.5 rounded-lg border border-[var(--color-primary)] px-4 py-2 text-sm font-medium text-[var(--color-primary)] transition-colors hover:bg-orange-50"
+                class="mt-4 inline-flex items-center gap-1.5 rounded-lg border border-[var(--color-primary)] px-4 py-2 text-sm font-medium text-[var(--color-primary)] transition-colors hover:bg-orange-50 dark:hover:bg-orange-950/40"
                 @click="openBookingModalFromAvailability"
               >
                 <IconCalendar class="h-4 w-4" />
@@ -396,11 +439,11 @@
                         'h-5 w-5',
                         i <= Math.floor(practitioner.averageRating || 0)
                           ? 'fill-yellow-400 text-yellow-400'
-                          : 'text-gray-300',
+                          : 'text-gray-300 dark:text-gray-600',
                       ]"
                     />
                   </div>
-                  <div class="text-sm text-gray-600">
+                  <div class="text-sm text-gray-600 dark:text-gray-400">
                     {{ practitioner.totalReviews }} avis
                   </div>
                 </div>
@@ -420,7 +463,7 @@
                     <h4 class="text-lg font-semibold">
                       {{ review.patientName }}
                     </h4>
-                    <span class="text-sm text-gray-600">{{
+                    <span class="text-sm text-gray-600 dark:text-gray-400">{{
                       formatDate(review.date)
                     }}</span>
                   </div>
@@ -432,11 +475,13 @@
                         'h-4 w-4',
                         i <= review.rating
                           ? 'fill-yellow-400 text-yellow-400'
-                          : 'text-gray-300',
+                          : 'text-gray-300 dark:text-gray-600',
                       ]"
                     />
                   </div>
-                  <p class="text-gray-700">{{ review.comment }}</p>
+                  <p class="text-gray-700 dark:text-gray-300">
+                    {{ review.comment }}
+                  </p>
                 </div>
               </div>
             </Card>
@@ -444,8 +489,12 @@
             <!-- no reviews -->
             <Card v-if="!reviews.length">
               <div class="py-8 text-center">
-                <IconStar class="mx-auto mb-4 h-12 w-12 text-gray-400" />
-                <p class="text-gray-600">Aucun avis pour le moment.</p>
+                <IconStar
+                  class="mx-auto mb-4 h-12 w-12 text-gray-400 dark:text-gray-500"
+                />
+                <p class="text-gray-600 dark:text-gray-400">
+                  Aucun avis pour le moment.
+                </p>
               </div>
             </Card>
           </div>
@@ -461,15 +510,19 @@
                   <p class="font-medium">
                     {{ practitioner.clinicName || "Cabinet médical" }}
                   </p>
-                  <p class="text-gray-700">{{ practitioner.address }}</p>
-                  <p class="text-gray-700">{{ practitioner.city }}</p>
+                  <p class="text-gray-700 dark:text-gray-300">
+                    {{ practitioner.address }}
+                  </p>
+                  <p class="text-gray-700 dark:text-gray-300">
+                    {{ practitioner.city }}
+                  </p>
                 </div>
               </div>
             </div>
             <div
-              class="flex h-96 items-center justify-center rounded-lg bg-gray-200"
+              class="flex h-96 items-center justify-center rounded-lg bg-gray-200 dark:bg-gray-700"
             >
-              <div class="text-center text-gray-600">
+              <div class="text-center text-gray-600 dark:text-gray-400">
                 <IconMapPin class="mx-auto mb-2 h-12 w-12" />
                 <p>{{ practitioner.city }}</p>
                 <p class="mt-2 text-sm">

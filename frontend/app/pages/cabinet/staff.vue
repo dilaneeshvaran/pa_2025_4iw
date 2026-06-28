@@ -2,8 +2,12 @@
   <div class="space-y-6">
     <div class="flex items-center justify-between">
       <div>
-        <h1 class="mb-2 text-2xl font-bold text-gray-900">Personnel</h1>
-        <p class="text-gray-600">Gérez le personnel de votre cabinet</p>
+        <h1 class="mb-2 text-2xl font-bold text-gray-900 dark:text-gray-100">
+          Personnel
+        </h1>
+        <p class="text-gray-600 dark:text-gray-400">
+          Gérez le personnel de votre cabinet
+        </p>
       </div>
       <button
         @click="showCreateModal = true"
@@ -18,18 +22,18 @@
     <div class="flex flex-wrap gap-3">
       <div class="relative min-w-[240px] flex-1">
         <Search
-          class="pointer-events-none absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-gray-400"
+          class="pointer-events-none absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-gray-400 dark:text-gray-500"
         />
         <input
           v-model="searchQuery"
           type="text"
           placeholder="Rechercher par nom, email, poste…"
-          class="w-full rounded-lg border border-gray-300 py-2 pl-10 pr-4 text-sm focus:border-orange-500 focus:outline-none focus:ring-1 focus:ring-orange-500"
+          class="w-full rounded-lg border border-gray-300 py-2 pl-10 pr-4 text-sm focus:border-orange-500 focus:outline-none focus:ring-1 focus:ring-orange-500 dark:border-gray-700"
         />
       </div>
       <select
         v-model="statusFilter"
-        class="rounded-lg border border-gray-300 px-3 py-2 text-sm focus:border-orange-500 focus:outline-none focus:ring-1 focus:ring-orange-500"
+        class="rounded-lg border border-gray-300 px-3 py-2 text-sm focus:border-orange-500 focus:outline-none focus:ring-1 focus:ring-orange-500 dark:border-gray-700"
       >
         <option value="all">Tous les statuts</option>
         <option value="ACTIVE">Actif</option>
@@ -38,17 +42,25 @@
     </div>
 
     <!-- staff list -->
-    <div class="rounded-xl border border-gray-200 bg-white shadow-sm">
+    <div
+      class="rounded-xl border border-gray-200 bg-white shadow-sm dark:border-gray-800 dark:bg-gray-900"
+    >
       <div v-if="loading" class="animate-pulse space-y-3 p-6">
-        <div v-for="i in 3" :key="i" class="h-16 rounded-lg bg-gray-100"></div>
+        <div
+          v-for="i in 3"
+          :key="i"
+          class="h-16 rounded-lg bg-gray-100 dark:bg-gray-800"
+        ></div>
       </div>
 
       <div v-else-if="!filteredStaff.length" class="py-12 text-center">
-        <UserPlus class="mx-auto mb-3 h-16 w-16 text-gray-300" />
-        <p class="text-lg text-gray-500">
+        <UserPlus
+          class="mx-auto mb-3 h-16 w-16 text-gray-300 dark:text-gray-600"
+        />
+        <p class="text-lg text-gray-500 dark:text-gray-400">
           {{ staffMembers.length ? "Aucun résultat" : "Aucun personnel" }}
         </p>
-        <p class="mt-1 text-sm text-gray-400">
+        <p class="mt-1 text-sm text-gray-400 dark:text-gray-500">
           {{
             staffMembers.length
               ? "Essayez de modifier vos filtres"
@@ -57,25 +69,27 @@
         </p>
       </div>
 
-      <div v-else class="divide-y divide-gray-100">
+      <div v-else class="divide-y divide-gray-100 dark:divide-gray-800">
         <div
           v-for="staff in filteredStaff"
           :key="staff.id"
-          class="flex items-center justify-between p-4 transition-colors hover:bg-gray-50"
+          class="flex items-center justify-between p-4 transition-colors hover:bg-gray-50 dark:hover:bg-gray-800"
         >
           <div class="flex items-center gap-4">
             <div
-              class="flex h-12 w-12 items-center justify-center rounded-full bg-green-100"
+              class="flex h-12 w-12 items-center justify-center rounded-full bg-green-100 dark:bg-green-900/40"
             >
-              <span class="text-sm font-bold text-green-600">
+              <span
+                class="text-sm font-bold text-green-600 dark:text-green-400"
+              >
                 {{ staff.firstName[0] }}{{ staff.lastName[0] }}
               </span>
             </div>
             <div>
-              <p class="font-semibold text-gray-900">
+              <p class="font-semibold text-gray-900 dark:text-gray-100">
                 {{ staff.firstName }} {{ staff.lastName }}
               </p>
-              <p class="text-sm text-gray-500">
+              <p class="text-sm text-gray-500 dark:text-gray-400">
                 {{ staff.user?.email || staff.email }} · {{ staff.phone }}
               </p>
               <!--editable position -->
@@ -90,26 +104,26 @@
                   />
                   <button
                     @click="savePosition(staff.id)"
-                    class="rounded p-0.5 text-green-600 hover:bg-green-50"
+                    class="rounded p-0.5 text-green-600 hover:bg-green-50 dark:text-green-400 dark:hover:bg-green-950/40"
                     title="Enregistrer"
                   >
                     <Check class="h-3.5 w-3.5" />
                   </button>
                   <button
                     @click="cancelEdit"
-                    class="rounded p-0.5 text-gray-400 hover:bg-gray-100"
+                    class="rounded p-0.5 text-gray-400 hover:bg-gray-100 dark:text-gray-500 dark:hover:bg-gray-800"
                     title="Annuler"
                   >
                     <X class="h-3.5 w-3.5" />
                   </button>
                 </template>
                 <template v-else>
-                  <span class="text-xs text-gray-400">{{
+                  <span class="text-xs text-gray-400 dark:text-gray-500">{{
                     staff.position
                   }}</span>
                   <button
                     @click="startEdit(staff)"
-                    class="rounded p-0.5 text-gray-400 hover:bg-gray-100 hover:text-orange-600"
+                    class="rounded p-0.5 text-gray-400 hover:bg-gray-100 hover:text-orange-600 dark:text-gray-500 dark:hover:bg-gray-800"
                     title="Modifier le poste"
                   >
                     <Pencil class="h-3 w-3" />
@@ -123,8 +137,8 @@
               :class="[
                 'rounded-full px-2 py-0.5 text-xs font-medium',
                 (staff.user?.status || staff.status) === 'ACTIVE'
-                  ? 'bg-green-100 text-green-700'
-                  : 'bg-gray-100 text-gray-600',
+                  ? 'bg-green-100 text-green-700 dark:bg-green-900/40 dark:text-green-300'
+                  : 'bg-gray-100 text-gray-600 dark:bg-gray-800 dark:text-gray-400',
               ]"
             >
               {{
@@ -135,7 +149,7 @@
             </span>
             <button
               @click="removeStaff(staff.id)"
-              class="rounded-lg p-2 text-gray-400 transition-colors hover:bg-red-50 hover:text-red-500"
+              class="rounded-lg p-2 text-gray-400 transition-colors hover:bg-red-50 hover:text-red-500 dark:text-gray-500 dark:hover:bg-red-950/40"
               title="Supprimer"
             >
               <Trash2 class="h-4 w-4" />

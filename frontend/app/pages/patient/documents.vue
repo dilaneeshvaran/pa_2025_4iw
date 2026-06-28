@@ -1,8 +1,10 @@
 <template>
   <div class="space-y-6">
     <div>
-      <h1 class="mb-2 text-2xl font-bold text-gray-900">Mes documents</h1>
-      <p class="text-gray-600">
+      <h1 class="mb-2 text-2xl font-bold text-gray-900 dark:text-gray-100">
+        Mes documents
+      </h1>
+      <p class="text-gray-600 dark:text-gray-400">
         Documents reçus de vos praticiens et de leur personnel
       </p>
     </div>
@@ -13,32 +15,32 @@
     >
       <div class="relative flex-1 sm:max-w-md">
         <Search
-          class="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-gray-400"
+          class="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-gray-400 dark:text-gray-500"
         />
         <input
           v-model="searchQuery"
           type="text"
           placeholder="Rechercher un document..."
-          class="w-full rounded-lg border border-gray-300 py-2.5 pl-10 pr-4 text-sm focus:border-orange-600 focus:outline-none focus:ring-2 focus:ring-orange-600/20"
+          class="w-full rounded-lg border border-gray-300 py-2.5 pl-10 pr-4 text-sm focus:border-orange-600 focus:outline-none focus:ring-2 focus:ring-orange-600/20 dark:border-gray-700"
           @input="debouncedSearch"
         />
         <button
           v-if="searchQuery"
-          class="absolute right-3 top-1/2 -translate-y-1/2 text-gray-400 hover:text-gray-600"
+          class="absolute right-3 top-1/2 -translate-y-1/2 text-gray-400 hover:text-gray-600 dark:text-gray-500"
           @click="clearSearch"
         >
           <X class="h-4 w-4" />
         </button>
       </div>
       <div
-        class="flex items-center gap-2 rounded-lg border border-gray-200 p-1"
+        class="flex items-center gap-2 rounded-lg border border-gray-200 p-1 dark:border-gray-800"
       >
         <button
           :class="[
             'rounded-md px-3 py-1.5 text-sm font-medium transition-colors',
             viewMode === 'card'
               ? 'bg-orange-500 text-white'
-              : 'text-gray-600 hover:bg-gray-100',
+              : 'text-gray-600 hover:bg-gray-100 dark:text-gray-400 dark:hover:bg-gray-800',
           ]"
           @click="viewMode = 'card'"
         >
@@ -49,7 +51,7 @@
             'rounded-md px-3 py-1.5 text-sm font-medium transition-colors',
             viewMode === 'list'
               ? 'bg-orange-500 text-white'
-              : 'text-gray-600 hover:bg-gray-100',
+              : 'text-gray-600 hover:bg-gray-100 dark:text-gray-400 dark:hover:bg-gray-800',
           ]"
           @click="viewMode = 'list'"
         >
@@ -59,7 +61,7 @@
     </div>
 
     <!-- tabs -->
-    <div class="border-b border-gray-200">
+    <div class="border-b border-gray-200 dark:border-gray-800">
       <nav class="-mb-px flex space-x-4 overflow-x-auto" aria-label="Tabs">
         <button
           v-for="tab in tabs"
@@ -67,8 +69,8 @@
           :class="[
             'whitespace-nowrap border-b-2 px-1 py-3 text-sm font-medium transition-colors',
             activeTab === tab.key
-              ? 'border-orange-600 text-orange-600'
-              : 'border-transparent text-gray-500 hover:border-gray-300 hover:text-gray-700',
+              ? 'border-orange-600 text-orange-600 dark:text-orange-400'
+              : 'border-transparent text-gray-500 hover:border-gray-300 hover:text-gray-700 dark:text-gray-400',
           ]"
           @click="switchTab(tab.key)"
         >
@@ -78,8 +80,8 @@
             :class="[
               'ml-1.5 inline-flex items-center rounded-full px-2 py-0.5 text-xs font-medium',
               activeTab === tab.key
-                ? 'bg-orange-100 text-orange-700'
-                : 'bg-gray-100 text-gray-600',
+                ? 'bg-orange-100 text-orange-700 dark:bg-orange-900/40 dark:text-orange-300'
+                : 'bg-gray-100 text-gray-600 dark:bg-gray-800 dark:text-gray-400',
             ]"
           >
             {{ getTabCount(tab.key) }}
@@ -97,25 +99,27 @@
         <div
           v-for="i in 6"
           :key="i"
-          class="animate-pulse rounded-xl border border-gray-200 p-5"
+          class="animate-pulse rounded-xl border border-gray-200 p-5 dark:border-gray-800"
         >
-          <div class="mb-3 h-10 w-10 rounded-lg bg-gray-200" />
-          <div class="mb-2 h-4 w-3/4 rounded bg-gray-200" />
-          <div class="mb-4 h-3 w-1/2 rounded bg-gray-200" />
-          <div class="h-3 w-1/3 rounded bg-gray-200" />
+          <div class="mb-3 h-10 w-10 rounded-lg bg-gray-200 dark:bg-gray-700" />
+          <div class="mb-2 h-4 w-3/4 rounded bg-gray-200 dark:bg-gray-700" />
+          <div class="mb-4 h-3 w-1/2 rounded bg-gray-200 dark:bg-gray-700" />
+          <div class="h-3 w-1/3 rounded bg-gray-200 dark:bg-gray-700" />
         </div>
       </div>
       <div v-else class="space-y-3">
         <div
           v-for="i in 5"
           :key="i"
-          class="animate-pulse rounded-lg border border-gray-200 p-4"
+          class="animate-pulse rounded-lg border border-gray-200 p-4 dark:border-gray-800"
         >
           <div class="flex items-center gap-4">
-            <div class="h-10 w-10 rounded-lg bg-gray-200" />
+            <div class="h-10 w-10 rounded-lg bg-gray-200 dark:bg-gray-700" />
             <div class="flex-1">
-              <div class="mb-2 h-4 w-1/3 rounded bg-gray-200" />
-              <div class="h-3 w-1/4 rounded bg-gray-200" />
+              <div
+                class="mb-2 h-4 w-1/3 rounded bg-gray-200 dark:bg-gray-700"
+              />
+              <div class="h-3 w-1/4 rounded bg-gray-200 dark:bg-gray-700" />
             </div>
           </div>
         </div>
@@ -125,11 +129,15 @@
     <!-- empty state -->
     <div
       v-else-if="documents.length === 0"
-      class="rounded-xl border-2 border-dashed border-gray-200 py-16 text-center"
+      class="rounded-xl border-2 border-dashed border-gray-200 py-16 text-center dark:border-gray-800"
     >
-      <FileText class="mx-auto mb-4 h-14 w-14 text-gray-300" />
-      <p class="text-lg font-medium text-gray-500">Aucun document</p>
-      <p class="mt-1 text-sm text-gray-400">
+      <FileText
+        class="mx-auto mb-4 h-14 w-14 text-gray-300 dark:text-gray-600"
+      />
+      <p class="text-lg font-medium text-gray-500 dark:text-gray-400">
+        Aucun document
+      </p>
+      <p class="mt-1 text-sm text-gray-400 dark:text-gray-500">
         {{
           searchQuery
             ? "Aucun document ne correspond à votre recherche"
@@ -146,7 +154,7 @@
       <div
         v-for="doc in documents"
         :key="doc.id"
-        class="group rounded-xl border border-gray-200 p-5 transition-shadow hover:shadow-md"
+        class="group rounded-xl border border-gray-200 p-5 transition-shadow hover:shadow-md dark:border-gray-800"
       >
         <div class="mb-3 flex items-start justify-between">
           <div
@@ -167,21 +175,28 @@
           </span>
         </div>
 
-        <h3 class="mb-1 line-clamp-2 font-medium text-gray-900">
+        <h3
+          class="mb-1 line-clamp-2 font-medium text-gray-900 dark:text-gray-100"
+        >
           {{ doc.title }}
         </h3>
-        <p v-if="doc.practitioner" class="mb-2 text-sm text-gray-500">
+        <p
+          v-if="doc.practitioner"
+          class="mb-2 text-sm text-gray-500 dark:text-gray-400"
+        >
           {{ doc.practitioner.title }} {{ doc.practitioner.firstName }}
           {{ doc.practitioner.lastName }}
         </p>
         <p
           v-if="doc.description"
-          class="mb-3 line-clamp-2 text-sm text-gray-400"
+          class="mb-3 line-clamp-2 text-sm text-gray-400 dark:text-gray-500"
         >
           {{ doc.description }}
         </p>
 
-        <div class="mb-4 flex items-center gap-3 text-xs text-gray-400">
+        <div
+          class="mb-4 flex items-center gap-3 text-xs text-gray-400 dark:text-gray-500"
+        >
           <span>{{ formatDate(doc.uploadedAt) }}</span>
           <span>·</span>
           <span>{{ formatFileSize(doc.fileSize) }}</span>
@@ -190,7 +205,7 @@
         <div class="flex gap-2">
           <button
             v-if="isPdf(doc.mimeType)"
-            class="flex flex-1 items-center justify-center gap-1.5 rounded-lg border border-gray-200 px-3 py-2 text-sm font-medium text-gray-700 transition-colors hover:bg-gray-50"
+            class="flex flex-1 items-center justify-center gap-1.5 rounded-lg border border-gray-200 px-3 py-2 text-sm font-medium text-gray-700 transition-colors hover:bg-gray-50 dark:border-gray-800 dark:text-gray-300 dark:hover:bg-gray-800"
             @click="viewDocument(doc)"
           >
             <Eye class="h-4 w-4" />
@@ -212,7 +227,7 @@
       <div
         v-for="doc in documents"
         :key="doc.id"
-        class="flex items-center justify-between rounded-lg border border-gray-200 p-4 transition-shadow hover:shadow-sm"
+        class="flex items-center justify-between rounded-lg border border-gray-200 p-4 transition-shadow hover:shadow-sm dark:border-gray-800"
       >
         <div class="flex items-center gap-4">
           <div
@@ -225,7 +240,9 @@
           </div>
           <div class="min-w-0">
             <div class="flex items-center gap-2">
-              <p class="truncate font-medium text-gray-900">{{ doc.title }}</p>
+              <p class="truncate font-medium text-gray-900 dark:text-gray-100">
+                {{ doc.title }}
+              </p>
               <span
                 :class="[
                   'hidden rounded-full px-2 py-0.5 text-xs font-medium sm:inline-flex',
@@ -235,13 +252,19 @@
                 {{ getDocTypeLabel(doc.type) }}
               </span>
             </div>
-            <div class="flex items-center gap-2 text-sm text-gray-500">
+            <div
+              class="flex items-center gap-2 text-sm text-gray-500 dark:text-gray-400"
+            >
               <span v-if="doc.practitioner">
                 {{ doc.practitioner.title }} {{ doc.practitioner.lastName }}
               </span>
-              <span v-if="doc.practitioner" class="text-gray-300">·</span>
+              <span
+                v-if="doc.practitioner"
+                class="text-gray-300 dark:text-gray-600"
+                >·</span
+              >
               <span>{{ formatDate(doc.uploadedAt) }}</span>
-              <span class="text-gray-300">·</span>
+              <span class="text-gray-300 dark:text-gray-600">·</span>
               <span>{{ formatFileSize(doc.fileSize) }}</span>
             </div>
           </div>
@@ -249,14 +272,14 @@
         <div class="ml-4 flex flex-shrink-0 items-center gap-2">
           <button
             v-if="isPdf(doc.mimeType)"
-            class="rounded-lg p-2 text-gray-400 transition-colors hover:bg-gray-100 hover:text-orange-600"
+            class="rounded-lg p-2 text-gray-400 transition-colors hover:bg-gray-100 hover:text-orange-600 dark:text-gray-500 dark:hover:bg-gray-800"
             title="Lire"
             @click="viewDocument(doc)"
           >
             <Eye class="h-5 w-5" />
           </button>
           <button
-            class="rounded-lg p-2 text-gray-400 transition-colors hover:bg-gray-100 hover:text-orange-600"
+            class="rounded-lg p-2 text-gray-400 transition-colors hover:bg-gray-100 hover:text-orange-600 dark:text-gray-500 dark:hover:bg-gray-800"
             title="Télécharger"
             @click="downloadDocument(doc.id, doc.fileName)"
           >
@@ -279,7 +302,7 @@
       >
         Précédent
       </UiButton>
-      <span class="text-sm text-gray-600">
+      <span class="text-sm text-gray-600 dark:text-gray-400">
         Page {{ pagination.page }} / {{ pagination.totalPages }}
       </span>
       <UiButton
@@ -300,18 +323,20 @@
         @click.self="showViewer = false"
       >
         <div
-          class="relative mx-4 flex h-[90vh] w-full max-w-4xl flex-col rounded-xl bg-white shadow-2xl"
+          class="relative mx-4 flex h-[90vh] w-full max-w-4xl flex-col rounded-xl bg-white shadow-2xl dark:bg-gray-900"
         >
           <div class="flex items-center justify-between border-b px-6 py-4">
             <div>
-              <h3 class="font-semibold text-gray-900">
+              <h3 class="font-semibold text-gray-900 dark:text-gray-100">
                 {{ viewerDoc?.title }}
               </h3>
-              <p class="text-sm text-gray-500">{{ viewerDoc?.fileName }}</p>
+              <p class="text-sm text-gray-500 dark:text-gray-400">
+                {{ viewerDoc?.fileName }}
+              </p>
             </div>
             <div class="flex items-center gap-2">
               <button
-                class="rounded-lg p-2 text-gray-500 hover:bg-gray-100"
+                class="rounded-lg p-2 text-gray-500 hover:bg-gray-100 dark:text-gray-400 dark:hover:bg-gray-800"
                 title="Télécharger"
                 @click="
                   viewerDoc &&
@@ -321,7 +346,7 @@
                 <Download class="h-5 w-5" />
               </button>
               <button
-                class="rounded-lg p-2 text-gray-500 hover:bg-gray-100"
+                class="rounded-lg p-2 text-gray-500 hover:bg-gray-100 dark:text-gray-400 dark:hover:bg-gray-800"
                 @click="showViewer = false"
               >
                 <X class="h-5 w-5" />

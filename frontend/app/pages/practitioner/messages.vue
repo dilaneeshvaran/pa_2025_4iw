@@ -1,15 +1,19 @@
 <template>
   <div class="flex h-[calc(100vh-3rem)] flex-col">
     <div class="mb-4">
-      <h1 class="text-2xl font-bold text-gray-900">Messagerie</h1>
-      <p class="inline-flex items-center gap-1 text-sm text-gray-500">
+      <h1 class="text-2xl font-bold text-gray-900 dark:text-gray-100">
+        Messagerie
+      </h1>
+      <p
+        class="inline-flex items-center gap-1 text-sm text-gray-500 dark:text-gray-400"
+      >
         <Lock class="h-3.5 w-3.5 flex-shrink-0" />
         Messages chiffrés de bout en bout · Communication sécurisée
       </p>
     </div>
 
     <div
-      class="flex min-h-0 flex-1 overflow-hidden rounded-xl border bg-white shadow-sm"
+      class="flex min-h-0 flex-1 overflow-hidden rounded-xl border bg-white shadow-sm dark:bg-gray-900"
     >
       <div
         :class="[
@@ -36,8 +40,8 @@
             :class="[
               'flex-1 px-2 py-2.5 text-center transition-colors',
               activeFilter === tab.key
-                ? 'border-b-2 border-orange-600 text-orange-600'
-                : 'text-gray-500 hover:text-gray-700',
+                ? 'border-b-2 border-orange-600 text-orange-600 dark:text-orange-400'
+                : 'text-gray-500 hover:text-gray-700 dark:text-gray-400',
             ]"
             @click="activeFilter = tab.key"
           >
@@ -54,13 +58,13 @@
         <div class="border-b px-3 py-2">
           <div class="relative">
             <Search
-              class="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-gray-400"
+              class="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-gray-400 dark:text-gray-500"
             />
             <input
               v-model="searchQuery"
               type="text"
               placeholder="Rechercher une conversation..."
-              class="w-full rounded-lg border border-gray-200 bg-gray-50 py-2 pl-10 pr-3 text-sm focus:border-orange-500 focus:outline-none focus:ring-1 focus:ring-orange-500"
+              class="w-full rounded-lg border border-gray-200 bg-gray-50 py-2 pl-10 pr-3 text-sm focus:border-orange-500 focus:outline-none focus:ring-1 focus:ring-orange-500 dark:border-gray-800 dark:bg-gray-950"
             />
           </div>
         </div>
@@ -71,13 +75,15 @@
             <div
               v-for="i in 4"
               :key="i"
-              class="animate-pulse rounded-lg bg-gray-50 p-3"
+              class="animate-pulse rounded-lg bg-gray-50 p-3 dark:bg-gray-950"
             >
               <div class="flex gap-3">
-                <div class="h-10 w-10 rounded-full bg-gray-200" />
+                <div
+                  class="h-10 w-10 rounded-full bg-gray-200 dark:bg-gray-700"
+                />
                 <div class="flex-1 space-y-2">
-                  <div class="h-4 w-3/4 rounded bg-gray-200" />
-                  <div class="h-3 w-1/2 rounded bg-gray-200" />
+                  <div class="h-4 w-3/4 rounded bg-gray-200 dark:bg-gray-700" />
+                  <div class="h-3 w-1/2 rounded bg-gray-200 dark:bg-gray-700" />
                 </div>
               </div>
             </div>
@@ -88,8 +94,12 @@
             v-else-if="filteredConversations.length === 0"
             class="flex flex-col items-center justify-center px-4 py-12 text-center"
           >
-            <MessageSquare class="mb-3 h-12 w-12 text-gray-300" />
-            <p class="mb-1 text-sm font-medium text-gray-900">
+            <MessageSquare
+              class="mb-3 h-12 w-12 text-gray-300 dark:text-gray-600"
+            />
+            <p
+              class="mb-1 text-sm font-medium text-gray-900 dark:text-gray-100"
+            >
               {{
                 searchQuery
                   ? "Aucun résultat"
@@ -98,7 +108,7 @@
                     : "Aucune conversation"
               }}
             </p>
-            <p class="text-xs text-gray-500">
+            <p class="text-xs text-gray-500 dark:text-gray-400">
               {{
                 searchQuery
                   ? "Essayez un autre terme de recherche"
@@ -117,8 +127,8 @@
                 :class="[
                   'flex w-full items-start gap-3 border-b px-4 py-3 text-left transition-colors',
                   activeConversationId === conv.id
-                    ? 'bg-orange-50'
-                    : 'hover:bg-gray-50',
+                    ? 'bg-orange-50 dark:bg-orange-950/40'
+                    : 'hover:bg-gray-50 dark:hover:bg-gray-800',
                 ]"
                 @click="openConversation(conv.id)"
               >
@@ -127,8 +137,8 @@
                   :class="[
                     'flex h-10 w-10 flex-shrink-0 items-center justify-center rounded-full text-sm font-semibold',
                     conv.type === 'PRACTITIONER_PRACTITIONER'
-                      ? 'bg-purple-100 text-purple-600'
-                      : 'bg-green-100 text-green-600',
+                      ? 'bg-purple-100 text-purple-600 dark:bg-purple-900/40 dark:text-purple-400'
+                      : 'bg-green-100 text-green-600 dark:bg-green-900/40 dark:text-green-400',
                   ]"
                 >
                   {{ getConversationInitials(conv) }}
@@ -137,15 +147,19 @@
                 <!-- Content -->
                 <div class="min-w-0 flex-1">
                   <div class="flex items-center justify-between">
-                    <p class="truncate text-sm font-semibold text-gray-900">
+                    <p
+                      class="truncate text-sm font-semibold text-gray-900 dark:text-gray-100"
+                    >
                       {{ getConversationName(conv) }}
                     </p>
-                    <span class="ml-2 flex-shrink-0 text-xs text-gray-400">
+                    <span
+                      class="ml-2 flex-shrink-0 text-xs text-gray-400 dark:text-gray-500"
+                    >
                       {{ formatRelativeTime(conv.lastMessageAt) }}
                     </span>
                   </div>
                   <div class="flex items-center justify-between">
-                    <p class="text-xs text-gray-500">
+                    <p class="text-xs text-gray-500 dark:text-gray-400">
                       <span
                         v-if="conv.type === 'PRACTITIONER_PRACTITIONER'"
                         class="inline-flex items-center gap-1"
@@ -164,7 +178,7 @@
                   </div>
                   <p
                     v-if="conv.lastMessagePreview"
-                    class="mt-0.5 truncate text-xs text-gray-400"
+                    class="mt-0.5 truncate text-xs text-gray-400 dark:text-gray-500"
                   >
                     {{ conv.lastMessagePreview }}
                   </p>
@@ -174,7 +188,7 @@
               <!-- 3 dot  -->
               <div class="absolute right-2 top-2" data-menu>
                 <button
-                  class="rounded-md p-1 text-gray-400 opacity-0 transition-opacity hover:bg-gray-100 hover:text-gray-600 group-hover:opacity-100"
+                  class="rounded-md p-1 text-gray-400 opacity-0 transition-opacity hover:bg-gray-100 hover:text-gray-600 group-hover:opacity-100 dark:text-gray-500 dark:hover:bg-gray-800"
                   :class="{ 'opacity-100': openMenuId === conv.id }"
                   @click.stop="toggleMenu(conv.id)"
                 >
@@ -184,10 +198,10 @@
                 <!-- dropdown  -->
                 <div
                   v-if="openMenuId === conv.id"
-                  class="absolute right-0 top-8 z-10 w-56 rounded-lg border bg-white py-1 shadow-lg"
+                  class="absolute right-0 top-8 z-10 w-56 rounded-lg border bg-white py-1 shadow-lg dark:bg-gray-900"
                 >
                   <button
-                    class="flex w-full items-center gap-2 px-3 py-2 text-left text-sm text-gray-700 hover:bg-gray-50"
+                    class="flex w-full items-center gap-2 px-3 py-2 text-left text-sm text-gray-700 hover:bg-gray-50 dark:text-gray-300 dark:hover:bg-gray-800"
                     @click.stop="toggleEmailMute(conv.id)"
                   >
                     <BellOff v-if="conv.emailMuted" class="h-4 w-4" />
@@ -199,7 +213,7 @@
                     }}
                   </button>
                   <button
-                    class="flex w-full items-center gap-2 px-3 py-2 text-left text-sm text-red-600 hover:bg-red-50"
+                    class="flex w-full items-center gap-2 px-3 py-2 text-left text-sm text-red-600 hover:bg-red-50 dark:text-red-400 dark:hover:bg-red-950/40"
                     @click.stop="confirmDeleteConversation(conv.id)"
                   >
                     <Trash2 class="h-4 w-4" />
@@ -224,22 +238,34 @@
           v-if="!activeConversationId"
           class="flex flex-1 flex-col items-center justify-center text-center"
         >
-          <div class="mb-4 rounded-full bg-orange-50 p-6">
-            <MessageSquare class="h-12 w-12 text-orange-500" />
+          <div class="mb-4 rounded-full bg-orange-50 p-6 dark:bg-orange-950/40">
+            <MessageSquare
+              class="h-12 w-12 text-orange-500 dark:text-orange-400"
+            />
           </div>
-          <h3 class="mb-2 text-lg font-semibold text-gray-900">Vos messages</h3>
-          <p class="max-w-sm text-sm text-gray-500">
+          <h3
+            class="mb-2 text-lg font-semibold text-gray-900 dark:text-gray-100"
+          >
+            Vos messages
+          </h3>
+          <p class="max-w-sm text-sm text-gray-500 dark:text-gray-400">
             Sélectionnez une conversation ou envoyez un nouveau message à un
             patient ou confrère.
           </p>
-          <div class="mt-6 rounded-lg bg-orange-50 p-4 text-left">
+          <div
+            class="mt-6 rounded-lg bg-orange-50 p-4 text-left dark:bg-orange-950/40"
+          >
             <div class="flex gap-2">
-              <Shield class="mt-0.5 h-4 w-4 flex-shrink-0 text-orange-500" />
+              <Shield
+                class="mt-0.5 h-4 w-4 flex-shrink-0 text-orange-500 dark:text-orange-400"
+              />
               <div>
-                <p class="text-xs font-medium text-orange-700">
+                <p
+                  class="text-xs font-medium text-orange-700 dark:text-orange-300"
+                >
                   Chiffrement de bout en bout
                 </p>
-                <p class="mt-1 text-xs text-orange-700">
+                <p class="mt-1 text-xs text-orange-700 dark:text-orange-300">
                   Tous les messages sont chiffrés avec AES-256-GCM. Seuls vous
                   et votre correspondant pouvez lire les messages.
                 </p>
@@ -252,7 +278,7 @@
         <template v-else>
           <div class="flex items-center gap-3 border-b px-4 py-3">
             <button
-              class="rounded-lg p-1.5 text-gray-500 transition-colors hover:bg-gray-100 lg:hidden"
+              class="rounded-lg p-1.5 text-gray-500 transition-colors hover:bg-gray-100 dark:text-gray-400 dark:hover:bg-gray-800 lg:hidden"
               @click="activeConversationId = null"
             >
               <ArrowLeft class="h-5 w-5" />
@@ -261,26 +287,31 @@
               :class="[
                 'flex h-10 w-10 items-center justify-center rounded-full text-sm font-semibold',
                 activeConversation?.type === 'PRACTITIONER_PRACTITIONER'
-                  ? 'bg-purple-100 text-purple-600'
-                  : 'bg-green-100 text-green-600',
+                  ? 'bg-purple-100 text-purple-600 dark:bg-purple-900/40 dark:text-purple-400'
+                  : 'bg-green-100 text-green-600 dark:bg-green-900/40 dark:text-green-400',
               ]"
             >
               {{ activeConversationHeaderInitials }}
             </div>
             <div class="min-w-0 flex-1">
-              <p class="text-sm font-semibold text-gray-900">
+              <p class="text-sm font-semibold text-gray-900 dark:text-gray-100">
                 {{ activeConversationHeaderName }}
               </p>
-              <p class="text-xs text-gray-500">
+              <p class="text-xs text-gray-500 dark:text-gray-400">
                 {{ activeConversationHeaderSubtitle }}
-                <span v-if="isTyping" class="ml-1 italic text-orange-500">
+                <span
+                  v-if="isTyping"
+                  class="ml-1 italic text-orange-500 dark:text-orange-400"
+                >
                   est en train d'écrire...
                 </span>
               </p>
             </div>
             <div class="flex items-center gap-1">
               <Lock class="h-3.5 w-3.5 text-green-500" />
-              <span class="text-xs text-green-600">Chiffré</span>
+              <span class="text-xs text-green-600 dark:text-green-400"
+                >Chiffré</span
+              >
             </div>
           </div>
 
@@ -298,9 +329,9 @@
 
             <div v-else class="space-y-3">
               <div
-                class="mx-auto mb-4 max-w-md rounded-lg bg-gray-50 p-3 text-center"
+                class="mx-auto mb-4 max-w-md rounded-lg bg-gray-50 p-3 text-center dark:bg-gray-950"
               >
-                <p class="text-xs text-gray-500">
+                <p class="text-xs text-gray-500 dark:text-gray-400">
                   <Lock class="mr-1 inline h-3 w-3" />
                   Les messages sont chiffrés de bout en bout (AES-256-GCM).
                 </p>
@@ -311,11 +342,12 @@
                 :key="dateKey"
               >
                 <div class="my-4 flex items-center gap-3">
-                  <div class="h-px flex-1 bg-gray-200" />
-                  <span class="text-xs font-medium text-gray-400">{{
-                    dateKey
-                  }}</span>
-                  <div class="h-px flex-1 bg-gray-200" />
+                  <div class="h-px flex-1 bg-gray-200 dark:bg-gray-700" />
+                  <span
+                    class="text-xs font-medium text-gray-400 dark:text-gray-500"
+                    >{{ dateKey }}</span
+                  >
+                  <div class="h-px flex-1 bg-gray-200 dark:bg-gray-700" />
                 </div>
 
                 <div
@@ -333,7 +365,7 @@
                       'max-w-[75%] rounded-2xl px-4 py-2.5',
                       msg.senderUserId === currentUserId
                         ? 'rounded-br-md bg-orange-500 text-white'
-                        : 'rounded-bl-md bg-gray-100 text-gray-900',
+                        : 'rounded-bl-md bg-gray-100 text-gray-900 dark:bg-gray-800 dark:text-gray-100',
                     ]"
                   >
                     <!-- attachment -->
@@ -363,7 +395,7 @@
                             'flex items-center gap-2 rounded-lg p-2 text-xs',
                             msg.senderUserId === currentUserId
                               ? 'bg-orange-500/30 text-orange-200 hover:bg-orange-500/50'
-                              : 'bg-gray-200 text-gray-700 hover:bg-gray-300',
+                              : 'bg-gray-200 text-gray-700 hover:bg-gray-300 dark:bg-gray-700 dark:text-gray-300',
                           ]"
                         >
                           <Paperclip class="h-3.5 w-3.5 flex-shrink-0" />
@@ -389,7 +421,7 @@
                         'mt-1 flex items-center justify-end gap-1',
                         msg.senderUserId === currentUserId
                           ? 'text-orange-300'
-                          : 'text-gray-400',
+                          : 'text-gray-400 dark:text-gray-500',
                       ]"
                     >
                       <span class="text-[10px]">
@@ -413,17 +445,19 @@
             <!-- attachment preview -->
             <div
               v-if="pendingAttachment"
-              class="mb-2 flex items-center gap-2 rounded-lg bg-gray-50 px-3 py-2"
+              class="mb-2 flex items-center gap-2 rounded-lg bg-gray-50 px-3 py-2 dark:bg-gray-950"
             >
-              <Paperclip class="h-4 w-4 text-gray-500" />
-              <span class="flex-1 truncate text-sm text-gray-700">
+              <Paperclip class="h-4 w-4 text-gray-500 dark:text-gray-400" />
+              <span
+                class="flex-1 truncate text-sm text-gray-700 dark:text-gray-300"
+              >
                 {{ pendingAttachment.name }}
               </span>
-              <span class="text-xs text-gray-400">
+              <span class="text-xs text-gray-400 dark:text-gray-500">
                 {{ formatFileSize(pendingAttachment.size) }}
               </span>
               <button
-                class="rounded p-0.5 text-gray-400 hover:text-red-500"
+                class="rounded p-0.5 text-gray-400 hover:text-red-500 dark:text-gray-500"
                 @click="pendingAttachment = null"
               >
                 <X class="h-4 w-4" />
@@ -438,7 +472,7 @@
               <div class="relative">
                 <button
                   type="button"
-                  class="flex h-10 w-10 items-center justify-center rounded-xl text-gray-500 transition-colors hover:bg-gray-100"
+                  class="flex h-10 w-10 items-center justify-center rounded-xl text-gray-500 transition-colors hover:bg-gray-100 dark:text-gray-400 dark:hover:bg-gray-800"
                   :title="`Joindre un fichier (${fileConstraintsInfo.allowedFormatsLabel}, max ${fileConstraintsInfo.maxSizeLabel})`"
                   @click="triggerFileUpload"
                 >
@@ -459,7 +493,7 @@
                   v-model="newMessage"
                   placeholder="Votre message..."
                   rows="1"
-                  class="max-h-32 w-full resize-none rounded-xl border border-gray-200 bg-gray-50 px-4 py-2.5 text-sm focus:border-orange-500 focus:outline-none focus:ring-1 focus:ring-orange-500"
+                  class="max-h-32 w-full resize-none rounded-xl border border-gray-200 bg-gray-50 px-4 py-2.5 text-sm focus:border-orange-500 focus:outline-none focus:ring-1 focus:ring-orange-500 dark:border-gray-800 dark:bg-gray-950"
                   @keydown.enter.exact.prevent="handleSendMessage"
                   @input="handleTyping"
                 />
@@ -474,7 +508,7 @@
                 <Send class="h-4 w-4" />
               </button>
             </form>
-            <p class="mt-1 text-[10px] text-gray-400">
+            <p class="mt-1 text-[10px] text-gray-400 dark:text-gray-500">
               Formats : {{ fileConstraintsInfo.allowedFormatsLabel }} · Max
               {{ fileConstraintsInfo.maxSizeLabel }} par fichier
             </p>
@@ -489,11 +523,15 @@
         class="fixed inset-0 z-50 flex items-center justify-center bg-black/50"
         @click.self="showNewConversation = false"
       >
-        <div class="mx-4 w-full max-w-md rounded-xl bg-white p-6 shadow-2xl">
+        <div
+          class="mx-4 w-full max-w-md rounded-xl bg-white p-6 shadow-2xl dark:bg-gray-900"
+        >
           <div class="mb-4 flex items-center justify-between">
-            <h3 class="text-lg font-semibold text-gray-900">Nouveau message</h3>
+            <h3 class="text-lg font-semibold text-gray-900 dark:text-gray-100">
+              Nouveau message
+            </h3>
             <button
-              class="rounded-lg p-1.5 text-gray-400 transition-colors hover:bg-gray-100"
+              class="rounded-lg p-1.5 text-gray-400 transition-colors hover:bg-gray-100 dark:text-gray-500 dark:hover:bg-gray-800"
               @click="showNewConversation = false"
             >
               <X class="h-5 w-5" />
@@ -501,13 +539,15 @@
           </div>
 
           <!-- new conversation -->
-          <div class="mb-4 flex rounded-lg border bg-gray-50 p-0.5">
+          <div
+            class="mb-4 flex rounded-lg border bg-gray-50 p-0.5 dark:bg-gray-950"
+          >
             <button
               :class="[
                 'flex-1 rounded-md px-3 py-2 text-sm font-medium transition-colors',
                 newConvTab === 'patients'
-                  ? 'bg-white text-gray-900 shadow-sm'
-                  : 'text-gray-500 hover:text-gray-700',
+                  ? 'bg-white text-gray-900 shadow-sm dark:bg-gray-900 dark:text-gray-100'
+                  : 'text-gray-500 hover:text-gray-700 dark:text-gray-400',
               ]"
               @click="newConvTab = 'patients'"
             >
@@ -518,8 +558,8 @@
               :class="[
                 'flex-1 rounded-md px-3 py-2 text-sm font-medium transition-colors',
                 newConvTab === 'practitioners'
-                  ? 'bg-white text-gray-900 shadow-sm'
-                  : 'text-gray-500 hover:text-gray-700',
+                  ? 'bg-white text-gray-900 shadow-sm dark:bg-gray-900 dark:text-gray-100'
+                  : 'text-gray-500 hover:text-gray-700 dark:text-gray-400',
               ]"
               @click="newConvTab = 'practitioners'"
             >
@@ -533,12 +573,14 @@
             <div
               v-for="i in 3"
               :key="i"
-              class="flex animate-pulse items-center gap-3 rounded-lg bg-gray-50 p-3"
+              class="flex animate-pulse items-center gap-3 rounded-lg bg-gray-50 p-3 dark:bg-gray-950"
             >
-              <div class="h-10 w-10 rounded-full bg-gray-200" />
+              <div
+                class="h-10 w-10 rounded-full bg-gray-200 dark:bg-gray-700"
+              />
               <div class="flex-1 space-y-2">
-                <div class="h-4 w-2/3 rounded bg-gray-200" />
-                <div class="h-3 w-1/3 rounded bg-gray-200" />
+                <div class="h-4 w-2/3 rounded bg-gray-200 dark:bg-gray-700" />
+                <div class="h-3 w-1/3 rounded bg-gray-200 dark:bg-gray-700" />
               </div>
             </div>
           </div>
@@ -548,15 +590,19 @@
             v-else-if="currentContactList.length === 0"
             class="py-8 text-center"
           >
-            <UserX class="mx-auto mb-3 h-12 w-12 text-gray-300" />
-            <p class="mb-2 text-sm font-medium text-gray-900">
+            <UserX
+              class="mx-auto mb-3 h-12 w-12 text-gray-300 dark:text-gray-600"
+            />
+            <p
+              class="mb-2 text-sm font-medium text-gray-900 dark:text-gray-100"
+            >
               {{
                 newConvTab === "patients"
                   ? "Aucun patient"
                   : "Aucun praticien disponible"
               }}
             </p>
-            <p class="text-xs text-gray-500">
+            <p class="text-xs text-gray-500 dark:text-gray-400">
               {{
                 newConvTab === "patients"
                   ? "Vous pourrez envoyer des messages aux patients ayant eu un rendez-vous."
@@ -567,7 +613,7 @@
 
           <!-- contact list -->
           <div v-else class="max-h-80 space-y-2 overflow-y-auto">
-            <p class="mb-3 text-xs text-gray-500">
+            <p class="mb-3 text-xs text-gray-500 dark:text-gray-400">
               {{
                 newConvTab === "patients"
                   ? "Sélectionnez un patient :"
@@ -577,22 +623,22 @@
             <button
               v-for="contact in currentContactList"
               :key="contact.id"
-              class="flex w-full items-center gap-3 rounded-lg border p-3 text-left transition-colors hover:border-orange-200 hover:bg-orange-50"
+              class="flex w-full items-center gap-3 rounded-lg border p-3 text-left transition-colors hover:border-orange-200 hover:bg-orange-50 dark:hover:bg-orange-950/40"
               @click="selectContact(contact)"
             >
               <div
                 :class="[
                   'flex h-10 w-10 flex-shrink-0 items-center justify-center rounded-full text-sm font-semibold',
                   newConvTab === 'patients'
-                    ? 'bg-green-100 text-green-600'
-                    : 'bg-purple-100 text-purple-600',
+                    ? 'bg-green-100 text-green-600 dark:bg-green-900/40 dark:text-green-400'
+                    : 'bg-purple-100 text-purple-600 dark:bg-purple-900/40 dark:text-purple-400',
                 ]"
               >
                 {{ contact.firstName?.[0] || ""
                 }}{{ contact.lastName?.[0] || "" }}
               </div>
               <div>
-                <p class="text-sm font-medium text-gray-900">
+                <p class="text-sm font-medium text-gray-900 dark:text-gray-100">
                   <template
                     v-if="newConvTab === 'practitioners' && contact.title"
                   >
@@ -600,11 +646,16 @@
                   </template>
                   {{ contact.firstName }} {{ contact.lastName }}
                 </p>
-                <p v-if="contact.specialty" class="text-xs text-gray-500">
+                <p
+                  v-if="contact.specialty"
+                  class="text-xs text-gray-500 dark:text-gray-400"
+                >
                   {{ contact.specialty }}
                 </p>
               </div>
-              <MessageSquare class="ml-auto h-4 w-4 text-gray-400" />
+              <MessageSquare
+                class="ml-auto h-4 w-4 text-gray-400 dark:text-gray-500"
+              />
             </button>
           </div>
         </div>
@@ -617,21 +668,23 @@
         class="fixed inset-0 z-50 flex items-center justify-center bg-black/50"
         @click.self="cancelFirstMessage"
       >
-        <div class="mx-4 w-full max-w-md rounded-xl bg-white p-6 shadow-2xl">
+        <div
+          class="mx-4 w-full max-w-md rounded-xl bg-white p-6 shadow-2xl dark:bg-gray-900"
+        >
           <div class="mb-4 flex items-center gap-3">
             <div
               :class="[
                 'flex h-10 w-10 items-center justify-center rounded-full text-sm font-semibold',
                 selectedContact?.type === 'practitioner'
-                  ? 'bg-purple-100 text-purple-600'
-                  : 'bg-green-100 text-green-600',
+                  ? 'bg-purple-100 text-purple-600 dark:bg-purple-900/40 dark:text-purple-400'
+                  : 'bg-green-100 text-green-600 dark:bg-green-900/40 dark:text-green-400',
               ]"
             >
               {{ selectedContact?.firstName?.[0] || ""
               }}{{ selectedContact?.lastName?.[0] || "" }}
             </div>
             <div>
-              <p class="text-sm font-semibold text-gray-900">
+              <p class="text-sm font-semibold text-gray-900 dark:text-gray-100">
                 <template v-if="selectedContact?.title">
                   {{ selectedContact.title }}
                 </template>
@@ -640,15 +693,15 @@
               </p>
               <p
                 v-if="selectedContact?.specialty"
-                class="text-xs text-gray-500"
+                class="text-xs text-gray-500 dark:text-gray-400"
               >
                 {{ selectedContact.specialty }}
               </p>
             </div>
           </div>
 
-          <div class="mb-3 rounded-lg bg-orange-50 p-3">
-            <p class="text-xs text-orange-700">
+          <div class="mb-3 rounded-lg bg-orange-50 p-3 dark:bg-orange-950/40">
+            <p class="text-xs text-orange-700 dark:text-orange-300">
               <Lock class="mr-1 inline h-3 w-3" />
               Ce message sera chiffré de bout en bout.
             </p>
@@ -658,17 +711,22 @@
             v-model="firstMessage"
             rows="4"
             placeholder="Votre message..."
-            class="mb-4 w-full resize-none rounded-lg border border-gray-200 px-4 py-2.5 text-sm focus:border-orange-500 focus:outline-none focus:ring-1 focus:ring-orange-500"
+            class="mb-4 w-full resize-none rounded-lg border border-gray-200 px-4 py-2.5 text-sm focus:border-orange-500 focus:outline-none focus:ring-1 focus:ring-orange-500 dark:border-gray-800"
           />
 
-          <div v-if="firstMessageError" class="mb-3 rounded-lg bg-red-50 p-3">
-            <p class="text-xs text-red-600">{{ firstMessageError }}</p>
+          <div
+            v-if="firstMessageError"
+            class="mb-3 rounded-lg bg-red-50 p-3 dark:bg-red-950/40"
+          >
+            <p class="text-xs text-red-600 dark:text-red-400">
+              {{ firstMessageError }}
+            </p>
           </div>
 
           <div class="flex gap-3">
             <button
               type="button"
-              class="flex-1 rounded-lg border px-4 py-2.5 text-sm font-medium text-gray-700 transition-colors hover:bg-gray-50"
+              class="flex-1 rounded-lg border px-4 py-2.5 text-sm font-medium text-gray-700 transition-colors hover:bg-gray-50 dark:text-gray-300 dark:hover:bg-gray-800"
               @click="cancelFirstMessage"
             >
               Annuler
@@ -694,24 +752,26 @@
         class="fixed inset-0 z-50 flex items-center justify-center bg-black/50"
         @click.self="showDeleteConfirm = false"
       >
-        <div class="mx-4 w-full max-w-sm rounded-xl bg-white p-6 shadow-2xl">
+        <div
+          class="mx-4 w-full max-w-sm rounded-xl bg-white p-6 shadow-2xl dark:bg-gray-900"
+        >
           <div class="mb-4 text-center">
             <div
-              class="mx-auto mb-3 flex h-12 w-12 items-center justify-center rounded-full bg-red-100"
+              class="mx-auto mb-3 flex h-12 w-12 items-center justify-center rounded-full bg-red-100 dark:bg-red-900/40"
             >
-              <Trash2 class="h-6 w-6 text-red-600" />
+              <Trash2 class="h-6 w-6 text-red-600 dark:text-red-400" />
             </div>
-            <h3 class="text-lg font-semibold text-gray-900">
+            <h3 class="text-lg font-semibold text-gray-900 dark:text-gray-100">
               Supprimer la conversation ?
             </h3>
-            <p class="mt-2 text-sm text-gray-500">
+            <p class="mt-2 text-sm text-gray-500 dark:text-gray-400">
               La conversation sera supprimée de votre liste. L'autre participant
               pourra toujours la voir.
             </p>
           </div>
           <div class="flex gap-3">
             <button
-              class="flex-1 rounded-lg border px-4 py-2.5 text-sm font-medium text-gray-700 hover:bg-gray-50"
+              class="flex-1 rounded-lg border px-4 py-2.5 text-sm font-medium text-gray-700 hover:bg-gray-50 dark:text-gray-300 dark:hover:bg-gray-800"
               @click="showDeleteConfirm = false"
             >
               Annuler

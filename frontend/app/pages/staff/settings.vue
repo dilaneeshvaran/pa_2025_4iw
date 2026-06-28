@@ -1,53 +1,62 @@
 <template>
   <div class="mx-auto max-w-3xl space-y-6">
     <div>
-      <h1 class="mb-2 text-2xl font-bold text-gray-900">Paramètres</h1>
-      <p class="text-gray-600">Gérez vos informations personnelles</p>
+      <h1 class="mb-2 text-2xl font-bold text-gray-900 dark:text-gray-100">
+        Paramètres
+      </h1>
+      <p class="text-gray-600 dark:text-gray-400">
+        Gérez vos informations personnelles
+      </p>
     </div>
 
     <div v-if="loading" class="animate-pulse space-y-6">
-      <div class="h-64 rounded-xl bg-gray-200"></div>
+      <div class="h-64 rounded-xl bg-gray-200 dark:bg-gray-700"></div>
     </div>
 
     <div v-else class="space-y-6">
       <!-- profile -->
-      <div class="rounded-xl border border-gray-200 bg-white p-6 shadow-sm">
+      <div
+        class="rounded-xl border border-gray-200 bg-white p-6 shadow-sm dark:border-gray-800 dark:bg-gray-900"
+      >
         <h3
-          class="mb-4 flex items-center gap-2 text-lg font-semibold text-gray-900"
+          class="mb-4 flex items-center gap-2 text-lg font-semibold text-gray-900 dark:text-gray-100"
         >
-          <UserIcon class="h-5 w-5 text-green-600" />
+          <UserIcon class="h-5 w-5 text-green-600 dark:text-green-400" />
           Informations personnelles
         </h3>
 
         <div class="grid grid-cols-1 gap-4 md:grid-cols-2">
           <div>
-            <label class="mb-1 block text-sm font-medium text-gray-700"
+            <label
+              class="mb-1 block text-sm font-medium text-gray-700 dark:text-gray-300"
               >Prénom</label
             >
             <input
               v-model="profile.firstName"
               type="text"
-              class="w-full rounded-lg border border-gray-300 px-3 py-2 text-sm focus:border-green-500 focus:outline-none focus:ring-1 focus:ring-green-500"
+              class="w-full rounded-lg border border-gray-300 px-3 py-2 text-sm focus:border-green-500 focus:outline-none focus:ring-1 focus:ring-green-500 dark:border-gray-700"
             />
           </div>
           <div>
-            <label class="mb-1 block text-sm font-medium text-gray-700"
+            <label
+              class="mb-1 block text-sm font-medium text-gray-700 dark:text-gray-300"
               >Nom</label
             >
             <input
               v-model="profile.lastName"
               type="text"
-              class="w-full rounded-lg border border-gray-300 px-3 py-2 text-sm focus:border-green-500 focus:outline-none focus:ring-1 focus:ring-green-500"
+              class="w-full rounded-lg border border-gray-300 px-3 py-2 text-sm focus:border-green-500 focus:outline-none focus:ring-1 focus:ring-green-500 dark:border-gray-700"
             />
           </div>
           <div>
-            <label class="mb-1 block text-sm font-medium text-gray-700"
+            <label
+              class="mb-1 block text-sm font-medium text-gray-700 dark:text-gray-300"
               >Téléphone</label
             >
             <input
               v-model="profile.phone"
               type="tel"
-              class="w-full rounded-lg border border-gray-300 px-3 py-2 text-sm focus:border-green-500 focus:outline-none focus:ring-1 focus:ring-green-500"
+              class="w-full rounded-lg border border-gray-300 px-3 py-2 text-sm focus:border-green-500 focus:outline-none focus:ring-1 focus:ring-green-500 dark:border-gray-700"
             />
           </div>
         </div>
@@ -71,37 +80,41 @@
       </div>
 
       <!-- email -->
-      <div class="rounded-xl border border-gray-200 bg-white p-6 shadow-sm">
+      <div
+        class="rounded-xl border border-gray-200 bg-white p-6 shadow-sm dark:border-gray-800 dark:bg-gray-900"
+      >
         <h3
-          class="mb-4 flex items-center gap-2 text-lg font-semibold text-gray-900"
+          class="mb-4 flex items-center gap-2 text-lg font-semibold text-gray-900 dark:text-gray-100"
         >
-          <Mail class="h-5 w-5 text-green-600" />
+          <Mail class="h-5 w-5 text-green-600 dark:text-green-400" />
           Adresse email
         </h3>
 
-        <p class="mb-3 text-sm text-gray-500">
+        <p class="mb-3 text-sm text-gray-500 dark:text-gray-400">
           Email actuel : <strong>{{ profile.email }}</strong>
         </p>
 
         <div class="grid grid-cols-1 gap-4 md:grid-cols-2">
           <div>
-            <label class="mb-1 block text-sm font-medium text-gray-700"
+            <label
+              class="mb-1 block text-sm font-medium text-gray-700 dark:text-gray-300"
               >Nouvel email</label
             >
             <input
               v-model="emailForm.newEmail"
               type="email"
-              class="w-full rounded-lg border border-gray-300 px-3 py-2 text-sm focus:border-green-500 focus:outline-none focus:ring-1 focus:ring-green-500"
+              class="w-full rounded-lg border border-gray-300 px-3 py-2 text-sm focus:border-green-500 focus:outline-none focus:ring-1 focus:ring-green-500 dark:border-gray-700"
             />
           </div>
           <div>
-            <label class="mb-1 block text-sm font-medium text-gray-700"
+            <label
+              class="mb-1 block text-sm font-medium text-gray-700 dark:text-gray-300"
               >Mot de passe actuel</label
             >
             <input
               v-model="emailForm.password"
               type="password"
-              class="w-full rounded-lg border border-gray-300 px-3 py-2 text-sm focus:border-green-500 focus:outline-none focus:ring-1 focus:ring-green-500"
+              class="w-full rounded-lg border border-gray-300 px-3 py-2 text-sm focus:border-green-500 focus:outline-none focus:ring-1 focus:ring-green-500 dark:border-gray-700"
             />
           </div>
         </div>
@@ -121,33 +134,37 @@
       </div>
 
       <!--password -->
-      <div class="rounded-xl border border-gray-200 bg-white p-6 shadow-sm">
+      <div
+        class="rounded-xl border border-gray-200 bg-white p-6 shadow-sm dark:border-gray-800 dark:bg-gray-900"
+      >
         <h3
-          class="mb-4 flex items-center gap-2 text-lg font-semibold text-gray-900"
+          class="mb-4 flex items-center gap-2 text-lg font-semibold text-gray-900 dark:text-gray-100"
         >
-          <Shield class="h-5 w-5 text-green-600" />
+          <Shield class="h-5 w-5 text-green-600 dark:text-green-400" />
           Mot de passe
         </h3>
 
         <div class="grid grid-cols-1 gap-4 md:grid-cols-2">
           <div>
-            <label class="mb-1 block text-sm font-medium text-gray-700"
+            <label
+              class="mb-1 block text-sm font-medium text-gray-700 dark:text-gray-300"
               >Mot de passe actuel</label
             >
             <input
               v-model="passwordForm.currentPassword"
               type="password"
-              class="w-full rounded-lg border border-gray-300 px-3 py-2 text-sm focus:border-green-500 focus:outline-none focus:ring-1 focus:ring-green-500"
+              class="w-full rounded-lg border border-gray-300 px-3 py-2 text-sm focus:border-green-500 focus:outline-none focus:ring-1 focus:ring-green-500 dark:border-gray-700"
             />
           </div>
           <div>
-            <label class="mb-1 block text-sm font-medium text-gray-700"
+            <label
+              class="mb-1 block text-sm font-medium text-gray-700 dark:text-gray-300"
               >Nouveau mot de passe</label
             >
             <input
               v-model="passwordForm.newPassword"
               type="password"
-              class="w-full rounded-lg border border-gray-300 px-3 py-2 text-sm focus:border-green-500 focus:outline-none focus:ring-1 focus:ring-green-500"
+              class="w-full rounded-lg border border-gray-300 px-3 py-2 text-sm focus:border-green-500 focus:outline-none focus:ring-1 focus:ring-green-500 dark:border-gray-700"
             />
           </div>
         </div>
@@ -252,12 +269,12 @@ async function updateProfile() {
     if (res.success) {
       profile.value = res.data;
       profileMessage.value = "Profil mis à jour avec succès";
-      profileMessageClass.value = "text-green-600";
+      profileMessageClass.value = "text-green-600 dark:text-green-400";
     }
   } catch (error: any) {
     profileMessage.value =
       error?.data?.message || "Erreur lors de la mise à jour";
-    profileMessageClass.value = "text-red-600";
+    profileMessageClass.value = "text-red-600 dark:text-red-400";
   } finally {
     savingProfile.value = false;
   }
@@ -278,12 +295,12 @@ async function updateEmail() {
       profile.value.email = emailForm.value.newEmail;
       emailForm.value = { newEmail: "", password: "" };
       emailMessage.value = res.data.message || "Email mis à jour avec succès";
-      emailMessageClass.value = "text-green-600";
+      emailMessageClass.value = "text-green-600 dark:text-green-400";
     }
   } catch (error: any) {
     emailMessage.value =
       error?.data?.message || "Erreur lors de la mise à jour de l'email";
-    emailMessageClass.value = "text-red-600";
+    emailMessageClass.value = "text-red-600 dark:text-red-400";
   } finally {
     savingEmail.value = false;
   }
@@ -304,12 +321,12 @@ async function updatePassword() {
       passwordForm.value = { currentPassword: "", newPassword: "" };
       passwordMessage.value =
         res.data.message || "Mot de passe mis à jour avec succès";
-      passwordMessageClass.value = "text-green-600";
+      passwordMessageClass.value = "text-green-600 dark:text-green-400";
     }
   } catch (error: any) {
     passwordMessage.value =
       error?.data?.message || "Erreur lors de la mise à jour du mot de passe";
-    passwordMessageClass.value = "text-red-600";
+    passwordMessageClass.value = "text-red-600 dark:text-red-400";
   } finally {
     savingPassword.value = false;
   }

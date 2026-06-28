@@ -2,8 +2,12 @@
   <div class="space-y-6">
     <div class="flex items-center justify-between">
       <div>
-        <h1 class="mb-2 text-2xl font-bold text-gray-900">Praticiens</h1>
-        <p class="text-gray-600">Gérez les praticiens de votre cabinet</p>
+        <h1 class="mb-2 text-2xl font-bold text-gray-900 dark:text-gray-100">
+          Praticiens
+        </h1>
+        <p class="text-gray-600 dark:text-gray-400">
+          Gérez les praticiens de votre cabinet
+        </p>
       </div>
       <button
         @click="showInviteModal = true"
@@ -15,45 +19,57 @@
     </div>
 
     <!-- practitioners list -->
-    <div class="rounded-xl border border-gray-200 bg-white shadow-sm">
+    <div
+      class="rounded-xl border border-gray-200 bg-white shadow-sm dark:border-gray-800 dark:bg-gray-900"
+    >
       <div v-if="loading" class="animate-pulse space-y-3 p-6">
-        <div v-for="i in 3" :key="i" class="h-20 rounded-lg bg-gray-100"></div>
+        <div
+          v-for="i in 3"
+          :key="i"
+          class="h-20 rounded-lg bg-gray-100 dark:bg-gray-800"
+        ></div>
       </div>
 
       <div v-else-if="!practitioners.length" class="py-12 text-center">
-        <Users class="mx-auto mb-3 h-16 w-16 text-gray-300" />
-        <p class="text-lg text-gray-500">Aucun praticien dans votre cabinet</p>
-        <p class="mt-1 text-sm text-gray-400">
+        <Users
+          class="mx-auto mb-3 h-16 w-16 text-gray-300 dark:text-gray-600"
+        />
+        <p class="text-lg text-gray-500 dark:text-gray-400">
+          Aucun praticien dans votre cabinet
+        </p>
+        <p class="mt-1 text-sm text-gray-400 dark:text-gray-500">
           Invitez des praticiens vérifiés pour les ajouter
         </p>
       </div>
 
-      <div v-else class="divide-y divide-gray-100">
+      <div v-else class="divide-y divide-gray-100 dark:divide-gray-800">
         <div
           v-for="prac in practitioners"
           :key="prac.id"
-          class="flex items-center justify-between p-4 transition-colors hover:bg-gray-50"
+          class="flex items-center justify-between p-4 transition-colors hover:bg-gray-50 dark:hover:bg-gray-800"
         >
           <div class="flex items-center gap-4">
             <div
-              class="flex h-12 w-12 items-center justify-center rounded-full bg-orange-100"
+              class="flex h-12 w-12 items-center justify-center rounded-full bg-orange-100 dark:bg-orange-900/40"
             >
-              <span class="text-sm font-bold text-orange-600">
+              <span
+                class="text-sm font-bold text-orange-600 dark:text-orange-400"
+              >
                 {{ prac.firstName[0] }}{{ prac.lastName[0] }}
               </span>
             </div>
             <div>
-              <p class="font-semibold text-gray-900">
+              <p class="font-semibold text-gray-900 dark:text-gray-100">
                 {{ prac.title }} {{ prac.firstName }} {{ prac.lastName }}
               </p>
-              <p class="text-sm text-gray-500">
+              <p class="text-sm text-gray-500 dark:text-gray-400">
                 {{ prac.email }} · {{ prac.phone }}
               </p>
               <div class="mt-1 flex flex-wrap gap-1">
                 <span
                   v-for="spec in prac.specialties"
                   :key="spec"
-                  class="rounded-full bg-orange-50 px-2 py-0.5 text-xs font-medium text-orange-700"
+                  class="rounded-full bg-orange-50 px-2 py-0.5 text-xs font-medium text-orange-700 dark:bg-orange-950/40 dark:text-orange-300"
                 >
                   {{ spec }}
                 </span>
@@ -65,15 +81,15 @@
               :class="[
                 'rounded-full px-2 py-0.5 text-xs font-medium',
                 prac.licenseVerified
-                  ? 'bg-green-100 text-green-700'
-                  : 'bg-yellow-100 text-yellow-700',
+                  ? 'bg-green-100 text-green-700 dark:bg-green-900/40 dark:text-green-300'
+                  : 'bg-yellow-100 text-yellow-700 dark:bg-yellow-900/40 dark:text-yellow-300',
               ]"
             >
               {{ prac.licenseVerified ? "Vérifié" : "Non vérifié" }}
             </span>
             <button
               @click="removePractitioner(prac.id)"
-              class="rounded-lg p-2 text-gray-400 transition-colors hover:bg-red-50 hover:text-red-500"
+              class="rounded-lg p-2 text-gray-400 transition-colors hover:bg-red-50 hover:text-red-500 dark:text-gray-500 dark:hover:bg-red-950/40"
               title="Retirer du cabinet"
             >
               <UserMinus class="h-4 w-4" />
@@ -89,12 +105,16 @@
       class="fixed inset-0 z-50 flex items-center justify-center bg-black/50"
       @click.self="showInviteModal = false"
     >
-      <div class="w-full max-w-md rounded-xl bg-white p-6 shadow-2xl">
+      <div
+        class="w-full max-w-md rounded-xl bg-white p-6 shadow-2xl dark:bg-gray-900"
+      >
         <div class="mb-6 flex items-center justify-between">
-          <h2 class="text-xl font-bold text-gray-900">Inviter un praticien</h2>
+          <h2 class="text-xl font-bold text-gray-900 dark:text-gray-100">
+            Inviter un praticien
+          </h2>
           <button
             @click="showInviteModal = false"
-            class="rounded-lg p-1 text-gray-400 hover:bg-gray-100"
+            class="rounded-lg p-1 text-gray-400 hover:bg-gray-100 dark:text-gray-500 dark:hover:bg-gray-800"
           >
             <X class="h-5 w-5" />
           </button>
@@ -102,33 +122,35 @@
 
         <form @submit.prevent="handleInvite" class="space-y-4">
           <div>
-            <label class="mb-1 block text-sm font-medium text-gray-700">
+            <label
+              class="mb-1 block text-sm font-medium text-gray-700 dark:text-gray-300"
+            >
               Email du praticien vérifié
             </label>
             <input
               v-model="inviteEmail"
               type="email"
               required
-              class="w-full rounded-lg border border-gray-300 px-3 py-2 text-sm focus:border-orange-500 focus:outline-none focus:ring-1 focus:ring-orange-500"
+              class="w-full rounded-lg border border-gray-300 px-3 py-2 text-sm focus:border-orange-500 focus:outline-none focus:ring-1 focus:ring-orange-500 dark:border-gray-700"
               placeholder="praticien@email.com"
             />
           </div>
 
-          <p class="text-xs text-gray-500">
+          <p class="text-xs text-gray-500 dark:text-gray-400">
             Le praticien doit avoir un compte vérifié sur MediCôte pour être
             invité.
           </p>
 
           <div
             v-if="inviteError"
-            class="rounded-lg bg-red-50 p-3 text-sm text-red-600"
+            class="rounded-lg bg-red-50 p-3 text-sm text-red-600 dark:bg-red-950/40 dark:text-red-400"
           >
             {{ inviteError }}
           </div>
 
           <div
             v-if="inviteSuccess"
-            class="rounded-lg bg-green-50 p-3 text-sm text-green-600"
+            class="rounded-lg bg-green-50 p-3 text-sm text-green-600 dark:bg-green-950/40 dark:text-green-400"
           >
             Invitation envoyée avec succès !
           </div>
@@ -137,7 +159,7 @@
             <button
               type="button"
               @click="showInviteModal = false"
-              class="rounded-lg border border-gray-300 px-4 py-2 text-sm font-medium text-gray-700 hover:bg-gray-50"
+              class="rounded-lg border border-gray-300 px-4 py-2 text-sm font-medium text-gray-700 hover:bg-gray-50 dark:border-gray-700 dark:text-gray-300 dark:hover:bg-gray-800"
             >
               Annuler
             </button>

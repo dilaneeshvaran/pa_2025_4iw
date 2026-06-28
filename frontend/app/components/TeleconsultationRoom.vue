@@ -14,7 +14,7 @@
           <h2 class="text-sm font-semibold text-white">
             {{ session.roomName }}
           </h2>
-          <p class="text-xs text-gray-400">
+          <p class="text-xs text-gray-400 dark:text-gray-500">
             <span
               v-if="callStatus === 'connected'"
               class="flex items-center gap-1"
@@ -43,12 +43,12 @@
           class="flex items-center gap-1 rounded-full bg-gray-700 px-3 py-1"
         >
           <Wifi :class="connectionQualityColor" class="h-3.5 w-3.5" />
-          <span class="text-xs text-gray-300">{{
+          <span class="text-xs text-gray-300 dark:text-gray-600">{{
             connectionQualityLabel
           }}</span>
         </div>
         <button
-          class="relative rounded-lg p-2 text-gray-400 transition-colors hover:bg-gray-700 hover:text-white"
+          class="relative rounded-lg p-2 text-gray-400 transition-colors hover:bg-gray-700 hover:text-white dark:text-gray-500"
           @click="toggleChat"
         >
           <MessageSquare class="h-5 w-5" />
@@ -79,9 +79,9 @@
             <div
               class="mx-auto mb-4 flex h-24 w-24 items-center justify-center rounded-full bg-gray-800"
             >
-              <User class="h-12 w-12 text-gray-500" />
+              <User class="h-12 w-12 text-gray-500 dark:text-gray-400" />
             </div>
-            <p class="text-lg font-medium text-gray-400">
+            <p class="text-lg font-medium text-gray-400 dark:text-gray-500">
               {{
                 callStatus === "waiting"
                   ? "En attente de l'autre participant..."
@@ -90,7 +90,7 @@
             </p>
             <p
               v-if="callStatus === 'waiting'"
-              class="mt-2 text-sm text-gray-500"
+              class="mt-2 text-sm text-gray-500 dark:text-gray-400"
             >
               L'autre participant rejoindra bientôt la consultation
             </p>
@@ -114,7 +114,7 @@
             v-if="!localStream || videoMuted"
             class="flex h-full w-full items-center justify-center bg-gray-800"
           >
-            <VideoOff class="h-8 w-8 text-gray-500" />
+            <VideoOff class="h-8 w-8 text-gray-500 dark:text-gray-400" />
           </div>
           <button
             class="absolute right-1 top-1 rounded bg-black/50 p-1 text-white/70 hover:text-white"
@@ -152,7 +152,7 @@
           >
             <h3 class="text-sm font-semibold text-white">Messages</h3>
             <button
-              class="rounded p-1 text-gray-400 hover:bg-gray-700 hover:text-white"
+              class="rounded p-1 text-gray-400 hover:bg-gray-700 hover:text-white dark:text-gray-500"
               @click="chatOpen = false"
             >
               <X class="h-4 w-4" />
@@ -176,7 +176,9 @@
               <p
                 :class="[
                   'mt-1 text-[10px]',
-                  msg.fromSelf ? 'text-orange-200' : 'text-gray-400',
+                  msg.fromSelf
+                    ? 'text-orange-200'
+                    : 'text-gray-400 dark:text-gray-500',
                 ]"
               >
                 {{ msg.time }}
@@ -184,7 +186,7 @@
             </div>
             <div
               v-if="chatMessages.length === 0"
-              class="py-8 text-center text-sm text-gray-500"
+              class="py-8 text-center text-sm text-gray-500 dark:text-gray-400"
             >
               Pas encore de messages
             </div>
@@ -195,7 +197,7 @@
                 v-model="chatInput"
                 type="text"
                 placeholder="Votre message..."
-                class="flex-1 rounded-lg border border-gray-600 bg-gray-700 px-3 py-2 text-sm text-white placeholder-gray-400 focus:border-orange-500 focus:outline-none"
+                class="flex-1 rounded-lg border border-gray-600 bg-gray-700 px-3 py-2 text-sm text-white placeholder-gray-400 focus:border-orange-500 focus:outline-none dark:placeholder-gray-500"
                 @keyup.enter="sendChatMessage"
               />
               <button
@@ -271,53 +273,67 @@
         v-if="showPostCallSummary"
         class="fixed inset-0 z-[60] flex items-center justify-center bg-black/70"
       >
-        <div class="mx-4 w-full max-w-md rounded-xl bg-white p-6 shadow-2xl">
+        <div
+          class="mx-4 w-full max-w-md rounded-xl bg-white p-6 shadow-2xl dark:bg-gray-900"
+        >
           <div class="mb-6 text-center">
             <div
-              class="mx-auto mb-4 flex h-16 w-16 items-center justify-center rounded-full bg-green-100"
+              class="mx-auto mb-4 flex h-16 w-16 items-center justify-center rounded-full bg-green-100 dark:bg-green-900/40"
             >
-              <CheckCircle class="h-8 w-8 text-green-600" />
+              <CheckCircle class="h-8 w-8 text-green-600 dark:text-green-400" />
             </div>
-            <h3 class="text-xl font-semibold text-gray-900">
+            <h3 class="text-xl font-semibold text-gray-900 dark:text-gray-100">
               Consultation terminée
             </h3>
-            <p class="mt-1 text-sm text-gray-500">
+            <p class="mt-1 text-sm text-gray-500 dark:text-gray-400">
               Résumé de votre téléconsultation
             </p>
           </div>
 
           <div class="space-y-3">
             <div
-              class="flex items-center justify-between rounded-lg bg-gray-50 p-3"
+              class="flex items-center justify-between rounded-lg bg-gray-50 p-3 dark:bg-gray-950"
             >
-              <span class="text-sm text-gray-600">Durée</span>
-              <span class="text-sm font-medium text-gray-900">{{
-                postCallData.duration
-              }}</span>
+              <span class="text-sm text-gray-600 dark:text-gray-400"
+                >Durée</span
+              >
+              <span
+                class="text-sm font-medium text-gray-900 dark:text-gray-100"
+                >{{ postCallData.duration }}</span
+              >
             </div>
             <div
-              class="flex items-center justify-between rounded-lg bg-gray-50 p-3"
+              class="flex items-center justify-between rounded-lg bg-gray-50 p-3 dark:bg-gray-950"
             >
-              <span class="text-sm text-gray-600">Qualité de connexion</span>
-              <span class="text-sm font-medium text-gray-900">{{
-                postCallData.quality
-              }}</span>
+              <span class="text-sm text-gray-600 dark:text-gray-400"
+                >Qualité de connexion</span
+              >
+              <span
+                class="text-sm font-medium text-gray-900 dark:text-gray-100"
+                >{{ postCallData.quality }}</span
+              >
             </div>
             <div
-              class="flex items-center justify-between rounded-lg bg-gray-50 p-3"
+              class="flex items-center justify-between rounded-lg bg-gray-50 p-3 dark:bg-gray-950"
             >
-              <span class="text-sm text-gray-600">Heure de début</span>
-              <span class="text-sm font-medium text-gray-900">{{
-                postCallData.startTime
-              }}</span>
+              <span class="text-sm text-gray-600 dark:text-gray-400"
+                >Heure de début</span
+              >
+              <span
+                class="text-sm font-medium text-gray-900 dark:text-gray-100"
+                >{{ postCallData.startTime }}</span
+              >
             </div>
             <div
-              class="flex items-center justify-between rounded-lg bg-gray-50 p-3"
+              class="flex items-center justify-between rounded-lg bg-gray-50 p-3 dark:bg-gray-950"
             >
-              <span class="text-sm text-gray-600">Heure de fin</span>
-              <span class="text-sm font-medium text-gray-900">{{
-                postCallData.endTime
-              }}</span>
+              <span class="text-sm text-gray-600 dark:text-gray-400"
+                >Heure de fin</span
+              >
+              <span
+                class="text-sm font-medium text-gray-900 dark:text-gray-100"
+                >{{ postCallData.endTime }}</span
+              >
             </div>
           </div>
 
@@ -434,7 +450,7 @@ const connectionQualityColor = computed(() => {
     case "poor":
       return "text-red-400";
     default:
-      return "text-gray-400";
+      return "text-gray-400 dark:text-gray-500";
   }
 });
 

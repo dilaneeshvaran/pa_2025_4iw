@@ -1,6 +1,11 @@
 <template>
   <!-- practitioner public profil  -->
-  <div :class="['rounded-lg border bg-white p-6 shadow-sm', className]">
+  <div
+    :class="[
+      'rounded-lg border bg-white p-6 shadow-sm dark:bg-gray-900',
+      className,
+    ]"
+  >
     <slot />
   </div>
 </template>

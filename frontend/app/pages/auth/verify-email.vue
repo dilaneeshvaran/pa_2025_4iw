@@ -1,12 +1,14 @@
 <template>
   <div class="flex min-h-screen items-center justify-center px-4 py-12">
-    <div class="w-full max-w-md space-y-8 rounded-lg bg-white p-8 shadow-lg">
+    <div
+      class="w-full max-w-md space-y-8 rounded-lg bg-white p-8 shadow-lg dark:bg-gray-900"
+    >
       <div class="text-center">
         <!-- loading state -->
         <div v-if="loading" class="space-y-4">
           <div class="flex justify-center">
             <svg
-              class="h-16 w-16 animate-spin text-orange-600"
+              class="h-16 w-16 animate-spin text-orange-600 dark:text-orange-400"
               xmlns="http://www.w3.org/2000/svg"
               fill="none"
               viewBox="0 0 24 24"
@@ -26,10 +28,12 @@
               />
             </svg>
           </div>
-          <h2 class="text-2xl font-bold text-gray-900">
+          <h2 class="text-2xl font-bold text-gray-900 dark:text-gray-100">
             Vérification de votre email...
           </h2>
-          <p class="text-sm text-gray-600">Veuillez patienter</p>
+          <p class="text-sm text-gray-600 dark:text-gray-400">
+            Veuillez patienter
+          </p>
         </div>
 
         <!-- success state -->
@@ -49,10 +53,10 @@
               />
             </svg>
           </div>
-          <h2 class="text-2xl font-bold text-gray-900">
+          <h2 class="text-2xl font-bold text-gray-900 dark:text-gray-100">
             Email vérifié avec succès !
           </h2>
-          <p class="text-gray-600">
+          <p class="text-gray-600 dark:text-gray-400">
             Votre adresse email a été vérifiée.
             {{
               isLoggedIn
@@ -74,7 +78,7 @@
         <div v-else class="space-y-4">
           <div class="flex justify-center">
             <svg
-              class="h-16 w-16 text-red-500"
+              class="h-16 w-16 text-red-500 dark:text-red-400"
               fill="none"
               stroke="currentColor"
               viewBox="0 0 24 24"
@@ -87,18 +91,18 @@
               />
             </svg>
           </div>
-          <h2 class="text-2xl font-bold text-gray-900">
+          <h2 class="text-2xl font-bold text-gray-900 dark:text-gray-100">
             Échec de la vérification
           </h2>
           <div
-            class="rounded-md border border-red-300 bg-red-50 px-4 py-3 text-sm text-red-800"
+            class="rounded-md border border-red-300 bg-red-50 px-4 py-3 text-sm text-red-800 dark:bg-red-950/40 dark:text-red-200"
           >
             {{ errorMessage }}
           </div>
 
           <!-- resend verification option -->
           <div class="space-y-4 pt-4">
-            <p class="text-sm text-gray-600">
+            <p class="text-sm text-gray-600 dark:text-gray-400">
               Le lien a peut-être expiré ou est invalide.
             </p>
 
@@ -112,7 +116,7 @@
                   type="email"
                   required
                   placeholder="Entrez votre email"
-                  class="block w-full rounded-md border border-gray-300 px-3 py-2 placeholder-gray-400 shadow-sm focus:border-orange-500 focus:outline-none focus:ring-2 focus:ring-orange-500"
+                  class="block w-full rounded-md border border-gray-300 px-3 py-2 placeholder-gray-400 shadow-sm focus:border-orange-500 focus:outline-none focus:ring-2 focus:ring-orange-500 dark:border-gray-700 dark:placeholder-gray-500"
                 />
                 <button
                   type="submit"
@@ -127,7 +131,7 @@
 
             <div
               v-else
-              class="rounded-md border border-green-300 bg-green-50 px-4 py-3 text-sm text-green-800"
+              class="rounded-md border border-green-300 bg-green-50 px-4 py-3 text-sm text-green-800 dark:bg-green-950/40 dark:text-green-200"
             >
               Email de vérification renvoyé avec succès ! Vérifiez votre boîte
               de réception.
@@ -135,7 +139,7 @@
 
             <NuxtLink
               to="/auth/login"
-              class="inline-block text-sm font-medium text-orange-600 hover:text-orange-500"
+              class="inline-block text-sm font-medium text-orange-600 hover:text-orange-500 dark:text-orange-400"
             >
               ← Retour à la connexion
             </NuxtLink>

@@ -7,12 +7,12 @@
         @click.self="close"
       >
         <div
-          class="max-h-[90vh] w-full max-w-2xl overflow-y-auto rounded-lg bg-white p-6 shadow-xl"
+          class="max-h-[90vh] w-full max-w-2xl overflow-y-auto rounded-lg bg-white p-6 shadow-xl dark:bg-gray-900"
         >
           <div class="mb-6 flex items-center justify-between">
             <h2 class="text-2xl font-bold">Réserver un rendez-vous</h2>
             <button
-              class="rounded-lg p-2 text-gray-500 transition-colors hover:bg-gray-100"
+              class="rounded-lg p-2 text-gray-500 transition-colors hover:bg-gray-100 dark:text-gray-400 dark:hover:bg-gray-800"
               @click="close"
             >
               <IconX class="h-6 w-6" />
@@ -34,7 +34,7 @@
                       ? 'bg-green-500 text-white'
                       : currentStep === index
                         ? 'bg-orange-500 text-white'
-                        : 'bg-gray-200 text-gray-600',
+                        : 'bg-gray-200 text-gray-600 dark:bg-gray-700 dark:text-gray-400',
                   ]"
                 >
                   <IconCheck v-if="currentStep > index" class="h-4 w-4" />
@@ -42,17 +42,20 @@
                 </div>
                 <span
                   v-if="index < steps.length - 1"
-                  class="mx-2 hidden h-0.5 w-8 bg-gray-200 sm:block"
+                  class="mx-2 hidden h-0.5 w-8 bg-gray-200 dark:bg-gray-700 sm:block"
                   :class="{ 'bg-green-500': currentStep > index }"
                 />
               </div>
             </div>
-            <div class="mt-2 flex justify-between text-xs text-gray-500">
+            <div
+              class="mt-2 flex justify-between text-xs text-gray-500 dark:text-gray-400"
+            >
               <span
                 v-for="(step, index) in steps"
                 :key="index"
                 :class="{
-                  'font-medium text-orange-600': currentStep === index,
+                  'font-medium text-orange-600 dark:text-orange-400':
+                    currentStep === index,
                 }"
               >
                 {{ step }}
@@ -63,10 +66,10 @@
           <!-- practitioner info -->
           <div
             v-if="practitioner"
-            class="mb-6 flex items-center gap-4 rounded-lg bg-gray-50 p-4"
+            class="mb-6 flex items-center gap-4 rounded-lg bg-gray-50 p-4 dark:bg-gray-950"
           >
             <div
-              class="h-16 w-16 flex-shrink-0 overflow-hidden rounded-full bg-gray-200"
+              class="h-16 w-16 flex-shrink-0 overflow-hidden rounded-full bg-gray-200 dark:bg-gray-700"
             >
               <img
                 v-if="practitioner.photo"
@@ -76,7 +79,7 @@
               />
               <div
                 v-else
-                class="flex h-full w-full items-center justify-center text-xl font-bold text-gray-400"
+                class="flex h-full w-full items-center justify-center text-xl font-bold text-gray-400 dark:text-gray-500"
               >
                 {{ practitioner.firstName?.charAt(0)
                 }}{{ practitioner.lastName?.charAt(0) }}
@@ -87,14 +90,14 @@
                 {{ practitioner.title }} {{ practitioner.firstName }}
                 {{ practitioner.lastName }}
               </h3>
-              <p class="text-sm text-gray-600">
+              <p class="text-sm text-gray-600 dark:text-gray-400">
                 {{ practitioner.specialties?.[0]?.name || "Généraliste" }}
               </p>
             </div>
           </div>
 
           <div v-if="currentStep === 0" class="space-y-4">
-            <h3 class="font-medium text-gray-800">
+            <h3 class="font-medium text-gray-800 dark:text-gray-200">
               Sélectionnez une date et un créneau
             </h3>
 
@@ -105,7 +108,7 @@
               <div
                 class="h-8 w-8 animate-spin rounded-full border-4 border-orange-500 border-t-transparent"
               />
-              <span class="ml-3 text-gray-600"
+              <span class="ml-3 text-gray-600 dark:text-gray-400"
                 >Chargement des disponibilités...</span
               >
             </div>
@@ -116,23 +119,25 @@
             >
               <!-- week navigation -->
               <div
-                class="flex items-center justify-between rounded-lg bg-gray-50 px-3 py-2"
+                class="flex items-center justify-between rounded-lg bg-gray-50 px-3 py-2 dark:bg-gray-950"
               >
                 <button
                   type="button"
                   :disabled="currentWeekIndex <= 0"
-                  class="rounded p-1 text-gray-500 transition-colors hover:bg-gray-200 disabled:cursor-not-allowed disabled:opacity-30"
+                  class="rounded p-1 text-gray-500 transition-colors hover:bg-gray-200 disabled:cursor-not-allowed disabled:opacity-30 dark:text-gray-400 dark:hover:bg-gray-700"
                   @click="currentWeekIndex--"
                 >
                   <IconChevronLeft class="h-5 w-5" />
                 </button>
-                <span class="text-sm font-medium text-gray-700">
+                <span
+                  class="text-sm font-medium text-gray-700 dark:text-gray-300"
+                >
                   {{ weekLabel }}
                 </span>
                 <button
                   type="button"
                   :disabled="currentWeekIndex >= totalWeeks - 1"
-                  class="rounded p-1 text-gray-500 transition-colors hover:bg-gray-200 disabled:cursor-not-allowed disabled:opacity-30"
+                  class="rounded p-1 text-gray-500 transition-colors hover:bg-gray-200 disabled:cursor-not-allowed disabled:opacity-30 dark:text-gray-400 dark:hover:bg-gray-700"
                   @click="currentWeekIndex++"
                 >
                   <IconChevronRight class="h-5 w-5" />
@@ -149,36 +154,42 @@
                   :class="[
                     'flex flex-col items-center rounded-lg border-2 px-1 py-2 text-sm transition-all',
                     selectedDate === day.date
-                      ? 'border-orange-500 bg-orange-50 text-orange-700'
+                      ? 'border-orange-500 bg-orange-50 text-orange-700 dark:bg-orange-950/40 dark:text-orange-300'
                       : day.hasSlots
-                        ? 'border-gray-200 hover:border-orange-300 hover:bg-orange-50/50'
-                        : 'cursor-not-allowed border-gray-100 bg-gray-50 text-gray-300',
+                        ? 'border-gray-200 hover:border-orange-300 hover:bg-orange-50/50 dark:border-gray-800 dark:hover:bg-orange-950/50'
+                        : 'cursor-not-allowed border-gray-100 bg-gray-50 text-gray-300 dark:border-gray-800 dark:bg-gray-950 dark:text-gray-600',
                   ]"
                   @click="day.hasSlots && selectDate(day.date)"
                 >
                   <span class="text-xs uppercase">{{ day.dayShort }}</span>
                   <span class="text-lg font-bold">{{ day.dayNumber }}</span>
-                  <span v-if="day.hasSlots" class="text-[10px] text-gray-500">{{
-                    day.slotCount
-                  }}</span>
+                  <span
+                    v-if="day.hasSlots"
+                    class="text-[10px] text-gray-500 dark:text-gray-400"
+                    >{{ day.slotCount }}</span
+                  >
                 </button>
               </div>
 
               <!-- Time slots for selected date -->
               <div v-if="selectedDate && selectedDateSlots.length > 0">
-                <p class="mb-3 text-sm font-medium text-gray-700">
+                <p
+                  class="mb-3 text-sm font-medium text-gray-700 dark:text-gray-300"
+                >
                   Créneaux disponibles le {{ formatDateLong(selectedDate) }}
-                  <span class="ml-1 text-xs text-gray-400"
+                  <span class="ml-1 text-xs text-gray-400 dark:text-gray-500"
                     >({{ selectedDateSlots.length }} créneaux)</span
                   >
                 </p>
 
                 <div
-                  class="max-h-60 overflow-y-auto rounded-lg border border-gray-100 p-3"
+                  class="max-h-60 overflow-y-auto rounded-lg border border-gray-100 p-3 dark:border-gray-800"
                 >
                   <!-- Morning slots -->
                   <div v-if="selectedDateMorningSlots.length > 0" class="mb-3">
-                    <p class="mb-2 text-xs font-medium uppercase text-gray-500">
+                    <p
+                      class="mb-2 text-xs font-medium uppercase text-gray-500 dark:text-gray-400"
+                    >
                       Matin
                     </p>
                     <div class="flex flex-wrap gap-2">
@@ -189,8 +200,8 @@
                         :class="[
                           'rounded-lg border-2 px-3 py-2 text-sm transition-all',
                           selectedTime === time
-                            ? 'border-orange-500 bg-orange-50 text-orange-700'
-                            : 'border-gray-200 hover:border-gray-300',
+                            ? 'border-orange-500 bg-orange-50 text-orange-700 dark:bg-orange-950/40 dark:text-orange-300'
+                            : 'border-gray-200 hover:border-gray-300 dark:border-gray-800',
                         ]"
                         @click="selectTime(time)"
                       >
@@ -201,7 +212,9 @@
 
                   <!-- afternoon slots -->
                   <div v-if="selectedDateAfternoonSlots.length > 0">
-                    <p class="mb-2 text-xs font-medium uppercase text-gray-500">
+                    <p
+                      class="mb-2 text-xs font-medium uppercase text-gray-500 dark:text-gray-400"
+                    >
                       Après-midi
                     </p>
                     <div class="flex flex-wrap gap-2">
@@ -212,8 +225,8 @@
                         :class="[
                           'rounded-lg border-2 px-3 py-2 text-sm transition-all',
                           selectedTime === time
-                            ? 'border-orange-500 bg-orange-50 text-orange-700'
-                            : 'border-gray-200 hover:border-gray-300',
+                            ? 'border-orange-500 bg-orange-50 text-orange-700 dark:bg-orange-950/40 dark:text-orange-300'
+                            : 'border-gray-200 hover:border-gray-300 dark:border-gray-800',
                         ]"
                         @click="selectTime(time)"
                       >
@@ -225,31 +238,42 @@
               </div>
             </div>
 
-            <div v-else class="py-8 text-center text-gray-500">
-              <IconCalendarOff class="mx-auto mb-2 h-12 w-12 text-gray-300" />
+            <div
+              v-else
+              class="py-8 text-center text-gray-500 dark:text-gray-400"
+            >
+              <IconCalendarOff
+                class="mx-auto mb-2 h-12 w-12 text-gray-300 dark:text-gray-600"
+              />
               <p>Aucune disponibilité dans les 3 prochains mois</p>
             </div>
           </div>
 
           <div v-if="currentStep === 1" class="space-y-4">
-            <h3 class="font-medium text-gray-800">Type de consultation</h3>
+            <h3 class="font-medium text-gray-800 dark:text-gray-200">
+              Type de consultation
+            </h3>
             <div class="grid grid-cols-1 gap-4 sm:grid-cols-2">
               <button
                 type="button"
                 :class="[
                   'flex flex-col items-center gap-2 rounded-lg border-2 p-6 transition-all',
                   appointmentType === 'IN_PERSON'
-                    ? 'border-orange-500 bg-orange-50'
-                    : 'border-gray-200 hover:border-gray-300',
+                    ? 'border-orange-500 bg-orange-50 dark:bg-orange-950/40'
+                    : 'border-gray-200 hover:border-gray-300 dark:border-gray-800',
                 ]"
                 @click="appointmentType = 'IN_PERSON'"
               >
-                <IconMapPin class="h-8 w-8 text-orange-600" />
+                <IconMapPin
+                  class="h-8 w-8 text-orange-600 dark:text-orange-400"
+                />
                 <span class="font-medium">Au cabinet</span>
-                <span class="text-lg font-bold text-orange-600">
+                <span
+                  class="text-lg font-bold text-orange-600 dark:text-orange-400"
+                >
                   {{ practitioner?.baseConsultationFee?.toLocaleString() }} FCFA
                 </span>
-                <span class="text-xs text-gray-500">{{
+                <span class="text-xs text-gray-500 dark:text-gray-400">{{
                   practitioner?.address
                 }}</span>
               </button>
@@ -259,14 +283,16 @@
                 :class="[
                   'flex flex-col items-center gap-2 rounded-lg border-2 p-6 transition-all',
                   appointmentType === 'TELECONSULTATION'
-                    ? 'border-orange-500 bg-orange-50'
-                    : 'border-gray-200 hover:border-gray-300',
+                    ? 'border-orange-500 bg-orange-50 dark:bg-orange-950/40'
+                    : 'border-gray-200 hover:border-gray-300 dark:border-gray-800',
                 ]"
                 @click="appointmentType = 'TELECONSULTATION'"
               >
-                <IconVideo class="h-8 w-8 text-green-600" />
+                <IconVideo class="h-8 w-8 text-green-600 dark:text-green-400" />
                 <span class="font-medium">Téléconsultation</span>
-                <span class="text-lg font-bold text-green-600">
+                <span
+                  class="text-lg font-bold text-green-600 dark:text-green-400"
+                >
                   {{
                     (
                       practitioner.teleconsultationFee ||
@@ -275,44 +301,48 @@
                   }}
                   FCFA
                 </span>
-                <span class="text-xs text-gray-500">Consultation vidéo</span>
+                <span class="text-xs text-gray-500 dark:text-gray-400"
+                  >Consultation vidéo</span
+                >
               </button>
             </div>
           </div>
 
           <div v-if="currentStep === 2" class="space-y-4">
-            <h3 class="font-medium text-gray-800">Motif de consultation</h3>
-            <p class="text-sm text-gray-500">
+            <h3 class="font-medium text-gray-800 dark:text-gray-200">
+              Motif de consultation
+            </h3>
+            <p class="text-sm text-gray-500 dark:text-gray-400">
               Décrivez brièvement la raison de votre consultation (optionnel)
             </p>
             <textarea
               v-model="reason"
               rows="4"
               placeholder="Ex: Douleurs au niveau du dos depuis une semaine..."
-              class="w-full rounded-lg border border-gray-300 px-4 py-3 focus:border-orange-500 focus:outline-none focus:ring-2 focus:ring-orange-500"
+              class="w-full rounded-lg border border-gray-300 px-4 py-3 focus:border-orange-500 focus:outline-none focus:ring-2 focus:ring-orange-500 dark:border-gray-700"
             />
           </div>
 
           <div v-if="currentStep === 3" class="space-y-4">
-            <h3 class="font-medium text-gray-800">
+            <h3 class="font-medium text-gray-800 dark:text-gray-200">
               Récapitulatif de votre rendez-vous
             </h3>
 
             <div
-              class="divide-y divide-gray-100 rounded-lg border border-gray-200"
+              class="divide-y divide-gray-100 rounded-lg border border-gray-200 dark:divide-gray-800 dark:border-gray-800"
             >
               <div class="flex justify-between p-4">
-                <span class="text-gray-600">Date</span>
+                <span class="text-gray-600 dark:text-gray-400">Date</span>
                 <span class="font-medium">{{
                   formatDateLong(selectedDate)
                 }}</span>
               </div>
               <div class="flex justify-between p-4">
-                <span class="text-gray-600">Heure</span>
+                <span class="text-gray-600 dark:text-gray-400">Heure</span>
                 <span class="font-medium">{{ selectedTime }}</span>
               </div>
               <div class="flex justify-between p-4">
-                <span class="text-gray-600">Type</span>
+                <span class="text-gray-600 dark:text-gray-400">Type</span>
                 <span class="font-medium">
                   {{
                     appointmentType === "TELECONSULTATION"
@@ -322,18 +352,26 @@
                 </span>
               </div>
               <div v-if="reason" class="p-4">
-                <span class="text-gray-600">Motif</span>
+                <span class="text-gray-600 dark:text-gray-400">Motif</span>
                 <p class="mt-1 text-sm">{{ reason }}</p>
               </div>
-              <div class="flex justify-between bg-orange-50 p-4">
-                <span class="font-medium text-gray-800">Total à payer</span>
-                <span class="text-xl font-bold text-orange-600">
+              <div
+                class="flex justify-between bg-orange-50 p-4 dark:bg-orange-950/40"
+              >
+                <span class="font-medium text-gray-800 dark:text-gray-200"
+                  >Total à payer</span
+                >
+                <span
+                  class="text-xl font-bold text-orange-600 dark:text-orange-400"
+                >
                   {{ consultationFee?.toLocaleString() }} FCFA
                 </span>
               </div>
             </div>
 
-            <div class="rounded-lg bg-yellow-50 p-4 text-sm text-yellow-800">
+            <div
+              class="rounded-lg bg-yellow-50 p-4 text-sm text-yellow-800 dark:bg-yellow-950/40 dark:text-yellow-200"
+            >
               <p>
                 <strong>Important :</strong> Vous recevrez un email de
                 confirmation ainsi que des rappels 24h et 1h avant votre
@@ -344,7 +382,7 @@
             <!-- cancellation rule for teleconsultation -->
             <div
               v-if="appointmentType === 'TELECONSULTATION'"
-              class="rounded-lg bg-orange-50 p-4 text-sm text-orange-800"
+              class="rounded-lg bg-orange-50 p-4 text-sm text-orange-800 dark:bg-orange-950/40 dark:text-orange-200"
             >
               <p class="mb-1 font-medium">Politique de remboursement :</p>
               <ul class="list-inside list-disc space-y-1 text-xs">
@@ -359,17 +397,23 @@
 
           <!-- step 4 : payment (teleconsultation only) -->
           <div v-if="currentStep === 4" class="space-y-4">
-            <h3 class="font-medium text-gray-800">
+            <h3 class="font-medium text-gray-800 dark:text-gray-200">
               Paiement de la consultation
             </h3>
-            <p class="text-sm text-gray-500">
+            <p class="text-sm text-gray-500 dark:text-gray-400">
               Le paiement est requis pour confirmer votre téléconsultation.
             </p>
 
-            <div class="rounded-lg border border-gray-200 p-4">
+            <div
+              class="rounded-lg border border-gray-200 p-4 dark:border-gray-800"
+            >
               <div class="mb-3 flex justify-between">
-                <span class="text-gray-600">Montant à payer</span>
-                <span class="text-xl font-bold text-orange-600">
+                <span class="text-gray-600 dark:text-gray-400"
+                  >Montant à payer</span
+                >
+                <span
+                  class="text-xl font-bold text-orange-600 dark:text-orange-400"
+                >
                   {{ consultationFee?.toLocaleString() }} FCFA
                 </span>
               </div>
@@ -383,7 +427,7 @@
               <div
                 class="h-6 w-6 animate-spin rounded-full border-2 border-orange-500 border-t-transparent"
               ></div>
-              <span class="ml-2 text-sm text-gray-500"
+              <span class="ml-2 text-sm text-gray-500 dark:text-gray-400"
                 >Chargement des moyens de paiement...</span
               >
             </div>
@@ -395,18 +439,19 @@
               "
               class="space-y-3"
             >
-              <label class="text-sm font-medium text-gray-700"
+              <label
+                class="text-sm font-medium text-gray-700 dark:text-gray-300"
                 >Moyens de paiement enregistrés</label
               >
               <div class="space-y-2">
                 <label
                   v-for="method in verifiedSavedMethods"
                   :key="method.id"
-                  class="flex cursor-pointer items-center justify-between rounded-lg border p-3 transition-colors hover:bg-gray-50"
+                  class="flex cursor-pointer items-center justify-between rounded-lg border p-3 transition-colors hover:bg-gray-50 dark:hover:bg-gray-800"
                   :class="
                     selectedSavedMethodId === method.id
-                      ? 'border-orange-500 bg-orange-50 ring-1 ring-orange-500'
-                      : 'border-gray-200'
+                      ? 'border-orange-500 bg-orange-50 ring-1 ring-orange-500 dark:bg-orange-950/40'
+                      : 'border-gray-200 dark:border-gray-800'
                   "
                 >
                   <div class="flex items-center gap-3">
@@ -415,30 +460,30 @@
                       name="savedMethod"
                       :value="method.id"
                       v-model="selectedSavedMethodId"
-                      class="h-4 w-4 border-gray-300 text-orange-600 focus:ring-orange-500"
+                      class="h-4 w-4 border-gray-300 text-orange-600 focus:ring-orange-500 dark:border-gray-700 dark:text-orange-400"
                     />
                     <div
                       class="flex h-8 w-8 items-center justify-center rounded-full text-sm"
                       :class="
                         method.type === 'MOBILE_MONEY'
-                          ? 'bg-orange-100'
-                          : 'bg-orange-100'
+                          ? 'bg-orange-100 dark:bg-orange-900/40'
+                          : 'bg-orange-100 dark:bg-orange-900/40'
                       "
                     >
                       {{ method.type === "MOBILE_MONEY" ? "📱" : "💳" }}
                     </div>
                     <div>
                       <div
-                        class="flex items-center gap-2 font-medium text-gray-900"
+                        class="flex items-center gap-2 font-medium text-gray-900 dark:text-gray-100"
                       >
                         {{ method.label }}
                         <span
                           v-if="method.isDefault"
-                          class="rounded-full bg-orange-100 px-2 py-0.5 text-xs text-orange-700"
+                          class="rounded-full bg-orange-100 px-2 py-0.5 text-xs text-orange-700 dark:bg-orange-900/40 dark:text-orange-300"
                           >Par défaut</span
                         >
                       </div>
-                      <div class="text-xs text-gray-500">
+                      <div class="text-xs text-gray-500 dark:text-gray-400">
                         <template v-if="method.type === 'MOBILE_MONEY'">
                           {{ method.mobileNumber }}
                         </template>
@@ -452,7 +497,7 @@
               </div>
               <button
                 type="button"
-                class="mt-2 text-sm text-orange-600 hover:underline"
+                class="mt-2 text-sm text-orange-600 hover:underline dark:text-orange-400"
                 @click="
                   useNewPaymentMethod = true;
                   selectedSavedMethodId = null;
@@ -467,7 +512,7 @@
               <div v-if="verifiedSavedMethods.length > 0" class="mb-3">
                 <button
                   type="button"
-                  class="text-sm text-orange-600 hover:underline"
+                  class="text-sm text-orange-600 hover:underline dark:text-orange-400"
                   @click="
                     useNewPaymentMethod = false;
                     selectedSavedMethodId =
@@ -482,7 +527,8 @@
 
               <!-- payment method selection -->
               <div class="space-y-3">
-                <label class="text-sm font-medium text-gray-700"
+                <label
+                  class="text-sm font-medium text-gray-700 dark:text-gray-300"
                   >Moyen de paiement</label
                 >
                 <div class="grid grid-cols-2 gap-3">
@@ -493,8 +539,8 @@
                     class="flex flex-col items-center gap-2 rounded-lg border-2 p-4 transition-all"
                     :class="[
                       selectedPaymentMethod === pm.value
-                        ? 'border-orange-500 bg-orange-50'
-                        : 'border-gray-200 hover:border-gray-300',
+                        ? 'border-orange-500 bg-orange-50 dark:bg-orange-950/40'
+                        : 'border-gray-200 hover:border-gray-300 dark:border-gray-800',
                     ]"
                     @click="selectedPaymentMethod = pm.value"
                   >
@@ -509,7 +555,8 @@
                 v-if="selectedPaymentMethod === 'MOBILE_MONEY'"
                 class="space-y-3"
               >
-                <label class="text-sm font-medium text-gray-700"
+                <label
+                  class="text-sm font-medium text-gray-700 dark:text-gray-300"
                   >Opérateur mobile</label
                 >
                 <div class="grid grid-cols-2 gap-2">
@@ -520,8 +567,8 @@
                     class="flex items-center gap-2 rounded-lg border-2 px-3 py-2.5 text-sm transition-all"
                     :class="[
                       selectedMobileOperator === op.value
-                        ? 'border-orange-500 bg-orange-50'
-                        : 'border-gray-200 hover:border-gray-300',
+                        ? 'border-orange-500 bg-orange-50 dark:bg-orange-950/40'
+                        : 'border-gray-200 hover:border-gray-300 dark:border-gray-800',
                     ]"
                     @click="selectedMobileOperator = op.value"
                   >
@@ -530,14 +577,14 @@
                   </button>
                 </div>
                 <div>
-                  <label class="text-sm text-gray-600"
+                  <label class="text-sm text-gray-600 dark:text-gray-400"
                     >Numéro de téléphone</label
                   >
                   <input
                     v-model="mobilePaymentNumber"
                     type="tel"
                     placeholder="07 XX XX XX XX"
-                    class="mt-1 w-full rounded-lg border border-gray-300 px-4 py-2.5 focus:border-orange-500 focus:outline-none focus:ring-2 focus:ring-orange-500"
+                    class="mt-1 w-full rounded-lg border border-gray-300 px-4 py-2.5 focus:border-orange-500 focus:outline-none focus:ring-2 focus:ring-orange-500 dark:border-gray-700"
                   />
                 </div>
               </div>
@@ -545,48 +592,56 @@
               <!-- card payment fields -->
               <div v-if="selectedPaymentMethod === 'CARD'" class="space-y-3">
                 <div>
-                  <label class="text-sm text-gray-600">Numéro de carte</label>
+                  <label class="text-sm text-gray-600 dark:text-gray-400"
+                    >Numéro de carte</label
+                  >
                   <input
                     v-model="cardNumber"
                     type="text"
                     placeholder="4XXX XXXX XXXX XXXX"
                     maxlength="19"
-                    class="mt-1 w-full rounded-lg border border-gray-300 px-4 py-2.5 focus:border-orange-500 focus:outline-none focus:ring-2 focus:ring-orange-500"
+                    class="mt-1 w-full rounded-lg border border-gray-300 px-4 py-2.5 focus:border-orange-500 focus:outline-none focus:ring-2 focus:ring-orange-500 dark:border-gray-700"
                   />
                 </div>
                 <div class="grid grid-cols-2 gap-3">
                   <div>
-                    <label class="text-sm text-gray-600">Expiration</label>
+                    <label class="text-sm text-gray-600 dark:text-gray-400"
+                      >Expiration</label
+                    >
                     <input
                       v-model="cardExpiry"
                       type="text"
                       placeholder="MM/AA"
                       maxlength="5"
-                      class="mt-1 w-full rounded-lg border border-gray-300 px-4 py-2.5 focus:border-orange-500 focus:outline-none focus:ring-2 focus:ring-orange-500"
+                      class="mt-1 w-full rounded-lg border border-gray-300 px-4 py-2.5 focus:border-orange-500 focus:outline-none focus:ring-2 focus:ring-orange-500 dark:border-gray-700"
                     />
                   </div>
                   <div>
-                    <label class="text-sm text-gray-600">CVV</label>
+                    <label class="text-sm text-gray-600 dark:text-gray-400"
+                      >CVV</label
+                    >
                     <input
                       v-model="cardCvv"
                       type="text"
                       placeholder="XXX"
                       maxlength="4"
-                      class="mt-1 w-full rounded-lg border border-gray-300 px-4 py-2.5 focus:border-orange-500 focus:outline-none focus:ring-2 focus:ring-orange-500"
+                      class="mt-1 w-full rounded-lg border border-gray-300 px-4 py-2.5 focus:border-orange-500 focus:outline-none focus:ring-2 focus:ring-orange-500 dark:border-gray-700"
                     />
                   </div>
                 </div>
               </div>
             </template>
 
-            <div class="rounded-lg bg-green-50 p-3 text-sm text-green-800">
+            <div
+              class="rounded-lg bg-green-50 p-3 text-sm text-green-800 dark:bg-green-950/40 dark:text-green-200"
+            >
               <p>🔒 Paiement sécurisé. Vos informations sont chiffrées.</p>
             </div>
           </div>
 
           <div
             v-if="error"
-            class="mt-4 rounded-lg bg-red-50 p-4 text-sm text-red-600"
+            class="mt-4 rounded-lg bg-red-50 p-4 text-sm text-red-600 dark:bg-red-950/40 dark:text-red-400"
           >
             {{ error }}
           </div>
@@ -594,38 +649,40 @@
           <!-- success message -->
           <div
             v-if="success"
-            class="mt-4 rounded-lg border border-green-200 bg-green-50 p-6 text-center"
+            class="mt-4 rounded-lg border border-green-200 bg-green-50 p-6 text-center dark:bg-green-950/40"
           >
             <div
-              class="mx-auto mb-3 flex h-12 w-12 items-center justify-center rounded-full bg-green-100"
+              class="mx-auto mb-3 flex h-12 w-12 items-center justify-center rounded-full bg-green-100 dark:bg-green-900/40"
             >
-              <IconCheck class="h-6 w-6 text-green-600" />
+              <IconCheck class="h-6 w-6 text-green-600 dark:text-green-400" />
             </div>
-            <h3 class="text-lg font-semibold text-green-800">
+            <h3
+              class="text-lg font-semibold text-green-800 dark:text-green-200"
+            >
               {{
                 appointmentType === "TELECONSULTATION"
                   ? "Téléconsultation confirmée !"
                   : "Rendez-vous confirmé !"
               }}
             </h3>
-            <p class="mt-2 text-sm text-green-700">
+            <p class="mt-2 text-sm text-green-700 dark:text-green-300">
               {{
                 appointmentType === "TELECONSULTATION"
                   ? "Votre téléconsultation a été réservée avec succès. Vous recevrez un lien de connexion par email."
                   : "Votre rendez-vous a été réservé avec succès !"
               }}
             </p>
-            <p class="mt-1 text-xs text-green-600">
+            <p class="mt-1 text-xs text-green-600 dark:text-green-400">
               Un email de confirmation vous a été envoyé avec tous les détails.
             </p>
             <div
               v-if="selectedDate && selectedTime"
-              class="mt-3 rounded-lg bg-white p-3 text-sm"
+              class="mt-3 rounded-lg bg-white p-3 text-sm dark:bg-gray-900"
             >
-              <p class="font-medium text-gray-800">
+              <p class="font-medium text-gray-800 dark:text-gray-200">
                 📅 {{ formatDate(selectedDate) }} à {{ selectedTime }}
               </p>
-              <p class="text-gray-600">
+              <p class="text-gray-600 dark:text-gray-400">
                 {{ practitioner?.title }} {{ practitioner?.firstName }}
                 {{ practitioner?.lastName }}
               </p>

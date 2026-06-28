@@ -1,12 +1,16 @@
 <template>
   <div class="space-y-8">
     <div>
-      <h1 class="mb-2 text-2xl font-bold text-gray-900">Paramètres</h1>
-      <p class="text-gray-600">Gérez votre compte et vos préférences</p>
+      <h1 class="mb-2 text-2xl font-bold text-gray-900 dark:text-gray-100">
+        Paramètres
+      </h1>
+      <p class="text-gray-600 dark:text-gray-400">
+        Gérez votre compte et vos préférences
+      </p>
     </div>
 
     <!-- tabs -->
-    <div class="border-b border-gray-200">
+    <div class="border-b border-gray-200 dark:border-gray-800">
       <nav class="-mb-px flex space-x-8">
         <button
           v-for="tab in tabs"
@@ -14,8 +18,8 @@
           :class="[
             'flex items-center gap-2 border-b-2 px-1 py-3 text-sm font-medium transition-colors',
             activeTab === tab.id
-              ? 'border-orange-600 text-orange-600'
-              : 'border-transparent text-gray-500 hover:border-gray-300 hover:text-gray-700',
+              ? 'border-orange-600 text-orange-600 dark:text-orange-400'
+              : 'border-transparent text-gray-500 hover:border-gray-300 hover:text-gray-700 dark:text-gray-400',
           ]"
           @click="activeTab = tab.id"
         >
@@ -28,26 +32,28 @@
     <!-- account info  -->
     <div v-if="activeTab === 'account'" class="space-y-6">
       <UiCard>
-        <h3 class="mb-4 text-lg font-semibold text-gray-900">
+        <h3 class="mb-4 text-lg font-semibold text-gray-900 dark:text-gray-100">
           Informations personnelles
         </h3>
 
         <div v-if="loadingProfile" class="animate-pulse space-y-4">
-          <div class="h-10 rounded bg-gray-200" />
-          <div class="h-10 rounded bg-gray-200" />
-          <div class="h-10 rounded bg-gray-200" />
+          <div class="h-10 rounded bg-gray-200 dark:bg-gray-700" />
+          <div class="h-10 rounded bg-gray-200 dark:bg-gray-700" />
+          <div class="h-10 rounded bg-gray-200 dark:bg-gray-700" />
         </div>
 
         <form v-else class="space-y-4" @submit.prevent="saveProfile">
           <div class="grid gap-4 sm:grid-cols-2">
             <div>
-              <label class="mb-1 block text-sm font-medium text-gray-700"
+              <label
+                class="mb-1 block text-sm font-medium text-gray-700 dark:text-gray-300"
                 >Prénom</label
               >
               <UiInput v-model="profile.firstName" placeholder="Prénom" />
             </div>
             <div>
-              <label class="mb-1 block text-sm font-medium text-gray-700"
+              <label
+                class="mb-1 block text-sm font-medium text-gray-700 dark:text-gray-300"
                 >Nom</label
               >
               <UiInput v-model="profile.lastName" placeholder="Nom" />
@@ -56,18 +62,20 @@
 
           <div class="grid gap-4 sm:grid-cols-2">
             <div>
-              <label class="mb-1 block text-sm font-medium text-gray-700"
+              <label
+                class="mb-1 block text-sm font-medium text-gray-700 dark:text-gray-300"
                 >Date de naissance</label
               >
               <UiInput v-model="profile.dateOfBirth" type="date" />
             </div>
             <div>
-              <label class="mb-1 block text-sm font-medium text-gray-700"
+              <label
+                class="mb-1 block text-sm font-medium text-gray-700 dark:text-gray-300"
                 >Genre</label
               >
               <select
                 v-model="profile.gender"
-                class="w-full rounded-lg border border-gray-300 px-4 py-2.5 text-base transition-colors focus:border-orange-500 focus:outline-none focus:ring-2 focus:ring-orange-500 focus:ring-opacity-20"
+                class="w-full rounded-lg border border-gray-300 px-4 py-2.5 text-base transition-colors focus:border-orange-500 focus:outline-none focus:ring-2 focus:ring-orange-500 focus:ring-opacity-20 dark:border-gray-700"
               >
                 <option value="MALE">Homme</option>
                 <option value="FEMALE">Femme</option>
@@ -78,14 +86,16 @@
           </div>
 
           <div>
-            <label class="mb-1 block text-sm font-medium text-gray-700"
+            <label
+              class="mb-1 block text-sm font-medium text-gray-700 dark:text-gray-300"
               >Téléphone</label
             >
             <UiInput v-model="profile.phone" placeholder="+225 XX XX XX XX" />
           </div>
 
           <div>
-            <label class="mb-1 block text-sm font-medium text-gray-700"
+            <label
+              class="mb-1 block text-sm font-medium text-gray-700 dark:text-gray-300"
               >Adresse</label
             >
             <UiInput v-model="profile.address" placeholder="Adresse" />
@@ -93,13 +103,15 @@
 
           <div class="grid gap-4 sm:grid-cols-2">
             <div>
-              <label class="mb-1 block text-sm font-medium text-gray-700"
+              <label
+                class="mb-1 block text-sm font-medium text-gray-700 dark:text-gray-300"
                 >Ville</label
               >
               <UiInput v-model="profile.city" placeholder="Abidjan" />
             </div>
             <div>
-              <label class="mb-1 block text-sm font-medium text-gray-700"
+              <label
+                class="mb-1 block text-sm font-medium text-gray-700 dark:text-gray-300"
                 >Code postal</label
               >
               <UiInput v-model="profile.postalCode" placeholder="Code postal" />
@@ -111,8 +123,8 @@
             :class="[
               'rounded-lg p-3 text-sm',
               profileError
-                ? 'bg-red-50 text-red-700'
-                : 'bg-green-50 text-green-700',
+                ? 'bg-red-50 text-red-700 dark:bg-red-950/40 dark:text-red-300'
+                : 'bg-green-50 text-green-700 dark:bg-green-950/40 dark:text-green-300',
             ]"
           >
             {{ profileMsg }}
@@ -128,16 +140,22 @@
 
       <!-- email settings -->
       <UiCard>
-        <h3 class="mb-4 text-lg font-semibold text-gray-900">Adresse email</h3>
+        <h3 class="mb-4 text-lg font-semibold text-gray-900 dark:text-gray-100">
+          Adresse email
+        </h3>
         <form class="space-y-4" @submit.prevent="saveEmail">
           <div>
-            <label class="mb-1 block text-sm font-medium text-gray-700"
+            <label
+              class="mb-1 block text-sm font-medium text-gray-700 dark:text-gray-300"
               >Email actuel</label
             >
-            <p class="text-sm text-gray-600">{{ currentEmail }}</p>
+            <p class="text-sm text-gray-600 dark:text-gray-400">
+              {{ currentEmail }}
+            </p>
           </div>
           <div>
-            <label class="mb-1 block text-sm font-medium text-gray-700"
+            <label
+              class="mb-1 block text-sm font-medium text-gray-700 dark:text-gray-300"
               >Nouvel email</label
             >
             <UiInput
@@ -147,7 +165,8 @@
             />
           </div>
           <div>
-            <label class="mb-1 block text-sm font-medium text-gray-700"
+            <label
+              class="mb-1 block text-sm font-medium text-gray-700 dark:text-gray-300"
               >Mot de passe (confirmation)</label
             >
             <UiInput
@@ -161,8 +180,8 @@
             :class="[
               'rounded-lg p-3 text-sm',
               emailError
-                ? 'bg-red-50 text-red-700'
-                : 'bg-green-50 text-green-700',
+                ? 'bg-red-50 text-red-700 dark:bg-red-950/40 dark:text-red-300'
+                : 'bg-green-50 text-green-700 dark:bg-green-950/40 dark:text-green-300',
             ]"
           >
             {{ emailMsg }}
@@ -177,10 +196,13 @@
 
       <!-- password settings -->
       <UiCard>
-        <h3 class="mb-4 text-lg font-semibold text-gray-900">Mot de passe</h3>
+        <h3 class="mb-4 text-lg font-semibold text-gray-900 dark:text-gray-100">
+          Mot de passe
+        </h3>
         <form class="space-y-4" @submit.prevent="savePassword">
           <div>
-            <label class="mb-1 block text-sm font-medium text-gray-700"
+            <label
+              class="mb-1 block text-sm font-medium text-gray-700 dark:text-gray-300"
               >Mot de passe actuel</label
             >
             <UiInput
@@ -190,7 +212,8 @@
             />
           </div>
           <div>
-            <label class="mb-1 block text-sm font-medium text-gray-700"
+            <label
+              class="mb-1 block text-sm font-medium text-gray-700 dark:text-gray-300"
               >Nouveau mot de passe</label
             >
             <UiInput
@@ -200,7 +223,8 @@
             />
           </div>
           <div>
-            <label class="mb-1 block text-sm font-medium text-gray-700"
+            <label
+              class="mb-1 block text-sm font-medium text-gray-700 dark:text-gray-300"
               >Confirmer le nouveau mot de passe</label
             >
             <UiInput
@@ -214,8 +238,8 @@
             :class="[
               'rounded-lg p-3 text-sm',
               passwordError
-                ? 'bg-red-50 text-red-700'
-                : 'bg-green-50 text-green-700',
+                ? 'bg-red-50 text-red-700 dark:bg-red-950/40 dark:text-red-300'
+                : 'bg-green-50 text-green-700 dark:bg-green-950/40 dark:text-green-300',
             ]"
           >
             {{ passwordMsg }}
@@ -234,24 +258,26 @@
       <UiCard>
         <div class="flex items-center justify-between">
           <div>
-            <h3 class="text-lg font-semibold text-gray-900">
+            <h3 class="text-lg font-semibold text-gray-900 dark:text-gray-100">
               Authentification à deux facteurs (2FA)
             </h3>
-            <p class="mt-1 text-sm text-gray-500">
+            <p class="mt-1 text-sm text-gray-500 dark:text-gray-400">
               Ajoutez une couche de sécurité supplémentaire à votre compte
             </p>
           </div>
           <button
             :class="[
               'relative inline-flex h-6 w-11 shrink-0 cursor-pointer rounded-full border-2 border-transparent transition-colors duration-200 ease-in-out focus:outline-none focus:ring-2 focus:ring-orange-500 focus:ring-offset-2',
-              twoFactorEnabled ? 'bg-orange-500' : 'bg-gray-200',
+              twoFactorEnabled
+                ? 'bg-orange-500'
+                : 'bg-gray-200 dark:bg-gray-700',
             ]"
             :disabled="toggling2FA"
             @click="toggleTwoFactor"
           >
             <span
               :class="[
-                'pointer-events-none inline-block h-5 w-5 transform rounded-full bg-white shadow ring-0 transition duration-200 ease-in-out',
+                'pointer-events-none inline-block h-5 w-5 transform rounded-full bg-white shadow ring-0 transition duration-200 ease-in-out dark:bg-gray-900',
                 twoFactorEnabled ? 'translate-x-5' : 'translate-x-0',
               ]"
             />
@@ -262,8 +288,8 @@
           :class="[
             'mt-3 rounded-lg p-3 text-sm',
             twoFactorError
-              ? 'bg-red-50 text-red-700'
-              : 'bg-green-50 text-green-700',
+              ? 'bg-red-50 text-red-700 dark:bg-red-950/40 dark:text-red-300'
+              : 'bg-green-50 text-green-700 dark:bg-green-950/40 dark:text-green-300',
           ]"
         >
           {{ twoFactorMsg }}
@@ -274,37 +300,45 @@
     <!-- notification preferences -->
     <div v-if="activeTab === 'notifications'" class="space-y-6">
       <UiCard>
-        <h3 class="mb-6 text-lg font-semibold text-gray-900">
+        <h3 class="mb-6 text-lg font-semibold text-gray-900 dark:text-gray-100">
           Préférences de notification
         </h3>
 
         <div v-if="loadingNotifPrefs" class="animate-pulse space-y-4">
-          <div v-for="i in 5" :key="i" class="h-10 rounded bg-gray-200" />
+          <div
+            v-for="i in 5"
+            :key="i"
+            class="h-10 rounded bg-gray-200 dark:bg-gray-700"
+          />
         </div>
 
-        <div v-else class="divide-y divide-gray-100">
+        <div v-else class="divide-y divide-gray-100 dark:divide-gray-800">
           <div
             v-for="pref in notificationOptions"
             :key="pref.key"
             class="flex items-center justify-between py-4"
           >
             <div>
-              <p class="text-sm font-medium text-gray-900">{{ pref.label }}</p>
-              <p class="text-sm text-gray-500">{{ pref.description }}</p>
+              <p class="text-sm font-medium text-gray-900 dark:text-gray-100">
+                {{ pref.label }}
+              </p>
+              <p class="text-sm text-gray-500 dark:text-gray-400">
+                {{ pref.description }}
+              </p>
             </div>
             <button
               :class="[
                 'relative inline-flex h-6 w-11 shrink-0 cursor-pointer rounded-full border-2 border-transparent transition-colors duration-200 ease-in-out focus:outline-none focus:ring-2 focus:ring-orange-500 focus:ring-offset-2',
                 notifPrefs[pref.key as keyof typeof notifPrefs]
                   ? 'bg-orange-500'
-                  : 'bg-gray-200',
+                  : 'bg-gray-200 dark:bg-gray-700',
               ]"
               :disabled="savingNotifPrefs"
               @click="toggleNotifPref(pref.key)"
             >
               <span
                 :class="[
-                  'pointer-events-none inline-block h-5 w-5 transform rounded-full bg-white shadow ring-0 transition duration-200 ease-in-out',
+                  'pointer-events-none inline-block h-5 w-5 transform rounded-full bg-white shadow ring-0 transition duration-200 ease-in-out dark:bg-gray-900',
                   notifPrefs[pref.key as keyof typeof notifPrefs]
                     ? 'translate-x-5'
                     : 'translate-x-0',
@@ -319,8 +353,8 @@
           :class="[
             'mt-4 rounded-lg p-3 text-sm',
             notifError
-              ? 'bg-red-50 text-red-700'
-              : 'bg-green-50 text-green-700',
+              ? 'bg-red-50 text-red-700 dark:bg-red-950/40 dark:text-red-300'
+              : 'bg-green-50 text-green-700 dark:bg-green-950/40 dark:text-green-300',
           ]"
         >
           {{ notifMsg }}
@@ -333,15 +367,15 @@
       <UiCard>
         <div class="flex items-start gap-4">
           <div
-            class="flex h-10 w-10 shrink-0 items-center justify-center rounded-lg bg-orange-100"
+            class="flex h-10 w-10 shrink-0 items-center justify-center rounded-lg bg-orange-100 dark:bg-orange-900/40"
           >
-            <Download class="h-5 w-5 text-orange-600" />
+            <Download class="h-5 w-5 text-orange-600 dark:text-orange-400" />
           </div>
           <div class="flex-1">
-            <h3 class="text-lg font-semibold text-gray-900">
+            <h3 class="text-lg font-semibold text-gray-900 dark:text-gray-100">
               Télécharger mes données
             </h3>
-            <p class="mt-1 text-sm text-gray-500">
+            <p class="mt-1 text-sm text-gray-500 dark:text-gray-400">
               Demandez une copie de toutes vos données personnelles au format
               JSON. Vous recevrez un email lorsque l'export sera prêt.
             </p>
@@ -350,8 +384,8 @@
               :class="[
                 'mt-3 rounded-lg p-3 text-sm',
                 exportError
-                  ? 'bg-red-50 text-red-700'
-                  : 'bg-green-50 text-green-700',
+                  ? 'bg-red-50 text-red-700 dark:bg-red-950/40 dark:text-red-300'
+                  : 'bg-green-50 text-green-700 dark:bg-green-950/40 dark:text-green-300',
               ]"
             >
               {{ exportMsg }}
@@ -377,15 +411,15 @@
       <UiCard>
         <div class="flex items-start gap-4">
           <div
-            class="flex h-10 w-10 shrink-0 items-center justify-center rounded-lg bg-red-100"
+            class="flex h-10 w-10 shrink-0 items-center justify-center rounded-lg bg-red-100 dark:bg-red-900/40"
           >
-            <Trash2 class="h-5 w-5 text-red-600" />
+            <Trash2 class="h-5 w-5 text-red-600 dark:text-red-400" />
           </div>
           <div class="flex-1">
             <h3 class="text-lg font-semibold text-red-900">
               Demander la suppression de mon compte
             </h3>
-            <p class="mt-1 text-sm text-gray-500">
+            <p class="mt-1 text-sm text-gray-500 dark:text-gray-400">
               Cette action déclenche un délai de grâce de 30 jours. Vous pouvez
               annuler la demande pendant cette période. Après ce délai, toutes
               vos données seront définitivement supprimées.
@@ -400,13 +434,13 @@
 
             <div
               v-else
-              class="mt-4 space-y-3 rounded-lg border border-red-200 bg-red-50 p-4"
+              class="mt-4 space-y-3 rounded-lg border border-red-200 bg-red-50 p-4 dark:bg-red-950/40"
             >
-              <p class="text-sm font-medium text-red-800">
+              <p class="text-sm font-medium text-red-800 dark:text-red-200">
                 Êtes-vous sûr de vouloir supprimer votre compte ?
               </p>
               <div>
-                <label class="mb-1 block text-sm text-red-700"
+                <label class="mb-1 block text-sm text-red-700 dark:text-red-300"
                   >Raison (optionnel)</label
                 >
                 <textarea
@@ -440,8 +474,8 @@
                 :class="[
                   'rounded-lg p-3 text-sm',
                   deleteError
-                    ? 'bg-red-100 text-red-700'
-                    : 'bg-green-50 text-green-700',
+                    ? 'bg-red-100 text-red-700 dark:bg-red-900/40 dark:text-red-300'
+                    : 'bg-green-50 text-green-700 dark:bg-green-950/40 dark:text-green-300',
                 ]"
               >
                 {{ deleteMsg }}
@@ -455,29 +489,41 @@
     <!-- consents -->
     <div v-if="activeTab === 'consents'" class="space-y-6">
       <UiCard>
-        <h3 class="mb-6 text-lg font-semibold text-gray-900">Consentements</h3>
+        <h3 class="mb-6 text-lg font-semibold text-gray-900 dark:text-gray-100">
+          Consentements
+        </h3>
 
         <div v-if="loadingConsents" class="animate-pulse space-y-4">
-          <div v-for="i in 3" :key="i" class="h-16 rounded bg-gray-200" />
+          <div
+            v-for="i in 3"
+            :key="i"
+            class="h-16 rounded bg-gray-200 dark:bg-gray-700"
+          />
         </div>
 
         <div v-else class="space-y-4">
           <div
             v-for="item in consentItems"
             :key="item.type"
-            class="rounded-lg border border-gray-200 p-4"
+            class="rounded-lg border border-gray-200 p-4 dark:border-gray-800"
           >
             <div class="flex items-center justify-between">
               <div>
-                <p class="text-sm font-medium text-gray-900">
+                <p class="text-sm font-medium text-gray-900 dark:text-gray-100">
                   {{ item.label }}
                 </p>
-                <p v-if="item.consent" class="mt-1 text-xs text-gray-500">
+                <p
+                  v-if="item.consent"
+                  class="mt-1 text-xs text-gray-500 dark:text-gray-400"
+                >
                   Accepté le
                   {{ formatConsentDate(item.consent.acceptedAt) }} - Version
                   {{ item.consent.version }}
                 </p>
-                <p v-else class="mt-1 text-xs text-amber-600">
+                <p
+                  v-else
+                  class="mt-1 text-xs text-amber-600 dark:text-amber-400"
+                >
                   Non encore accepté
                 </p>
               </div>
@@ -491,22 +537,27 @@
             </div>
           </div>
 
-          <div class="rounded-lg border border-gray-200 p-4">
+          <div
+            class="rounded-lg border border-gray-200 p-4 dark:border-gray-800"
+          >
             <div class="flex items-center justify-between">
               <div>
-                <p class="text-sm font-medium text-gray-900">
+                <p class="text-sm font-medium text-gray-900 dark:text-gray-100">
                   Consentement au traitement des données
                 </p>
                 <p
                   v-if="dataProcessingConsent"
-                  class="mt-1 text-xs text-gray-500"
+                  class="mt-1 text-xs text-gray-500 dark:text-gray-400"
                 >
                   Accepté le
                   {{ formatConsentDate(dataProcessingConsent.acceptedAt) }} -
                   Version
                   {{ dataProcessingConsent.version }}
                 </p>
-                <p v-else class="mt-1 text-xs text-amber-600">
+                <p
+                  v-else
+                  class="mt-1 text-xs text-amber-600 dark:text-amber-400"
+                >
                   Non encore accepté
                 </p>
               </div>

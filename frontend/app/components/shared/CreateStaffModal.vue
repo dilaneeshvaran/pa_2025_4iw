@@ -4,14 +4,16 @@
     class="fixed inset-0 z-50 flex items-center justify-center bg-black/50"
     @click.self="$emit('close')"
   >
-    <div class="w-full max-w-md rounded-xl bg-white p-6 shadow-2xl">
+    <div
+      class="w-full max-w-md rounded-xl bg-white p-6 shadow-2xl dark:bg-gray-900"
+    >
       <div class="mb-6 flex items-center justify-between">
-        <h2 class="text-xl font-bold text-gray-900">
+        <h2 class="text-xl font-bold text-gray-900 dark:text-gray-100">
           Créer un compte personnel
         </h2>
         <button
           @click="$emit('close')"
-          class="rounded-lg p-1 text-gray-400 transition-colors hover:bg-gray-100 hover:text-gray-600"
+          class="rounded-lg p-1 text-gray-400 transition-colors hover:bg-gray-100 hover:text-gray-600 dark:text-gray-500 dark:hover:bg-gray-800"
         >
           <X class="h-5 w-5" />
         </button>
@@ -21,7 +23,7 @@
         <div class="grid grid-cols-2 gap-4">
           <div>
             <label
-              class="mb-1 block text-sm font-medium text-gray-700"
+              class="mb-1 block text-sm font-medium text-gray-700 dark:text-gray-300"
               for="staff-firstName"
             >
               Prénom *
@@ -31,13 +33,13 @@
               v-model="form.firstName"
               type="text"
               required
-              class="w-full rounded-lg border border-gray-300 px-3 py-2 text-sm focus:border-orange-500 focus:outline-none focus:ring-1 focus:ring-orange-500"
+              class="w-full rounded-lg border border-gray-300 px-3 py-2 text-sm focus:border-orange-500 focus:outline-none focus:ring-1 focus:ring-orange-500 dark:border-gray-700"
               placeholder="Prénom"
             />
           </div>
           <div>
             <label
-              class="mb-1 block text-sm font-medium text-gray-700"
+              class="mb-1 block text-sm font-medium text-gray-700 dark:text-gray-300"
               for="staff-lastName"
             >
               Nom *
@@ -47,7 +49,7 @@
               v-model="form.lastName"
               type="text"
               required
-              class="w-full rounded-lg border border-gray-300 px-3 py-2 text-sm focus:border-orange-500 focus:outline-none focus:ring-1 focus:ring-orange-500"
+              class="w-full rounded-lg border border-gray-300 px-3 py-2 text-sm focus:border-orange-500 focus:outline-none focus:ring-1 focus:ring-orange-500 dark:border-gray-700"
               placeholder="Nom"
             />
           </div>
@@ -55,7 +57,7 @@
 
         <div>
           <label
-            class="mb-1 block text-sm font-medium text-gray-700"
+            class="mb-1 block text-sm font-medium text-gray-700 dark:text-gray-300"
             for="staff-email"
           >
             Email *
@@ -65,14 +67,14 @@
             v-model="form.email"
             type="email"
             required
-            class="w-full rounded-lg border border-gray-300 px-3 py-2 text-sm focus:border-orange-500 focus:outline-none focus:ring-1 focus:ring-orange-500"
+            class="w-full rounded-lg border border-gray-300 px-3 py-2 text-sm focus:border-orange-500 focus:outline-none focus:ring-1 focus:ring-orange-500 dark:border-gray-700"
             placeholder="email@exemple.com"
           />
         </div>
 
         <div>
           <label
-            class="mb-1 block text-sm font-medium text-gray-700"
+            class="mb-1 block text-sm font-medium text-gray-700 dark:text-gray-300"
             for="staff-phone"
           >
             Téléphone *
@@ -82,14 +84,14 @@
             v-model="form.phone"
             type="tel"
             required
-            class="w-full rounded-lg border border-gray-300 px-3 py-2 text-sm focus:border-orange-500 focus:outline-none focus:ring-1 focus:ring-orange-500"
+            class="w-full rounded-lg border border-gray-300 px-3 py-2 text-sm focus:border-orange-500 focus:outline-none focus:ring-1 focus:ring-orange-500 dark:border-gray-700"
             placeholder="+225 XX XX XX XX"
           />
         </div>
 
         <div>
           <label
-            class="mb-1 block text-sm font-medium text-gray-700"
+            class="mb-1 block text-sm font-medium text-gray-700 dark:text-gray-300"
             for="staff-position"
           >
             Poste / Fonction *
@@ -99,18 +101,21 @@
             v-model="form.position"
             type="text"
             required
-            class="w-full rounded-lg border border-gray-300 px-3 py-2 text-sm focus:border-orange-500 focus:outline-none focus:ring-1 focus:ring-orange-500"
+            class="w-full rounded-lg border border-gray-300 px-3 py-2 text-sm focus:border-orange-500 focus:outline-none focus:ring-1 focus:ring-orange-500 dark:border-gray-700"
             placeholder="Ex: Secrétaire médicale, Assistant(e)..."
           />
         </div>
 
-        <div v-if="error" class="rounded-lg bg-red-50 p-3 text-sm text-red-600">
+        <div
+          v-if="error"
+          class="rounded-lg bg-red-50 p-3 text-sm text-red-600 dark:bg-red-950/40 dark:text-red-400"
+        >
           {{ error }}
         </div>
 
         <div
           v-if="success"
-          class="rounded-lg bg-green-50 p-3 text-sm text-green-600"
+          class="rounded-lg bg-green-50 p-3 text-sm text-green-600 dark:bg-green-950/40 dark:text-green-400"
         >
           Compte créé avec succès ! Un email avec le mot de passe a été envoyé.
         </div>
@@ -119,7 +124,7 @@
           <button
             type="button"
             @click="$emit('close')"
-            class="rounded-lg border border-gray-300 px-4 py-2 text-sm font-medium text-gray-700 transition-colors hover:bg-gray-50"
+            class="rounded-lg border border-gray-300 px-4 py-2 text-sm font-medium text-gray-700 transition-colors hover:bg-gray-50 dark:border-gray-700 dark:text-gray-300 dark:hover:bg-gray-800"
           >
             Annuler
           </button>

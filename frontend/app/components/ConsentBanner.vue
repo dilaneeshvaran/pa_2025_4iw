@@ -3,35 +3,37 @@
     <Transition name="consent-slide">
       <div
         v-if="visible"
-        class="fixed inset-x-0 bottom-0 z-[9999] border-t border-gray-200 bg-white shadow-2xl"
+        class="fixed inset-x-0 bottom-0 z-[9999] border-t border-gray-200 bg-white shadow-2xl dark:border-gray-800 dark:bg-gray-900"
       >
         <div class="mx-auto max-w-4xl px-4 py-6 sm:px-6">
           <div class="flex flex-col gap-4 sm:flex-row sm:items-start">
             <div class="flex-1">
-              <h3 class="text-base font-semibold text-gray-900">
+              <h3
+                class="text-base font-semibold text-gray-900 dark:text-gray-100"
+              >
                 Consentement au traitement des données
               </h3>
-              <p class="mt-1 text-sm text-gray-600">
+              <p class="mt-1 text-sm text-gray-600 dark:text-gray-400">
                 Conformément au RGPD, nous avons besoin de votre consentement
                 pour traiter vos données personnelles. Vos données sont
                 utilisées uniquement pour vous fournir nos services médicaux et
                 améliorer votre expérience. Consultez notre
                 <a
                   href="#"
-                  class="text-orange-600 underline hover:text-orange-600"
+                  class="text-orange-600 underline hover:text-orange-600 dark:text-orange-400"
                   >politique de confidentialité</a
                 >
                 et nos
                 <a
                   href="#"
-                  class="text-orange-600 underline hover:text-orange-600"
+                  class="text-orange-600 underline hover:text-orange-600 dark:text-orange-400"
                   >conditions générales d'utilisation</a
                 >.
               </p>
             </div>
             <div class="flex shrink-0 gap-3">
               <button
-                class="rounded-lg border border-gray-300 bg-white px-4 py-2 text-sm font-medium text-gray-700 transition-colors hover:bg-gray-50"
+                class="rounded-lg border border-gray-300 bg-white px-4 py-2 text-sm font-medium text-gray-700 transition-colors hover:bg-gray-50 dark:border-gray-700 dark:bg-gray-900 dark:text-gray-300 dark:hover:bg-gray-800"
                 @click="handleDecline"
               >
                 Refuser

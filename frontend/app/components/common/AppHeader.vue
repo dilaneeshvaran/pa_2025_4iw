@@ -1,20 +1,21 @@
 <template>
-  <header class="bg-white shadow-sm">
+  <header class="bg-white shadow-sm dark:bg-gray-900">
     <nav class="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
       <div class="flex h-16 items-center justify-between">
         <!-- logo -->
         <div class="flex-shrink-0">
           <NuxtLink to="/" class="text-2xl font-bold">
-            <span class="text-orange-500">Medi</span
-            ><span class="text-green-600">côte</span>
+            <span class="text-orange-500 dark:text-orange-400">Medi</span
+            ><span class="text-green-600 dark:text-green-400">côte</span>
           </NuxtLink>
         </div>
 
         <div class="flex items-center space-x-4">
+          <UiThemeToggle />
           <template v-if="!authStore.isAuthenticated">
             <NuxtLink
               to="/auth/login"
-              class="rounded-md px-3 py-2 text-sm font-medium text-gray-700 transition-colors hover:text-orange-600"
+              class="rounded-md px-3 py-2 text-sm font-medium text-gray-700 transition-colors hover:text-orange-600 dark:text-gray-300"
             >
               Connexion
             </NuxtLink>
@@ -34,15 +35,15 @@
                     ? '/patient/dashboard'
                     : '/practitioner/dashboard'
                 "
-                class="text-sm font-medium text-gray-700 transition-colors hover:text-orange-600"
+                class="text-sm font-medium text-gray-700 transition-colors hover:text-orange-600 dark:text-gray-300"
               >
                 Tableau de bord
               </NuxtLink>
-              <span class="text-sm text-gray-700">
+              <span class="text-sm text-gray-700 dark:text-gray-300">
                 Bonjour, {{ authStore.user?.email }}
               </span>
               <button
-                class="rounded-md px-3 py-2 text-sm font-medium text-gray-700 transition-colors hover:text-red-600"
+                class="rounded-md px-3 py-2 text-sm font-medium text-gray-700 transition-colors hover:text-red-600 dark:text-gray-300"
                 @click="handleLogout"
               >
                 Déconnexion

@@ -1,9 +1,15 @@
 <template>
   <div class="flex min-h-screen items-center justify-center px-4 py-12">
-    <div class="w-full max-w-md space-y-8 rounded-lg bg-white p-8 shadow-lg">
+    <div
+      class="w-full max-w-md space-y-8 rounded-lg bg-white p-8 shadow-lg dark:bg-gray-900"
+    >
       <div>
-        <h2 class="text-center text-3xl font-bold text-gray-900">Connexion</h2>
-        <p class="mt-2 text-center text-sm text-gray-600">
+        <h2
+          class="text-center text-3xl font-bold text-gray-900 dark:text-gray-100"
+        >
+          Connexion
+        </h2>
+        <p class="mt-2 text-center text-sm text-gray-600 dark:text-gray-400">
           Connectez-vous à votre compte patient
         </p>
       </div>
@@ -12,7 +18,7 @@
         <!-- error message -->
         <div
           v-if="errorMessage"
-          class="rounded-md border border-red-300 bg-red-50 px-4 py-3 text-sm text-red-800"
+          class="rounded-md border border-red-300 bg-red-50 px-4 py-3 text-sm text-red-800 dark:bg-red-950/40 dark:text-red-200"
         >
           {{ errorMessage }}
         </div>
@@ -20,14 +26,17 @@
         <!-- success message -->
         <div
           v-if="successMessage"
-          class="rounded-md border border-green-300 bg-green-50 px-4 py-3 text-sm text-green-800"
+          class="rounded-md border border-green-300 bg-green-50 px-4 py-3 text-sm text-green-800 dark:bg-green-950/40 dark:text-green-200"
         >
           {{ successMessage }}
         </div>
 
         <div class="space-y-4">
           <div>
-            <label for="email" class="block text-sm font-medium text-gray-700">
+            <label
+              for="email"
+              class="block text-sm font-medium text-gray-700 dark:text-gray-300"
+            >
               Email
             </label>
             <input
@@ -36,7 +45,7 @@
               type="email"
               required
               autocomplete="email"
-              class="mt-1 block w-full rounded-md border border-gray-300 px-3 py-2 placeholder-gray-400 shadow-sm focus:border-orange-500 focus:outline-none focus:ring-2 focus:ring-orange-500"
+              class="mt-1 block w-full rounded-md border border-gray-300 px-3 py-2 placeholder-gray-400 shadow-sm focus:border-orange-500 focus:outline-none focus:ring-2 focus:ring-orange-500 dark:border-gray-700 dark:placeholder-gray-500"
               placeholder="votre@email.com"
             />
           </div>
@@ -44,7 +53,7 @@
           <div>
             <label
               for="password"
-              class="block text-sm font-medium text-gray-700"
+              class="block text-sm font-medium text-gray-700 dark:text-gray-300"
             >
               Mot de passe
             </label>
@@ -54,7 +63,7 @@
               type="password"
               required
               autocomplete="current-password"
-              class="mt-1 block w-full rounded-md border border-gray-300 px-3 py-2 placeholder-gray-400 shadow-sm focus:border-orange-500 focus:outline-none focus:ring-2 focus:ring-orange-500"
+              class="mt-1 block w-full rounded-md border border-gray-300 px-3 py-2 placeholder-gray-400 shadow-sm focus:border-orange-500 focus:outline-none focus:ring-2 focus:ring-orange-500 dark:border-gray-700 dark:placeholder-gray-500"
               placeholder="••••••••"
             />
           </div>
@@ -64,7 +73,7 @@
           <div class="text-sm">
             <NuxtLink
               to="/auth/forgot-password"
-              class="font-medium text-orange-600 hover:text-orange-500"
+              class="font-medium text-orange-600 hover:text-orange-500 dark:text-orange-400"
             >
               Mot de passe oublié ?
             </NuxtLink>
@@ -83,11 +92,11 @@
         </div>
 
         <div class="text-center">
-          <p class="text-sm text-gray-600">
+          <p class="text-sm text-gray-600 dark:text-gray-400">
             Vous n'avez pas de compte ?
             <NuxtLink
               :to="`/auth/register${route.query.redirect ? '?redirect=' + encodeURIComponent(route.query.redirect as string) : ''}`"
-              class="font-medium text-orange-600 hover:text-orange-500"
+              class="font-medium text-orange-600 hover:text-orange-500 dark:text-orange-400"
             >
               Créer un compte
             </NuxtLink>

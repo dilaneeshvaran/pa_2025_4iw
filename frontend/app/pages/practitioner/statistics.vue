@@ -4,8 +4,12 @@
       class="flex flex-col justify-between gap-4 sm:flex-row sm:items-center print:hidden"
     >
       <div>
-        <h1 class="mb-2 text-2xl font-bold text-gray-900">Statistiques</h1>
-        <p class="text-gray-600">Analysez votre activité et vos performances</p>
+        <h1 class="mb-2 text-2xl font-bold text-gray-900 dark:text-gray-100">
+          Statistiques
+        </h1>
+        <p class="text-gray-600 dark:text-gray-400">
+          Analysez votre activité et vos performances
+        </p>
       </div>
       <div class="flex gap-2">
         <UiButton variant="outline" @click="exportCSV">
@@ -21,10 +25,12 @@
 
     <UiCard class="print:hidden">
       <div class="flex flex-wrap items-center gap-4">
-        <label class="text-sm font-medium text-gray-700">Période :</label>
+        <label class="text-sm font-medium text-gray-700 dark:text-gray-300"
+          >Période :</label
+        >
         <select
           v-model="selectedPeriod"
-          class="rounded-lg border-gray-300 py-2 pl-3 pr-10 text-sm focus:border-orange-500 focus:outline-none focus:ring-1 focus:ring-orange-500"
+          class="rounded-lg border-gray-300 py-2 pl-3 pr-10 text-sm focus:border-orange-500 focus:outline-none focus:ring-1 focus:ring-orange-500 dark:border-gray-700"
         >
           <option value="semaine">Cette semaine</option>
           <option value="mois">Ce mois</option>
@@ -39,13 +45,13 @@
           <input
             type="date"
             v-model="startDate"
-            class="rounded-lg border-gray-300 px-3 py-2 text-sm focus:border-orange-500 focus:outline-none focus:ring-1 focus:ring-orange-500"
+            class="rounded-lg border-gray-300 px-3 py-2 text-sm focus:border-orange-500 focus:outline-none focus:ring-1 focus:ring-orange-500 dark:border-gray-700"
           />
-          <span class="text-gray-500">à</span>
+          <span class="text-gray-500 dark:text-gray-400">à</span>
           <input
             type="date"
             v-model="endDate"
-            class="rounded-lg border-gray-300 px-3 py-2 text-sm focus:border-orange-500 focus:outline-none focus:ring-1 focus:ring-orange-500"
+            class="rounded-lg border-gray-300 px-3 py-2 text-sm focus:border-orange-500 focus:outline-none focus:ring-1 focus:ring-orange-500 dark:border-gray-700"
           />
           <UiButton size="sm" @click="fetchStats" :disabled="loading"
             >Appliquer</UiButton
@@ -58,7 +64,7 @@
       <div
         v-for="i in 5"
         :key="i"
-        class="h-24 animate-pulse rounded-lg bg-gray-200"
+        class="h-24 animate-pulse rounded-lg bg-gray-200 dark:bg-gray-700"
       ></div>
     </div>
 
@@ -74,8 +80,12 @@
             <component :is="kpi.icon" :class="['h-6 w-6', kpi.iconColor]" />
           </div>
           <div class="min-w-0 flex-1">
-            <p class="text-sm text-gray-500">{{ kpi.label }}</p>
-            <p class="text-2xl font-bold text-gray-900">{{ kpi.value }}</p>
+            <p class="text-sm text-gray-500 dark:text-gray-400">
+              {{ kpi.label }}
+            </p>
+            <p class="text-2xl font-bold text-gray-900 dark:text-gray-100">
+              {{ kpi.value }}
+            </p>
           </div>
         </div>
       </UiCard>
@@ -84,7 +94,7 @@
     <!-- charts -->
     <div v-if="!loading" class="grid gap-6 lg:grid-cols-1">
       <UiCard>
-        <h3 class="mb-4 text-lg font-semibold text-gray-900">
+        <h3 class="mb-4 text-lg font-semibold text-gray-900 dark:text-gray-100">
           Évolution des consultations
         </h3>
         <div class="h-80">
@@ -96,7 +106,7 @@
             />
             <div
               v-else
-              class="flex h-full items-center justify-center text-gray-400"
+              class="flex h-full items-center justify-center text-gray-400 dark:text-gray-500"
             >
               Pas de données sur cette période
             </div>
@@ -166,36 +176,36 @@ const kpiCards = computed(() => [
     label: "Consultations",
     value: stats.value?.totalConsultations ?? 0,
     icon: Users,
-    bgColor: "bg-orange-100",
-    iconColor: "text-orange-600",
+    bgColor: "bg-orange-100 dark:bg-orange-900/40",
+    iconColor: "text-orange-600 dark:text-orange-400",
   },
   {
     label: "Taux de présence",
     value: `${stats.value?.attendanceRate ?? 0}%`,
     icon: TrendingUp,
-    bgColor: "bg-green-100",
-    iconColor: "text-green-600",
+    bgColor: "bg-green-100 dark:bg-green-900/40",
+    iconColor: "text-green-600 dark:text-green-400",
   },
   {
     label: "Revenus",
     value: `${(stats.value?.revenue ?? 0).toLocaleString("fr-FR")} XOF`,
     icon: CreditCard,
-    bgColor: "bg-emerald-100",
-    iconColor: "text-emerald-600",
+    bgColor: "bg-emerald-100 dark:bg-emerald-900/40",
+    iconColor: "text-emerald-600 dark:text-emerald-400",
   },
   {
     label: "Nouveaux patients",
     value: stats.value?.newPatients ?? 0,
     icon: UserPlus,
-    bgColor: "bg-orange-100",
-    iconColor: "text-orange-600",
+    bgColor: "bg-orange-100 dark:bg-orange-900/40",
+    iconColor: "text-orange-600 dark:text-orange-400",
   },
   {
     label: "Satisfaction",
     value: `${stats.value?.satisfactionScore ?? 0} / 5`,
     icon: Star,
-    bgColor: "bg-yellow-100",
-    iconColor: "text-yellow-600",
+    bgColor: "bg-yellow-100 dark:bg-yellow-900/40",
+    iconColor: "text-yellow-600 dark:text-yellow-400",
   },
 ]);
 
@@ -237,12 +247,25 @@ const chartDataConfig = computed(() => {
   };
 });
 
-const chartOptions = {
-  responsive: true,
-  maintainAspectRatio: false,
-  plugins: { legend: { display: false } },
-  scales: { y: { beginAtZero: true, ticks: { stepSize: 1 } } },
-};
+const { isDark } = useTheme();
+
+const chartOptions = computed(() => {
+  const tick = isDark.value ? "#9ca3af" : "#6b7280"; // gray-400 / gray-500
+  const grid = isDark.value ? "rgba(255,255,255,0.08)" : "rgba(0,0,0,0.08)";
+  return {
+    responsive: true,
+    maintainAspectRatio: false,
+    plugins: { legend: { display: false } },
+    scales: {
+      x: { ticks: { color: tick }, grid: { color: grid } },
+      y: {
+        beginAtZero: true,
+        ticks: { stepSize: 1, color: tick },
+        grid: { color: grid },
+      },
+    },
+  };
+});
 
 const fetchStats = async () => {
   loading.value = true;

@@ -1,13 +1,15 @@
 <template>
   <div class="space-y-6">
     <div>
-      <h1 class="mb-2 text-2xl font-bold text-gray-900">Mon dossier médical</h1>
-      <p class="text-gray-600">
+      <h1 class="mb-2 text-2xl font-bold text-gray-900 dark:text-gray-100">
+        Mon dossier médical
+      </h1>
+      <p class="text-gray-600 dark:text-gray-400">
         Gérez vos informations médicales et téléversez vos documents
       </p>
     </div>
 
-    <div class="border-b border-gray-200">
+    <div class="border-b border-gray-200 dark:border-gray-800">
       <nav class="-mb-px flex space-x-6 overflow-x-auto" aria-label="Tabs">
         <button
           v-for="tab in tabs"
@@ -15,8 +17,8 @@
           :class="[
             'whitespace-nowrap border-b-2 px-1 py-3 text-sm font-medium transition-colors',
             activeTab === tab.key
-              ? 'border-orange-600 text-orange-600'
-              : 'border-transparent text-gray-500 hover:border-gray-300 hover:text-gray-700',
+              ? 'border-orange-600 text-orange-600 dark:text-orange-400'
+              : 'border-transparent text-gray-500 hover:border-gray-300 hover:text-gray-700 dark:text-gray-400',
           ]"
           @click="activeTab = tab.key"
         >
@@ -29,7 +31,7 @@
     <div v-if="activeTab === 'profile'">
       <UiCard>
         <div class="mb-6 flex items-center justify-between">
-          <h2 class="text-lg font-semibold text-gray-900">
+          <h2 class="text-lg font-semibold text-gray-900 dark:text-gray-100">
             Informations personnelles
           </h2>
           <UiButton
@@ -45,7 +47,11 @@
 
         <!-- loading -->
         <div v-if="loadingProfile" class="animate-pulse space-y-4">
-          <div v-for="i in 4" :key="i" class="h-10 rounded bg-gray-100" />
+          <div
+            v-for="i in 4"
+            :key="i"
+            class="h-10 rounded bg-gray-100 dark:bg-gray-800"
+          />
         </div>
         <!-- view mode -->
         <div v-else-if="!editingProfile && profile" class="space-y-6">
@@ -89,25 +95,29 @@
         >
           <div class="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
             <div>
-              <label class="mb-1 block text-sm font-medium text-gray-700"
+              <label
+                class="mb-1 block text-sm font-medium text-gray-700 dark:text-gray-300"
                 >Prénom</label
               >
               <UiInput v-model="profileForm.firstName" />
             </div>
             <div>
-              <label class="mb-1 block text-sm font-medium text-gray-700"
+              <label
+                class="mb-1 block text-sm font-medium text-gray-700 dark:text-gray-300"
                 >Nom</label
               >
               <UiInput v-model="profileForm.lastName" />
             </div>
             <div>
-              <label class="mb-1 block text-sm font-medium text-gray-700"
+              <label
+                class="mb-1 block text-sm font-medium text-gray-700 dark:text-gray-300"
                 >Téléphone</label
               >
               <UiInput v-model="profileForm.phone" />
             </div>
             <div>
-              <label class="mb-1 block text-sm font-medium text-gray-700"
+              <label
+                class="mb-1 block text-sm font-medium text-gray-700 dark:text-gray-300"
                 >Taille (cm)</label
               >
               <UiInput
@@ -117,7 +127,8 @@
               />
             </div>
             <div>
-              <label class="mb-1 block text-sm font-medium text-gray-700"
+              <label
+                class="mb-1 block text-sm font-medium text-gray-700 dark:text-gray-300"
                 >Poids (kg)</label
               >
               <UiInput
@@ -127,12 +138,13 @@
               />
             </div>
             <div>
-              <label class="mb-1 block text-sm font-medium text-gray-700"
+              <label
+                class="mb-1 block text-sm font-medium text-gray-700 dark:text-gray-300"
                 >Groupe sanguin</label
               >
               <select
                 v-model="profileForm.bloodType"
-                class="w-full rounded-lg border border-gray-300 px-4 py-2.5 text-base focus:border-orange-600 focus:outline-none focus:ring-2 focus:ring-orange-600/20"
+                class="w-full rounded-lg border border-gray-300 px-4 py-2.5 text-base focus:border-orange-600 focus:outline-none focus:ring-2 focus:ring-orange-600/20 dark:border-gray-700"
               >
                 <option value="">Non renseigné</option>
                 <option v-for="bt in bloodTypes" :key="bt" :value="bt">
@@ -141,13 +153,15 @@
               </select>
             </div>
             <div>
-              <label class="mb-1 block text-sm font-medium text-gray-700"
+              <label
+                class="mb-1 block text-sm font-medium text-gray-700 dark:text-gray-300"
                 >Ville</label
               >
               <UiInput v-model="profileForm.city" />
             </div>
             <div class="sm:col-span-2">
-              <label class="mb-1 block text-sm font-medium text-gray-700"
+              <label
+                class="mb-1 block text-sm font-medium text-gray-700 dark:text-gray-300"
                 >Adresse</label
               >
               <UiInput v-model="profileForm.address" />
@@ -163,10 +177,13 @@
             </UiButton>
           </div>
 
-          <p v-if="profileError" class="text-sm text-red-600">
+          <p v-if="profileError" class="text-sm text-red-600 dark:text-red-400">
             {{ profileError }}
           </p>
-          <p v-if="profileSuccess" class="text-sm text-green-600">
+          <p
+            v-if="profileSuccess"
+            class="text-sm text-green-600 dark:text-green-400"
+          >
             {{ profileSuccess }}
           </p>
         </form>
@@ -177,8 +194,10 @@
       <div class="space-y-6">
         <UiCard>
           <div class="mb-4 flex items-center justify-between">
-            <h3 class="text-lg font-semibold text-gray-900">
-              <AlertTriangle class="mr-2 inline-block h-5 w-5 text-red-500" />
+            <h3 class="text-lg font-semibold text-gray-900 dark:text-gray-100">
+              <AlertTriangle
+                class="mr-2 inline-block h-5 w-5 text-red-500 dark:text-red-400"
+              />
               Allergies
             </h3>
             <UiButton
@@ -191,11 +210,11 @@
             </UiButton>
           </div>
           <div v-if="loadingProfile" class="animate-pulse">
-            <div class="h-8 rounded bg-gray-100" />
+            <div class="h-8 rounded bg-gray-100 dark:bg-gray-800" />
           </div>
           <div
             v-else-if="!profile?.allergies?.length"
-            class="py-4 text-center text-gray-500"
+            class="py-4 text-center text-gray-500 dark:text-gray-400"
           >
             Aucune allergie renseignée
           </div>
@@ -203,7 +222,7 @@
             <span
               v-for="(item, idx) in profile.allergies"
               :key="idx"
-              class="inline-flex items-center gap-1.5 rounded-full bg-red-50 px-3 py-1.5 text-sm font-medium text-red-700"
+              class="inline-flex items-center gap-1.5 rounded-full bg-red-50 px-3 py-1.5 text-sm font-medium text-red-700 dark:bg-red-950/40 dark:text-red-300"
             >
               {{ item }}
               <button
@@ -218,8 +237,10 @@
 
         <UiCard>
           <div class="mb-4 flex items-center justify-between">
-            <h3 class="text-lg font-semibold text-gray-900">
-              <Activity class="mr-2 inline-block h-5 w-5 text-orange-500" />
+            <h3 class="text-lg font-semibold text-gray-900 dark:text-gray-100">
+              <Activity
+                class="mr-2 inline-block h-5 w-5 text-orange-500 dark:text-orange-400"
+              />
               Maladies chroniques
             </h3>
             <UiButton
@@ -232,11 +253,11 @@
             </UiButton>
           </div>
           <div v-if="loadingProfile" class="animate-pulse">
-            <div class="h-8 rounded bg-gray-100" />
+            <div class="h-8 rounded bg-gray-100 dark:bg-gray-800" />
           </div>
           <div
             v-else-if="!profile?.chronicConditions?.length"
-            class="py-4 text-center text-gray-500"
+            class="py-4 text-center text-gray-500 dark:text-gray-400"
           >
             Aucune maladie chronique renseignée
           </div>
@@ -244,7 +265,7 @@
             <span
               v-for="(item, idx) in profile.chronicConditions"
               :key="idx"
-              class="inline-flex items-center gap-1.5 rounded-full bg-orange-50 px-3 py-1.5 text-sm font-medium text-orange-700"
+              class="inline-flex items-center gap-1.5 rounded-full bg-orange-50 px-3 py-1.5 text-sm font-medium text-orange-700 dark:bg-orange-950/40 dark:text-orange-300"
             >
               {{ item }}
               <button
@@ -259,8 +280,10 @@
 
         <UiCard>
           <div class="mb-4 flex items-center justify-between">
-            <h3 class="text-lg font-semibold text-gray-900">
-              <Scissors class="mr-2 inline-block h-5 w-5 text-purple-500" />
+            <h3 class="text-lg font-semibold text-gray-900 dark:text-gray-100">
+              <Scissors
+                class="mr-2 inline-block h-5 w-5 text-purple-500 dark:text-purple-400"
+              />
               Opérations chirurgicales
             </h3>
             <UiButton
@@ -273,11 +296,11 @@
             </UiButton>
           </div>
           <div v-if="loadingProfile" class="animate-pulse">
-            <div class="h-8 rounded bg-gray-100" />
+            <div class="h-8 rounded bg-gray-100 dark:bg-gray-800" />
           </div>
           <div
             v-else-if="!profile?.surgicalOperations?.length"
-            class="py-4 text-center text-gray-500"
+            class="py-4 text-center text-gray-500 dark:text-gray-400"
           >
             Aucune opération chirurgicale renseignée
           </div>
@@ -285,7 +308,7 @@
             <span
               v-for="(item, idx) in profile.surgicalOperations"
               :key="idx"
-              class="inline-flex items-center gap-1.5 rounded-full bg-purple-50 px-3 py-1.5 text-sm font-medium text-purple-700"
+              class="inline-flex items-center gap-1.5 rounded-full bg-purple-50 px-3 py-1.5 text-sm font-medium text-purple-700 dark:bg-purple-950/40 dark:text-purple-300"
             >
               {{ item }}
               <button
@@ -302,45 +325,53 @@
 
     <div v-if="activeTab === 'consultations'">
       <UiCard>
-        <h2 class="mb-4 text-lg font-semibold text-gray-900">
+        <h2 class="mb-4 text-lg font-semibold text-gray-900 dark:text-gray-100">
           Historique des consultations
         </h2>
 
         <div v-if="loadingConsultations" class="animate-pulse space-y-4">
-          <div v-for="i in 3" :key="i" class="h-24 rounded-lg bg-gray-100" />
+          <div
+            v-for="i in 3"
+            :key="i"
+            class="h-24 rounded-lg bg-gray-100 dark:bg-gray-800"
+          />
         </div>
 
         <div v-else-if="consultations.length === 0" class="py-8 text-center">
-          <Stethoscope class="mx-auto mb-3 h-12 w-12 text-gray-300" />
-          <p class="text-gray-500">Aucune consultation passée</p>
+          <Stethoscope
+            class="mx-auto mb-3 h-12 w-12 text-gray-300 dark:text-gray-600"
+          />
+          <p class="text-gray-500 dark:text-gray-400">
+            Aucune consultation passée
+          </p>
         </div>
 
         <div v-else class="space-y-4">
           <div
             v-for="consultation in consultations"
             :key="consultation.id"
-            class="rounded-lg border border-gray-200 p-4"
+            class="rounded-lg border border-gray-200 p-4 dark:border-gray-800"
           >
             <div class="flex items-start justify-between">
               <div>
-                <p class="font-medium text-gray-900">
+                <p class="font-medium text-gray-900 dark:text-gray-100">
                   {{ consultation.practitioner.title }}
                   {{ consultation.practitioner.firstName }}
                   {{ consultation.practitioner.lastName }}
                 </p>
-                <p class="text-sm text-gray-500">
+                <p class="text-sm text-gray-500 dark:text-gray-400">
                   {{
                     consultation.practitioner.specialty || "Médecin généraliste"
                   }}
                 </p>
-                <p class="mt-1 text-sm text-gray-600">
+                <p class="mt-1 text-sm text-gray-600 dark:text-gray-400">
                   <Calendar class="mr-1 inline-block h-3.5 w-3.5" />
                   {{ formatDate(consultation.appointmentDate) }}
                   · {{ consultation.startTime }} - {{ consultation.endTime }}
                 </p>
                 <p
                   v-if="consultation.reason"
-                  class="mt-1 text-sm text-gray-500"
+                  class="mt-1 text-sm text-gray-500 dark:text-gray-400"
                 >
                   Motif : {{ consultation.reason }}
                 </p>
@@ -356,7 +387,7 @@
 
             <div v-if="consultation.medicalRecord" class="mt-3 border-t pt-3">
               <button
-                class="flex items-center gap-1 text-sm font-medium text-orange-600 hover:text-orange-700"
+                class="flex items-center gap-1 text-sm font-medium text-orange-600 hover:text-orange-700 dark:text-orange-400"
                 @click="toggleConsultationDetails(consultation.id)"
               >
                 <ChevronDown
@@ -378,15 +409,19 @@
                 class="mt-3 space-y-2 text-sm"
               >
                 <p v-if="consultation.medicalRecord.chiefComplaint">
-                  <span class="font-medium text-gray-700">Motif :</span>
+                  <span class="font-medium text-gray-700 dark:text-gray-300"
+                    >Motif :</span
+                  >
                   {{ consultation.medicalRecord.chiefComplaint }}
                 </p>
                 <p v-if="consultation.medicalRecord.diagnosis">
-                  <span class="font-medium text-gray-700">Diagnostic :</span>
+                  <span class="font-medium text-gray-700 dark:text-gray-300"
+                    >Diagnostic :</span
+                  >
                   {{ consultation.medicalRecord.diagnosis }}
                 </p>
                 <p v-if="consultation.medicalRecord.treatmentPlan">
-                  <span class="font-medium text-gray-700"
+                  <span class="font-medium text-gray-700 dark:text-gray-300"
                     >Plan de traitement :</span
                   >
                   {{ consultation.medicalRecord.treatmentPlan }}
@@ -402,19 +437,19 @@
                 >
                   <span
                     v-if="consultation.medicalRecord.bloodPressure"
-                    class="rounded bg-gray-100 px-2 py-1 text-xs"
+                    class="rounded bg-gray-100 px-2 py-1 text-xs dark:bg-gray-800"
                   >
                     TA: {{ consultation.medicalRecord.bloodPressure }}
                   </span>
                   <span
                     v-if="consultation.medicalRecord.heartRate"
-                    class="rounded bg-gray-100 px-2 py-1 text-xs"
+                    class="rounded bg-gray-100 px-2 py-1 text-xs dark:bg-gray-800"
                   >
                     FC: {{ consultation.medicalRecord.heartRate }} bpm
                   </span>
                   <span
                     v-if="consultation.medicalRecord.temperature"
-                    class="rounded bg-gray-100 px-2 py-1 text-xs"
+                    class="rounded bg-gray-100 px-2 py-1 text-xs dark:bg-gray-800"
                   >
                     T°: {{ consultation.medicalRecord.temperature }}°C
                   </span>
@@ -424,12 +459,14 @@
                   v-if="consultation.medicalRecord.documents?.length"
                   class="mt-2"
                 >
-                  <p class="mb-1 font-medium text-gray-700">Documents :</p>
+                  <p class="mb-1 font-medium text-gray-700 dark:text-gray-300">
+                    Documents :
+                  </p>
                   <div class="flex flex-wrap gap-2">
                     <button
                       v-for="doc in consultation.medicalRecord.documents"
                       :key="doc.id"
-                      class="inline-flex items-center gap-1.5 rounded-lg bg-orange-50 px-3 py-1.5 text-sm text-orange-700 hover:bg-orange-100"
+                      class="inline-flex items-center gap-1.5 rounded-lg bg-orange-50 px-3 py-1.5 text-sm text-orange-700 hover:bg-orange-100 dark:bg-orange-950/40 dark:text-orange-300 dark:hover:bg-orange-900/40"
                       @click="downloadDocument(doc.id, doc.fileName)"
                     >
                       <Download class="h-3.5 w-3.5" />
@@ -453,7 +490,7 @@
             >
               Précédent
             </UiButton>
-            <span class="text-sm text-gray-600">
+            <span class="text-sm text-gray-600 dark:text-gray-400">
               Page {{ consultationsPagination.page }} /
               {{ consultationsPagination.totalPages }}
             </span>
@@ -480,18 +517,18 @@
       >
         <div class="relative flex-1 sm:max-w-md">
           <SearchIcon
-            class="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-gray-400"
+            class="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-gray-400 dark:text-gray-500"
           />
           <input
             v-model="docSearchQuery"
             type="text"
             placeholder="Rechercher un document..."
-            class="w-full rounded-lg border border-gray-300 py-2.5 pl-10 pr-4 text-sm focus:border-orange-600 focus:outline-none focus:ring-2 focus:ring-orange-600/20"
+            class="w-full rounded-lg border border-gray-300 py-2.5 pl-10 pr-4 text-sm focus:border-orange-600 focus:outline-none focus:ring-2 focus:ring-orange-600/20 dark:border-gray-700"
             @input="debouncedDocSearch"
           />
           <button
             v-if="docSearchQuery"
-            class="absolute right-3 top-1/2 -translate-y-1/2 text-gray-400 hover:text-gray-600"
+            class="absolute right-3 top-1/2 -translate-y-1/2 text-gray-400 hover:text-gray-600 dark:text-gray-500"
             @click="clearDocSearch"
           >
             <X class="h-4 w-4" />
@@ -499,14 +536,14 @@
         </div>
         <div class="flex items-center gap-3">
           <div
-            class="flex items-center gap-1 rounded-lg border border-gray-200 p-1"
+            class="flex items-center gap-1 rounded-lg border border-gray-200 p-1 dark:border-gray-800"
           >
             <button
               :class="[
                 'rounded-md px-2.5 py-1.5 text-sm font-medium transition-colors',
                 docViewMode === 'card'
                   ? 'bg-orange-500 text-white'
-                  : 'text-gray-600 hover:bg-gray-100',
+                  : 'text-gray-600 hover:bg-gray-100 dark:text-gray-400 dark:hover:bg-gray-800',
               ]"
               @click="docViewMode = 'card'"
             >
@@ -517,7 +554,7 @@
                 'rounded-md px-2.5 py-1.5 text-sm font-medium transition-colors',
                 docViewMode === 'list'
                   ? 'bg-orange-500 text-white'
-                  : 'text-gray-600 hover:bg-gray-100',
+                  : 'text-gray-600 hover:bg-gray-100 dark:text-gray-400 dark:hover:bg-gray-800',
               ]"
               @click="docViewMode = 'list'"
             >
@@ -540,7 +577,7 @@
             'rounded-full px-3 py-1.5 text-sm font-medium transition-colors',
             docActiveSubTab === st.key
               ? 'bg-orange-500 text-white'
-              : 'bg-gray-100 text-gray-600 hover:bg-gray-200',
+              : 'bg-gray-100 text-gray-600 hover:bg-gray-200 dark:bg-gray-800 dark:text-gray-400 dark:hover:bg-gray-700',
           ]"
           @click="switchDocSubTab(st.key)"
         >
@@ -550,7 +587,7 @@
               'ml-1 inline-flex items-center rounded-full px-1.5 py-0.5 text-xs',
               docActiveSubTab === st.key
                 ? 'bg-orange-500 text-white'
-                : 'bg-gray-200 text-gray-700',
+                : 'bg-gray-200 text-gray-700 dark:bg-gray-700 dark:text-gray-300',
             ]"
           >
             {{ getDocSubTabCount(st.key) }}
@@ -559,17 +596,23 @@
       </div>
 
       <UiCard>
-        <h2 class="mb-4 text-lg font-semibold text-gray-900">
+        <h2 class="mb-4 text-lg font-semibold text-gray-900 dark:text-gray-100">
           Mes documents médicaux
         </h2>
 
         <div v-if="loadingDocuments" class="animate-pulse space-y-4">
-          <div v-for="i in 3" :key="i" class="h-16 rounded-lg bg-gray-100" />
+          <div
+            v-for="i in 3"
+            :key="i"
+            class="h-16 rounded-lg bg-gray-100 dark:bg-gray-800"
+          />
         </div>
 
         <div v-else-if="documents.length === 0" class="py-8 text-center">
-          <FileSearch class="mx-auto mb-3 h-12 w-12 text-gray-300" />
-          <p class="text-gray-500">
+          <FileSearch
+            class="mx-auto mb-3 h-12 w-12 text-gray-300 dark:text-gray-600"
+          />
+          <p class="text-gray-500 dark:text-gray-400">
             {{
               docSearchQuery
                 ? "Aucun document ne correspond à votre recherche"
@@ -590,7 +633,7 @@
           <div
             v-for="doc in documents"
             :key="doc.id"
-            class="group rounded-lg border border-gray-200 p-4 transition-shadow hover:shadow-md"
+            class="group rounded-lg border border-gray-200 p-4 transition-shadow hover:shadow-md dark:border-gray-800"
           >
             <div class="mb-2 flex items-start justify-between">
               <div
@@ -611,7 +654,7 @@
                   {{ getDocTypeLabel(doc.type) }}
                 </span>
                 <button
-                  class="rounded-lg p-1 text-gray-400 hover:bg-red-50 hover:text-red-500"
+                  class="rounded-lg p-1 text-gray-400 hover:bg-red-50 hover:text-red-500 dark:text-gray-500 dark:hover:bg-red-950/40"
                   title="Supprimer"
                   @click="deleteOwnDocument(doc.id)"
                 >
@@ -619,17 +662,19 @@
                 </button>
               </div>
             </div>
-            <h3 class="mb-1 line-clamp-2 font-medium text-gray-900">
+            <h3
+              class="mb-1 line-clamp-2 font-medium text-gray-900 dark:text-gray-100"
+            >
               {{ doc.title }}
             </h3>
-            <p class="mb-3 text-xs text-gray-400">
+            <p class="mb-3 text-xs text-gray-400 dark:text-gray-500">
               {{ formatDate(doc.uploadedAt) }} ·
               {{ formatFileSize(doc.fileSize) }}
             </p>
             <div class="flex gap-2">
               <button
                 v-if="isPdf(doc.mimeType)"
-                class="flex flex-1 items-center justify-center gap-1.5 rounded-lg border border-gray-200 px-3 py-1.5 text-sm font-medium text-gray-700 hover:bg-gray-50"
+                class="flex flex-1 items-center justify-center gap-1.5 rounded-lg border border-gray-200 px-3 py-1.5 text-sm font-medium text-gray-700 hover:bg-gray-50 dark:border-gray-800 dark:text-gray-300 dark:hover:bg-gray-800"
                 @click="viewOwnDocument(doc)"
               >
                 <Eye class="h-4 w-4" />
@@ -651,7 +696,7 @@
           <div
             v-for="doc in documents"
             :key="doc.id"
-            class="flex items-center justify-between rounded-lg border border-gray-200 p-4 hover:shadow-sm"
+            class="flex items-center justify-between rounded-lg border border-gray-200 p-4 hover:shadow-sm dark:border-gray-800"
           >
             <div class="flex items-center gap-3">
               <div
@@ -664,7 +709,9 @@
               </div>
               <div>
                 <div class="flex items-center gap-2">
-                  <p class="font-medium text-gray-900">{{ doc.title }}</p>
+                  <p class="font-medium text-gray-900 dark:text-gray-100">
+                    {{ doc.title }}
+                  </p>
                   <span
                     :class="[
                       'hidden rounded-full px-2 py-0.5 text-xs font-medium sm:inline-flex',
@@ -674,7 +721,7 @@
                     {{ getDocTypeLabel(doc.type) }}
                   </span>
                 </div>
-                <p class="text-sm text-gray-500">
+                <p class="text-sm text-gray-500 dark:text-gray-400">
                   {{ formatDate(doc.uploadedAt) }} ·
                   {{ formatFileSize(doc.fileSize) }}
                 </p>
@@ -683,21 +730,21 @@
             <div class="ml-4 flex flex-shrink-0 items-center gap-1">
               <button
                 v-if="isPdf(doc.mimeType)"
-                class="rounded-lg p-2 text-gray-400 hover:bg-gray-100 hover:text-orange-600"
+                class="rounded-lg p-2 text-gray-400 hover:bg-gray-100 hover:text-orange-600 dark:text-gray-500 dark:hover:bg-gray-800"
                 title="Lire"
                 @click="viewOwnDocument(doc)"
               >
                 <Eye class="h-5 w-5" />
               </button>
               <button
-                class="rounded-lg p-2 text-gray-400 hover:bg-gray-100 hover:text-orange-600"
+                class="rounded-lg p-2 text-gray-400 hover:bg-gray-100 hover:text-orange-600 dark:text-gray-500 dark:hover:bg-gray-800"
                 title="Télécharger"
                 @click="downloadDocument(doc.id, doc.fileName)"
               >
                 <Download class="h-5 w-5" />
               </button>
               <button
-                class="rounded-lg p-2 text-gray-400 hover:bg-red-50 hover:text-red-500"
+                class="rounded-lg p-2 text-gray-400 hover:bg-red-50 hover:text-red-500 dark:text-gray-500 dark:hover:bg-red-950/40"
                 title="Supprimer"
                 @click="deleteOwnDocument(doc.id)"
               >
@@ -720,7 +767,7 @@
           >
             Précédent
           </UiButton>
-          <span class="text-sm text-gray-600">
+          <span class="text-sm text-gray-600 dark:text-gray-400">
             Page {{ documentsPagination.page }} /
             {{ documentsPagination.totalPages }}
           </span>
@@ -741,7 +788,7 @@
     <div v-if="activeTab === 'vaccinations'">
       <UiCard>
         <div class="mb-4 flex items-center justify-between">
-          <h2 class="text-lg font-semibold text-gray-900">
+          <h2 class="text-lg font-semibold text-gray-900 dark:text-gray-100">
             Carnet de vaccination
           </h2>
           <UiButton size="sm" @click="openVaccinationModal">
@@ -751,27 +798,42 @@
         </div>
 
         <div v-if="loadingVaccinations" class="animate-pulse space-y-4">
-          <div v-for="i in 3" :key="i" class="h-20 rounded-lg bg-gray-100" />
+          <div
+            v-for="i in 3"
+            :key="i"
+            class="h-20 rounded-lg bg-gray-100 dark:bg-gray-800"
+          />
         </div>
 
         <div v-else-if="vaccinations.length === 0" class="py-8 text-center">
-          <Syringe class="mx-auto mb-3 h-12 w-12 text-gray-300" />
-          <p class="text-gray-500">Aucune vaccination enregistrée</p>
+          <Syringe
+            class="mx-auto mb-3 h-12 w-12 text-gray-300 dark:text-gray-600"
+          />
+          <p class="text-gray-500 dark:text-gray-400">
+            Aucune vaccination enregistrée
+          </p>
         </div>
 
         <div v-else class="space-y-3">
           <div
             v-for="vac in vaccinations"
             :key="vac.id"
-            class="rounded-lg border border-gray-200 p-4"
+            class="rounded-lg border border-gray-200 p-4 dark:border-gray-800"
           >
             <div class="flex items-start justify-between">
               <div>
-                <p class="font-medium text-gray-900">{{ vac.vaccineName }}</p>
-                <p v-if="vac.vaccineType" class="text-sm text-gray-500">
+                <p class="font-medium text-gray-900 dark:text-gray-100">
+                  {{ vac.vaccineName }}
+                </p>
+                <p
+                  v-if="vac.vaccineType"
+                  class="text-sm text-gray-500 dark:text-gray-400"
+                >
                   {{ vac.vaccineType }}
                 </p>
-                <div class="mt-1 flex flex-wrap gap-3 text-sm text-gray-600">
+                <div
+                  class="mt-1 flex flex-wrap gap-3 text-sm text-gray-600 dark:text-gray-400"
+                >
                   <span>
                     <Calendar class="mr-1 inline-block h-3.5 w-3.5" />
                     {{ formatDate(vac.administeredAt) }}
@@ -781,16 +843,22 @@
                     {{ vac.manufacturer }}
                   </span>
                 </div>
-                <p v-if="vac.nextDoseDate" class="mt-1 text-sm text-orange-600">
+                <p
+                  v-if="vac.nextDoseDate"
+                  class="mt-1 text-sm text-orange-600 dark:text-orange-400"
+                >
                   Prochaine dose : {{ formatDate(vac.nextDoseDate) }}
                 </p>
-                <p v-if="vac.administeredBy" class="text-xs text-gray-400">
+                <p
+                  v-if="vac.administeredBy"
+                  class="text-xs text-gray-400 dark:text-gray-500"
+                >
                   Par : {{ vac.administeredBy }}
                   <span v-if="vac.location"> · {{ vac.location }}</span>
                 </p>
               </div>
               <button
-                class="rounded-lg p-2 text-gray-400 hover:bg-red-50 hover:text-red-500"
+                class="rounded-lg p-2 text-gray-400 hover:bg-red-50 hover:text-red-500 dark:text-gray-500 dark:hover:bg-red-950/40"
                 title="Supprimer"
                 @click="deleteVaccination(vac.id)"
               >
@@ -809,8 +877,12 @@
         class="fixed inset-0 z-50 flex items-center justify-center bg-black/50"
         @click.self="showAddModal = false"
       >
-        <div class="mx-4 w-full max-w-md rounded-xl bg-white p-6 shadow-2xl">
-          <h3 class="mb-4 text-lg font-semibold text-gray-900">
+        <div
+          class="mx-4 w-full max-w-md rounded-xl bg-white p-6 shadow-2xl dark:bg-gray-900"
+        >
+          <h3
+            class="mb-4 text-lg font-semibold text-gray-900 dark:text-gray-100"
+          >
             {{ addModalTitle }}
           </h3>
           <form @submit.prevent="confirmAddAntecedent">
@@ -838,14 +910,20 @@
         class="fixed inset-0 z-50 flex items-center justify-center bg-black/50"
         @click.self="showVaccinationModal = false"
       >
-        <div class="mx-4 w-full max-w-lg rounded-xl bg-white p-6 shadow-2xl">
-          <h3 class="mb-4 text-lg font-semibold text-gray-900">
+        <div
+          class="mx-4 w-full max-w-lg rounded-xl bg-white p-6 shadow-2xl dark:bg-gray-900"
+        >
+          <h3
+            class="mb-4 text-lg font-semibold text-gray-900 dark:text-gray-100"
+          >
             Ajouter une vaccination
           </h3>
           <form class="space-y-4" @submit.prevent="confirmAddVaccination">
             <div class="grid gap-4 sm:grid-cols-2">
               <div class="sm:col-span-2">
-                <label class="mb-1 block text-sm font-medium text-gray-700">
+                <label
+                  class="mb-1 block text-sm font-medium text-gray-700 dark:text-gray-300"
+                >
                   Nom du vaccin *
                 </label>
                 <UiInput
@@ -854,7 +932,8 @@
                 />
               </div>
               <div>
-                <label class="mb-1 block text-sm font-medium text-gray-700"
+                <label
+                  class="mb-1 block text-sm font-medium text-gray-700 dark:text-gray-300"
                   >Type</label
                 >
                 <UiInput
@@ -863,7 +942,8 @@
                 />
               </div>
               <div>
-                <label class="mb-1 block text-sm font-medium text-gray-700"
+                <label
+                  class="mb-1 block text-sm font-medium text-gray-700 dark:text-gray-300"
                   >Fabricant</label
                 >
                 <UiInput
@@ -872,17 +952,20 @@
                 />
               </div>
               <div>
-                <label class="mb-1 block text-sm font-medium text-gray-700">
+                <label
+                  class="mb-1 block text-sm font-medium text-gray-700 dark:text-gray-300"
+                >
                   Date d'administration *
                 </label>
                 <input
                   v-model="vaccinationForm.administeredAt"
                   type="date"
-                  class="w-full rounded-lg border border-gray-300 px-4 py-2.5 text-base focus:border-orange-600 focus:outline-none focus:ring-2 focus:ring-orange-600/20"
+                  class="w-full rounded-lg border border-gray-300 px-4 py-2.5 text-base focus:border-orange-600 focus:outline-none focus:ring-2 focus:ring-orange-600/20 dark:border-gray-700"
                 />
               </div>
               <div>
-                <label class="mb-1 block text-sm font-medium text-gray-700"
+                <label
+                  class="mb-1 block text-sm font-medium text-gray-700 dark:text-gray-300"
                   >N° de dose</label
                 >
                 <UiInput
@@ -892,7 +975,8 @@
                 />
               </div>
               <div>
-                <label class="mb-1 block text-sm font-medium text-gray-700"
+                <label
+                  class="mb-1 block text-sm font-medium text-gray-700 dark:text-gray-300"
                   >Administré par</label
                 >
                 <UiInput
@@ -901,7 +985,8 @@
                 />
               </div>
               <div>
-                <label class="mb-1 block text-sm font-medium text-gray-700"
+                <label
+                  class="mb-1 block text-sm font-medium text-gray-700 dark:text-gray-300"
                   >Lieu</label
                 >
                 <UiInput
@@ -910,35 +995,43 @@
                 />
               </div>
               <div>
-                <label class="mb-1 block text-sm font-medium text-gray-700">
+                <label
+                  class="mb-1 block text-sm font-medium text-gray-700 dark:text-gray-300"
+                >
                   Prochaine dose
                 </label>
                 <input
                   v-model="vaccinationForm.nextDoseDate"
                   type="date"
-                  class="w-full rounded-lg border border-gray-300 px-4 py-2.5 text-base focus:border-orange-600 focus:outline-none focus:ring-2 focus:ring-orange-600/20"
+                  class="w-full rounded-lg border border-gray-300 px-4 py-2.5 text-base focus:border-orange-600 focus:outline-none focus:ring-2 focus:ring-orange-600/20 dark:border-gray-700"
                 />
               </div>
               <div>
-                <label class="mb-1 block text-sm font-medium text-gray-700"
+                <label
+                  class="mb-1 block text-sm font-medium text-gray-700 dark:text-gray-300"
                   >N° de lot</label
                 >
                 <UiInput v-model="vaccinationForm.batchNumber" />
               </div>
               <div class="sm:col-span-2">
-                <label class="mb-1 block text-sm font-medium text-gray-700">
+                <label
+                  class="mb-1 block text-sm font-medium text-gray-700 dark:text-gray-300"
+                >
                   Effets secondaires
                 </label>
                 <textarea
                   v-model="vaccinationForm.sideEffects"
                   rows="2"
-                  class="w-full rounded-lg border border-gray-300 px-4 py-2.5 text-sm focus:border-orange-600 focus:outline-none focus:ring-2 focus:ring-orange-600/20"
+                  class="w-full rounded-lg border border-gray-300 px-4 py-2.5 text-sm focus:border-orange-600 focus:outline-none focus:ring-2 focus:ring-orange-600/20 dark:border-gray-700"
                   placeholder="Optionnel"
                 />
               </div>
             </div>
 
-            <p v-if="vaccinationError" class="text-sm text-red-600">
+            <p
+              v-if="vaccinationError"
+              class="text-sm text-red-600 dark:text-red-400"
+            >
               {{ vaccinationError }}
             </p>
 
@@ -968,13 +1061,19 @@
         class="fixed inset-0 z-50 flex items-center justify-center bg-black/50"
         @click.self="showDocUploadModal = false"
       >
-        <div class="mx-4 w-full max-w-lg rounded-xl bg-white p-6 shadow-2xl">
-          <h3 class="mb-4 text-lg font-semibold text-gray-900">
+        <div
+          class="mx-4 w-full max-w-lg rounded-xl bg-white p-6 shadow-2xl dark:bg-gray-900"
+        >
+          <h3
+            class="mb-4 text-lg font-semibold text-gray-900 dark:text-gray-100"
+          >
             Téléverser un document
           </h3>
           <form class="space-y-4" @submit.prevent="confirmDocUpload">
             <div>
-              <label class="mb-1 block text-sm font-medium text-gray-700">
+              <label
+                class="mb-1 block text-sm font-medium text-gray-700 dark:text-gray-300"
+              >
                 Titre *
               </label>
               <UiInput
@@ -983,12 +1082,14 @@
               />
             </div>
             <div>
-              <label class="mb-1 block text-sm font-medium text-gray-700">
+              <label
+                class="mb-1 block text-sm font-medium text-gray-700 dark:text-gray-300"
+              >
                 Type de document *
               </label>
               <select
                 v-model="docUploadForm.type"
-                class="w-full rounded-lg border border-gray-300 px-4 py-2.5 text-base focus:border-orange-600 focus:outline-none focus:ring-2 focus:ring-orange-600/20"
+                class="w-full rounded-lg border border-gray-300 px-4 py-2.5 text-base focus:border-orange-600 focus:outline-none focus:ring-2 focus:ring-orange-600/20 dark:border-gray-700"
               >
                 <option value="LAB_RESULT">Résultat d'analyse</option>
                 <option value="RADIOLOGY">Imagerie médicale</option>
@@ -998,33 +1099,40 @@
               </select>
             </div>
             <div>
-              <label class="mb-1 block text-sm font-medium text-gray-700">
+              <label
+                class="mb-1 block text-sm font-medium text-gray-700 dark:text-gray-300"
+              >
                 Description
               </label>
               <textarea
                 v-model="docUploadForm.description"
                 rows="2"
-                class="w-full rounded-lg border border-gray-300 px-4 py-2.5 text-sm focus:border-orange-600 focus:outline-none focus:ring-2 focus:ring-orange-600/20"
+                class="w-full rounded-lg border border-gray-300 px-4 py-2.5 text-sm focus:border-orange-600 focus:outline-none focus:ring-2 focus:ring-orange-600/20 dark:border-gray-700"
                 placeholder="Optionnel"
               />
             </div>
             <div>
-              <label class="mb-1 block text-sm font-medium text-gray-700">
+              <label
+                class="mb-1 block text-sm font-medium text-gray-700 dark:text-gray-300"
+              >
                 Fichier *
               </label>
               <input
                 ref="fileInput"
                 type="file"
                 accept=".pdf,.jpg,.jpeg,.png,.doc,.docx"
-                class="w-full rounded-lg border border-gray-300 px-4 py-2 text-sm file:mr-4 file:rounded-lg file:border-0 file:bg-orange-50 file:px-4 file:py-2 file:text-sm file:font-medium file:text-orange-700 hover:file:bg-orange-100"
+                class="w-full rounded-lg border border-gray-300 px-4 py-2 text-sm file:mr-4 file:rounded-lg file:border-0 file:bg-orange-50 file:px-4 file:py-2 file:text-sm file:font-medium file:text-orange-700 hover:file:bg-orange-100 dark:border-gray-700"
                 @change="handleFileSelect"
               />
-              <p class="mt-1 text-xs text-gray-400">
+              <p class="mt-1 text-xs text-gray-400 dark:text-gray-500">
                 PDF, image ou document Word (max 10 Mo)
               </p>
             </div>
 
-            <p v-if="docUploadError" class="text-sm text-red-600">
+            <p
+              v-if="docUploadError"
+              class="text-sm text-red-600 dark:text-red-400"
+            >
               {{ docUploadError }}
             </p>
 
@@ -1054,15 +1162,17 @@
         @click.self="showDocViewer = false"
       >
         <div
-          class="relative mx-4 flex h-[90vh] w-full max-w-4xl flex-col rounded-xl bg-white shadow-2xl"
+          class="relative mx-4 flex h-[90vh] w-full max-w-4xl flex-col rounded-xl bg-white shadow-2xl dark:bg-gray-900"
         >
           <div class="flex items-center justify-between border-b px-6 py-4">
             <div>
-              <h3 class="font-semibold text-gray-900">{{ docViewerTitle }}</h3>
+              <h3 class="font-semibold text-gray-900 dark:text-gray-100">
+                {{ docViewerTitle }}
+              </h3>
             </div>
             <div class="flex items-center gap-2">
               <button
-                class="rounded-lg p-2 text-gray-500 hover:bg-gray-100"
+                class="rounded-lg p-2 text-gray-500 hover:bg-gray-100 dark:text-gray-400 dark:hover:bg-gray-800"
                 @click="showDocViewer = false"
               >
                 <X class="h-5 w-5" />
@@ -1382,8 +1492,16 @@ const InfoField = defineComponent({
   setup(props) {
     return () =>
       h("div", [
-        h("p", { class: "text-sm font-medium text-gray-500" }, props.label),
-        h("p", { class: "mt-1 text-base text-gray-900" }, props.value),
+        h(
+          "p",
+          { class: "text-sm font-medium text-gray-500 dark:text-gray-400" },
+          props.label,
+        ),
+        h(
+          "p",
+          { class: "mt-1 text-base text-gray-900 dark:text-gray-100" },
+          props.value,
+        ),
       ]);
   },
 });

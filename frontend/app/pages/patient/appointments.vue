@@ -1,11 +1,15 @@
 <template>
   <div class="space-y-6">
     <div>
-      <h1 class="mb-2 text-2xl font-bold text-gray-900">Mes rendez-vous</h1>
-      <p class="text-gray-600">Consultez et gérez vos rendez-vous</p>
+      <h1 class="mb-2 text-2xl font-bold text-gray-900 dark:text-gray-100">
+        Mes rendez-vous
+      </h1>
+      <p class="text-gray-600 dark:text-gray-400">
+        Consultez et gérez vos rendez-vous
+      </p>
     </div>
 
-    <div class="border-b border-gray-200">
+    <div class="border-b border-gray-200 dark:border-gray-800">
       <nav class="-mb-px flex gap-6">
         <button
           v-for="tab in tabs"
@@ -14,8 +18,8 @@
           :class="[
             'whitespace-nowrap border-b-2 px-1 py-3 text-sm font-medium transition-colors',
             activeTab === tab.key
-              ? 'border-orange-600 text-orange-600'
-              : 'border-transparent text-gray-500 hover:border-gray-300 hover:text-gray-700',
+              ? 'border-orange-600 text-orange-600 dark:text-orange-400'
+              : 'border-transparent text-gray-500 hover:border-gray-300 hover:text-gray-700 dark:text-gray-400',
           ]"
         >
           {{ tab.label }}
@@ -24,8 +28,8 @@
             :class="[
               'ml-2 rounded-full px-2 py-0.5 text-xs',
               activeTab === tab.key
-                ? 'bg-orange-100 text-orange-600'
-                : 'bg-gray-100 text-gray-500',
+                ? 'bg-orange-100 text-orange-600 dark:bg-orange-900/40 dark:text-orange-400'
+                : 'bg-gray-100 text-gray-500 dark:bg-gray-800 dark:text-gray-400',
             ]"
           >
             {{ tab.count }}
@@ -42,18 +46,18 @@
       >
         <div class="relative flex-1 sm:max-w-sm">
           <Search
-            class="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-gray-400"
+            class="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-gray-400 dark:text-gray-500"
           />
           <input
             v-model="searchQuery"
             type="text"
             placeholder="Rechercher par nom ou spécialité..."
-            class="w-full rounded-lg border border-gray-300 py-2 pl-10 pr-4 text-sm focus:border-orange-500 focus:outline-none focus:ring-1 focus:ring-orange-500"
+            class="w-full rounded-lg border border-gray-300 py-2 pl-10 pr-4 text-sm focus:border-orange-500 focus:outline-none focus:ring-1 focus:ring-orange-500 dark:border-gray-700"
           />
         </div>
         <button
           @click="toggleSort"
-          class="inline-flex items-center gap-2 rounded-lg border border-gray-300 bg-white px-4 py-2 text-sm font-medium text-gray-700 transition-colors hover:bg-gray-50"
+          class="inline-flex items-center gap-2 rounded-lg border border-gray-300 bg-white px-4 py-2 text-sm font-medium text-gray-700 transition-colors hover:bg-gray-50 dark:border-gray-700 dark:bg-gray-900 dark:text-gray-300 dark:hover:bg-gray-800"
         >
           <ArrowUpDown class="h-4 w-4" />
           {{ sortOrder === "desc" ? "Plus récents" : "Plus anciens" }}
@@ -65,14 +69,16 @@
         <div
           v-for="i in 3"
           :key="i"
-          class="animate-pulse rounded-lg border bg-white p-6"
+          class="animate-pulse rounded-lg border bg-white p-6 dark:bg-gray-900"
         >
           <div class="flex gap-4">
-            <div class="h-16 w-16 rounded-full bg-gray-200"></div>
+            <div
+              class="h-16 w-16 rounded-full bg-gray-200 dark:bg-gray-700"
+            ></div>
             <div class="flex-1 space-y-3">
-              <div class="h-4 w-1/3 rounded bg-gray-200"></div>
-              <div class="h-3 w-1/4 rounded bg-gray-200"></div>
-              <div class="h-3 w-1/2 rounded bg-gray-200"></div>
+              <div class="h-4 w-1/3 rounded bg-gray-200 dark:bg-gray-700"></div>
+              <div class="h-3 w-1/4 rounded bg-gray-200 dark:bg-gray-700"></div>
+              <div class="h-3 w-1/2 rounded bg-gray-200 dark:bg-gray-700"></div>
             </div>
           </div>
         </div>
@@ -81,13 +87,15 @@
       <!-- empty state -->
       <div
         v-else-if="currentAppointments.length === 0"
-        class="rounded-lg border bg-white py-16 text-center"
+        class="rounded-lg border bg-white py-16 text-center dark:bg-gray-900"
       >
-        <Calendar class="mx-auto mb-4 h-16 w-16 text-gray-300" />
-        <h3 class="mb-2 text-lg font-medium text-gray-900">
+        <Calendar
+          class="mx-auto mb-4 h-16 w-16 text-gray-300 dark:text-gray-600"
+        />
+        <h3 class="mb-2 text-lg font-medium text-gray-900 dark:text-gray-100">
           {{ emptyMessages[activeTab].title }}
         </h3>
-        <p class="mb-6 text-gray-500">
+        <p class="mb-6 text-gray-500 dark:text-gray-400">
           {{ emptyMessages[activeTab].description }}
         </p>
         <UiButton
@@ -103,7 +111,7 @@
         <div
           v-for="apt in currentAppointments"
           :key="apt.id"
-          class="rounded-lg border bg-white shadow-sm transition-shadow hover:shadow-md"
+          class="rounded-lg border bg-white shadow-sm transition-shadow hover:shadow-md dark:bg-gray-900"
         >
           <div class="p-6">
             <div class="flex items-start gap-4">
@@ -118,12 +126,14 @@
               <div class="min-w-0 flex-1">
                 <div class="flex items-start justify-between gap-3">
                   <div>
-                    <h3 class="text-lg font-semibold text-gray-900">
+                    <h3
+                      class="text-lg font-semibold text-gray-900 dark:text-gray-100"
+                    >
                       {{ apt.practitioner.title }}
                       {{ apt.practitioner.firstName }}
                       {{ apt.practitioner.lastName }}
                     </h3>
-                    <p class="text-sm text-gray-600">
+                    <p class="text-sm text-gray-600 dark:text-gray-400">
                       {{ apt.practitioner.specialty || "Médecine générale" }}
                     </p>
                   </div>
@@ -132,19 +142,23 @@
                   </UiBadge>
                 </div>
 
-                <div class="mt-3 flex flex-wrap gap-4 text-sm text-gray-600">
+                <div
+                  class="mt-3 flex flex-wrap gap-4 text-sm text-gray-600 dark:text-gray-400"
+                >
                   <div class="flex items-center gap-1.5">
-                    <Calendar class="h-4 w-4 text-gray-400" />
+                    <Calendar
+                      class="h-4 w-4 text-gray-400 dark:text-gray-500"
+                    />
                     <span>{{ formatDate(apt.appointmentDate) }}</span>
                   </div>
                   <div class="flex items-center gap-1.5">
-                    <Clock class="h-4 w-4 text-gray-400" />
+                    <Clock class="h-4 w-4 text-gray-400 dark:text-gray-500" />
                     <span>{{ apt.startTime }} - {{ apt.endTime }}</span>
                   </div>
                   <div class="flex items-center gap-1.5">
                     <component
                       :is="apt.type === 'TELECONSULTATION' ? Video : MapPin"
-                      class="h-4 w-4 text-gray-400"
+                      class="h-4 w-4 text-gray-400 dark:text-gray-500"
                     />
                     <span>{{
                       apt.type === "TELECONSULTATION"
@@ -156,16 +170,26 @@
 
                 <!-- address for in person -->
                 <div
-                  v-if="apt.type === 'IN_PERSON' && (apt.cabinet?.address || apt.practitioner.address)"
-                  class="mt-2 flex items-start gap-1.5 text-sm text-gray-500"
+                  v-if="
+                    apt.type === 'IN_PERSON' &&
+                    (apt.cabinet?.address || apt.practitioner.address)
+                  "
+                  class="mt-2 flex items-start gap-1.5 text-sm text-gray-500 dark:text-gray-400"
                 >
-                  <MapPin class="mt-0.5 h-4 w-4 flex-shrink-0 text-gray-400" />
+                  <MapPin
+                    class="mt-0.5 h-4 w-4 flex-shrink-0 text-gray-400 dark:text-gray-500"
+                  />
                   <span>
                     {{ apt.cabinet?.address || apt.practitioner.address }}
                     <template v-if="apt.cabinet?.city || apt.practitioner.city"
-                      >, {{ apt.cabinet?.city || apt.practitioner.city }}</template
+                      >,
+                      {{ apt.cabinet?.city || apt.practitioner.city }}</template
                     >
-                    <span v-if="apt.cabinet" class="ml-1 text-xs font-medium text-orange-600">({{ apt.cabinet.name }})</span>
+                    <span
+                      v-if="apt.cabinet"
+                      class="ml-1 text-xs font-medium text-orange-600 dark:text-orange-400"
+                      >({{ apt.cabinet.name }})</span
+                    >
                   </span>
                 </div>
               </div>
@@ -175,7 +199,7 @@
           <!-- action  -->
           <div
             v-if="getActions(apt).length > 0"
-            class="flex gap-3 rounded-b-lg border-t bg-gray-50 px-6 py-3"
+            class="flex gap-3 rounded-b-lg border-t bg-gray-50 px-6 py-3 dark:bg-gray-950"
           >
             <div class="group relative">
               <UiButton
@@ -227,7 +251,7 @@
             </UiButton>
             <div
               v-if="apt.review"
-              class="flex items-center gap-1 text-sm text-gray-500"
+              class="flex items-center gap-1 text-sm text-gray-500 dark:text-gray-400"
             >
               <span>Votre avis :</span>
               <span class="flex">
@@ -235,7 +259,11 @@
                   v-for="i in 5"
                   :key="i"
                   class="h-4 w-4"
-                  :class="i <= apt.review.rating ? 'fill-yellow-400 text-yellow-400' : 'text-gray-300'"
+                  :class="
+                    i <= apt.review.rating
+                      ? 'fill-yellow-400 text-yellow-400'
+                      : 'text-gray-300 dark:text-gray-600'
+                  "
                 />
               </span>
             </div>
@@ -254,7 +282,7 @@
           >
             Précédent
           </UiButton>
-          <span class="px-3 text-sm text-gray-600">
+          <span class="px-3 text-sm text-gray-600 dark:text-gray-400">
             Page {{ pagination.page }} / {{ pagination.totalPages }}
           </span>
           <UiButton
@@ -275,16 +303,18 @@
         class="fixed inset-0 z-50 flex items-center justify-center bg-black/50"
         @click.self="showPreCallChecks = false"
       >
-        <div class="mx-4 w-full max-w-lg rounded-xl bg-white p-6 shadow-2xl">
+        <div
+          class="mx-4 w-full max-w-lg rounded-xl bg-white p-6 shadow-2xl dark:bg-gray-900"
+        >
           <div class="mb-4 flex items-center justify-between">
-            <h3 class="text-lg font-semibold text-gray-900">
+            <h3 class="text-lg font-semibold text-gray-900 dark:text-gray-100">
               Test caméra et microphone
             </h3>
             <button
               @click="showPreCallChecks = false"
-              class="rounded-lg p-1 hover:bg-gray-100"
+              class="rounded-lg p-1 hover:bg-gray-100 dark:hover:bg-gray-800"
             >
-              <X class="h-5 w-5 text-gray-400" />
+              <X class="h-5 w-5 text-gray-400 dark:text-gray-500" />
             </button>
           </div>
           <div class="space-y-4">
@@ -297,27 +327,35 @@
                 class="h-48 w-full object-cover"
               />
             </div>
-            <div class="flex items-center gap-3 rounded-lg bg-gray-50 p-3">
-              <div class="h-2 flex-1 overflow-hidden rounded-full bg-gray-200">
+            <div
+              class="flex items-center gap-3 rounded-lg bg-gray-50 p-3 dark:bg-gray-950"
+            >
+              <div
+                class="h-2 flex-1 overflow-hidden rounded-full bg-gray-200 dark:bg-gray-700"
+              >
                 <div
                   :style="{ width: micLevel + '%' }"
                   class="h-full rounded-full bg-green-500 transition-all"
                 />
               </div>
-              <span class="text-xs text-gray-500">Volume micro</span>
+              <span class="text-xs text-gray-500 dark:text-gray-400"
+                >Volume micro</span
+              >
             </div>
             <div class="grid grid-cols-2 gap-3">
               <div
                 class="flex items-center gap-2 rounded-lg border p-3"
                 :class="
                   preCallStatus.camera
-                    ? 'border-green-200 bg-green-50'
-                    : 'border-red-200 bg-red-50'
+                    ? 'border-green-200 bg-green-50 dark:bg-green-950/40'
+                    : 'border-red-200 bg-red-50 dark:bg-red-950/40'
                 "
               >
                 <Camera
                   :class="
-                    preCallStatus.camera ? 'text-green-600' : 'text-red-600'
+                    preCallStatus.camera
+                      ? 'text-green-600 dark:text-green-400'
+                      : 'text-red-600 dark:text-red-400'
                   "
                   class="h-5 w-5"
                 />
@@ -329,13 +367,15 @@
                 class="flex items-center gap-2 rounded-lg border p-3"
                 :class="
                   preCallStatus.microphone
-                    ? 'border-green-200 bg-green-50'
-                    : 'border-red-200 bg-red-50'
+                    ? 'border-green-200 bg-green-50 dark:bg-green-950/40'
+                    : 'border-red-200 bg-red-50 dark:bg-red-950/40'
                 "
               >
                 <Mic
                   :class="
-                    preCallStatus.microphone ? 'text-green-600' : 'text-red-600'
+                    preCallStatus.microphone
+                      ? 'text-green-600 dark:text-green-400'
+                      : 'text-red-600 dark:text-red-400'
                   "
                   class="h-5 w-5"
                 />
@@ -344,8 +384,10 @@
                 }}</span>
               </div>
             </div>
-            <div class="rounded-lg border border-orange-200 bg-orange-50 p-3">
-              <p class="text-sm text-orange-800">
+            <div
+              class="rounded-lg border border-orange-200 bg-orange-50 p-3 dark:bg-orange-950/40"
+            >
+              <p class="text-sm text-orange-800 dark:text-orange-200">
                 <strong>Conseil :</strong> Utilisez un casque ou des écouteurs
                 pour une meilleure qualité audio.
               </p>
@@ -382,19 +424,21 @@
         class="fixed inset-0 z-50 flex items-center justify-center bg-black/50"
         @click.self="closeCancelModal"
       >
-        <div class="mx-4 w-full max-w-md rounded-xl bg-white p-6 shadow-2xl">
+        <div
+          class="mx-4 w-full max-w-md rounded-xl bg-white p-6 shadow-2xl dark:bg-gray-900"
+        >
           <div class="mb-4 flex items-center gap-3">
             <div
-              class="flex h-10 w-10 items-center justify-center rounded-full bg-red-100"
+              class="flex h-10 w-10 items-center justify-center rounded-full bg-red-100 dark:bg-red-900/40"
             >
-              <AlertTriangle class="h-5 w-5 text-red-600" />
+              <AlertTriangle class="h-5 w-5 text-red-600 dark:text-red-400" />
             </div>
-            <h3 class="text-lg font-semibold text-gray-900">
+            <h3 class="text-lg font-semibold text-gray-900 dark:text-gray-100">
               Annuler le rendez-vous
             </h3>
           </div>
 
-          <p class="mb-4 text-sm text-gray-600">
+          <p class="mb-4 text-sm text-gray-600 dark:text-gray-400">
             Êtes-vous sûr de vouloir annuler votre rendez-vous avec
             <strong>
               {{ selectedAppointment?.practitioner.title }}
@@ -410,14 +454,16 @@
           </p>
 
           <div class="mb-4">
-            <label class="mb-1 block text-sm font-medium text-gray-700">
+            <label
+              class="mb-1 block text-sm font-medium text-gray-700 dark:text-gray-300"
+            >
               Raison (optionnelle)
             </label>
             <textarea
               v-model="cancelReason"
               rows="3"
               placeholder="Indiquez la raison de l'annulation..."
-              class="w-full rounded-lg border border-gray-300 px-3 py-2 text-sm focus:border-orange-500 focus:outline-none focus:ring-1 focus:ring-orange-500"
+              class="w-full rounded-lg border border-gray-300 px-3 py-2 text-sm focus:border-orange-500 focus:outline-none focus:ring-1 focus:ring-orange-500 dark:border-gray-700"
             ></textarea>
           </div>
 
@@ -450,18 +496,22 @@
         class="fixed inset-0 z-50 flex items-center justify-center bg-black/50"
         @click.self="closeReviewModal"
       >
-        <div class="mx-4 w-full max-w-md rounded-xl bg-white p-6 shadow-2xl">
+        <div
+          class="mx-4 w-full max-w-md rounded-xl bg-white p-6 shadow-2xl dark:bg-gray-900"
+        >
           <div class="mb-4 flex items-center gap-3">
             <div
-              class="flex h-10 w-10 items-center justify-center rounded-full bg-yellow-100"
+              class="flex h-10 w-10 items-center justify-center rounded-full bg-yellow-100 dark:bg-yellow-900/40"
             >
               <Star class="h-5 w-5 text-yellow-500" />
             </div>
             <div>
-              <h3 class="text-lg font-semibold text-gray-900">
+              <h3
+                class="text-lg font-semibold text-gray-900 dark:text-gray-100"
+              >
                 Laisser un avis
               </h3>
-              <p class="text-sm text-gray-500">
+              <p class="text-sm text-gray-500 dark:text-gray-400">
                 {{ reviewAppointment?.practitioner.title }}
                 {{ reviewAppointment?.practitioner.firstName }}
                 {{ reviewAppointment?.practitioner.lastName }}
@@ -470,7 +520,9 @@
           </div>
 
           <div class="mb-5">
-            <label class="mb-2 block text-sm font-medium text-gray-700">
+            <label
+              class="mb-2 block text-sm font-medium text-gray-700 dark:text-gray-300"
+            >
               Note *
             </label>
             <div class="flex gap-1">
@@ -488,7 +540,7 @@
                   :class="
                     i <= (reviewHover || reviewRating)
                       ? 'fill-yellow-400 text-yellow-400'
-                      : 'text-gray-300'
+                      : 'text-gray-300 dark:text-gray-600'
                   "
                 />
               </button>
@@ -496,7 +548,9 @@
           </div>
 
           <div class="mb-5">
-            <label class="mb-1 block text-sm font-medium text-gray-700">
+            <label
+              class="mb-1 block text-sm font-medium text-gray-700 dark:text-gray-300"
+            >
               Commentaire (optionnel)
             </label>
             <textarea
@@ -504,14 +558,17 @@
               rows="3"
               maxlength="1000"
               placeholder="Partagez votre expérience..."
-              class="w-full rounded-lg border border-gray-300 px-3 py-2 text-sm focus:border-orange-500 focus:outline-none focus:ring-1 focus:ring-orange-500"
+              class="w-full rounded-lg border border-gray-300 px-3 py-2 text-sm focus:border-orange-500 focus:outline-none focus:ring-1 focus:ring-orange-500 dark:border-gray-700"
             ></textarea>
-            <p class="mt-1 text-right text-xs text-gray-400">
+            <p class="mt-1 text-right text-xs text-gray-400 dark:text-gray-500">
               {{ reviewComment.length }}/1000
             </p>
           </div>
 
-          <p v-if="reviewError" class="mb-3 text-sm text-red-600">
+          <p
+            v-if="reviewError"
+            class="mb-3 text-sm text-red-600 dark:text-red-400"
+          >
             {{ reviewError }}
           </p>
 
@@ -544,20 +601,20 @@
         @click.self="closeModifyModal"
       >
         <div
-          class="mx-4 max-h-[85vh] w-full max-w-lg overflow-y-auto rounded-xl bg-white p-6 shadow-2xl"
+          class="mx-4 max-h-[85vh] w-full max-w-lg overflow-y-auto rounded-xl bg-white p-6 shadow-2xl dark:bg-gray-900"
         >
           <div class="mb-4 flex items-center gap-3">
             <div
-              class="flex h-10 w-10 items-center justify-center rounded-full bg-orange-100"
+              class="flex h-10 w-10 items-center justify-center rounded-full bg-orange-100 dark:bg-orange-900/40"
             >
-              <Pencil class="h-5 w-5 text-orange-600" />
+              <Pencil class="h-5 w-5 text-orange-600 dark:text-orange-400" />
             </div>
-            <h3 class="text-lg font-semibold text-gray-900">
+            <h3 class="text-lg font-semibold text-gray-900 dark:text-gray-100">
               Modifier le rendez-vous
             </h3>
           </div>
 
-          <p class="mb-4 text-sm text-gray-600">
+          <p class="mb-4 text-sm text-gray-600 dark:text-gray-400">
             Modifier votre rendez-vous avec
             <strong>
               {{ selectedAppointment?.practitioner.title }}
@@ -574,7 +631,7 @@
             <div
               class="h-8 w-8 animate-spin rounded-full border-4 border-orange-600 border-t-transparent"
             ></div>
-            <span class="ml-3 text-sm text-gray-600"
+            <span class="ml-3 text-sm text-gray-600 dark:text-gray-400"
               >Chargement des disponibilités...</span
             >
           </div>
@@ -586,7 +643,8 @@
           >
             <!-- date picker -->
             <div>
-              <label class="mb-2 block text-sm font-medium text-gray-700"
+              <label
+                class="mb-2 block text-sm font-medium text-gray-700 dark:text-gray-300"
                 >Sélectionnez une date</label
               >
               <div class="flex flex-wrap gap-2">
@@ -597,15 +655,15 @@
                   :class="[
                     'rounded-lg border-2 px-3 py-2 text-sm transition-all',
                     modifyDate === day.date
-                      ? 'border-orange-600 bg-orange-50 text-orange-700'
-                      : 'border-gray-200 hover:border-gray-300',
+                      ? 'border-orange-600 bg-orange-50 text-orange-700 dark:bg-orange-950/40 dark:text-orange-300'
+                      : 'border-gray-200 hover:border-gray-300 dark:border-gray-800',
                   ]"
                   @click="selectModifyDate(day.date)"
                 >
                   <div class="font-medium">
                     {{ formatModifyDateShort(day.date) }}
                   </div>
-                  <div class="text-xs text-gray-500">
+                  <div class="text-xs text-gray-500 dark:text-gray-400">
                     {{ day.slots.length }} créneaux
                   </div>
                 </button>
@@ -614,7 +672,9 @@
 
             <!-- time picker -->
             <div v-if="modifyDate && modifyDateSlots.length > 0">
-              <label class="mb-2 block text-sm font-medium text-gray-700">
+              <label
+                class="mb-2 block text-sm font-medium text-gray-700 dark:text-gray-300"
+              >
                 Sélectionnez un créneau
               </label>
               <div class="flex flex-wrap gap-2">
@@ -625,8 +685,8 @@
                   :class="[
                     'rounded-lg border-2 px-4 py-2 text-sm transition-all',
                     modifyTime === time
-                      ? 'border-orange-600 bg-orange-50 text-orange-700'
-                      : 'border-gray-200 hover:border-gray-300',
+                      ? 'border-orange-600 bg-orange-50 text-orange-700 dark:bg-orange-950/40 dark:text-orange-300'
+                      : 'border-gray-200 hover:border-gray-300 dark:border-gray-800',
                   ]"
                   @click="modifyTime = time"
                 >
@@ -637,14 +697,22 @@
           </div>
 
           <!-- no slots -->
-          <div v-else class="mb-4 py-6 text-center text-gray-500">
-            <Calendar class="mx-auto mb-2 h-10 w-10 text-gray-300" />
+          <div
+            v-else
+            class="mb-4 py-6 text-center text-gray-500 dark:text-gray-400"
+          >
+            <Calendar
+              class="mx-auto mb-2 h-10 w-10 text-gray-300 dark:text-gray-600"
+            />
             <p class="text-sm">
               Aucune disponibilité dans les 14 prochains jours
             </p>
           </div>
 
-          <p v-if="modifyError" class="mb-3 text-sm text-red-600">
+          <p
+            v-if="modifyError"
+            class="mb-3 text-sm text-red-600 dark:text-red-400"
+          >
             {{ modifyError }}
           </p>
 
@@ -812,7 +880,7 @@ const submitReview = async () => {
     });
     // update local appointment to show the review without refetching
     const idx = appointments.value.findIndex(
-      (a) => a.id === reviewAppointment.value!.id
+      (a) => a.id === reviewAppointment.value!.id,
     );
     if (idx !== -1) {
       appointments.value[idx] = {

@@ -1,11 +1,15 @@
 <template>
   <div class="relative w-full">
-    <div ref="mapContainer" class="w-full rounded-lg" style="height: 560px; z-index: 0" />
+    <div
+      ref="mapContainer"
+      class="w-full rounded-lg"
+      style="height: 560px; z-index: 0"
+    />
 
     <!-- Controls overlay -->
     <div class="absolute right-3 top-3 z-[400] flex flex-col gap-2">
       <button
-        class="flex items-center gap-2 rounded-lg border border-gray-200 bg-white px-3 py-2 text-sm font-medium shadow-md hover:bg-gray-50 disabled:opacity-60"
+        class="flex items-center gap-2 rounded-lg border border-gray-200 bg-white px-3 py-2 text-sm font-medium shadow-md hover:bg-gray-50 disabled:opacity-60 dark:border-gray-800 dark:bg-gray-900 dark:hover:bg-gray-800"
         :disabled="locating"
         @click="locateUser"
       >
@@ -16,9 +20,11 @@
 
     <!-- Radius slider (shown when user is located) -->
     <div v-if="userLocation" class="absolute bottom-8 left-3 right-3 z-[400]">
-      <div class="rounded-lg border border-gray-200 bg-white p-3 shadow-md">
+      <div
+        class="rounded-lg border border-gray-200 bg-white p-3 shadow-md dark:border-gray-800 dark:bg-gray-900"
+      >
         <div class="mb-1 flex items-center justify-between">
-          <label class="text-xs font-medium text-gray-600">
+          <label class="text-xs font-medium text-gray-600 dark:text-gray-400">
             Rayon de recherche
           </label>
           <span class="text-xs font-semibold text-[var(--color-primary)]">
@@ -34,7 +40,9 @@
           class="w-full"
           @input="onRadiusChange"
         />
-        <div class="mt-1 flex justify-between text-xs text-gray-400">
+        <div
+          class="mt-1 flex justify-between text-xs text-gray-400 dark:text-gray-500"
+        >
           <span>1 km</span>
           <span>50 km</span>
         </div>
@@ -43,14 +51,25 @@
 
     <!-- Empty state overlay -->
     <div
-      v-if="!loading && mapReady && practitionersWithCoords === 0 && cabinetsWithCoords === 0"
-      class="pointer-events-none absolute inset-0 flex items-center justify-center rounded-lg bg-white/70"
+      v-if="
+        !loading &&
+        mapReady &&
+        practitionersWithCoords === 0 &&
+        cabinetsWithCoords === 0
+      "
+      class="pointer-events-none absolute inset-0 flex items-center justify-center rounded-lg bg-white/70 dark:bg-gray-900/70"
       style="z-index: 400"
     >
-      <div class="rounded-xl bg-white p-6 text-center shadow-lg">
-        <IconMapPin class="mx-auto mb-3 h-12 w-12 text-gray-300" />
-        <p class="text-gray-600">Aucun résultat localisé dans cette zone.</p>
-        <p class="mt-1 text-sm text-gray-400">
+      <div
+        class="rounded-xl bg-white p-6 text-center shadow-lg dark:bg-gray-900"
+      >
+        <IconMapPin
+          class="mx-auto mb-3 h-12 w-12 text-gray-300 dark:text-gray-600"
+        />
+        <p class="text-gray-600 dark:text-gray-400">
+          Aucun résultat localisé dans cette zone.
+        </p>
+        <p class="mt-1 text-sm text-gray-400 dark:text-gray-500">
           Cliquez sur « Ma position » pour chercher près de vous.
         </p>
       </div>
@@ -58,14 +77,16 @@
 
     <!-- Legend -->
     <div class="absolute bottom-8 right-3 z-[400]">
-      <div class="rounded-lg border border-gray-200 bg-white px-3 py-2 text-xs shadow-md">
+      <div
+        class="rounded-lg border border-gray-200 bg-white px-3 py-2 text-xs shadow-md dark:border-gray-800 dark:bg-gray-900"
+      >
         <div class="mb-1 flex items-center gap-2">
           <span class="inline-block h-3 w-3 rounded-full bg-[#0891b2]" />
-          <span class="text-gray-600">Praticien</span>
+          <span class="text-gray-600 dark:text-gray-400">Praticien</span>
         </div>
         <div class="flex items-center gap-2">
           <span class="inline-block h-3 w-3 rounded-full bg-[#7c3aed]" />
-          <span class="text-gray-600">Cabinet</span>
+          <span class="text-gray-600 dark:text-gray-400">Cabinet</span>
         </div>
       </div>
     </div>
@@ -140,8 +161,7 @@ const practitionersWithCoords = computed(
 );
 
 const cabinetsWithCoords = computed(
-  () =>
-    (props.cabinets ?? []).filter((c) => c.latitude && c.longitude).length,
+  () => (props.cabinets ?? []).filter((c) => c.latitude && c.longitude).length,
 );
 
 const makePractitionerIcon = () =>
@@ -317,7 +337,12 @@ const locateUser = () => {
 const onRadiusChange = () => {
   if (!L || !map || !userLocation.value) return;
   if (radiusCircle) radiusCircle.setRadius(radiusKm.value * 1000);
-  emit("locate", userLocation.value.lat, userLocation.value.lng, radiusKm.value);
+  emit(
+    "locate",
+    userLocation.value.lat,
+    userLocation.value.lng,
+    radiusKm.value,
+  );
 };
 
 watch(

@@ -2,10 +2,10 @@
   <div class="space-y-6">
     <UiCard>
       <div class="mb-6">
-        <h2 class="text-lg font-semibold text-gray-900">
+        <h2 class="text-lg font-semibold text-gray-900 dark:text-gray-100">
           Tarifs de consultation
         </h2>
-        <p class="text-sm text-gray-500">
+        <p class="text-sm text-gray-500 dark:text-gray-400">
           Définissez vos tarifs pour chaque type de consultation. Le tarif de
           consultation standard (*) est requis pour rendre votre profil public.
         </p>
@@ -14,7 +14,9 @@
       <form @submit.prevent="saveConfig" class="space-y-6">
         <div class="grid gap-6 sm:grid-cols-3">
           <div>
-            <label class="mb-1 block text-sm font-medium text-gray-700">
+            <label
+              class="mb-1 block text-sm font-medium text-gray-700 dark:text-gray-300"
+            >
               Consultation standard (FCFA) *
             </label>
             <UiInput
@@ -27,7 +29,9 @@
             />
           </div>
           <div>
-            <label class="mb-1 block text-sm font-medium text-gray-700">
+            <label
+              class="mb-1 block text-sm font-medium text-gray-700 dark:text-gray-300"
+            >
               Téléconsultation (FCFA)
             </label>
             <UiInput
@@ -39,7 +43,9 @@
             />
           </div>
           <div>
-            <label class="mb-1 block text-sm font-medium text-gray-700">
+            <label
+              class="mb-1 block text-sm font-medium text-gray-700 dark:text-gray-300"
+            >
               Urgence (FCFA)
             </label>
             <UiInput
@@ -52,11 +58,13 @@
           </div>
         </div>
 
-        <div class="border-t border-gray-200 pt-6">
-          <h2 class="mb-2 text-lg font-semibold text-gray-900">
+        <div class="border-t border-gray-200 pt-6 dark:border-gray-800">
+          <h2
+            class="mb-2 text-lg font-semibold text-gray-900 dark:text-gray-100"
+          >
             Moyens de paiement acceptés en cabinet
           </h2>
-          <p class="mb-4 text-sm text-gray-500">
+          <p class="mb-4 text-sm text-gray-500 dark:text-gray-400">
             Sélectionnez les moyens de paiement que vous acceptez.
           </p>
 
@@ -70,24 +78,30 @@
                 type="checkbox"
                 :value="method.value"
                 v-model="form.acceptedPaymentMethods"
-                class="h-4 w-4 rounded border-gray-300 text-orange-600 focus:ring-orange-500"
+                class="h-4 w-4 rounded border-gray-300 text-orange-600 focus:ring-orange-500 dark:border-gray-700 dark:text-orange-400"
               />
-              <span class="text-sm text-gray-700">{{ method.label }}</span>
+              <span class="text-sm text-gray-700 dark:text-gray-300">{{
+                method.label
+              }}</span>
             </label>
           </div>
         </div>
 
-        <div class="border-t border-gray-200 pt-6">
-          <h2 class="mb-2 text-lg font-semibold text-gray-900">
+        <div class="border-t border-gray-200 pt-6 dark:border-gray-800">
+          <h2
+            class="mb-2 text-lg font-semibold text-gray-900 dark:text-gray-100"
+          >
             Informations bancaires
           </h2>
-          <p class="mb-4 text-sm text-gray-500">
+          <p class="mb-4 text-sm text-gray-500 dark:text-gray-400">
             Ces informations seront utilisées pour vos versements et factures.
           </p>
 
           <div class="grid gap-6 sm:grid-cols-2">
             <div>
-              <label class="mb-1 block text-sm font-medium text-gray-700">
+              <label
+                class="mb-1 block text-sm font-medium text-gray-700 dark:text-gray-300"
+              >
                 Nom de la banque
               </label>
               <UiInput
@@ -98,7 +112,9 @@
               />
             </div>
             <div>
-              <label class="mb-1 block text-sm font-medium text-gray-700">
+              <label
+                class="mb-1 block text-sm font-medium text-gray-700 dark:text-gray-300"
+              >
                 Titulaire du compte
               </label>
               <UiInput
@@ -109,7 +125,9 @@
               />
             </div>
             <div class="sm:col-span-2">
-              <label class="mb-1 block text-sm font-medium text-gray-700">
+              <label
+                class="mb-1 block text-sm font-medium text-gray-700 dark:text-gray-300"
+              >
                 IBAN / RIB
               </label>
               <UiInput
@@ -131,11 +149,14 @@
 
         <div
           v-if="successMsg"
-          class="mt-4 rounded-md bg-green-50 p-4 text-green-700"
+          class="mt-4 rounded-md bg-green-50 p-4 text-green-700 dark:bg-green-950/40 dark:text-green-300"
         >
           {{ successMsg }}
         </div>
-        <div v-if="errorMsg" class="mt-4 rounded-md bg-red-50 p-4 text-red-700">
+        <div
+          v-if="errorMsg"
+          class="mt-4 rounded-md bg-red-50 p-4 text-red-700 dark:bg-red-950/40 dark:text-red-300"
+        >
           {{ errorMsg }}
         </div>
       </form>

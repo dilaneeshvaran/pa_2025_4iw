@@ -1,6 +1,8 @@
 <template>
-  <div class="min-h-screen bg-gray-50">
-    <header class="border-b border-gray-200 bg-white">
+  <div class="min-h-screen bg-gray-50 dark:bg-gray-950">
+    <header
+      class="border-b border-gray-200 bg-white dark:border-gray-800 dark:bg-gray-900"
+    >
       <div class="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
         <div class="flex h-16 items-center justify-between">
           <NuxtLink
@@ -17,7 +19,7 @@
                     ? '/patient/dashboard'
                     : '/'
                 "
-                class="text-sm font-medium text-gray-700 hover:text-[var(--color-primary)]"
+                class="text-sm font-medium text-gray-700 hover:text-[var(--color-primary)] dark:text-gray-300"
               >
                 Mon tableau de bord
               </NuxtLink>
@@ -44,26 +46,28 @@
           <div
             class="pointer-events-none absolute inset-y-0 left-0 flex items-center pl-3"
           >
-            <IconSearch class="h-5 w-5 text-gray-400" />
+            <IconSearch class="h-5 w-5 text-gray-400 dark:text-gray-500" />
           </div>
           <input
             v-model="filters.search"
             type="text"
             placeholder="Rechercher un praticien, une spécialité..."
-            class="block w-full rounded-lg border border-gray-300 py-3 pl-10 pr-3 focus:border-[var(--color-primary)] focus:outline-none focus:ring-2 focus:ring-[var(--color-primary)] focus:ring-opacity-20"
+            class="block w-full rounded-lg border border-gray-300 py-3 pl-10 pr-3 focus:border-[var(--color-primary)] focus:outline-none focus:ring-2 focus:ring-[var(--color-primary)] focus:ring-opacity-20 dark:border-gray-700"
             @input="debouncedSearch"
           />
         </div>
       </Card>
 
       <!-- Tabs + view toggle -->
-      <div class="mb-6 flex items-center justify-between border-b border-gray-200">
+      <div
+        class="mb-6 flex items-center justify-between border-b border-gray-200 dark:border-gray-800"
+      >
         <nav class="-mb-px flex gap-6" aria-label="Tabs">
           <button
             :class="[
               activeTab === 'practitioners'
                 ? 'border-[var(--color-primary)] font-bold text-[var(--color-primary)]'
-                : 'border-transparent font-medium text-gray-500 hover:border-gray-300 hover:text-gray-700',
+                : 'border-transparent font-medium text-gray-500 hover:border-gray-300 hover:text-gray-700 dark:text-gray-400',
               'whitespace-nowrap border-b-2 px-1 py-4 text-sm transition-colors',
             ]"
             @click="activeTab = 'practitioners'"
@@ -74,7 +78,7 @@
             :class="[
               activeTab === 'cabinets'
                 ? 'border-[var(--color-primary)] font-bold text-[var(--color-primary)]'
-                : 'border-transparent font-medium text-gray-500 hover:border-gray-300 hover:text-gray-700',
+                : 'border-transparent font-medium text-gray-500 hover:border-gray-300 hover:text-gray-700 dark:text-gray-400',
               'whitespace-nowrap border-b-2 px-1 py-4 text-sm transition-colors',
             ]"
             @click="activeTab = 'cabinets'"
@@ -84,12 +88,14 @@
         </nav>
 
         <!-- List / Map toggle -->
-        <div class="mb-px flex overflow-hidden rounded-lg border border-gray-200 bg-white">
+        <div
+          class="mb-px flex overflow-hidden rounded-lg border border-gray-200 bg-white dark:border-gray-800 dark:bg-gray-900"
+        >
           <button
             :class="[
               viewMode === 'list'
                 ? 'bg-[var(--color-primary)] text-white'
-                : 'text-gray-500 hover:bg-gray-50',
+                : 'text-gray-500 hover:bg-gray-50 dark:text-gray-400 dark:hover:bg-gray-800',
               'flex items-center gap-1.5 px-3 py-1.5 text-sm font-medium transition-colors',
             ]"
             @click="viewMode = 'list'"
@@ -101,7 +107,7 @@
             :class="[
               viewMode === 'map'
                 ? 'bg-[var(--color-primary)] text-white'
-                : 'text-gray-500 hover:bg-gray-50',
+                : 'text-gray-500 hover:bg-gray-50 dark:text-gray-400 dark:hover:bg-gray-800',
               'flex items-center gap-1.5 px-3 py-1.5 text-sm font-medium transition-colors',
             ]"
             @click="viewMode = 'map'"
@@ -115,12 +121,21 @@
       <!-- ── PRACTITIONERS TAB ── -->
       <div v-if="activeTab === 'practitioners'">
         <!-- MAP VIEW -->
-        <div v-if="viewMode === 'map'" class="rounded-xl border border-gray-200 bg-white p-4 shadow-sm">
-          <p class="mb-3 text-sm text-gray-500">
+        <div
+          v-if="viewMode === 'map'"
+          class="rounded-xl border border-gray-200 bg-white p-4 shadow-sm dark:border-gray-800 dark:bg-gray-900"
+        >
+          <p class="mb-3 text-sm text-gray-500 dark:text-gray-400">
             <template v-if="loading">Chargement...</template>
             <template v-else>
-              {{ pagination.total }} praticien{{ pagination.total > 1 ? "s" : "" }} trouvé{{ pagination.total > 1 ? "s" : "" }}
-              <span v-if="geoFilters.active" class="ml-2 inline-flex items-center gap-1 rounded-full bg-blue-50 px-2 py-0.5 text-xs text-blue-700">
+              {{ pagination.total }} praticien{{
+                pagination.total > 1 ? "s" : ""
+              }}
+              trouvé{{ pagination.total > 1 ? "s" : "" }}
+              <span
+                v-if="geoFilters.active"
+                class="ml-2 inline-flex items-center gap-1 rounded-full bg-blue-50 px-2 py-0.5 text-xs text-blue-700 dark:bg-blue-950/40"
+              >
                 <IconLocate class="h-3 w-3" /> Recherche géolocalisée
               </span>
             </template>
@@ -133,8 +148,12 @@
               @locate="onMapLocate"
             />
             <template #fallback>
-              <div class="flex h-[560px] items-center justify-center rounded-lg bg-gray-100">
-                <p class="text-gray-400">Chargement de la carte...</p>
+              <div
+                class="flex h-[560px] items-center justify-center rounded-lg bg-gray-100 dark:bg-gray-800"
+              >
+                <p class="text-gray-400 dark:text-gray-500">
+                  Chargement de la carte...
+                </p>
               </div>
             </template>
           </ClientOnly>
@@ -150,12 +169,14 @@
               </div>
 
               <div class="mb-6">
-                <label class="mb-2 block text-sm font-medium text-gray-700">
+                <label
+                  class="mb-2 block text-sm font-medium text-gray-700 dark:text-gray-300"
+                >
                   Spécialité
                 </label>
                 <select
                   v-model="filters.specialtyId"
-                  class="w-full rounded-lg border border-gray-300 px-4 py-2.5 focus:border-[var(--color-primary)] focus:outline-none focus:ring-2 focus:ring-[var(--color-primary)]"
+                  class="w-full rounded-lg border border-gray-300 px-4 py-2.5 focus:border-[var(--color-primary)] focus:outline-none focus:ring-2 focus:ring-[var(--color-primary)] dark:border-gray-700"
                   @change="searchPractitioners"
                 >
                   <option value="">Toutes</option>
@@ -170,12 +191,14 @@
               </div>
 
               <div class="mb-6">
-                <label class="mb-2 block text-sm font-medium text-gray-700">
+                <label
+                  class="mb-2 block text-sm font-medium text-gray-700 dark:text-gray-300"
+                >
                   Cabinet
                 </label>
                 <select
                   v-model="filters.cabinetId"
-                  class="w-full rounded-lg border border-gray-300 px-4 py-2.5 focus:border-[var(--color-primary)] focus:outline-none focus:ring-2 focus:ring-[var(--color-primary)]"
+                  class="w-full rounded-lg border border-gray-300 px-4 py-2.5 focus:border-[var(--color-primary)] focus:outline-none focus:ring-2 focus:ring-[var(--color-primary)] dark:border-gray-700"
                   @change="searchPractitioners"
                 >
                   <option value="">Tous les cabinets</option>
@@ -191,14 +214,16 @@
               </div>
 
               <div class="mb-6">
-                <label class="mb-2 block text-sm font-medium text-gray-700">
+                <label
+                  class="mb-2 block text-sm font-medium text-gray-700 dark:text-gray-300"
+                >
                   Localisation
                 </label>
                 <input
                   v-model="filters.city"
                   type="text"
                   placeholder="Ville..."
-                  class="w-full rounded-lg border border-gray-300 px-4 py-2.5 focus:border-[var(--color-primary)] focus:outline-none focus:ring-2 focus:ring-[var(--color-primary)]"
+                  class="w-full rounded-lg border border-gray-300 px-4 py-2.5 focus:border-[var(--color-primary)] focus:outline-none focus:ring-2 focus:ring-[var(--color-primary)] dark:border-gray-700"
                   @input="debouncedSearch"
                 />
               </div>
@@ -234,7 +259,9 @@
               </div>
 
               <div class="mb-6">
-                <label class="mb-2 block text-sm font-medium text-gray-700">
+                <label
+                  class="mb-2 block text-sm font-medium text-gray-700 dark:text-gray-300"
+                >
                   Prix maximum (FCFA)
                 </label>
                 <input
@@ -246,19 +273,28 @@
                   class="w-full"
                   @input="debouncedSearch"
                 />
-                <div class="mt-1 flex justify-between text-sm text-gray-600">
+                <div
+                  class="mt-1 flex justify-between text-sm text-gray-600 dark:text-gray-400"
+                >
                   <span>0</span>
-                  <span>{{ filters.maxPrice?.toLocaleString() || "50,000" }} FCFA</span>
+                  <span
+                    >{{
+                      filters.maxPrice?.toLocaleString() || "50,000"
+                    }}
+                    FCFA</span
+                  >
                 </div>
               </div>
 
               <div>
-                <label class="mb-2 block text-sm font-medium text-gray-700">
+                <label
+                  class="mb-2 block text-sm font-medium text-gray-700 dark:text-gray-300"
+                >
                   Note minimum
                 </label>
                 <select
                   v-model.number="filters.minRating"
-                  class="w-full rounded-lg border border-gray-300 px-4 py-2.5 focus:border-[var(--color-primary)] focus:outline-none focus:ring-2 focus:ring-[var(--color-primary)]"
+                  class="w-full rounded-lg border border-gray-300 px-4 py-2.5 focus:border-[var(--color-primary)] focus:outline-none focus:ring-2 focus:ring-[var(--color-primary)] dark:border-gray-700"
                   @change="searchPractitioners"
                 >
                   <option :value="0">Toutes</option>
@@ -272,10 +308,12 @@
 
           <div class="lg:col-span-3">
             <div class="mb-4 flex items-center justify-between">
-              <p class="text-gray-600">
+              <p class="text-gray-600 dark:text-gray-400">
                 <template v-if="loading">Chargement...</template>
                 <template v-else>
-                  {{ pagination.total }} praticien{{ pagination.total > 1 ? "s" : "" }}
+                  {{ pagination.total }} praticien{{
+                    pagination.total > 1 ? "s" : ""
+                  }}
                   trouvé{{ pagination.total > 1 ? "s" : "" }}
                 </template>
               </p>
@@ -284,21 +322,34 @@
             <div v-if="loading" class="space-y-4">
               <Card v-for="i in 3" :key="i" class="animate-pulse">
                 <div class="flex gap-6">
-                  <div class="h-24 w-24 flex-shrink-0 rounded-full bg-gray-200" />
+                  <div
+                    class="h-24 w-24 flex-shrink-0 rounded-full bg-gray-200 dark:bg-gray-700"
+                  />
                   <div class="flex-1 space-y-3">
-                    <div class="h-4 w-1/3 rounded bg-gray-200" />
-                    <div class="h-3 w-1/4 rounded bg-gray-200" />
+                    <div
+                      class="h-4 w-1/3 rounded bg-gray-200 dark:bg-gray-700"
+                    />
+                    <div
+                      class="h-3 w-1/4 rounded bg-gray-200 dark:bg-gray-700"
+                    />
                     <div class="flex gap-2">
-                      <div class="h-6 w-20 rounded-full bg-gray-200" />
-                      <div class="h-6 w-20 rounded-full bg-gray-200" />
+                      <div
+                        class="h-6 w-20 rounded-full bg-gray-200 dark:bg-gray-700"
+                      />
+                      <div
+                        class="h-6 w-20 rounded-full bg-gray-200 dark:bg-gray-700"
+                      />
                     </div>
                   </div>
                 </div>
               </Card>
             </div>
 
-            <div v-else-if="practitioners.length === 0" class="py-12 text-center">
-              <p class="text-lg text-gray-500">
+            <div
+              v-else-if="practitioners.length === 0"
+              class="py-12 text-center"
+            >
+              <p class="text-lg text-gray-500 dark:text-gray-400">
                 Aucun praticien trouvé avec ces critères.
               </p>
             </div>
@@ -311,7 +362,7 @@
               >
                 <div class="flex gap-6">
                   <div
-                    class="h-24 w-24 flex-shrink-0 overflow-hidden rounded-full bg-gray-200"
+                    class="h-24 w-24 flex-shrink-0 overflow-hidden rounded-full bg-gray-200 dark:bg-gray-700"
                   >
                     <img
                       v-if="practitioner.photo"
@@ -321,7 +372,7 @@
                     />
                     <div
                       v-else
-                      class="flex h-full w-full items-center justify-center text-2xl font-bold text-gray-400"
+                      class="flex h-full w-full items-center justify-center text-2xl font-bold text-gray-400 dark:text-gray-500"
                     >
                       {{ practitioner.firstName.charAt(0)
                       }}{{ practitioner.lastName.charAt(0) }}
@@ -335,13 +386,19 @@
                           {{ practitioner.title }} {{ practitioner.firstName }}
                           {{ practitioner.lastName }}
                         </h3>
-                        <p class="text-gray-600">
-                          {{ practitioner.specialties[0]?.name || "Généraliste" }}
+                        <p class="text-gray-600 dark:text-gray-400">
+                          {{
+                            practitioner.specialties[0]?.name || "Généraliste"
+                          }}
                         </p>
                       </div>
                       <div class="text-right">
-                        <p class="text-xl font-medium text-[var(--color-primary)]">
-                          {{ practitioner.baseConsultationFee.toLocaleString() }}
+                        <p
+                          class="text-xl font-medium text-[var(--color-primary)]"
+                        >
+                          {{
+                            practitioner.baseConsultationFee.toLocaleString()
+                          }}
                           FCFA
                         </p>
                       </div>
@@ -352,24 +409,41 @@
                         v-if="practitioner.averageRating"
                         class="flex items-center gap-1"
                       >
-                        <IconStar class="h-4 w-4 fill-yellow-400 text-yellow-400" />
-                        <span class="font-medium">{{ practitioner.averageRating }}</span>
-                        <span class="text-sm text-gray-600">({{ practitioner.totalReviews }})</span>
+                        <IconStar
+                          class="h-4 w-4 fill-yellow-400 text-yellow-400"
+                        />
+                        <span class="font-medium">{{
+                          practitioner.averageRating
+                        }}</span>
+                        <span class="text-sm text-gray-600 dark:text-gray-400"
+                          >({{ practitioner.totalReviews }})</span
+                        >
                       </div>
-                      <div class="flex items-center gap-1 text-sm text-gray-600">
+                      <div
+                        class="flex items-center gap-1 text-sm text-gray-600 dark:text-gray-400"
+                      >
                         <IconMapPin class="h-4 w-4" />
                         {{ practitioner.city }}
                       </div>
                     </div>
 
                     <div class="mb-4 flex flex-wrap gap-2">
-                      <Badge v-if="practitioner.teleconsultationEnabled" variant="success">
+                      <Badge
+                        v-if="practitioner.teleconsultationEnabled"
+                        variant="success"
+                      >
                         Téléconsultation
                       </Badge>
-                      <Badge v-if="practitioner.availableToday" variant="warning">
+                      <Badge
+                        v-if="practitioner.availableToday"
+                        variant="warning"
+                      >
                         Disponible aujourd'hui
                       </Badge>
-                      <Badge v-if="practitioner.acceptsInsurance" variant="primary">
+                      <Badge
+                        v-if="practitioner.acceptsInsurance"
+                        variant="primary"
+                      >
                         Accepte l'assurance
                       </Badge>
                     </div>
@@ -401,7 +475,9 @@
               >
                 Précédent
               </Button>
-              <span class="flex items-center px-4 text-sm text-gray-600">
+              <span
+                class="flex items-center px-4 text-sm text-gray-600 dark:text-gray-400"
+              >
                 Page {{ pagination.page }} sur {{ pagination.totalPages }}
               </span>
               <Button
@@ -419,9 +495,14 @@
       <!-- ── CABINETS TAB ── -->
       <div v-else>
         <!-- MAP VIEW -->
-        <div v-if="viewMode === 'map'" class="rounded-xl border border-gray-200 bg-white p-4 shadow-sm">
-          <p class="mb-3 text-sm text-gray-500">
-            {{ cabinets.length }} cabinet{{ cabinets.length > 1 ? "s" : "" }}
+        <div
+          v-if="viewMode === 'map'"
+          class="rounded-xl border border-gray-200 bg-white p-4 shadow-sm dark:border-gray-800 dark:bg-gray-900"
+        >
+          <p class="mb-3 text-sm text-gray-500 dark:text-gray-400">
+            {{ cabinets.length }} cabinet{{
+              cabinets.length > 1 ? "s" : ""
+            }}
             trouvé{{ cabinets.length > 1 ? "s" : "" }}
           </p>
           <ClientOnly>
@@ -432,8 +513,12 @@
               @locate="onMapLocate"
             />
             <template #fallback>
-              <div class="flex h-[560px] items-center justify-center rounded-lg bg-gray-100">
-                <p class="text-gray-400">Chargement de la carte...</p>
+              <div
+                class="flex h-[560px] items-center justify-center rounded-lg bg-gray-100 dark:bg-gray-800"
+              >
+                <p class="text-gray-400 dark:text-gray-500">
+                  Chargement de la carte...
+                </p>
               </div>
             </template>
           </ClientOnly>
@@ -442,14 +527,18 @@
         <!-- LIST VIEW -->
         <div v-else class="space-y-4">
           <div class="mb-4 flex items-center justify-between">
-            <p class="text-gray-600">
-              {{ cabinets.length }} cabinet{{ cabinets.length > 1 ? "s" : "" }}
+            <p class="text-gray-600 dark:text-gray-400">
+              {{ cabinets.length }} cabinet{{
+                cabinets.length > 1 ? "s" : ""
+              }}
               trouvé{{ cabinets.length > 1 ? "s" : "" }}
             </p>
           </div>
 
           <div v-if="cabinets.length === 0" class="py-12 text-center">
-            <p class="text-lg text-gray-500">Aucun cabinet trouvé.</p>
+            <p class="text-lg text-gray-500 dark:text-gray-400">
+              Aucun cabinet trouvé.
+            </p>
           </div>
 
           <div v-else class="grid gap-6 md:grid-cols-2 lg:grid-cols-3">
@@ -460,19 +549,23 @@
             >
               <div>
                 <h3 class="mb-2 text-xl font-semibold">{{ cabinet.name }}</h3>
-                <div class="mb-2 flex items-center gap-1 text-sm text-gray-600">
+                <div
+                  class="mb-2 flex items-center gap-1 text-sm text-gray-600 dark:text-gray-400"
+                >
                   <IconMapPin class="h-4 w-4" />
                   {{ cabinet.city || "Ville non renseignée" }}
                 </div>
-                <p class="mb-4 text-sm text-gray-500">
+                <p class="mb-4 text-sm text-gray-500 dark:text-gray-400">
                   {{ cabinet.address || "" }}
                 </p>
               </div>
 
               <div
-                class="mt-4 flex items-center justify-between border-t border-gray-100 pt-4"
+                class="mt-4 flex items-center justify-between border-t border-gray-100 pt-4 dark:border-gray-800"
               >
-                <span class="text-sm font-medium text-gray-600">
+                <span
+                  class="text-sm font-medium text-gray-600 dark:text-gray-400"
+                >
                   {{ cabinet.practitionersCount }} praticien{{
                     cabinet.practitionersCount > 1 ? "s" : ""
                   }}
@@ -602,15 +695,19 @@ const searchPractitioners = async () => {
     const queryParams = new URLSearchParams();
 
     if (filters.search) queryParams.append("search", filters.search);
-    if (filters.specialtyId) queryParams.append("specialtyId", filters.specialtyId);
+    if (filters.specialtyId)
+      queryParams.append("specialtyId", filters.specialtyId);
     if (filters.cabinetId) queryParams.append("cabinetId", filters.cabinetId);
     if (filters.city) queryParams.append("city", filters.city);
     if (filters.teleconsultationEnabled)
       queryParams.append("teleconsultationEnabled", "true");
     if (filters.availableToday) queryParams.append("availableToday", "true");
-    if (filters.acceptsInsurance) queryParams.append("acceptsInsurance", "true");
-    if (filters.maxPrice) queryParams.append("maxPrice", filters.maxPrice.toString());
-    if (filters.minRating) queryParams.append("minRating", filters.minRating.toString());
+    if (filters.acceptsInsurance)
+      queryParams.append("acceptsInsurance", "true");
+    if (filters.maxPrice)
+      queryParams.append("maxPrice", filters.maxPrice.toString());
+    if (filters.minRating)
+      queryParams.append("minRating", filters.minRating.toString());
     queryParams.append("page", filters.page.toString());
     queryParams.append("limit", filters.limit.toString());
 

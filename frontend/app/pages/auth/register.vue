@@ -1,11 +1,15 @@
 <template>
   <div class="flex min-h-screen items-center justify-center px-4 py-12">
-    <div class="w-full max-w-2xl space-y-8 rounded-lg bg-white p-8 shadow-lg">
+    <div
+      class="w-full max-w-2xl space-y-8 rounded-lg bg-white p-8 shadow-lg dark:bg-gray-900"
+    >
       <div>
-        <h2 class="text-center text-3xl font-bold text-gray-900">
+        <h2
+          class="text-center text-3xl font-bold text-gray-900 dark:text-gray-100"
+        >
           Créer un compte patient
         </h2>
-        <p class="mt-2 text-center text-sm text-gray-600">
+        <p class="mt-2 text-center text-sm text-gray-600 dark:text-gray-400">
           Inscrivez-vous pour prendre rendez-vous avec nos praticiens
         </p>
       </div>
@@ -14,7 +18,7 @@
         <!-- error message -->
         <div
           v-if="errorMessage"
-          class="rounded-md border border-red-300 bg-red-50 px-4 py-3 text-sm text-red-800"
+          class="rounded-md border border-red-300 bg-red-50 px-4 py-3 text-sm text-red-800 dark:bg-red-950/40 dark:text-red-200"
         >
           {{ errorMessage }}
         </div>
@@ -22,7 +26,7 @@
         <!-- success message -->
         <div
           v-if="successMessage"
-          class="rounded-md border border-green-300 bg-green-50 px-4 py-3 text-sm text-green-800"
+          class="rounded-md border border-green-300 bg-green-50 px-4 py-3 text-sm text-green-800 dark:bg-green-950/40 dark:text-green-200"
         >
           {{ successMessage }}
         </div>
@@ -31,9 +35,9 @@
           <div>
             <label
               for="firstName"
-              class="block text-sm font-medium text-gray-700"
+              class="block text-sm font-medium text-gray-700 dark:text-gray-300"
             >
-              Prénom <span class="text-red-500">*</span>
+              Prénom <span class="text-red-500 dark:text-red-400">*</span>
             </label>
             <input
               id="firstName"
@@ -41,7 +45,7 @@
               type="text"
               required
               autocomplete="given-name"
-              class="mt-1 block w-full rounded-md border border-gray-300 px-3 py-2 placeholder-gray-400 shadow-sm focus:border-orange-500 focus:outline-none focus:ring-2 focus:ring-orange-500"
+              class="mt-1 block w-full rounded-md border border-gray-300 px-3 py-2 placeholder-gray-400 shadow-sm focus:border-orange-500 focus:outline-none focus:ring-2 focus:ring-orange-500 dark:border-gray-700 dark:placeholder-gray-500"
               placeholder="Jean"
             />
           </div>
@@ -49,9 +53,9 @@
           <div>
             <label
               for="lastName"
-              class="block text-sm font-medium text-gray-700"
+              class="block text-sm font-medium text-gray-700 dark:text-gray-300"
             >
-              Nom <span class="text-red-500">*</span>
+              Nom <span class="text-red-500 dark:text-red-400">*</span>
             </label>
             <input
               id="lastName"
@@ -59,14 +63,17 @@
               type="text"
               required
               autocomplete="family-name"
-              class="mt-1 block w-full rounded-md border border-gray-300 px-3 py-2 placeholder-gray-400 shadow-sm focus:border-orange-500 focus:outline-none focus:ring-2 focus:ring-orange-500"
+              class="mt-1 block w-full rounded-md border border-gray-300 px-3 py-2 placeholder-gray-400 shadow-sm focus:border-orange-500 focus:outline-none focus:ring-2 focus:ring-orange-500 dark:border-gray-700 dark:placeholder-gray-500"
               placeholder="Dupont"
             />
           </div>
 
           <div class="md:col-span-2">
-            <label for="email" class="block text-sm font-medium text-gray-700">
-              Email <span class="text-red-500">*</span>
+            <label
+              for="email"
+              class="block text-sm font-medium text-gray-700 dark:text-gray-300"
+            >
+              Email <span class="text-red-500 dark:text-red-400">*</span>
             </label>
             <input
               id="email"
@@ -74,14 +81,17 @@
               type="email"
               required
               autocomplete="email"
-              class="mt-1 block w-full rounded-md border border-gray-300 px-3 py-2 placeholder-gray-400 shadow-sm focus:border-orange-500 focus:outline-none focus:ring-2 focus:ring-orange-500"
+              class="mt-1 block w-full rounded-md border border-gray-300 px-3 py-2 placeholder-gray-400 shadow-sm focus:border-orange-500 focus:outline-none focus:ring-2 focus:ring-orange-500 dark:border-gray-700 dark:placeholder-gray-500"
               placeholder="votre@email.com"
             />
           </div>
 
           <div class="md:col-span-2">
-            <label for="phone" class="block text-sm font-medium text-gray-700">
-              Téléphone <span class="text-red-500">*</span>
+            <label
+              for="phone"
+              class="block text-sm font-medium text-gray-700 dark:text-gray-300"
+            >
+              Téléphone <span class="text-red-500 dark:text-red-400">*</span>
             </label>
             <input
               id="phone"
@@ -89,7 +99,7 @@
               type="tel"
               required
               autocomplete="tel"
-              class="mt-1 block w-full rounded-md border border-gray-300 px-3 py-2 placeholder-gray-400 shadow-sm focus:border-orange-500 focus:outline-none focus:ring-2 focus:ring-orange-500"
+              class="mt-1 block w-full rounded-md border border-gray-300 px-3 py-2 placeholder-gray-400 shadow-sm focus:border-orange-500 focus:outline-none focus:ring-2 focus:ring-orange-500 dark:border-gray-700 dark:placeholder-gray-500"
               placeholder="+225 01 02 03 04 05"
             />
           </div>
@@ -97,28 +107,32 @@
           <div>
             <label
               for="dateOfBirth"
-              class="block text-sm font-medium text-gray-700"
+              class="block text-sm font-medium text-gray-700 dark:text-gray-300"
             >
-              Date de naissance <span class="text-red-500">*</span>
+              Date de naissance
+              <span class="text-red-500 dark:text-red-400">*</span>
             </label>
             <input
               id="dateOfBirth"
               v-model="formData.dateOfBirth"
               type="date"
               required
-              class="mt-1 block w-full rounded-md border border-gray-300 px-3 py-2 placeholder-gray-400 shadow-sm focus:border-orange-500 focus:outline-none focus:ring-2 focus:ring-orange-500"
+              class="mt-1 block w-full rounded-md border border-gray-300 px-3 py-2 placeholder-gray-400 shadow-sm focus:border-orange-500 focus:outline-none focus:ring-2 focus:ring-orange-500 dark:border-gray-700 dark:placeholder-gray-500"
             />
           </div>
 
           <div>
-            <label for="gender" class="block text-sm font-medium text-gray-700">
-              Genre <span class="text-red-500">*</span>
+            <label
+              for="gender"
+              class="block text-sm font-medium text-gray-700 dark:text-gray-300"
+            >
+              Genre <span class="text-red-500 dark:text-red-400">*</span>
             </label>
             <select
               id="gender"
               v-model="formData.gender"
               required
-              class="mt-1 block w-full rounded-md border border-gray-300 px-3 py-2 shadow-sm focus:border-orange-500 focus:outline-none focus:ring-2 focus:ring-orange-500"
+              class="mt-1 block w-full rounded-md border border-gray-300 px-3 py-2 shadow-sm focus:border-orange-500 focus:outline-none focus:ring-2 focus:ring-orange-500 dark:border-gray-700"
             >
               <option value="" disabled>Sélectionnez</option>
               <option value="MALE">Homme</option>
@@ -131,9 +145,9 @@
           <div class="md:col-span-2">
             <label
               for="password"
-              class="block text-sm font-medium text-gray-700"
+              class="block text-sm font-medium text-gray-700 dark:text-gray-300"
             >
-              Mot de passe <span class="text-red-500">*</span>
+              Mot de passe <span class="text-red-500 dark:text-red-400">*</span>
             </label>
             <input
               id="password"
@@ -141,10 +155,10 @@
               type="password"
               required
               autocomplete="new-password"
-              class="mt-1 block w-full rounded-md border border-gray-300 px-3 py-2 placeholder-gray-400 shadow-sm focus:border-orange-500 focus:outline-none focus:ring-2 focus:ring-orange-500"
+              class="mt-1 block w-full rounded-md border border-gray-300 px-3 py-2 placeholder-gray-400 shadow-sm focus:border-orange-500 focus:outline-none focus:ring-2 focus:ring-orange-500 dark:border-gray-700 dark:placeholder-gray-500"
               placeholder="••••••••"
             />
-            <p class="mt-1 text-xs text-gray-500">
+            <p class="mt-1 text-xs text-gray-500 dark:text-gray-400">
               Le mot de passe doit contenir au moins 8 caractères, une
               majuscule, une minuscule, un chiffre et un caractère spécial.
             </p>
@@ -153,9 +167,10 @@
           <div class="md:col-span-2">
             <label
               for="confirmPassword"
-              class="block text-sm font-medium text-gray-700"
+              class="block text-sm font-medium text-gray-700 dark:text-gray-300"
             >
-              Confirmer le mot de passe <span class="text-red-500">*</span>
+              Confirmer le mot de passe
+              <span class="text-red-500 dark:text-red-400">*</span>
             </label>
             <input
               id="confirmPassword"
@@ -163,7 +178,7 @@
               type="password"
               required
               autocomplete="new-password"
-              class="mt-1 block w-full rounded-md border border-gray-300 px-3 py-2 placeholder-gray-400 shadow-sm focus:border-orange-500 focus:outline-none focus:ring-2 focus:ring-orange-500"
+              class="mt-1 block w-full rounded-md border border-gray-300 px-3 py-2 placeholder-gray-400 shadow-sm focus:border-orange-500 focus:outline-none focus:ring-2 focus:ring-orange-500 dark:border-gray-700 dark:placeholder-gray-500"
               placeholder="••••••••"
             />
           </div>
@@ -181,11 +196,11 @@
         </div>
 
         <div class="text-center">
-          <p class="text-sm text-gray-600">
+          <p class="text-sm text-gray-600 dark:text-gray-400">
             Vous avez déjà un compte ?
             <NuxtLink
               :to="`/auth/login${route.query.redirect ? '?redirect=' + encodeURIComponent(route.query.redirect as string) : ''}`"
-              class="font-medium text-orange-600 hover:text-orange-500"
+              class="font-medium text-orange-600 hover:text-orange-500 dark:text-orange-400"
             >
               Se connecter
             </NuxtLink>

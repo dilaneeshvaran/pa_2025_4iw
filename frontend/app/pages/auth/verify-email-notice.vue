@@ -1,28 +1,35 @@
 <template>
   <div class="flex min-h-screen items-center justify-center px-4 py-12">
-    <div class="w-full max-w-md space-y-8 rounded-lg bg-white p-8 shadow-lg">
+    <div
+      class="w-full max-w-md space-y-8 rounded-lg bg-white p-8 shadow-lg dark:bg-gray-900"
+    >
       <div class="text-center">
         <div
-          class="mx-auto flex h-16 w-16 items-center justify-center rounded-full bg-yellow-100"
+          class="mx-auto flex h-16 w-16 items-center justify-center rounded-full bg-yellow-100 dark:bg-yellow-900/40"
         >
-          <Icon name="lucide:mail" class="h-8 w-8 text-yellow-600" />
+          <Icon
+            name="lucide:mail"
+            class="h-8 w-8 text-yellow-600 dark:text-yellow-400"
+          />
         </div>
-        <h2 class="mt-6 text-3xl font-bold text-gray-900">
+        <h2 class="mt-6 text-3xl font-bold text-gray-900 dark:text-gray-100">
           Vérifiez votre email
         </h2>
-        <p class="mt-4 text-sm text-gray-600">
+        <p class="mt-4 text-sm text-gray-600 dark:text-gray-400">
           Votre compte a été créé avec succès, mais vous devez vérifier votre
           adresse email avant d'accéder au tableau de bord.
         </p>
       </div>
 
-      <div class="rounded-md border border-orange-200 bg-orange-50 p-4">
+      <div
+        class="rounded-md border border-orange-200 bg-orange-50 p-4 dark:bg-orange-950/40"
+      >
         <div class="flex">
           <div class="flex-shrink-0">
             <Icon name="lucide:info" class="h-5 w-5 text-orange-400" />
           </div>
           <div class="ml-3">
-            <p class="text-sm text-orange-700">
+            <p class="text-sm text-orange-700 dark:text-orange-300">
               Un email de vérification a été envoyé à
               <strong>{{ userEmail }}</strong
               >. Veuillez cliquer sur le lien dans l'email pour activer votre
@@ -35,7 +42,7 @@
       <!-- success message -->
       <div
         v-if="successMessage"
-        class="rounded-md border border-green-300 bg-green-50 px-4 py-3 text-sm text-green-800"
+        class="rounded-md border border-green-300 bg-green-50 px-4 py-3 text-sm text-green-800 dark:bg-green-950/40 dark:text-green-200"
       >
         {{ successMessage }}
       </div>
@@ -43,7 +50,7 @@
       <!-- error message -->
       <div
         v-if="errorMessage"
-        class="rounded-md border border-red-300 bg-red-50 px-4 py-3 text-sm text-red-800"
+        class="rounded-md border border-red-300 bg-red-50 px-4 py-3 text-sm text-red-800 dark:bg-red-950/40 dark:text-red-200"
       >
         {{ errorMessage }}
       </div>
@@ -52,7 +59,7 @@
         <button
           @click="resendVerification"
           :disabled="loading || countdown > 0"
-          class="flex w-full justify-center rounded-md border border-orange-600 bg-white px-4 py-3 text-sm font-medium text-orange-600 shadow-sm transition-colors hover:bg-orange-50 focus:outline-none focus:ring-2 focus:ring-orange-500 focus:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50"
+          class="flex w-full justify-center rounded-md border border-orange-600 bg-white px-4 py-3 text-sm font-medium text-orange-600 shadow-sm transition-colors hover:bg-orange-50 focus:outline-none focus:ring-2 focus:ring-orange-500 focus:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50 dark:bg-gray-900 dark:text-orange-400 dark:hover:bg-orange-950/40"
         >
           <span v-if="loading">Envoi en cours...</span>
           <span v-else-if="countdown > 0">Renvoyer dans {{ countdown }}s</span>
@@ -61,14 +68,14 @@
 
         <button
           @click="logout"
-          class="flex w-full justify-center rounded-md border border-gray-300 bg-white px-4 py-3 text-sm font-medium text-gray-700 shadow-sm transition-colors hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-gray-500 focus:ring-offset-2"
+          class="flex w-full justify-center rounded-md border border-gray-300 bg-white px-4 py-3 text-sm font-medium text-gray-700 shadow-sm transition-colors hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-gray-500 focus:ring-offset-2 dark:border-gray-700 dark:bg-gray-900 dark:text-gray-300 dark:hover:bg-gray-800"
         >
           Se déconnecter
         </button>
       </div>
 
       <div class="text-center">
-        <p class="text-xs text-gray-500">
+        <p class="text-xs text-gray-500 dark:text-gray-400">
           Vous n'avez pas reçu l'email ? Vérifiez votre dossier spam ou cliquez
           sur "Renvoyer l'email de vérification".
         </p>

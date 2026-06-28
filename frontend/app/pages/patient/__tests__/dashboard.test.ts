@@ -1,349 +1,357 @@
-import { describe, it, expect, vi, beforeEach, afterEach } from 'vitest'
+import { describe, it, expect, vi, beforeEach, afterEach } from "vitest";
 
 // ── Types (mirroring dashboard.vue) ──────────────────────────────────────────
 
 interface Practitioner {
-  id: string
-  firstName: string
-  lastName: string
-  title: string
-  specialty: string | null
-  photo: string | null
-  cancellationNotice?: number
+  id: string;
+  firstName: string;
+  lastName: string;
+  title: string;
+  specialty: string | null;
+  photo: string | null;
+  cancellationNotice?: number;
 }
 
 interface Appointment {
-  id: string
-  appointmentDate: string
-  startTime: string
-  endTime: string
-  type: string
-  status: string
-  reason: string | null
-  consultationFee: number
-  practitioner: Practitioner
+  id: string;
+  appointmentDate: string;
+  startTime: string;
+  endTime: string;
+  type: string;
+  status: string;
+  reason: string | null;
+  consultationFee: number;
+  practitioner: Practitioner;
 }
 
 // ── Logique extraite du composant ────────────────────────────────────────────
 // Ces fonctions reproduisent fidèlement les computed properties de dashboard.vue
 
 function canModifyNext(apt: Appointment | null): boolean {
-  if (!apt) return false
-  if (apt.status === 'CANCELLED' || apt.status === 'COMPLETED') return false
-  const cancellationNotice = apt.practitioner.cancellationNotice ?? 24
-  const now = new Date()
-  const aptDate = new Date(apt.appointmentDate)
-  const parts = apt.startTime.split(':').map(Number)
-  aptDate.setHours(parts[0] ?? 0, parts[1] ?? 0, 0, 0)
-  const diffHours = (aptDate.getTime() - now.getTime()) / (1000 * 60 * 60)
-  return diffHours >= cancellationNotice
+  if (!apt) return false;
+  if (apt.status === "CANCELLED" || apt.status === "COMPLETED") return false;
+  const cancellationNotice = apt.practitioner.cancellationNotice ?? 24;
+  const now = new Date();
+  const aptDate = new Date(apt.appointmentDate);
+  const parts = apt.startTime.split(":").map(Number);
+  aptDate.setHours(parts[0] ?? 0, parts[1] ?? 0, 0, 0);
+  const diffHours = (aptDate.getTime() - now.getTime()) / (1000 * 60 * 60);
+  return diffHours >= cancellationNotice;
 }
 
 function canCancelNext(apt: Appointment | null): boolean {
-  if (!apt) return false
-  if (apt.status === 'CANCELLED' || apt.status === 'COMPLETED') return false
-  const now = new Date()
-  const aptDate = new Date(apt.appointmentDate)
-  const parts = apt.startTime.split(':').map(Number)
-  aptDate.setHours(parts[0] ?? 0, parts[1] ?? 0, 0, 0)
-  return aptDate > now
+  if (!apt) return false;
+  if (apt.status === "CANCELLED" || apt.status === "COMPLETED") return false;
+  const now = new Date();
+  const aptDate = new Date(apt.appointmentDate);
+  const parts = apt.startTime.split(":").map(Number);
+  aptDate.setHours(parts[0] ?? 0, parts[1] ?? 0, 0, 0);
+  return aptDate > now;
 }
 
 function canJoinNext(apt: Appointment | null): boolean {
-  if (!apt) return false
-  if (apt.type !== 'TELECONSULTATION') return false
-  if (apt.status === 'CANCELLED' || apt.status === 'NO_SHOW') return false
-  const now = new Date()
-  const aptDate = new Date(apt.appointmentDate)
-  const parts = apt.startTime.split(':').map(Number)
-  aptDate.setHours(parts[0] ?? 0, parts[1] ?? 0, 0, 0)
-  const diffMinutes = (aptDate.getTime() - now.getTime()) / (1000 * 60)
-  return diffMinutes <= 15 && diffMinutes >= -60
+  if (!apt) return false;
+  if (apt.type !== "TELECONSULTATION") return false;
+  if (apt.status === "CANCELLED" || apt.status === "NO_SHOW") return false;
+  const now = new Date();
+  const aptDate = new Date(apt.appointmentDate);
+  const parts = apt.startTime.split(":").map(Number);
+  aptDate.setHours(parts[0] ?? 0, parts[1] ?? 0, 0, 0);
+  const diffMinutes = (aptDate.getTime() - now.getTime()) / (1000 * 60);
+  return diffMinutes <= 15 && diffMinutes >= -60;
 }
 
 function getNotificationIcon(type: string): string {
   switch (type) {
-    case 'APPOINTMENT_REMINDER': return 'Bell'
-    case 'DOCUMENT_SHARED': return 'FileText'
-    case 'HEALTH_REMINDER': return 'Activity'
-    default: return 'Bell'
+    case "APPOINTMENT_REMINDER":
+      return "Bell";
+    case "DOCUMENT_SHARED":
+      return "FileText";
+    case "HEALTH_REMINDER":
+      return "Activity";
+    default:
+      return "Bell";
   }
 }
 
 // ── Helpers ──────────────────────────────────────────────────────────────────
 
-const buildPractitioner = (overrides: Partial<Practitioner> = {}): Practitioner => ({
-  id: 'pract-1',
-  firstName: 'Jean',
-  lastName: 'Dupont',
-  title: 'Dr',
-  specialty: 'Médecine générale',
+const buildPractitioner = (
+  overrides: Partial<Practitioner> = {},
+): Practitioner => ({
+  id: "pract-1",
+  firstName: "Jean",
+  lastName: "Dupont",
+  title: "Dr",
+  specialty: "Médecine générale",
   photo: null,
   cancellationNotice: 24,
   ...overrides,
-})
+});
 
-const buildAppointment = (overrides: Partial<Appointment> = {}): Appointment => ({
-  id: 'apt-1',
-  appointmentDate: '',
-  startTime: '10:00',
-  endTime: '10:30',
-  type: 'IN_PERSON',
-  status: 'CONFIRMED',
+const buildAppointment = (
+  overrides: Partial<Appointment> = {},
+): Appointment => ({
+  id: "apt-1",
+  appointmentDate: "",
+  startTime: "10:00",
+  endTime: "10:30",
+  type: "IN_PERSON",
+  status: "CONFIRMED",
   reason: null,
   consultationFee: 50,
   practitioner: buildPractitioner(),
   ...overrides,
-})
+});
 
 // Crée une date ISO relative à maintenant
 function futureDate(hours: number): string {
-  const d = new Date()
-  d.setHours(d.getHours() + hours, 0, 0, 0)
-  return d.toISOString().split('T')[0]!
+  const d = new Date();
+  d.setHours(d.getHours() + hours, 0, 0, 0);
+  return d.toISOString().split("T")[0]!;
 }
 
 function futureTime(hours: number): string {
-  const d = new Date()
-  d.setHours(d.getHours() + hours, 0, 0, 0)
-  return `${String(d.getHours()).padStart(2, '0')}:00`
+  const d = new Date();
+  d.setHours(d.getHours() + hours, 0, 0, 0);
+  return `${String(d.getHours()).padStart(2, "0")}:00`;
 }
 
 function pastDate(hours: number): string {
-  const d = new Date()
-  d.setHours(d.getHours() - hours, 0, 0, 0)
-  return d.toISOString().split('T')[0]!
+  const d = new Date();
+  d.setHours(d.getHours() - hours, 0, 0, 0);
+  return d.toISOString().split("T")[0]!;
 }
 
 function pastTime(hours: number): string {
-  const d = new Date()
-  d.setHours(d.getHours() - hours, 0, 0, 0)
-  return `${String(d.getHours()).padStart(2, '0')}:00`
+  const d = new Date();
+  d.setHours(d.getHours() - hours, 0, 0, 0);
+  return `${String(d.getHours()).padStart(2, "0")}:00`;
 }
 
 // ── Tests ────────────────────────────────────────────────────────────────────
 
-describe('patient dashboard — canModifyNext', () => {
+describe("patient dashboard — canModifyNext", () => {
   it("retourne false si le rendez-vous est null", () => {
-    expect(canModifyNext(null)).toBe(false)
-  })
+    expect(canModifyNext(null)).toBe(false);
+  });
 
   it("retourne false si le statut est CANCELLED", () => {
     const apt = buildAppointment({
-      status: 'CANCELLED',
+      status: "CANCELLED",
       appointmentDate: futureDate(48),
       startTime: futureTime(48),
-    })
-    expect(canModifyNext(apt)).toBe(false)
-  })
+    });
+    expect(canModifyNext(apt)).toBe(false);
+  });
 
   it("retourne false si le statut est COMPLETED", () => {
     const apt = buildAppointment({
-      status: 'COMPLETED',
+      status: "COMPLETED",
       appointmentDate: futureDate(48),
       startTime: futureTime(48),
-    })
-    expect(canModifyNext(apt)).toBe(false)
-  })
+    });
+    expect(canModifyNext(apt)).toBe(false);
+  });
 
   it("retourne true si le rendez-vous est dans plus de 24h (délai par défaut)", () => {
     const apt = buildAppointment({
-      status: 'CONFIRMED',
+      status: "CONFIRMED",
       appointmentDate: futureDate(48),
       startTime: futureTime(48),
-    })
-    expect(canModifyNext(apt)).toBe(true)
-  })
+    });
+    expect(canModifyNext(apt)).toBe(true);
+  });
 
   it("retourne false si le rendez-vous est dans moins de 24h (délai par défaut)", () => {
     const apt = buildAppointment({
-      status: 'CONFIRMED',
+      status: "CONFIRMED",
       appointmentDate: futureDate(2),
       startTime: futureTime(2),
-    })
-    expect(canModifyNext(apt)).toBe(false)
-  })
+    });
+    expect(canModifyNext(apt)).toBe(false);
+  });
 
   it("respecte le cancellationNotice personnalisé du praticien (48h)", () => {
     const apt = buildAppointment({
-      status: 'CONFIRMED',
+      status: "CONFIRMED",
       appointmentDate: futureDate(36),
       startTime: futureTime(36),
       practitioner: buildPractitioner({ cancellationNotice: 48 }),
-    })
-    expect(canModifyNext(apt)).toBe(false)
-  })
+    });
+    expect(canModifyNext(apt)).toBe(false);
+  });
 
   it("retourne true si le rendez-vous est dans plus de 48h avec un délai de 48h", () => {
     const apt = buildAppointment({
-      status: 'CONFIRMED',
+      status: "CONFIRMED",
       appointmentDate: futureDate(72),
       startTime: futureTime(72),
       practitioner: buildPractitioner({ cancellationNotice: 48 }),
-    })
-    expect(canModifyNext(apt)).toBe(true)
-  })
+    });
+    expect(canModifyNext(apt)).toBe(true);
+  });
 
   it("utilise 24h par défaut si cancellationNotice est undefined", () => {
     const apt = buildAppointment({
-      status: 'CONFIRMED',
+      status: "CONFIRMED",
       appointmentDate: futureDate(48),
       startTime: futureTime(48),
       practitioner: buildPractitioner({ cancellationNotice: undefined }),
-    })
-    expect(canModifyNext(apt)).toBe(true)
-  })
-})
+    });
+    expect(canModifyNext(apt)).toBe(true);
+  });
+});
 
-describe('patient dashboard — canCancelNext', () => {
+describe("patient dashboard — canCancelNext", () => {
   it("retourne false si le rendez-vous est null", () => {
-    expect(canCancelNext(null)).toBe(false)
-  })
+    expect(canCancelNext(null)).toBe(false);
+  });
 
   it("retourne false si le statut est CANCELLED", () => {
     const apt = buildAppointment({
-      status: 'CANCELLED',
+      status: "CANCELLED",
       appointmentDate: futureDate(24),
       startTime: futureTime(24),
-    })
-    expect(canCancelNext(apt)).toBe(false)
-  })
+    });
+    expect(canCancelNext(apt)).toBe(false);
+  });
 
   it("retourne false si le statut est COMPLETED", () => {
     const apt = buildAppointment({
-      status: 'COMPLETED',
+      status: "COMPLETED",
       appointmentDate: futureDate(24),
       startTime: futureTime(24),
-    })
-    expect(canCancelNext(apt)).toBe(false)
-  })
+    });
+    expect(canCancelNext(apt)).toBe(false);
+  });
 
   it("retourne true si le rendez-vous est dans le futur", () => {
     const apt = buildAppointment({
-      status: 'CONFIRMED',
+      status: "CONFIRMED",
       appointmentDate: futureDate(2),
       startTime: futureTime(2),
-    })
-    expect(canCancelNext(apt)).toBe(true)
-  })
+    });
+    expect(canCancelNext(apt)).toBe(true);
+  });
 
   it("retourne false si le rendez-vous est dans le passé", () => {
     const apt = buildAppointment({
-      status: 'CONFIRMED',
+      status: "CONFIRMED",
       appointmentDate: pastDate(2),
       startTime: pastTime(2),
-    })
-    expect(canCancelNext(apt)).toBe(false)
-  })
+    });
+    expect(canCancelNext(apt)).toBe(false);
+  });
 
   it("retourne true pour un rendez-vous PENDING dans le futur", () => {
     const apt = buildAppointment({
-      status: 'PENDING',
+      status: "PENDING",
       appointmentDate: futureDate(5),
       startTime: futureTime(5),
-    })
-    expect(canCancelNext(apt)).toBe(true)
-  })
-})
+    });
+    expect(canCancelNext(apt)).toBe(true);
+  });
+});
 
-describe('patient dashboard — canJoinNext', () => {
+describe("patient dashboard — canJoinNext", () => {
   it("retourne false si le rendez-vous est null", () => {
-    expect(canJoinNext(null)).toBe(false)
-  })
+    expect(canJoinNext(null)).toBe(false);
+  });
 
   it("retourne false si le type n'est pas TELECONSULTATION", () => {
     const apt = buildAppointment({
-      type: 'IN_PERSON',
-      status: 'CONFIRMED',
+      type: "IN_PERSON",
+      status: "CONFIRMED",
       appointmentDate: futureDate(0),
       startTime: futureTime(0),
-    })
-    expect(canJoinNext(apt)).toBe(false)
-  })
+    });
+    expect(canJoinNext(apt)).toBe(false);
+  });
 
   it("retourne false si le statut est CANCELLED", () => {
     const apt = buildAppointment({
-      type: 'TELECONSULTATION',
-      status: 'CANCELLED',
+      type: "TELECONSULTATION",
+      status: "CANCELLED",
       appointmentDate: futureDate(0),
       startTime: futureTime(0),
-    })
-    expect(canJoinNext(apt)).toBe(false)
-  })
+    });
+    expect(canJoinNext(apt)).toBe(false);
+  });
 
   it("retourne false si le statut est NO_SHOW", () => {
     const apt = buildAppointment({
-      type: 'TELECONSULTATION',
-      status: 'NO_SHOW',
+      type: "TELECONSULTATION",
+      status: "NO_SHOW",
       appointmentDate: futureDate(0),
       startTime: futureTime(0),
-    })
-    expect(canJoinNext(apt)).toBe(false)
-  })
+    });
+    expect(canJoinNext(apt)).toBe(false);
+  });
 
   it("retourne true si la téléconsultation commence dans moins de 15 minutes", () => {
     const apt = buildAppointment({
-      type: 'TELECONSULTATION',
-      status: 'CONFIRMED',
+      type: "TELECONSULTATION",
+      status: "CONFIRMED",
       appointmentDate: futureDate(0),
       startTime: (() => {
-        const d = new Date()
-        d.setMinutes(d.getMinutes() + 10)
-        return `${String(d.getHours()).padStart(2, '0')}:${String(d.getMinutes()).padStart(2, '0')}`
+        const d = new Date();
+        d.setMinutes(d.getMinutes() + 10);
+        return `${String(d.getHours()).padStart(2, "0")}:${String(d.getMinutes()).padStart(2, "0")}`;
       })(),
-    })
-    expect(canJoinNext(apt)).toBe(true)
-  })
+    });
+    expect(canJoinNext(apt)).toBe(true);
+  });
 
   it("retourne true si la téléconsultation a commencé depuis moins de 60 minutes", () => {
     const apt = buildAppointment({
-      type: 'TELECONSULTATION',
-      status: 'CONFIRMED',
+      type: "TELECONSULTATION",
+      status: "CONFIRMED",
       appointmentDate: pastDate(0),
       startTime: (() => {
-        const d = new Date()
-        d.setMinutes(d.getMinutes() - 30)
-        return `${String(d.getHours()).padStart(2, '0')}:${String(d.getMinutes()).padStart(2, '0')}`
+        const d = new Date();
+        d.setMinutes(d.getMinutes() - 30);
+        return `${String(d.getHours()).padStart(2, "0")}:${String(d.getMinutes()).padStart(2, "0")}`;
       })(),
-    })
-    expect(canJoinNext(apt)).toBe(true)
-  })
+    });
+    expect(canJoinNext(apt)).toBe(true);
+  });
 
   it("retourne false si la téléconsultation a commencé depuis plus de 60 minutes", () => {
     const apt = buildAppointment({
-      type: 'TELECONSULTATION',
-      status: 'CONFIRMED',
+      type: "TELECONSULTATION",
+      status: "CONFIRMED",
       appointmentDate: pastDate(2),
       startTime: pastTime(2),
-    })
-    expect(canJoinNext(apt)).toBe(false)
-  })
+    });
+    expect(canJoinNext(apt)).toBe(false);
+  });
 
   it("retourne false si la téléconsultation est trop loin dans le futur (> 15 min)", () => {
     const apt = buildAppointment({
-      type: 'TELECONSULTATION',
-      status: 'CONFIRMED',
+      type: "TELECONSULTATION",
+      status: "CONFIRMED",
       appointmentDate: futureDate(2),
       startTime: futureTime(2),
-    })
-    expect(canJoinNext(apt)).toBe(false)
-  })
-})
+    });
+    expect(canJoinNext(apt)).toBe(false);
+  });
+});
 
-describe('patient dashboard — getNotificationIcon', () => {
+describe("patient dashboard — getNotificationIcon", () => {
   it("retourne 'Bell' pour APPOINTMENT_REMINDER", () => {
-    expect(getNotificationIcon('APPOINTMENT_REMINDER')).toBe('Bell')
-  })
+    expect(getNotificationIcon("APPOINTMENT_REMINDER")).toBe("Bell");
+  });
 
   it("retourne 'FileText' pour DOCUMENT_SHARED", () => {
-    expect(getNotificationIcon('DOCUMENT_SHARED')).toBe('FileText')
-  })
+    expect(getNotificationIcon("DOCUMENT_SHARED")).toBe("FileText");
+  });
 
   it("retourne 'Activity' pour HEALTH_REMINDER", () => {
-    expect(getNotificationIcon('HEALTH_REMINDER')).toBe('Activity')
-  })
+    expect(getNotificationIcon("HEALTH_REMINDER")).toBe("Activity");
+  });
 
   it("retourne 'Bell' par défaut pour un type inconnu", () => {
-    expect(getNotificationIcon('UNKNOWN_TYPE')).toBe('Bell')
-  })
-})
+    expect(getNotificationIcon("UNKNOWN_TYPE")).toBe("Bell");
+  });
+});

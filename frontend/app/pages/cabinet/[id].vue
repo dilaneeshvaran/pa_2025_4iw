@@ -1,6 +1,8 @@
 <template>
-  <div class="min-h-screen bg-gray-50">
-    <header class="border-b border-gray-200 bg-white">
+  <div class="min-h-screen bg-gray-50 dark:bg-gray-950">
+    <header
+      class="border-b border-gray-200 bg-white dark:border-gray-800 dark:bg-gray-900"
+    >
       <div class="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
         <div class="flex h-16 items-center justify-between">
           <NuxtLink
@@ -20,10 +22,16 @@
         </Button>
       </div>
 
-      <div v-if="loadingCabinet" class="py-12 text-center text-gray-500">
+      <div
+        v-if="loadingCabinet"
+        class="py-12 text-center text-gray-500 dark:text-gray-400"
+      >
         Chargement des informations du cabinet...
       </div>
-      <div v-else-if="!cabinet" class="py-12 text-center text-gray-500">
+      <div
+        v-else-if="!cabinet"
+        class="py-12 text-center text-gray-500 dark:text-gray-400"
+      >
         Cabinet introuvable.
       </div>
       <div v-else>
@@ -33,10 +41,14 @@
             class="flex flex-col justify-between gap-4 md:flex-row md:items-start"
           >
             <div>
-              <h1 class="mb-2 text-3xl font-bold text-gray-900">
+              <h1
+                class="mb-2 text-3xl font-bold text-gray-900 dark:text-gray-100"
+              >
                 {{ cabinet.name }}
               </h1>
-              <div class="mt-4 flex flex-col gap-2 text-gray-600">
+              <div
+                class="mt-4 flex flex-col gap-2 text-gray-600 dark:text-gray-400"
+              >
                 <div
                   class="flex items-center gap-2"
                   v-if="cabinet.address || cabinet.city"
@@ -69,13 +81,13 @@
           <h2 class="mb-4 text-2xl font-semibold">Praticiens du cabinet</h2>
           <div
             v-if="loadingPractitioners"
-            class="py-8 text-center text-gray-500"
+            class="py-8 text-center text-gray-500 dark:text-gray-400"
           >
             Chargement des praticiens...
           </div>
           <div
             v-else-if="practitioners.length === 0"
-            class="py-8 text-center text-gray-500"
+            class="py-8 text-center text-gray-500 dark:text-gray-400"
           >
             Aucun praticien n'exerce actuellement dans ce cabinet.
           </div>
@@ -88,7 +100,7 @@
               <div class="flex flex-col gap-6 sm:flex-row">
                 <!-- photo -->
                 <div
-                  class="h-24 w-24 flex-shrink-0 overflow-hidden rounded-full bg-gray-200"
+                  class="h-24 w-24 flex-shrink-0 overflow-hidden rounded-full bg-gray-200 dark:bg-gray-700"
                 >
                   <img
                     v-if="practitioner.photo"
@@ -98,7 +110,7 @@
                   />
                   <div
                     v-else
-                    class="flex h-full w-full items-center justify-center text-2xl font-bold text-gray-400"
+                    class="flex h-full w-full items-center justify-center text-2xl font-bold text-gray-400 dark:text-gray-500"
                   >
                     {{ practitioner.firstName.charAt(0)
                     }}{{ practitioner.lastName.charAt(0) }}
@@ -115,7 +127,7 @@
                         {{ practitioner.title }} {{ practitioner.firstName }}
                         {{ practitioner.lastName }}
                       </h3>
-                      <p class="text-gray-600">
+                      <p class="text-gray-600 dark:text-gray-400">
                         {{ practitioner.specialties[0]?.name || "Généraliste" }}
                       </p>
                     </div>
@@ -140,7 +152,7 @@
                       <span class="font-medium">{{
                         practitioner.averageRating
                       }}</span>
-                      <span class="text-sm text-gray-600"
+                      <span class="text-sm text-gray-600 dark:text-gray-400"
                         >({{ practitioner.totalReviews }})</span
                       >
                     </div>

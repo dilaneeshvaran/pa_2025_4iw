@@ -6,14 +6,16 @@
         class="fixed inset-0 z-50 flex items-center justify-center bg-black bg-opacity-50 p-4"
         @click.self="emit('close')"
       >
-        <div class="w-full max-w-md rounded-xl bg-white p-6 shadow-xl">
+        <div
+          class="w-full max-w-md rounded-xl bg-white p-6 shadow-xl dark:bg-gray-900"
+        >
           <div class="mb-4 flex items-center justify-between">
-            <h3 class="text-lg font-semibold text-gray-900">
+            <h3 class="text-lg font-semibold text-gray-900 dark:text-gray-100">
               Encaisser un paiement
             </h3>
             <button
               @click="emit('close')"
-              class="rounded-lg p-1 text-gray-400 hover:bg-gray-100"
+              class="rounded-lg p-1 text-gray-400 hover:bg-gray-100 dark:text-gray-500 dark:hover:bg-gray-800"
             >
               <XIcon class="h-5 w-5" />
             </button>
@@ -21,12 +23,15 @@
 
           <form @submit.prevent="submitPayment" class="space-y-4">
             <!-- patient info  -->
-            <div v-if="appointment" class="mb-4 rounded-lg bg-gray-50 p-3">
-              <p class="font-medium text-gray-900">
+            <div
+              v-if="appointment"
+              class="mb-4 rounded-lg bg-gray-50 p-3 dark:bg-gray-950"
+            >
+              <p class="font-medium text-gray-900 dark:text-gray-100">
                 Patient : {{ appointment.patient?.firstName }}
                 {{ appointment.patient?.lastName }}
               </p>
-              <p class="text-sm text-gray-500">
+              <p class="text-sm text-gray-500 dark:text-gray-400">
                 Date :
                 {{
                   new Date(
@@ -35,13 +40,15 @@
                 }}
                 à {{ appointment.startTime }}
               </p>
-              <p class="text-sm text-gray-500">
+              <p class="text-sm text-gray-500 dark:text-gray-400">
                 Motif : {{ appointment.reason || "Consultation Cabinet" }}
               </p>
             </div>
 
             <div>
-              <label class="mb-1 block text-sm font-medium text-gray-700">
+              <label
+                class="mb-1 block text-sm font-medium text-gray-700 dark:text-gray-300"
+              >
                 Montant (FCFA) *
               </label>
               <UiInput
@@ -55,13 +62,15 @@
             </div>
 
             <div>
-              <label class="mb-1 block text-sm font-medium text-gray-700">
+              <label
+                class="mb-1 block text-sm font-medium text-gray-700 dark:text-gray-300"
+              >
                 Moyen de paiement *
               </label>
               <select
                 v-model="form.method"
                 required
-                class="w-full rounded-lg border border-gray-300 px-3 py-2 text-sm focus:border-orange-500 focus:outline-none focus:ring-1 focus:ring-orange-500"
+                class="w-full rounded-lg border border-gray-300 px-3 py-2 text-sm focus:border-orange-500 focus:outline-none focus:ring-1 focus:ring-orange-500 dark:border-gray-700"
               >
                 <option value="" disabled>Sélectionner...</option>
                 <option value="CASH">Espèces</option>
@@ -74,20 +83,22 @@
             </div>
 
             <div>
-              <label class="mb-1 block text-sm font-medium text-gray-700">
+              <label
+                class="mb-1 block text-sm font-medium text-gray-700 dark:text-gray-300"
+              >
                 Notes (optionnel)
               </label>
               <textarea
                 v-model="form.notes"
                 rows="2"
-                class="w-full rounded-lg border border-gray-300 px-3 py-2 text-sm focus:border-orange-500 focus:outline-none focus:ring-1 focus:ring-orange-500"
+                class="w-full rounded-lg border border-gray-300 px-3 py-2 text-sm focus:border-orange-500 focus:outline-none focus:ring-1 focus:ring-orange-500 dark:border-gray-700"
                 placeholder="Ex: Reste à payer, mutuelle..."
               ></textarea>
             </div>
 
             <div
               v-if="errorMsg"
-              class="rounded-md bg-red-50 p-3 text-sm text-red-700"
+              class="rounded-md bg-red-50 p-3 text-sm text-red-700 dark:bg-red-950/40 dark:text-red-300"
             >
               {{ errorMsg }}
             </div>

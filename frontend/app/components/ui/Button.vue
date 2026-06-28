@@ -41,8 +41,9 @@ const buttonClass = computed(() => {
     secondary:
       "bg-green-600 text-white hover:bg-green-700 focus:ring-green-500",
     outline:
-      "border border-orange-300 bg-white text-orange-600 hover:bg-orange-50 focus:ring-orange-500",
-    ghost: "text-gray-700 hover:bg-gray-100 focus:ring-gray-500",
+      "border border-orange-300 bg-white dark:bg-gray-900 text-orange-600 dark:text-orange-400 hover:bg-orange-50 dark:hover:bg-orange-950/40 focus:ring-orange-500",
+    ghost:
+      "text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-800 focus:ring-gray-500",
     danger: "bg-red-600 text-white hover:bg-red-700 focus:ring-red-500",
   };
 

@@ -1,10 +1,10 @@
 <template>
-  <div class="min-h-[calc(100vh-4rem)] bg-gray-50 px-4 py-8">
+  <div class="min-h-[calc(100vh-4rem)] bg-gray-50 px-4 py-8 dark:bg-gray-950">
     <div class="mx-auto max-w-3xl">
       <div class="mb-6">
         <NuxtLink
           to="/"
-          class="inline-flex items-center text-orange-600 hover:text-orange-700"
+          class="inline-flex items-center text-orange-600 hover:text-orange-700 dark:text-orange-400"
         >
           <svg
             class="mr-2 h-5 w-5"
@@ -23,22 +23,24 @@
         </NuxtLink>
       </div>
 
-      <div class="rounded-2xl bg-white p-6 shadow-lg md:p-8">
+      <div class="rounded-2xl bg-white p-6 shadow-lg dark:bg-gray-900 md:p-8">
         <!-- select type -->
         <div v-if="!selectedType">
-          <h3 class="mb-6 text-2xl font-bold text-gray-900">Je suis...</h3>
+          <h3 class="mb-6 text-2xl font-bold text-gray-900 dark:text-gray-100">
+            Je suis...
+          </h3>
           <div class="space-y-4">
             <!-- healthcare professional -->
             <button
-              class="group w-full rounded-lg border-2 border-gray-200 p-6 text-left transition-all hover:border-orange-600 hover:bg-orange-50"
+              class="group w-full rounded-lg border-2 border-gray-200 p-6 text-left transition-all hover:border-orange-600 hover:bg-orange-50 dark:border-gray-800 dark:hover:bg-orange-950/40"
               @click="selectedType = 'healthcare'"
             >
               <div class="flex items-start gap-4">
                 <div
-                  class="flex h-12 w-12 flex-shrink-0 items-center justify-center rounded-lg bg-orange-100 transition-colors group-hover:bg-orange-500"
+                  class="flex h-12 w-12 flex-shrink-0 items-center justify-center rounded-lg bg-orange-100 transition-colors group-hover:bg-orange-500 dark:bg-orange-900/40"
                 >
                   <svg
-                    class="h-6 w-6 text-orange-600 group-hover:text-white"
+                    class="h-6 w-6 text-orange-600 group-hover:text-white dark:text-orange-400"
                     fill="none"
                     stroke="currentColor"
                     viewBox="0 0 24 24"
@@ -52,10 +54,12 @@
                   </svg>
                 </div>
                 <div>
-                  <h3 class="mb-1 text-lg font-semibold text-gray-900">
+                  <h3
+                    class="mb-1 text-lg font-semibold text-gray-900 dark:text-gray-100"
+                  >
                     Je suis soignant et souhaite en savoir plus
                   </h3>
-                  <p class="text-gray-600">
+                  <p class="text-gray-600 dark:text-gray-400">
                     Découvrez comment MediCôte peut simplifier la gestion de
                     votre cabinet
                   </p>
@@ -65,15 +69,15 @@
 
             <!-- client -->
             <button
-              class="group w-full rounded-lg border-2 border-gray-200 p-6 text-left transition-all hover:border-green-600 hover:bg-green-50"
+              class="group w-full rounded-lg border-2 border-gray-200 p-6 text-left transition-all hover:border-green-600 hover:bg-green-50 dark:border-gray-800 dark:hover:bg-green-950/40"
               @click="selectedType = 'client'"
             >
               <div class="flex items-start gap-4">
                 <div
-                  class="flex h-12 w-12 flex-shrink-0 items-center justify-center rounded-lg bg-green-100 transition-colors group-hover:bg-green-600"
+                  class="flex h-12 w-12 flex-shrink-0 items-center justify-center rounded-lg bg-green-100 transition-colors group-hover:bg-green-600 dark:bg-green-900/40"
                 >
                   <svg
-                    class="h-6 w-6 text-green-600 group-hover:text-white"
+                    class="h-6 w-6 text-green-600 group-hover:text-white dark:text-green-400"
                     fill="none"
                     stroke="currentColor"
                     viewBox="0 0 24 24"
@@ -87,10 +91,12 @@
                   </svg>
                 </div>
                 <div>
-                  <h3 class="mb-1 text-lg font-semibold text-gray-900">
+                  <h3
+                    class="mb-1 text-lg font-semibold text-gray-900 dark:text-gray-100"
+                  >
                     Je suis client et j'ai besoin d'aide
                   </h3>
-                  <p class="text-gray-600">
+                  <p class="text-gray-600 dark:text-gray-400">
                     Vous utilisez déjà MediCôte et vous avez une question
                   </p>
                 </div>
@@ -99,15 +105,15 @@
 
             <!-- patient -->
             <button
-              class="group w-full rounded-lg border-2 border-gray-200 p-6 text-left transition-all hover:border-orange-600 hover:bg-orange-50"
+              class="group w-full rounded-lg border-2 border-gray-200 p-6 text-left transition-all hover:border-orange-600 hover:bg-orange-50 dark:border-gray-800 dark:hover:bg-orange-950/40"
               @click="selectedType = 'patient'"
             >
               <div class="flex items-start gap-4">
                 <div
-                  class="flex h-12 w-12 flex-shrink-0 items-center justify-center rounded-lg bg-orange-100 transition-colors group-hover:bg-orange-600"
+                  class="flex h-12 w-12 flex-shrink-0 items-center justify-center rounded-lg bg-orange-100 transition-colors group-hover:bg-orange-600 dark:bg-orange-900/40"
                 >
                   <svg
-                    class="h-6 w-6 text-orange-600 group-hover:text-white"
+                    class="h-6 w-6 text-orange-600 group-hover:text-white dark:text-orange-400"
                     fill="none"
                     stroke="currentColor"
                     viewBox="0 0 24 24"
@@ -121,10 +127,12 @@
                   </svg>
                 </div>
                 <div>
-                  <h3 class="mb-1 text-lg font-semibold text-gray-900">
+                  <h3
+                    class="mb-1 text-lg font-semibold text-gray-900 dark:text-gray-100"
+                  >
                     Je suis patient et souhaite prendre RDV
                   </h3>
-                  <p class="text-gray-600">
+                  <p class="text-gray-600 dark:text-gray-400">
                     Trouvez un praticien et prenez rendez-vous en ligne
                   </p>
                 </div>
@@ -136,7 +144,7 @@
         <!--   choose sub-type for healthcare professional -->
         <div v-else-if="selectedType === 'healthcare'">
           <button
-            class="mb-4 inline-flex items-center text-orange-600 hover:text-orange-700"
+            class="mb-4 inline-flex items-center text-orange-600 hover:text-orange-700 dark:text-orange-400"
             @click="
               selectedType = null;
               registrationType = null;
@@ -160,19 +168,21 @@
 
           <!-- sub type toggle  -->
           <div v-if="!registrationType">
-            <h3 class="mb-6 text-2xl font-bold text-gray-900">
+            <h3
+              class="mb-6 text-2xl font-bold text-gray-900 dark:text-gray-100"
+            >
               Type d'inscription
             </h3>
             <div class="grid gap-4 md:grid-cols-2">
               <button
-                class="group rounded-lg border-2 border-gray-200 p-6 text-left transition-all hover:border-orange-600 hover:bg-orange-50"
+                class="group rounded-lg border-2 border-gray-200 p-6 text-left transition-all hover:border-orange-600 hover:bg-orange-50 dark:border-gray-800 dark:hover:bg-orange-950/40"
                 @click="registrationType = 'PRACTITIONER'"
               >
                 <div
-                  class="mb-3 flex h-12 w-12 items-center justify-center rounded-lg bg-orange-100 transition-colors group-hover:bg-orange-500"
+                  class="mb-3 flex h-12 w-12 items-center justify-center rounded-lg bg-orange-100 transition-colors group-hover:bg-orange-500 dark:bg-orange-900/40"
                 >
                   <svg
-                    class="h-6 w-6 text-orange-600 group-hover:text-white"
+                    class="h-6 w-6 text-orange-600 group-hover:text-white dark:text-orange-400"
                     fill="none"
                     stroke="currentColor"
                     viewBox="0 0 24 24"
@@ -185,23 +195,25 @@
                     />
                   </svg>
                 </div>
-                <h4 class="mb-1 text-lg font-semibold text-gray-900">
+                <h4
+                  class="mb-1 text-lg font-semibold text-gray-900 dark:text-gray-100"
+                >
                   Praticien individuel
                 </h4>
-                <p class="text-sm text-gray-600">
+                <p class="text-sm text-gray-600 dark:text-gray-400">
                   Inscription en tant que médecin, dentiste, spécialiste...
                 </p>
               </button>
 
               <button
-                class="group rounded-lg border-2 border-gray-200 p-6 text-left transition-all hover:border-purple-600 hover:bg-purple-50"
+                class="group rounded-lg border-2 border-gray-200 p-6 text-left transition-all hover:border-purple-600 hover:bg-purple-50 dark:border-gray-800"
                 @click="registrationType = 'CABINET'"
               >
                 <div
-                  class="mb-3 flex h-12 w-12 items-center justify-center rounded-lg bg-purple-100 transition-colors group-hover:bg-purple-600"
+                  class="mb-3 flex h-12 w-12 items-center justify-center rounded-lg bg-purple-100 transition-colors group-hover:bg-purple-600 dark:bg-purple-900/40"
                 >
                   <svg
-                    class="h-6 w-6 text-purple-600 group-hover:text-white"
+                    class="h-6 w-6 text-purple-600 group-hover:text-white dark:text-purple-400"
                     fill="none"
                     stroke="currentColor"
                     viewBox="0 0 24 24"
@@ -214,10 +226,12 @@
                     />
                   </svg>
                 </div>
-                <h4 class="mb-1 text-lg font-semibold text-gray-900">
+                <h4
+                  class="mb-1 text-lg font-semibold text-gray-900 dark:text-gray-100"
+                >
                   Cabinet / Structure sanitaire
                 </h4>
-                <p class="text-sm text-gray-600">
+                <p class="text-sm text-gray-600 dark:text-gray-400">
                   Inscription d'un cabinet médical, clinique ou centre de santé
                 </p>
               </button>
@@ -227,7 +241,7 @@
           <!-- practitcien form -->
           <div v-else-if="registrationType === 'PRACTITIONER'">
             <button
-              class="mb-4 inline-flex items-center text-orange-600 hover:text-orange-700"
+              class="mb-4 inline-flex items-center text-orange-600 hover:text-orange-700 dark:text-orange-400"
               @click="registrationType = null"
             >
               <svg
@@ -248,56 +262,60 @@
 
             <form class="space-y-6" @submit.prevent="handlePractitionerSubmit">
               <div>
-                <h3 class="mb-4 text-xl font-bold text-gray-900">
+                <h3
+                  class="mb-4 text-xl font-bold text-gray-900 dark:text-gray-100"
+                >
                   Informations personnelles
                 </h3>
                 <div class="space-y-4">
                   <div class="grid gap-4 md:grid-cols-2">
                     <div>
                       <label
-                        class="mb-2 block text-sm font-medium text-gray-700"
+                        class="mb-2 block text-sm font-medium text-gray-700 dark:text-gray-300"
                         >Prénom *</label
                       >
                       <input
                         v-model="practitionerForm.firstName"
                         type="text"
-                        class="w-full rounded-lg border border-gray-300 px-4 py-2.5 focus:outline-none focus:ring-2 focus:ring-orange-500"
+                        class="w-full rounded-lg border border-gray-300 px-4 py-2.5 focus:outline-none focus:ring-2 focus:ring-orange-500 dark:border-gray-700"
                         required
                       />
                     </div>
                     <div>
                       <label
-                        class="mb-2 block text-sm font-medium text-gray-700"
+                        class="mb-2 block text-sm font-medium text-gray-700 dark:text-gray-300"
                         >Nom *</label
                       >
                       <input
                         v-model="practitionerForm.lastName"
                         type="text"
-                        class="w-full rounded-lg border border-gray-300 px-4 py-2.5 focus:outline-none focus:ring-2 focus:ring-orange-500"
+                        class="w-full rounded-lg border border-gray-300 px-4 py-2.5 focus:outline-none focus:ring-2 focus:ring-orange-500 dark:border-gray-700"
                         required
                       />
                     </div>
                   </div>
                   <div>
-                    <label class="mb-2 block text-sm font-medium text-gray-700"
+                    <label
+                      class="mb-2 block text-sm font-medium text-gray-700 dark:text-gray-300"
                       >Email *</label
                     >
                     <input
                       v-model="practitionerForm.email"
                       type="email"
-                      class="w-full rounded-lg border border-gray-300 px-4 py-2.5 focus:outline-none focus:ring-2 focus:ring-orange-500"
+                      class="w-full rounded-lg border border-gray-300 px-4 py-2.5 focus:outline-none focus:ring-2 focus:ring-orange-500 dark:border-gray-700"
                       required
                     />
                   </div>
                   <div>
-                    <label class="mb-2 block text-sm font-medium text-gray-700"
+                    <label
+                      class="mb-2 block text-sm font-medium text-gray-700 dark:text-gray-300"
                       >Téléphone *</label
                     >
                     <input
                       v-model="practitionerForm.phone"
                       type="tel"
                       placeholder="+225 XX XX XX XX XX"
-                      class="w-full rounded-lg border border-gray-300 px-4 py-2.5 focus:outline-none focus:ring-2 focus:ring-orange-500"
+                      class="w-full rounded-lg border border-gray-300 px-4 py-2.5 focus:outline-none focus:ring-2 focus:ring-orange-500 dark:border-gray-700"
                       required
                     />
                   </div>
@@ -305,29 +323,33 @@
               </div>
 
               <div class="border-t pt-6">
-                <h3 class="mb-4 text-xl font-bold text-gray-900">
+                <h3
+                  class="mb-4 text-xl font-bold text-gray-900 dark:text-gray-100"
+                >
                   Informations professionnelles
                 </h3>
                 <div class="space-y-4">
                   <div>
-                    <label class="mb-2 block text-sm font-medium text-gray-700"
+                    <label
+                      class="mb-2 block text-sm font-medium text-gray-700 dark:text-gray-300"
                       >Numéro d'inscription à l'Ordre (ONMCI) *</label
                     >
                     <input
                       v-model="practitionerForm.orderNumber"
                       type="text"
-                      class="w-full rounded-lg border border-gray-300 px-4 py-2.5 focus:outline-none focus:ring-2 focus:ring-orange-500"
+                      class="w-full rounded-lg border border-gray-300 px-4 py-2.5 focus:outline-none focus:ring-2 focus:ring-orange-500 dark:border-gray-700"
                       required
                     />
                   </div>
                   <div>
-                    <label class="mb-2 block text-sm font-medium text-gray-700"
+                    <label
+                      class="mb-2 block text-sm font-medium text-gray-700 dark:text-gray-300"
                       >Adresse du cabinet / structure sanitaire *</label
                     >
                     <input
                       v-model="practitionerForm.clinicAddress"
                       type="text"
-                      class="w-full rounded-lg border border-gray-300 px-4 py-2.5 focus:outline-none focus:ring-2 focus:ring-orange-500"
+                      class="w-full rounded-lg border border-gray-300 px-4 py-2.5 focus:outline-none focus:ring-2 focus:ring-orange-500 dark:border-gray-700"
                       required
                     />
                   </div>
@@ -337,7 +359,9 @@
                     v-click-outside="() => (showSpecialtyDropdown = false)"
                     class="relative"
                   >
-                    <label class="mb-2 block text-sm font-medium text-gray-700">
+                    <label
+                      class="mb-2 block text-sm font-medium text-gray-700 dark:text-gray-300"
+                    >
                       Spécialité médicale
                     </label>
                     <div class="relative">
@@ -345,12 +369,12 @@
                         v-model="specialtySearch"
                         type="text"
                         placeholder="Rechercher une spécialité..."
-                        class="w-full rounded-lg border border-gray-300 px-4 py-2.5 pr-10 focus:outline-none focus:ring-2 focus:ring-orange-500"
+                        class="w-full rounded-lg border border-gray-300 px-4 py-2.5 pr-10 focus:outline-none focus:ring-2 focus:ring-orange-500 dark:border-gray-700"
                         @focus="showSpecialtyDropdown = true"
                         @input="showSpecialtyDropdown = true"
                       />
                       <svg
-                        class="absolute right-3 top-1/2 h-5 w-5 -translate-y-1/2 text-gray-400"
+                        class="absolute right-3 top-1/2 h-5 w-5 -translate-y-1/2 text-gray-400 dark:text-gray-500"
                         fill="none"
                         stroke="currentColor"
                         viewBox="0 0 24 24"
@@ -366,20 +390,23 @@
 
                     <div
                       v-if="showSpecialtyDropdown && !isSubmitting"
-                      class="absolute z-10 mt-1 max-h-60 w-full overflow-y-auto rounded-lg border border-gray-300 bg-white shadow-lg"
+                      class="absolute z-10 mt-1 max-h-60 w-full overflow-y-auto rounded-lg border border-gray-300 bg-white shadow-lg dark:border-gray-700 dark:bg-gray-900"
                     >
                       <div v-if="filteredSpecialties.length > 0" class="p-2">
                         <button
                           v-for="sp in filteredSpecialties"
                           :key="sp"
                           type="button"
-                          class="w-full rounded px-4 py-2 text-left transition-colors hover:bg-orange-50"
+                          class="w-full rounded px-4 py-2 text-left transition-colors hover:bg-orange-50 dark:hover:bg-orange-950/40"
                           @click="selectSpecialty(sp)"
                         >
                           {{ sp }}
                         </button>
                       </div>
-                      <div v-else class="p-4 text-center text-gray-600">
+                      <div
+                        v-else
+                        class="p-4 text-center text-gray-600 dark:text-gray-400"
+                      >
                         Aucune spécialité trouvée
                       </div>
                     </div>
@@ -388,21 +415,25 @@
               </div>
 
               <div class="border-t pt-6">
-                <h3 class="mb-4 text-xl font-bold text-gray-900">
+                <h3
+                  class="mb-4 text-xl font-bold text-gray-900 dark:text-gray-100"
+                >
                   Documents requis
                 </h3>
-                <p class="mb-4 text-sm text-gray-600">
+                <p class="mb-4 text-sm text-gray-600 dark:text-gray-400">
                   Formats acceptés : PDF, JPG, PNG - Max 5 Mo par fichier
                 </p>
                 <div class="space-y-4">
                   <div>
-                    <label class="mb-2 block text-sm font-medium text-gray-700">
+                    <label
+                      class="mb-2 block text-sm font-medium text-gray-700 dark:text-gray-300"
+                    >
                       Carte d'identité nationale / Passeport *
                     </label>
                     <input
                       type="file"
                       accept=".pdf,.jpg,.jpeg,.png"
-                      class="w-full rounded-lg border border-gray-300 px-4 py-2 text-sm file:mr-4 file:rounded file:border-0 file:bg-orange-50 file:px-4 file:py-2 file:text-sm file:font-medium file:text-orange-700 hover:file:bg-orange-100"
+                      class="w-full rounded-lg border border-gray-300 px-4 py-2 text-sm file:mr-4 file:rounded file:border-0 file:bg-orange-50 file:px-4 file:py-2 file:text-sm file:font-medium file:text-orange-700 hover:file:bg-orange-100 dark:border-gray-700"
                       @change="
                         (e: Event) => handleFileChange(e, 'identityDocument')
                       "
@@ -410,44 +441,48 @@
                     />
                     <p
                       v-if="fileErrors.identityDocument"
-                      class="mt-1 text-sm text-red-600"
+                      class="mt-1 text-sm text-red-600 dark:text-red-400"
                     >
                       {{ fileErrors.identityDocument }}
                     </p>
                   </div>
                   <div>
-                    <label class="mb-2 block text-sm font-medium text-gray-700">
+                    <label
+                      class="mb-2 block text-sm font-medium text-gray-700 dark:text-gray-300"
+                    >
                       Diplôme d'État de docteur en médecine *
                     </label>
                     <input
                       type="file"
                       accept=".pdf,.jpg,.jpeg,.png"
-                      class="w-full rounded-lg border border-gray-300 px-4 py-2 text-sm file:mr-4 file:rounded file:border-0 file:bg-orange-50 file:px-4 file:py-2 file:text-sm file:font-medium file:text-orange-700 hover:file:bg-orange-100"
+                      class="w-full rounded-lg border border-gray-300 px-4 py-2 text-sm file:mr-4 file:rounded file:border-0 file:bg-orange-50 file:px-4 file:py-2 file:text-sm file:font-medium file:text-orange-700 hover:file:bg-orange-100 dark:border-gray-700"
                       @change="(e: Event) => handleFileChange(e, 'diploma')"
                       required
                     />
                     <p
                       v-if="fileErrors.diploma"
-                      class="mt-1 text-sm text-red-600"
+                      class="mt-1 text-sm text-red-600 dark:text-red-400"
                     >
                       {{ fileErrors.diploma }}
                     </p>
                   </div>
                   <div>
-                    <label class="mb-2 block text-sm font-medium text-gray-700">
+                    <label
+                      class="mb-2 block text-sm font-medium text-gray-700 dark:text-gray-300"
+                    >
                       Attestation d'inscription au Tableau de l'Ordre (ONMCI)
                     </label>
                     <input
                       type="file"
                       accept=".pdf,.jpg,.jpeg,.png"
-                      class="w-full rounded-lg border border-gray-300 px-4 py-2 text-sm file:mr-4 file:rounded file:border-0 file:bg-orange-50 file:px-4 file:py-2 file:text-sm file:font-medium file:text-orange-700 hover:file:bg-orange-100"
+                      class="w-full rounded-lg border border-gray-300 px-4 py-2 text-sm file:mr-4 file:rounded file:border-0 file:bg-orange-50 file:px-4 file:py-2 file:text-sm file:font-medium file:text-orange-700 hover:file:bg-orange-100 dark:border-gray-700"
                       @change="
                         (e: Event) => handleFileChange(e, 'orderAttestation')
                       "
                     />
                     <p
                       v-if="fileErrors.orderAttestation"
-                      class="mt-1 text-sm text-red-600"
+                      class="mt-1 text-sm text-red-600 dark:text-red-400"
                     >
                       {{ fileErrors.orderAttestation }}
                     </p>
@@ -457,17 +492,19 @@
 
               <!-- sumbit -->
               <div class="border-t pt-6">
-                <p class="mb-4 text-sm text-gray-600">* Champs obligatoires</p>
+                <p class="mb-4 text-sm text-gray-600 dark:text-gray-400">
+                  * Champs obligatoires
+                </p>
 
                 <div
                   v-if="errorMessage"
-                  class="mb-4 rounded-lg bg-red-50 p-4 text-red-800"
+                  class="mb-4 rounded-lg bg-red-50 p-4 text-red-800 dark:bg-red-950/40 dark:text-red-200"
                 >
                   {{ errorMessage }}
                 </div>
                 <div
                   v-if="successMessage"
-                  class="mb-4 rounded-lg bg-green-50 p-4 text-green-800"
+                  class="mb-4 rounded-lg bg-green-50 p-4 text-green-800 dark:bg-green-950/40 dark:text-green-200"
                 >
                   {{ successMessage }}
                 </div>
@@ -487,7 +524,7 @@
           <!-- form cabinet -->
           <div v-else-if="registrationType === 'CABINET'">
             <button
-              class="mb-4 inline-flex items-center text-orange-600 hover:text-orange-700"
+              class="mb-4 inline-flex items-center text-orange-600 hover:text-orange-700 dark:text-orange-400"
               @click="registrationType = null"
             >
               <svg
@@ -508,56 +545,60 @@
 
             <form class="space-y-6" @submit.prevent="handleCabinetSubmit">
               <div>
-                <h3 class="mb-4 text-xl font-bold text-gray-900">
+                <h3
+                  class="mb-4 text-xl font-bold text-gray-900 dark:text-gray-100"
+                >
                   Informations du demandeur
                 </h3>
                 <div class="space-y-4">
                   <div class="grid gap-4 md:grid-cols-2">
                     <div>
                       <label
-                        class="mb-2 block text-sm font-medium text-gray-700"
+                        class="mb-2 block text-sm font-medium text-gray-700 dark:text-gray-300"
                         >Prénom *</label
                       >
                       <input
                         v-model="cabinetForm.firstName"
                         type="text"
-                        class="w-full rounded-lg border border-gray-300 px-4 py-2.5 focus:outline-none focus:ring-2 focus:ring-purple-600"
+                        class="w-full rounded-lg border border-gray-300 px-4 py-2.5 focus:outline-none focus:ring-2 focus:ring-purple-600 dark:border-gray-700"
                         required
                       />
                     </div>
                     <div>
                       <label
-                        class="mb-2 block text-sm font-medium text-gray-700"
+                        class="mb-2 block text-sm font-medium text-gray-700 dark:text-gray-300"
                         >Nom *</label
                       >
                       <input
                         v-model="cabinetForm.lastName"
                         type="text"
-                        class="w-full rounded-lg border border-gray-300 px-4 py-2.5 focus:outline-none focus:ring-2 focus:ring-purple-600"
+                        class="w-full rounded-lg border border-gray-300 px-4 py-2.5 focus:outline-none focus:ring-2 focus:ring-purple-600 dark:border-gray-700"
                         required
                       />
                     </div>
                   </div>
                   <div>
-                    <label class="mb-2 block text-sm font-medium text-gray-700"
+                    <label
+                      class="mb-2 block text-sm font-medium text-gray-700 dark:text-gray-300"
                       >Email *</label
                     >
                     <input
                       v-model="cabinetForm.email"
                       type="email"
-                      class="w-full rounded-lg border border-gray-300 px-4 py-2.5 focus:outline-none focus:ring-2 focus:ring-purple-600"
+                      class="w-full rounded-lg border border-gray-300 px-4 py-2.5 focus:outline-none focus:ring-2 focus:ring-purple-600 dark:border-gray-700"
                       required
                     />
                   </div>
                   <div>
-                    <label class="mb-2 block text-sm font-medium text-gray-700"
+                    <label
+                      class="mb-2 block text-sm font-medium text-gray-700 dark:text-gray-300"
                       >Téléphone *</label
                     >
                     <input
                       v-model="cabinetForm.phone"
                       type="tel"
                       placeholder="+225 XX XX XX XX XX"
-                      class="w-full rounded-lg border border-gray-300 px-4 py-2.5 focus:outline-none focus:ring-2 focus:ring-purple-600"
+                      class="w-full rounded-lg border border-gray-300 px-4 py-2.5 focus:outline-none focus:ring-2 focus:ring-purple-600 dark:border-gray-700"
                       required
                     />
                   </div>
@@ -565,81 +606,91 @@
               </div>
 
               <div class="border-t pt-6">
-                <h3 class="mb-4 text-xl font-bold text-gray-900">
+                <h3
+                  class="mb-4 text-xl font-bold text-gray-900 dark:text-gray-100"
+                >
                   Informations du cabinet
                 </h3>
                 <div class="space-y-4">
                   <div>
-                    <label class="mb-2 block text-sm font-medium text-gray-700"
+                    <label
+                      class="mb-2 block text-sm font-medium text-gray-700 dark:text-gray-300"
                       >Nom du cabinet *</label
                     >
                     <input
                       v-model="cabinetForm.cabinetName"
                       type="text"
-                      class="w-full rounded-lg border border-gray-300 px-4 py-2.5 focus:outline-none focus:ring-2 focus:ring-purple-600"
+                      class="w-full rounded-lg border border-gray-300 px-4 py-2.5 focus:outline-none focus:ring-2 focus:ring-purple-600 dark:border-gray-700"
                       required
                     />
                   </div>
                   <div>
-                    <label class="mb-2 block text-sm font-medium text-gray-700"
+                    <label
+                      class="mb-2 block text-sm font-medium text-gray-700 dark:text-gray-300"
                       >Adresse du cabinet *</label
                     >
                     <input
                       v-model="cabinetForm.cabinetAddress"
                       type="text"
-                      class="w-full rounded-lg border border-gray-300 px-4 py-2.5 focus:outline-none focus:ring-2 focus:ring-purple-600"
+                      class="w-full rounded-lg border border-gray-300 px-4 py-2.5 focus:outline-none focus:ring-2 focus:ring-purple-600 dark:border-gray-700"
                       required
                     />
                   </div>
                   <div>
-                    <label class="mb-2 block text-sm font-medium text-gray-700"
+                    <label
+                      class="mb-2 block text-sm font-medium text-gray-700 dark:text-gray-300"
                       >RCCM (Registre du Commerce)</label
                     >
                     <input
                       v-model="cabinetForm.cabinetRccm"
                       type="text"
-                      class="w-full rounded-lg border border-gray-300 px-4 py-2.5 focus:outline-none focus:ring-2 focus:ring-purple-600"
+                      class="w-full rounded-lg border border-gray-300 px-4 py-2.5 focus:outline-none focus:ring-2 focus:ring-purple-600 dark:border-gray-700"
                     />
                   </div>
                 </div>
               </div>
 
               <div class="border-t pt-6">
-                <h3 class="mb-4 text-xl font-bold text-gray-900">
+                <h3
+                  class="mb-4 text-xl font-bold text-gray-900 dark:text-gray-100"
+                >
                   Responsable administratif
                 </h3>
                 <div class="space-y-4">
                   <div>
-                    <label class="mb-2 block text-sm font-medium text-gray-700"
+                    <label
+                      class="mb-2 block text-sm font-medium text-gray-700 dark:text-gray-300"
                       >Nom + Contact du responsable *</label
                     >
                     <input
                       v-model="cabinetForm.adminContactName"
                       type="text"
-                      class="w-full rounded-lg border border-gray-300 px-4 py-2.5 focus:outline-none focus:ring-2 focus:ring-purple-600"
+                      class="w-full rounded-lg border border-gray-300 px-4 py-2.5 focus:outline-none focus:ring-2 focus:ring-purple-600 dark:border-gray-700"
                       required
                     />
                   </div>
                   <div>
-                    <label class="mb-2 block text-sm font-medium text-gray-700"
+                    <label
+                      class="mb-2 block text-sm font-medium text-gray-700 dark:text-gray-300"
                       >Email du responsable *</label
                     >
                     <input
                       v-model="cabinetForm.adminContactEmail"
                       type="email"
-                      class="w-full rounded-lg border border-gray-300 px-4 py-2.5 focus:outline-none focus:ring-2 focus:ring-purple-600"
+                      class="w-full rounded-lg border border-gray-300 px-4 py-2.5 focus:outline-none focus:ring-2 focus:ring-purple-600 dark:border-gray-700"
                       required
                     />
                   </div>
                   <div>
-                    <label class="mb-2 block text-sm font-medium text-gray-700"
+                    <label
+                      class="mb-2 block text-sm font-medium text-gray-700 dark:text-gray-300"
                       >Téléphone du responsable *</label
                     >
                     <input
                       v-model="cabinetForm.adminContactPhone"
                       type="tel"
                       placeholder="+225 XX XX XX XX XX"
-                      class="w-full rounded-lg border border-gray-300 px-4 py-2.5 focus:outline-none focus:ring-2 focus:ring-purple-600"
+                      class="w-full rounded-lg border border-gray-300 px-4 py-2.5 focus:outline-none focus:ring-2 focus:ring-purple-600 dark:border-gray-700"
                       required
                     />
                   </div>
@@ -647,26 +698,30 @@
               </div>
 
               <div class="border-t pt-6">
-                <h3 class="mb-4 text-xl font-bold text-gray-900">
+                <h3
+                  class="mb-4 text-xl font-bold text-gray-900 dark:text-gray-100"
+                >
                   Document d'enregistrement
                 </h3>
-                <p class="mb-4 text-sm text-gray-600">
+                <p class="mb-4 text-sm text-gray-600 dark:text-gray-400">
                   Formats acceptés : PDF, JPG, PNG - Max 5 Mo par fichier
                 </p>
                 <div>
-                  <label class="mb-2 block text-sm font-medium text-gray-700">
+                  <label
+                    class="mb-2 block text-sm font-medium text-gray-700 dark:text-gray-300"
+                  >
                     RCCM ou document officiel d'enregistrement *
                   </label>
                   <input
                     type="file"
                     accept=".pdf,.jpg,.jpeg,.png"
-                    class="w-full rounded-lg border border-gray-300 px-4 py-2 text-sm file:mr-4 file:rounded file:border-0 file:bg-purple-50 file:px-4 file:py-2 file:text-sm file:font-medium file:text-purple-700 hover:file:bg-purple-100"
+                    class="w-full rounded-lg border border-gray-300 px-4 py-2 text-sm file:mr-4 file:rounded file:border-0 file:bg-purple-50 file:px-4 file:py-2 file:text-sm file:font-medium file:text-purple-700 hover:file:bg-purple-100 dark:border-gray-700"
                     @change="(e: Event) => handleFileChange(e, 'cabinetRegDoc')"
                     required
                   />
                   <p
                     v-if="fileErrors.cabinetRegDoc"
-                    class="mt-1 text-sm text-red-600"
+                    class="mt-1 text-sm text-red-600 dark:text-red-400"
                   >
                     {{ fileErrors.cabinetRegDoc }}
                   </p>
@@ -675,9 +730,11 @@
 
               <!-- submit -->
               <div class="border-t pt-6">
-                <p class="mb-4 text-sm text-gray-600">* Champs obligatoires</p>
+                <p class="mb-4 text-sm text-gray-600 dark:text-gray-400">
+                  * Champs obligatoires
+                </p>
                 <div
-                  class="mb-4 rounded-lg border border-orange-200 bg-orange-50 p-4 text-sm text-orange-800"
+                  class="mb-4 rounded-lg border border-orange-200 bg-orange-50 p-4 text-sm text-orange-800 dark:bg-orange-950/40 dark:text-orange-200"
                 >
                   <strong>Note :</strong> Chaque praticien doit s'inscrire
                   individuellement et être vérifié avec son compte personnel.
@@ -688,13 +745,13 @@
 
                 <div
                   v-if="errorMessage"
-                  class="mb-4 rounded-lg bg-red-50 p-4 text-red-800"
+                  class="mb-4 rounded-lg bg-red-50 p-4 text-red-800 dark:bg-red-950/40 dark:text-red-200"
                 >
                   {{ errorMessage }}
                 </div>
                 <div
                   v-if="successMessage"
-                  class="mb-4 rounded-lg bg-green-50 p-4 text-green-800"
+                  class="mb-4 rounded-lg bg-green-50 p-4 text-green-800 dark:bg-green-950/40 dark:text-green-200"
                 >
                   {{ successMessage }}
                 </div>
@@ -715,7 +772,7 @@
         <!-- client Type -->
         <div v-else-if="selectedType === 'client'">
           <button
-            class="mb-4 inline-flex items-center text-orange-600 hover:text-orange-700"
+            class="mb-4 inline-flex items-center text-orange-600 hover:text-orange-700 dark:text-orange-400"
             @click="selectedType = null"
           >
             <svg
@@ -734,12 +791,17 @@
             Retour
           </button>
           <div class="text-center">
-            <h3 class="mb-4 text-2xl font-bold text-gray-900">
+            <h3
+              class="mb-4 text-2xl font-bold text-gray-900 dark:text-gray-100"
+            >
               Support Client
             </h3>
-            <p class="text-gray-600">
+            <p class="text-gray-600 dark:text-gray-400">
               Pour toute assistance, veuillez contacter notre support à
-              <a href="mailto:support@medicote.ci" class="text-orange-600">
+              <a
+                href="mailto:support@medicote.ci"
+                class="text-orange-600 dark:text-orange-400"
+              >
                 support@medicote.ci
               </a>
             </p>
@@ -749,7 +811,7 @@
         <!-- patient Type -->
         <div v-else-if="selectedType === 'patient'">
           <button
-            class="mb-4 inline-flex items-center text-orange-600 hover:text-orange-700"
+            class="mb-4 inline-flex items-center text-orange-600 hover:text-orange-700 dark:text-orange-400"
             @click="selectedType = null"
           >
             <svg
@@ -768,10 +830,12 @@
             Retour
           </button>
           <div class="text-center">
-            <h3 class="mb-4 text-2xl font-bold text-gray-900">
+            <h3
+              class="mb-4 text-2xl font-bold text-gray-900 dark:text-gray-100"
+            >
               Prendre rendez-vous
             </h3>
-            <p class="mb-6 text-gray-600">
+            <p class="mb-6 text-gray-600 dark:text-gray-400">
               Pour prendre rendez-vous avec un praticien, veuillez créer un
               compte patient.
             </p>

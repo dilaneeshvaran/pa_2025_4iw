@@ -7,28 +7,34 @@
         @click.self="emit('close')"
       >
         <div
-          class="max-h-[90vh] w-full max-w-lg overflow-y-auto rounded-lg bg-white shadow-xl"
+          class="max-h-[90vh] w-full max-w-lg overflow-y-auto rounded-lg bg-white shadow-xl dark:bg-gray-900"
         >
           <!-- for practitioner dash -->
           <!-- loading -->
           <div v-if="loading" class="p-6">
             <div class="animate-pulse space-y-4">
               <div class="flex items-center gap-4">
-                <div class="h-16 w-16 rounded-full bg-gray-200"></div>
+                <div
+                  class="h-16 w-16 rounded-full bg-gray-200 dark:bg-gray-700"
+                ></div>
                 <div class="flex-1 space-y-2">
-                  <div class="h-5 w-2/3 rounded bg-gray-200"></div>
-                  <div class="h-3 w-1/3 rounded bg-gray-200"></div>
+                  <div
+                    class="h-5 w-2/3 rounded bg-gray-200 dark:bg-gray-700"
+                  ></div>
+                  <div
+                    class="h-3 w-1/3 rounded bg-gray-200 dark:bg-gray-700"
+                  ></div>
                 </div>
               </div>
-              <div class="h-24 rounded bg-gray-200"></div>
-              <div class="h-20 rounded bg-gray-200"></div>
+              <div class="h-24 rounded bg-gray-200 dark:bg-gray-700"></div>
+              <div class="h-20 rounded bg-gray-200 dark:bg-gray-700"></div>
             </div>
           </div>
 
           <!-- error -->
           <div v-else-if="error" class="p-6 text-center">
             <AlertCircle class="mx-auto mb-3 h-12 w-12 text-red-400" />
-            <p class="text-gray-600">
+            <p class="text-gray-600 dark:text-gray-400">
               Impossible de charger les détails du patient
             </p>
             <UiButton
@@ -43,20 +49,24 @@
 
           <div v-else-if="patient">
             <div
-              class="flex items-start justify-between border-b border-gray-200 p-6 pb-4"
+              class="flex items-start justify-between border-b border-gray-200 p-6 pb-4 dark:border-gray-800"
             >
               <div class="flex items-center gap-4">
                 <div
-                  class="flex h-16 w-16 flex-shrink-0 items-center justify-center rounded-full bg-orange-100"
+                  class="flex h-16 w-16 flex-shrink-0 items-center justify-center rounded-full bg-orange-100 dark:bg-orange-900/40"
                 >
-                  <span class="text-lg font-bold text-orange-600">
+                  <span
+                    class="text-lg font-bold text-orange-600 dark:text-orange-400"
+                  >
                     {{ patient.firstName.charAt(0)
                     }}{{ patient.lastName.charAt(0) }}
                   </span>
                 </div>
                 <div>
                   <div class="flex items-center gap-2">
-                    <h2 class="text-xl font-bold text-gray-900">
+                    <h2
+                      class="text-xl font-bold text-gray-900 dark:text-gray-100"
+                    >
                       {{ patient.firstName }} {{ patient.lastName }}
                     </h2>
                     <UiBadge
@@ -67,14 +77,14 @@
                       Nouveau
                     </UiBadge>
                   </div>
-                  <p class="text-sm text-gray-500">
+                  <p class="text-sm text-gray-500 dark:text-gray-400">
                     {{ getAge(patient.dateOfBirth) }} ans -
                     {{ getGenderLabel(patient.gender) }}
                   </p>
                 </div>
               </div>
               <button
-                class="rounded-lg p-2 text-gray-400 transition-colors hover:bg-gray-100 hover:text-gray-600"
+                class="rounded-lg p-2 text-gray-400 transition-colors hover:bg-gray-100 hover:text-gray-600 dark:text-gray-500 dark:hover:bg-gray-800"
                 @click="emit('close')"
               >
                 <XIcon class="h-5 w-5" />
@@ -82,11 +92,14 @@
             </div>
 
             <!-- stats  -->
-            <div class="grid grid-cols-2 gap-3 border-b border-gray-200 p-6">
-              <div class="rounded-lg bg-red-50 p-3">
+            <div
+              class="grid grid-cols-2 gap-3 border-b border-gray-200 p-6 dark:border-gray-800"
+            >
+              <div class="rounded-lg bg-red-50 p-3 dark:bg-red-950/40">
                 <div class="flex items-center gap-2">
-                  <Droplets class="h-4 w-4 text-red-500" />
-                  <span class="text-xs font-medium text-red-700"
+                  <Droplets class="h-4 w-4 text-red-500 dark:text-red-400" />
+                  <span
+                    class="text-xs font-medium text-red-700 dark:text-red-300"
                     >Groupe sanguin</span
                   >
                 </div>
@@ -95,14 +108,19 @@
                 </p>
               </div>
 
-              <div class="rounded-lg bg-orange-50 p-3">
+              <div class="rounded-lg bg-orange-50 p-3 dark:bg-orange-950/40">
                 <div class="flex items-center gap-2">
-                  <CalendarCheck class="h-4 w-4 text-orange-500" />
-                  <span class="text-xs font-medium text-orange-700"
+                  <CalendarCheck
+                    class="h-4 w-4 text-orange-500 dark:text-orange-400"
+                  />
+                  <span
+                    class="text-xs font-medium text-orange-700 dark:text-orange-300"
                     >Dernier RDV</span
                   >
                 </div>
-                <p class="mt-1 text-sm font-bold text-orange-800">
+                <p
+                  class="mt-1 text-sm font-bold text-orange-800 dark:text-orange-200"
+                >
                   {{
                     patient.lastAppointment
                       ? formatShortDate(patient.lastAppointment.appointmentDate)
@@ -111,22 +129,28 @@
                 </p>
               </div>
 
-              <div class="rounded-lg bg-purple-50 p-3">
+              <div class="rounded-lg bg-purple-50 p-3 dark:bg-purple-950/40">
                 <div class="flex items-center gap-2">
-                  <Activity class="h-4 w-4 text-purple-500" />
-                  <span class="text-xs font-medium text-purple-700"
+                  <Activity
+                    class="h-4 w-4 text-purple-500 dark:text-purple-400"
+                  />
+                  <span
+                    class="text-xs font-medium text-purple-700 dark:text-purple-300"
                     >Total consultations</span
                   >
                 </div>
-                <p class="mt-1 text-lg font-bold text-purple-900">
+                <p
+                  class="mt-1 text-lg font-bold text-purple-900 dark:text-purple-200"
+                >
                   {{ patient.totalConsultations }}
                 </p>
               </div>
 
-              <div class="rounded-lg bg-green-50 p-3">
+              <div class="rounded-lg bg-green-50 p-3 dark:bg-green-950/40">
                 <div class="flex items-center gap-2">
                   <Clock class="h-4 w-4 text-green-500" />
-                  <span class="text-xs font-medium text-green-700"
+                  <span
+                    class="text-xs font-medium text-green-700 dark:text-green-300"
                     >Patient depuis</span
                   >
                 </div>
@@ -140,9 +164,9 @@
               </div>
             </div>
 
-            <div class="border-b border-gray-200 p-6">
+            <div class="border-b border-gray-200 p-6 dark:border-gray-800">
               <h3
-                class="mb-3 text-sm font-semibold uppercase tracking-wider text-gray-500"
+                class="mb-3 text-sm font-semibold uppercase tracking-wider text-gray-500 dark:text-gray-400"
               >
                 Coordonnées
               </h3>
@@ -151,22 +175,26 @@
                   v-if="patient.phone"
                   class="flex items-center gap-3 text-sm"
                 >
-                  <Phone class="h-4 w-4 text-gray-400" />
-                  <span class="text-gray-700">{{ patient.phone }}</span>
+                  <Phone class="h-4 w-4 text-gray-400 dark:text-gray-500" />
+                  <span class="text-gray-700 dark:text-gray-300">{{
+                    patient.phone
+                  }}</span>
                 </div>
                 <div
                   v-if="patient.email"
                   class="flex items-center gap-3 text-sm"
                 >
-                  <Mail class="h-4 w-4 text-gray-400" />
-                  <span class="text-gray-700">{{ patient.email }}</span>
+                  <Mail class="h-4 w-4 text-gray-400 dark:text-gray-500" />
+                  <span class="text-gray-700 dark:text-gray-300">{{
+                    patient.email
+                  }}</span>
                 </div>
                 <div
                   v-if="patient.city || patient.address"
                   class="flex items-center gap-3 text-sm"
                 >
-                  <MapPin class="h-4 w-4 text-gray-400" />
-                  <span class="text-gray-700">
+                  <MapPin class="h-4 w-4 text-gray-400 dark:text-gray-500" />
+                  <span class="text-gray-700 dark:text-gray-300">
                     {{
                       [patient.address, patient.city].filter(Boolean).join(", ")
                     }}
@@ -179,7 +207,7 @@
                     !patient.city &&
                     !patient.address
                   "
-                  class="text-sm text-gray-400"
+                  class="text-sm text-gray-400 dark:text-gray-500"
                 >
                   Aucune coordonnée disponible
                 </div>
@@ -188,18 +216,20 @@
 
             <div
               v-if="patient.nextAppointment"
-              class="border-b border-gray-200 p-6"
+              class="border-b border-gray-200 p-6 dark:border-gray-800"
             >
               <h3
-                class="mb-3 text-sm font-semibold uppercase tracking-wider text-gray-500"
+                class="mb-3 text-sm font-semibold uppercase tracking-wider text-gray-500 dark:text-gray-400"
               >
                 Prochain rendez-vous
               </h3>
               <div
-                class="flex items-center gap-2 rounded-lg bg-orange-50 px-3 py-2 text-sm"
+                class="flex items-center gap-2 rounded-lg bg-orange-50 px-3 py-2 text-sm dark:bg-orange-950/40"
               >
-                <Calendar class="h-4 w-4 text-orange-500" />
-                <span class="font-medium text-orange-800">
+                <Calendar
+                  class="h-4 w-4 text-orange-500 dark:text-orange-400"
+                />
+                <span class="font-medium text-orange-800 dark:text-orange-200">
                   {{ formatShortDate(patient.nextAppointment.appointmentDate) }}
                   à {{ patient.nextAppointment.startTime }}
                 </span>

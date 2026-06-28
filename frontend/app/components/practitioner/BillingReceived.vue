@@ -1,11 +1,12 @@
 <template>
   <div class="space-y-6">
     <div
-      class="flex flex-col justify-between gap-4 rounded-lg border border-gray-100 bg-white p-4 shadow-sm sm:flex-row sm:items-end"
+      class="flex flex-col justify-between gap-4 rounded-lg border border-gray-100 bg-white p-4 shadow-sm dark:border-gray-800 dark:bg-gray-900 sm:flex-row sm:items-end"
     >
       <div class="flex flex-1 flex-col gap-4 sm:flex-row">
         <div class="w-full sm:w-64">
-          <label class="mb-1 block text-xs font-medium text-gray-500"
+          <label
+            class="mb-1 block text-xs font-medium text-gray-500 dark:text-gray-400"
             >Rechercher un patient</label
           >
           <UiInput
@@ -16,13 +17,14 @@
           />
         </div>
         <div class="w-full sm:w-48">
-          <label class="mb-1 block text-xs font-medium text-gray-500"
+          <label
+            class="mb-1 block text-xs font-medium text-gray-500 dark:text-gray-400"
             >Statut</label
           >
           <select
             v-model="filters.status"
             @change="fetchInvoices(1)"
-            class="block w-full rounded-md border-gray-300 shadow-sm focus:border-orange-500 focus:ring-orange-500 sm:text-sm"
+            class="block w-full rounded-md border-gray-300 shadow-sm focus:border-orange-500 focus:ring-orange-500 dark:border-gray-700 sm:text-sm"
           >
             <option value="all">Tous les statuts</option>
             <option value="COMPLETED">Payé</option>
@@ -40,42 +42,42 @@
 
     <UiCard class="overflow-hidden">
       <div class="overflow-x-auto">
-        <table class="min-w-full divide-y divide-gray-200">
-          <thead class="bg-gray-50">
+        <table class="min-w-full divide-y divide-gray-200 dark:divide-gray-800">
+          <thead class="bg-gray-50 dark:bg-gray-950">
             <tr>
               <th
                 scope="col"
-                class="px-6 py-3 text-left text-xs font-medium uppercase tracking-wider text-gray-500"
+                class="px-6 py-3 text-left text-xs font-medium uppercase tracking-wider text-gray-500 dark:text-gray-400"
               >
                 Date
               </th>
               <th
                 scope="col"
-                class="px-6 py-3 text-left text-xs font-medium uppercase tracking-wider text-gray-500"
+                class="px-6 py-3 text-left text-xs font-medium uppercase tracking-wider text-gray-500 dark:text-gray-400"
               >
                 N° Facture
               </th>
               <th
                 scope="col"
-                class="px-6 py-3 text-left text-xs font-medium uppercase tracking-wider text-gray-500"
+                class="px-6 py-3 text-left text-xs font-medium uppercase tracking-wider text-gray-500 dark:text-gray-400"
               >
                 Patient
               </th>
               <th
                 scope="col"
-                class="px-6 py-3 text-left text-xs font-medium uppercase tracking-wider text-gray-500"
+                class="px-6 py-3 text-left text-xs font-medium uppercase tracking-wider text-gray-500 dark:text-gray-400"
               >
                 Type
               </th>
               <th
                 scope="col"
-                class="px-6 py-3 text-left text-xs font-medium uppercase tracking-wider text-gray-500"
+                class="px-6 py-3 text-left text-xs font-medium uppercase tracking-wider text-gray-500 dark:text-gray-400"
               >
                 Montant
               </th>
               <th
                 scope="col"
-                class="px-6 py-3 text-left text-xs font-medium uppercase tracking-wider text-gray-500"
+                class="px-6 py-3 text-left text-xs font-medium uppercase tracking-wider text-gray-500 dark:text-gray-400"
               >
                 Statut
               </th>
@@ -84,23 +86,33 @@
               </th>
             </tr>
           </thead>
-          <tbody class="divide-y divide-gray-200 bg-white">
+          <tbody
+            class="divide-y divide-gray-200 bg-white dark:divide-gray-800 dark:bg-gray-900"
+          >
             <tr v-if="loading" class="animate-pulse">
-              <td colspan="7" class="px-6 py-10 text-center text-gray-500">
+              <td
+                colspan="7"
+                class="px-6 py-10 text-center text-gray-500 dark:text-gray-400"
+              >
                 Chargement des factures...
               </td>
             </tr>
             <tr v-else-if="invoices.length === 0">
-              <td colspan="7" class="px-6 py-10 text-center text-gray-500">
+              <td
+                colspan="7"
+                class="px-6 py-10 text-center text-gray-500 dark:text-gray-400"
+              >
                 Aucune facture trouvée.
               </td>
             </tr>
             <tr
               v-for="invoice in invoices"
               :key="invoice.id"
-              class="hover:bg-gray-50"
+              class="hover:bg-gray-50 dark:hover:bg-gray-800"
             >
-              <td class="whitespace-nowrap px-6 py-4 text-sm text-gray-500">
+              <td
+                class="whitespace-nowrap px-6 py-4 text-sm text-gray-500 dark:text-gray-400"
+              >
                 {{
                   new Date(invoice.createdAt).toLocaleDateString("fr-FR", {
                     day: "2-digit",
@@ -110,14 +122,18 @@
                 }}
               </td>
               <td
-                class="whitespace-nowrap px-6 py-4 text-sm font-medium text-gray-900"
+                class="whitespace-nowrap px-6 py-4 text-sm font-medium text-gray-900 dark:text-gray-100"
               >
                 {{ invoice.invoiceNumber }}
               </td>
-              <td class="whitespace-nowrap px-6 py-4 text-sm text-gray-900">
+              <td
+                class="whitespace-nowrap px-6 py-4 text-sm text-gray-900 dark:text-gray-100"
+              >
                 {{ invoice.patientName }}
               </td>
-              <td class="whitespace-nowrap px-6 py-4 text-sm text-gray-500">
+              <td
+                class="whitespace-nowrap px-6 py-4 text-sm text-gray-500 dark:text-gray-400"
+              >
                 {{
                   invoice.appointmentType === "TELECONSULTATION"
                     ? "Téléconsultation"
@@ -125,7 +141,7 @@
                 }}
               </td>
               <td
-                class="whitespace-nowrap px-6 py-4 text-sm font-medium text-gray-900"
+                class="whitespace-nowrap px-6 py-4 text-sm font-medium text-gray-900 dark:text-gray-100"
               >
                 {{ invoice.amount.toLocaleString("fr-FR") }}
                 {{ invoice.currency }}
@@ -146,7 +162,7 @@
                   @click="
                     downloadPdf(invoice.invoice.id, invoice.invoiceNumber)
                   "
-                  class="text-orange-600 hover:text-orange-600 focus:outline-none"
+                  class="text-orange-600 hover:text-orange-600 focus:outline-none dark:text-orange-400"
                   title="Télécharger"
                 >
                   <Download class="h-5 w-5" />
@@ -159,13 +175,13 @@
 
       <div
         v-if="totalPages > 1"
-        class="flex items-center justify-between border-t border-gray-200 bg-white px-4 py-3 sm:px-6"
+        class="flex items-center justify-between border-t border-gray-200 bg-white px-4 py-3 dark:border-gray-800 dark:bg-gray-900 sm:px-6"
       >
         <div
           class="hidden sm:flex sm:flex-1 sm:items-center sm:justify-between"
         >
           <div>
-            <p class="text-sm text-gray-700">
+            <p class="text-sm text-gray-700 dark:text-gray-300">
               Affichage de la page
               <span class="font-medium">{{ currentPage }}</span> sur
               <span class="font-medium">{{ totalPages }}</span>
@@ -179,7 +195,7 @@
               <button
                 @click="fetchInvoices(currentPage - 1)"
                 :disabled="currentPage === 1"
-                class="relative inline-flex items-center rounded-l-md border border-gray-300 bg-white px-2 py-2 text-sm font-medium text-gray-500 hover:bg-gray-50 disabled:cursor-not-allowed disabled:opacity-50"
+                class="relative inline-flex items-center rounded-l-md border border-gray-300 bg-white px-2 py-2 text-sm font-medium text-gray-500 hover:bg-gray-50 disabled:cursor-not-allowed disabled:opacity-50 dark:border-gray-700 dark:bg-gray-900 dark:text-gray-400 dark:hover:bg-gray-800"
               >
                 <span class="sr-only">Précédent</span>
                 <ChevronLeft class="h-5 w-5" />
@@ -187,7 +203,7 @@
               <button
                 @click="fetchInvoices(currentPage + 1)"
                 :disabled="currentPage === totalPages"
-                class="relative inline-flex items-center rounded-r-md border border-gray-300 bg-white px-2 py-2 text-sm font-medium text-gray-500 hover:bg-gray-50 disabled:cursor-not-allowed disabled:opacity-50"
+                class="relative inline-flex items-center rounded-r-md border border-gray-300 bg-white px-2 py-2 text-sm font-medium text-gray-500 hover:bg-gray-50 disabled:cursor-not-allowed disabled:opacity-50 dark:border-gray-700 dark:bg-gray-900 dark:text-gray-400 dark:hover:bg-gray-800"
               >
                 <span class="sr-only">Suivant</span>
                 <ChevronRight class="h-5 w-5" />
@@ -205,20 +221,24 @@
         class="fixed inset-0 z-50 flex items-center justify-center bg-black/50"
         @click.self="showSelectAppointmentModal = false"
       >
-        <div class="mx-4 w-full max-w-lg rounded-xl bg-white p-6 shadow-2xl">
-          <h3 class="mb-4 text-lg font-semibold text-gray-900">
+        <div
+          class="mx-4 w-full max-w-lg rounded-xl bg-white p-6 shadow-2xl dark:bg-gray-900"
+        >
+          <h3
+            class="mb-4 text-lg font-semibold text-gray-900 dark:text-gray-100"
+          >
             Sélectionner un rendez-vous à facturer
           </h3>
 
           <div
             v-if="loadingAppointments"
-            class="animate-pulse py-10 text-center text-sm text-gray-500"
+            class="animate-pulse py-10 text-center text-sm text-gray-500 dark:text-gray-400"
           >
             Chargement des rendez-vous...
           </div>
           <div
             v-else-if="unpaidAppointments.length === 0"
-            class="py-10 text-center text-sm text-gray-500"
+            class="py-10 text-center text-sm text-gray-500 dark:text-gray-400"
           >
             Aucun rendez-vous en attente de facturation.
           </div>
@@ -226,14 +246,16 @@
             <button
               v-for="apt in unpaidAppointments"
               :key="apt.id"
-              class="flex w-full items-center justify-between rounded-lg border border-gray-200 p-4 text-left transition-colors hover:border-orange-500 hover:bg-orange-50"
+              class="flex w-full items-center justify-between rounded-lg border border-gray-200 p-4 text-left transition-colors hover:border-orange-500 hover:bg-orange-50 dark:border-gray-800 dark:hover:bg-orange-950/40"
               @click="proceedToInvoiceDetails(apt)"
             >
               <div>
-                <p class="font-medium text-gray-900">
+                <p class="font-medium text-gray-900 dark:text-gray-100">
                   {{ apt.patient.firstName }} {{ apt.patient.lastName }}
                 </p>
-                <div class="mt-1 flex items-center gap-2 text-sm text-gray-500">
+                <div
+                  class="mt-1 flex items-center gap-2 text-sm text-gray-500 dark:text-gray-400"
+                >
                   <span>{{
                     new Date(apt.appointmentDate).toLocaleDateString("fr-FR")
                   }}</span>
@@ -242,7 +264,7 @@
               </div>
               <div class="text-xs">
                 <span
-                  class="inline-flex rounded-full bg-gray-100 px-2 font-semibold text-gray-800"
+                  class="inline-flex rounded-full bg-gray-100 px-2 font-semibold text-gray-800 dark:bg-gray-800 dark:text-gray-200"
                 >
                   {{
                     apt.type === "TELECONSULTATION"
@@ -252,12 +274,12 @@
                 </span>
                 <span
                   v-if="apt.status === 'COMPLETED'"
-                  class="ml-2 inline-flex rounded-full bg-green-100 px-2 font-semibold text-green-800"
+                  class="ml-2 inline-flex rounded-full bg-green-100 px-2 font-semibold text-green-800 dark:bg-green-900/40 dark:text-green-200"
                   >Terminé</span
                 >
                 <span
                   v-else
-                  class="ml-2 inline-flex rounded-full bg-orange-100 px-2 font-semibold text-orange-800"
+                  class="ml-2 inline-flex rounded-full bg-orange-100 px-2 font-semibold text-orange-800 dark:bg-orange-900/40 dark:text-orange-200"
                   >Passé</span
                 >
               </div>
@@ -360,17 +382,17 @@ const handleSearch = () => {
 const getStatusClass = (status: string) => {
   switch (status) {
     case "COMPLETED":
-      return "bg-green-100 text-green-800";
+      return "bg-green-100 dark:bg-green-900/40 text-green-800 dark:text-green-200";
     case "PENDING":
-      return "bg-yellow-100 text-yellow-800";
+      return "bg-yellow-100 dark:bg-yellow-900/40 text-yellow-800 dark:text-yellow-200";
     case "REFUNDED":
-      return "bg-gray-100 text-gray-800";
+      return "bg-gray-100 dark:bg-gray-800 text-gray-800 dark:text-gray-200";
     case "FAILED":
-      return "bg-red-100 text-red-800";
+      return "bg-red-100 dark:bg-red-900/40 text-red-800 dark:text-red-200";
     case "CANCELLED":
-      return "bg-gray-100 text-gray-800";
+      return "bg-gray-100 dark:bg-gray-800 text-gray-800 dark:text-gray-200";
     default:
-      return "bg-gray-100 text-gray-800";
+      return "bg-gray-100 dark:bg-gray-800 text-gray-800 dark:text-gray-200";
   }
 };
 

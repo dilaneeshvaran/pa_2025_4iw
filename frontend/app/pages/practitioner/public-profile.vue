@@ -2,8 +2,10 @@
   <div class="mx-auto max-w-4xl space-y-6">
     <div class="flex items-center justify-between">
       <div>
-        <h1 class="mb-2 text-2xl font-bold text-gray-900">Profil public</h1>
-        <p class="text-gray-600">
+        <h1 class="mb-2 text-2xl font-bold text-gray-900 dark:text-gray-100">
+          Profil public
+        </h1>
+        <p class="text-gray-600 dark:text-gray-400">
           Gérez les informations visibles par vos patients
         </p>
       </div>
@@ -19,24 +21,24 @@
     </div>
 
     <div v-if="loading" class="animate-pulse space-y-6">
-      <div class="h-64 rounded bg-gray-200"></div>
+      <div class="h-64 rounded bg-gray-200 dark:bg-gray-700"></div>
     </div>
     <div v-else-if="profile" class="space-y-6">
       <UiCard class="p-6">
-        <h3 class="mb-4 text-lg font-semibold text-gray-900">
+        <h3 class="mb-4 text-lg font-semibold text-gray-900 dark:text-gray-100">
           Photo et informations de base
         </h3>
         <div class="grid grid-cols-1 gap-6 md:grid-cols-2">
           <div class="col-span-1 flex items-center gap-4 md:col-span-2">
             <div
-              class="flex h-24 w-24 items-center justify-center overflow-hidden rounded-full border-2 border-gray-200 bg-gray-100"
+              class="flex h-24 w-24 items-center justify-center overflow-hidden rounded-full border-2 border-gray-200 bg-gray-100 dark:border-gray-800 dark:bg-gray-800"
             >
               <img
                 v-if="profile.photoUrl"
                 :src="profile.photoUrl"
                 class="h-full w-full object-cover"
               />
-              <User v-else class="h-10 w-10 text-gray-400" />
+              <User v-else class="h-10 w-10 text-gray-400 dark:text-gray-500" />
             </div>
             <div>
               <input
@@ -53,128 +55,140 @@
                 @click="triggerFileInput"
                 >Modifier la photo</UiButton
               >
-              <p class="text-xs text-gray-500">
+              <p class="text-xs text-gray-500 dark:text-gray-400">
                 Formats acceptés: JPG, PNG, HEIC. Max 5MB.
               </p>
             </div>
           </div>
           <div>
-            <label class="mb-1 block text-sm font-medium text-gray-700"
+            <label
+              class="mb-1 block text-sm font-medium text-gray-700 dark:text-gray-300"
               >Titre</label
             >
             <input
               v-model="profile.title"
               type="text"
-              class="w-full rounded-lg border border-gray-300 px-3 py-2 text-sm focus:border-orange-500 focus:outline-none focus:ring-1 focus:ring-orange-500"
+              class="w-full rounded-lg border border-gray-300 px-3 py-2 text-sm focus:border-orange-500 focus:outline-none focus:ring-1 focus:ring-orange-500 dark:border-gray-700"
             />
           </div>
           <div></div>
           <div>
-            <label class="mb-1 block text-sm font-medium text-gray-700"
+            <label
+              class="mb-1 block text-sm font-medium text-gray-700 dark:text-gray-300"
               >Prénom</label
             >
             <input
               v-model="profile.firstName"
               type="text"
-              class="w-full rounded-lg border border-gray-300 px-3 py-2 text-sm focus:border-orange-500 focus:outline-none focus:ring-1 focus:ring-orange-500"
+              class="w-full rounded-lg border border-gray-300 px-3 py-2 text-sm focus:border-orange-500 focus:outline-none focus:ring-1 focus:ring-orange-500 dark:border-gray-700"
             />
           </div>
           <div>
-            <label class="mb-1 block text-sm font-medium text-gray-700"
+            <label
+              class="mb-1 block text-sm font-medium text-gray-700 dark:text-gray-300"
               >Nom</label
             >
             <input
               v-model="profile.lastName"
               type="text"
-              class="w-full rounded-lg border border-gray-300 px-3 py-2 text-sm focus:border-orange-500 focus:outline-none focus:ring-1 focus:ring-orange-500"
+              class="w-full rounded-lg border border-gray-300 px-3 py-2 text-sm focus:border-orange-500 focus:outline-none focus:ring-1 focus:ring-orange-500 dark:border-gray-700"
             />
           </div>
           <div>
-            <label class="mb-1 block text-sm font-medium text-gray-700"
+            <label
+              class="mb-1 block text-sm font-medium text-gray-700 dark:text-gray-300"
               >Téléphone</label
             >
             <input
               v-model="profile.phone"
               type="text"
-              class="w-full rounded-lg border border-gray-300 px-3 py-2 text-sm focus:border-orange-500 focus:outline-none focus:ring-1 focus:ring-orange-500"
+              class="w-full rounded-lg border border-gray-300 px-3 py-2 text-sm focus:border-orange-500 focus:outline-none focus:ring-1 focus:ring-orange-500 dark:border-gray-700"
             />
           </div>
         </div>
       </UiCard>
 
       <UiCard class="p-6">
-        <h3 class="mb-4 text-lg font-semibold text-gray-900">Biographie</h3>
+        <h3 class="mb-4 text-lg font-semibold text-gray-900 dark:text-gray-100">
+          Biographie
+        </h3>
         <textarea
           v-model="profile.bio"
           rows="4"
-          class="w-full rounded-lg border border-gray-300 px-3 py-2 text-sm focus:border-orange-500 focus:outline-none focus:ring-1 focus:ring-orange-500"
+          class="w-full rounded-lg border border-gray-300 px-3 py-2 text-sm focus:border-orange-500 focus:outline-none focus:ring-1 focus:ring-orange-500 dark:border-gray-700"
           placeholder="Présentez-vous à vos patients..."
         ></textarea>
       </UiCard>
 
       <UiCard class="p-6">
-        <h3 class="mb-4 text-lg font-semibold text-gray-900">Localisation</h3>
+        <h3 class="mb-4 text-lg font-semibold text-gray-900 dark:text-gray-100">
+          Localisation
+        </h3>
         <div class="grid grid-cols-1 gap-6 md:grid-cols-2">
           <div class="md:col-span-2">
-            <label class="mb-1 block text-sm font-medium text-gray-700"
+            <label
+              class="mb-1 block text-sm font-medium text-gray-700 dark:text-gray-300"
               >Adresse</label
             >
             <input
               v-model="profile.address"
               type="text"
-              class="w-full rounded-lg border border-gray-300 px-3 py-2 text-sm focus:border-orange-500 focus:outline-none focus:ring-1 focus:ring-orange-500"
+              class="w-full rounded-lg border border-gray-300 px-3 py-2 text-sm focus:border-orange-500 focus:outline-none focus:ring-1 focus:ring-orange-500 dark:border-gray-700"
             />
           </div>
           <div>
-            <label class="mb-1 block text-sm font-medium text-gray-700"
+            <label
+              class="mb-1 block text-sm font-medium text-gray-700 dark:text-gray-300"
               >Ville</label
             >
             <input
               v-model="profile.city"
               type="text"
-              class="w-full rounded-lg border border-gray-300 px-3 py-2 text-sm focus:border-orange-500 focus:outline-none focus:ring-1 focus:ring-orange-500"
+              class="w-full rounded-lg border border-gray-300 px-3 py-2 text-sm focus:border-orange-500 focus:outline-none focus:ring-1 focus:ring-orange-500 dark:border-gray-700"
             />
           </div>
           <div>
-            <label class="mb-1 block text-sm font-medium text-gray-700"
+            <label
+              class="mb-1 block text-sm font-medium text-gray-700 dark:text-gray-300"
               >Code postal</label
             >
             <input
               v-model="profile.postalCode"
               type="text"
-              class="w-full rounded-lg border border-gray-300 px-3 py-2 text-sm focus:border-orange-500 focus:outline-none focus:ring-1 focus:ring-orange-500"
+              class="w-full rounded-lg border border-gray-300 px-3 py-2 text-sm focus:border-orange-500 focus:outline-none focus:ring-1 focus:ring-orange-500 dark:border-gray-700"
             />
           </div>
           <div class="md:col-span-2">
-            <label class="mb-1 block text-sm font-medium text-gray-700"
+            <label
+              class="mb-1 block text-sm font-medium text-gray-700 dark:text-gray-300"
               >Pays</label
             >
             <input
               v-model="profile.country"
               type="text"
-              class="w-full rounded-lg border border-gray-300 px-3 py-2 text-sm focus:border-orange-500 focus:outline-none focus:ring-1 focus:ring-orange-500"
+              class="w-full rounded-lg border border-gray-300 px-3 py-2 text-sm focus:border-orange-500 focus:outline-none focus:ring-1 focus:ring-orange-500 dark:border-gray-700"
             />
           </div>
         </div>
       </UiCard>
 
       <UiCard class="p-6">
-        <h3 class="mb-4 text-lg font-semibold text-gray-900">
+        <h3 class="mb-4 text-lg font-semibold text-gray-900 dark:text-gray-100">
           Langues parlées
         </h3>
         <input
           v-model="languagesInput"
           type="text"
           placeholder="Ex: Français, Anglais, Espagnol"
-          class="w-full rounded-lg border border-gray-300 px-3 py-2 text-sm focus:border-orange-500 focus:outline-none focus:ring-1 focus:ring-orange-500"
+          class="w-full rounded-lg border border-gray-300 px-3 py-2 text-sm focus:border-orange-500 focus:outline-none focus:ring-1 focus:ring-orange-500 dark:border-gray-700"
         />
-        <p class="mt-2 text-xs text-gray-500">
+        <p class="mt-2 text-xs text-gray-500 dark:text-gray-400">
           Séparez les langues par des virgules.
         </p>
       </UiCard>
 
       <UiCard class="p-6">
-        <h3 class="mb-4 text-lg font-semibold text-gray-900">
+        <h3 class="mb-4 text-lg font-semibold text-gray-900 dark:text-gray-100">
           Formation et diplômes
         </h3>
         <div class="space-y-4">
@@ -184,38 +198,41 @@
             class="flex items-end gap-4"
           >
             <div class="flex-1">
-              <label class="mb-1 block text-xs font-medium text-gray-700"
+              <label
+                class="mb-1 block text-xs font-medium text-gray-700 dark:text-gray-300"
                 >Titre du diplôme</label
               >
               <input
                 v-model="qual.title"
                 type="text"
-                class="w-full rounded-lg border border-gray-300 px-3 py-2 text-sm focus:border-orange-500 focus:outline-none focus:ring-1 focus:ring-orange-500"
+                class="w-full rounded-lg border border-gray-300 px-3 py-2 text-sm focus:border-orange-500 focus:outline-none focus:ring-1 focus:ring-orange-500 dark:border-gray-700"
               />
             </div>
             <div class="flex-1">
-              <label class="mb-1 block text-xs font-medium text-gray-700"
+              <label
+                class="mb-1 block text-xs font-medium text-gray-700 dark:text-gray-300"
                 >Établissement</label
               >
               <input
                 v-model="qual.institution"
                 type="text"
-                class="w-full rounded-lg border border-gray-300 px-3 py-2 text-sm focus:border-orange-500 focus:outline-none focus:ring-1 focus:ring-orange-500"
+                class="w-full rounded-lg border border-gray-300 px-3 py-2 text-sm focus:border-orange-500 focus:outline-none focus:ring-1 focus:ring-orange-500 dark:border-gray-700"
               />
             </div>
             <div class="w-24">
-              <label class="mb-1 block text-xs font-medium text-gray-700"
+              <label
+                class="mb-1 block text-xs font-medium text-gray-700 dark:text-gray-300"
                 >Année</label
               >
               <input
                 v-model="qual.yearObtained"
                 type="number"
-                class="w-full rounded-lg border border-gray-300 px-3 py-2 text-sm focus:border-orange-500 focus:outline-none focus:ring-1 focus:ring-orange-500"
+                class="w-full rounded-lg border border-gray-300 px-3 py-2 text-sm focus:border-orange-500 focus:outline-none focus:ring-1 focus:ring-orange-500 dark:border-gray-700"
               />
             </div>
             <UiButton
               variant="outline"
-              class="mb-[2px] text-red-500 hover:bg-red-50"
+              class="mb-[2px] text-red-500 hover:bg-red-50 dark:text-red-400 dark:hover:bg-red-950/40"
               @click="removeQualification(Number(index))"
             >
               <Trash2 class="h-4 w-4" />

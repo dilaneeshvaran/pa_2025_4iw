@@ -3,7 +3,7 @@
     <div class="flex flex-col justify-between gap-4 md:flex-row md:items-start">
       <div>
         <div class="mb-2 flex items-center gap-3">
-          <h1 class="text-2xl font-bold text-gray-900">
+          <h1 class="text-2xl font-bold text-gray-900 dark:text-gray-100">
             Tableau de bord personnel
           </h1>
           <span
@@ -11,8 +11,8 @@
             :class="[
               'inline-flex items-center rounded-full px-2.5 py-0.5 text-xs font-semibold',
               dashboard.assignedTo.type === 'cabinet'
-                ? 'bg-purple-100 text-purple-800'
-                : 'bg-orange-100 text-orange-800',
+                ? 'bg-purple-100 text-purple-800 dark:bg-purple-900/40 dark:text-purple-200'
+                : 'bg-orange-100 text-orange-800 dark:bg-orange-900/40 dark:text-orange-200',
             ]"
           >
             <component
@@ -29,15 +29,17 @@
 
         <div
           v-if="dashboard?.assignedTo"
-          class="mt-2 space-y-1 text-sm text-gray-600"
+          class="mt-2 space-y-1 text-sm text-gray-600 dark:text-gray-400"
         >
           <p>
             Affecté à :
-            <strong class="text-gray-900">{{
+            <strong class="text-gray-900 dark:text-gray-100">{{
               dashboard.assignedTo.name
             }}</strong>
           </p>
-          <div class="mt-2 flex items-center gap-4 text-gray-500">
+          <div
+            class="mt-2 flex items-center gap-4 text-gray-500 dark:text-gray-400"
+          >
             <div
               v-if="dashboard.assignedTo.address"
               class="flex items-center gap-1.5"
@@ -64,56 +66,72 @@
 
     <!-- kpi -->
     <div class="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
-      <div class="rounded-xl border border-gray-200 bg-white p-6 shadow-sm">
+      <div
+        class="rounded-xl border border-gray-200 bg-white p-6 shadow-sm dark:border-gray-800 dark:bg-gray-900"
+      >
         <div class="flex items-center gap-4">
           <div
-            class="flex h-12 w-12 items-center justify-center rounded-lg bg-green-100"
+            class="flex h-12 w-12 items-center justify-center rounded-lg bg-green-100 dark:bg-green-900/40"
           >
-            <Users class="h-6 w-6 text-green-600" />
+            <Users class="h-6 w-6 text-green-600 dark:text-green-400" />
           </div>
           <div>
-            <p class="text-sm text-gray-500">Praticiens gérés</p>
+            <p class="text-sm text-gray-500 dark:text-gray-400">
+              Praticiens gérés
+            </p>
             <p
               v-if="loading"
-              class="h-7 w-12 animate-pulse rounded bg-gray-200"
+              class="h-7 w-12 animate-pulse rounded bg-gray-200 dark:bg-gray-700"
             ></p>
-            <p v-else class="text-2xl font-bold text-gray-900">
+            <p
+              v-else
+              class="text-2xl font-bold text-gray-900 dark:text-gray-100"
+            >
               {{ dashboard?.practitioners?.length ?? 0 }}
             </p>
           </div>
         </div>
       </div>
 
-      <div class="rounded-xl border border-gray-200 bg-white p-6 shadow-sm">
+      <div
+        class="rounded-xl border border-gray-200 bg-white p-6 shadow-sm dark:border-gray-800 dark:bg-gray-900"
+      >
         <div class="flex items-center gap-4">
           <div
-            class="flex h-12 w-12 items-center justify-center rounded-lg bg-orange-100"
+            class="flex h-12 w-12 items-center justify-center rounded-lg bg-orange-100 dark:bg-orange-900/40"
           >
-            <Calendar class="h-6 w-6 text-orange-600" />
+            <Calendar class="h-6 w-6 text-orange-600 dark:text-orange-400" />
           </div>
           <div>
-            <p class="text-sm text-gray-500">RDV aujourd'hui</p>
+            <p class="text-sm text-gray-500 dark:text-gray-400">
+              RDV aujourd'hui
+            </p>
             <p
               v-if="loading"
-              class="h-7 w-12 animate-pulse rounded bg-gray-200"
+              class="h-7 w-12 animate-pulse rounded bg-gray-200 dark:bg-gray-700"
             ></p>
-            <p v-else class="text-2xl font-bold text-gray-900">
+            <p
+              v-else
+              class="text-2xl font-bold text-gray-900 dark:text-gray-100"
+            >
               {{ dashboard?.todayAppointmentsCount ?? 0 }}
             </p>
           </div>
         </div>
       </div>
 
-      <div class="rounded-xl border border-gray-200 bg-white p-6 shadow-sm">
+      <div
+        class="rounded-xl border border-gray-200 bg-white p-6 shadow-sm dark:border-gray-800 dark:bg-gray-900"
+      >
         <div class="flex items-center gap-4">
           <div
-            class="flex h-12 w-12 items-center justify-center rounded-lg bg-amber-100"
+            class="flex h-12 w-12 items-center justify-center rounded-lg bg-amber-100 dark:bg-amber-900/40"
           >
-            <ClipboardList class="h-6 w-6 text-amber-600" />
+            <ClipboardList class="h-6 w-6 text-amber-600 dark:text-amber-400" />
           </div>
           <div>
-            <p class="text-sm text-gray-500">Votre rôle</p>
-            <p class="text-lg font-semibold text-gray-900">
+            <p class="text-sm text-gray-500 dark:text-gray-400">Votre rôle</p>
+            <p class="text-lg font-semibold text-gray-900 dark:text-gray-100">
               {{ dashboard?.staff?.position || "Personnel" }}
             </p>
           </div>
@@ -122,21 +140,29 @@
     </div>
 
     <!-- practitioners list -->
-    <div class="rounded-xl border border-gray-200 bg-white p-6 shadow-sm">
-      <h3 class="mb-4 text-lg font-semibold text-gray-900">
+    <div
+      class="rounded-xl border border-gray-200 bg-white p-6 shadow-sm dark:border-gray-800 dark:bg-gray-900"
+    >
+      <h3 class="mb-4 text-lg font-semibold text-gray-900 dark:text-gray-100">
         Praticiens que vous gérez
       </h3>
 
       <div v-if="loading" class="animate-pulse space-y-3">
-        <div v-for="i in 3" :key="i" class="h-16 rounded-lg bg-gray-100"></div>
+        <div
+          v-for="i in 3"
+          :key="i"
+          class="h-16 rounded-lg bg-gray-100 dark:bg-gray-800"
+        ></div>
       </div>
 
       <div
         v-else-if="!dashboard?.practitioners?.length"
         class="py-8 text-center"
       >
-        <Users class="mx-auto mb-3 h-12 w-12 text-gray-300" />
-        <p class="text-gray-500">Aucun praticien assigné</p>
+        <Users
+          class="mx-auto mb-3 h-12 w-12 text-gray-300 dark:text-gray-600"
+        />
+        <p class="text-gray-500 dark:text-gray-400">Aucun praticien assigné</p>
       </div>
 
       <div v-else class="space-y-3">
@@ -144,26 +170,30 @@
           v-for="prac in dashboard.practitioners"
           :key="prac.id"
           :to="`/staff/agenda/${prac.id}`"
-          class="flex items-center justify-between rounded-lg bg-gray-50 p-4 transition-colors hover:bg-green-50"
+          class="flex items-center justify-between rounded-lg bg-gray-50 p-4 transition-colors hover:bg-green-50 dark:bg-gray-950 dark:hover:bg-green-950/40"
         >
           <div class="flex items-center gap-3">
             <div
-              class="flex h-10 w-10 items-center justify-center rounded-full bg-green-100"
+              class="flex h-10 w-10 items-center justify-center rounded-full bg-green-100 dark:bg-green-900/40"
             >
-              <span class="text-sm font-bold text-green-600">
+              <span
+                class="text-sm font-bold text-green-600 dark:text-green-400"
+              >
                 {{ prac.firstName[0] }}{{ prac.lastName[0] }}
               </span>
             </div>
             <div>
-              <p class="font-medium text-gray-900">
+              <p class="font-medium text-gray-900 dark:text-gray-100">
                 {{ prac.title }} {{ prac.firstName }} {{ prac.lastName }}
               </p>
-              <p class="text-sm text-gray-500">
+              <p class="text-sm text-gray-500 dark:text-gray-400">
                 {{ prac.specialties?.join(", ") || "-" }}
               </p>
             </div>
           </div>
-          <div class="flex items-center gap-2 text-sm text-green-600">
+          <div
+            class="flex items-center gap-2 text-sm text-green-600 dark:text-green-400"
+          >
             <Calendar class="h-4 w-4" />
             Voir l'agenda
           </div>
@@ -172,8 +202,10 @@
     </div>
 
     <!-- today's appointments -->
-    <div class="rounded-xl border border-gray-200 bg-white p-6 shadow-sm">
-      <h3 class="mb-4 text-lg font-semibold text-gray-900">
+    <div
+      class="rounded-xl border border-gray-200 bg-white p-6 shadow-sm dark:border-gray-800 dark:bg-gray-900"
+    >
+      <h3 class="mb-4 text-lg font-semibold text-gray-900 dark:text-gray-100">
         Rendez-vous d'aujourd'hui
       </h3>
 
@@ -181,19 +213,25 @@
         v-if="!loading && !dashboard?.todayAppointments?.length"
         class="py-6 text-center"
       >
-        <Calendar class="mx-auto mb-3 h-12 w-12 text-gray-300" />
-        <p class="text-gray-500">Aucun rendez-vous aujourd'hui</p>
+        <Calendar
+          class="mx-auto mb-3 h-12 w-12 text-gray-300 dark:text-gray-600"
+        />
+        <p class="text-gray-500 dark:text-gray-400">
+          Aucun rendez-vous aujourd'hui
+        </p>
       </div>
 
       <div v-else-if="!loading" class="space-y-2">
         <div
           v-for="apt in dashboard?.todayAppointments"
           :key="apt.id"
-          class="flex items-center justify-between rounded-lg bg-gray-50 p-3"
+          class="flex items-center justify-between rounded-lg bg-gray-50 p-3 dark:bg-gray-950"
         >
           <div>
-            <p class="font-medium text-gray-900">{{ apt.patientName }}</p>
-            <p class="text-sm text-gray-500">
+            <p class="font-medium text-gray-900 dark:text-gray-100">
+              {{ apt.patientName }}
+            </p>
+            <p class="text-sm text-gray-500 dark:text-gray-400">
               {{ apt.startTime }} - {{ apt.endTime }} ·
               {{ apt.practitionerName }}
             </p>
@@ -202,10 +240,10 @@
             :class="[
               'rounded-full px-2 py-0.5 text-xs font-medium',
               apt.status === 'CONFIRMED'
-                ? 'bg-green-100 text-green-700'
+                ? 'bg-green-100 text-green-700 dark:bg-green-900/40 dark:text-green-300'
                 : apt.status === 'CANCELLED'
-                  ? 'bg-red-100 text-red-700'
-                  : 'bg-orange-100 text-orange-700',
+                  ? 'bg-red-100 text-red-700 dark:bg-red-900/40 dark:text-red-300'
+                  : 'bg-orange-100 text-orange-700 dark:bg-orange-900/40 dark:text-orange-300',
             ]"
           >
             {{

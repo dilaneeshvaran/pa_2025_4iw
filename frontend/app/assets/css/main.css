@@ -61,8 +61,25 @@
     border-color: hsl(var(--border));
   }
 
+  html {
+    color-scheme: light;
+  }
+
+  html.dark {
+    color-scheme: dark;
+  }
+
+  /* smooth light/dark transition (toggle only, not on theme-agnostic anims) */
+  body,
+  body * {
+    transition:
+      background-color 0.2s ease,
+      border-color 0.2s ease,
+      color 0.2s ease;
+  }
+
   body {
-    @apply bg-gray-50 text-gray-900;
+    @apply bg-gray-50 text-gray-900 dark:bg-gray-950 dark:text-gray-100;
     font-family:
       "Inter",
       -apple-system,
@@ -95,6 +112,21 @@
     min-height: 44px;
     min-width: 44px;
   }
+
+  /* Dark defaults for native form controls (@tailwindcss/forms forces a white
+     background otherwise). Explicit `dark:bg-*` utilities still win over these. */
+  .dark input:not([type="checkbox"]):not([type="radio"]):not([type="range"]),
+  .dark select,
+  .dark textarea {
+    background-color: #111827; /* gray-900 */
+    border-color: #374151; /* gray-700 */
+    color: #f3f4f6; /* gray-100 */
+  }
+
+  .dark input::placeholder,
+  .dark textarea::placeholder {
+    color: #6b7280; /* gray-500 */
+  }
 }
 
 /* custom animations */
@@ -114,4 +146,39 @@
 
 .animate-scale-in {
   animation: scale-in 0.5s ease-out;
+}
+
+/* Leaflet dark mode: dim the tiles and darken controls/popups */
+.dark .leaflet-tile {
+  filter: grayscale(0.15) brightness(0.75) contrast(1.1);
+}
+
+.dark .leaflet-container {
+  background: #18181b; /* gray-900 while tiles load */
+}
+
+.dark .leaflet-bar a,
+.dark .leaflet-control-zoom a {
+  background-color: #1f2937; /* gray-800 */
+  color: #e5e7eb; /* gray-200 */
+  border-color: #374151; /* gray-700 */
+}
+
+.dark .leaflet-bar a:hover {
+  background-color: #374151; /* gray-700 */
+}
+
+.dark .leaflet-control-attribution {
+  background: rgba(17, 24, 39, 0.85) !important; /* gray-900 */
+  color: #9ca3af; /* gray-400 */
+}
+
+.dark .leaflet-control-attribution a {
+  color: #d1d5db; /* gray-300 */
+}
+
+.dark .leaflet-popup-content-wrapper,
+.dark .leaflet-popup-tip {
+  background: #1f2937; /* gray-800 */
+  color: #e5e7eb; /* gray-200 */
 }

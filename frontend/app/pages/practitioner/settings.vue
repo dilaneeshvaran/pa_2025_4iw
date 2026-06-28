@@ -1,30 +1,37 @@
 <template>
   <div class="mx-auto max-w-4xl space-y-6">
     <div>
-      <h1 class="mb-2 text-2xl font-bold text-gray-900">Paramètres</h1>
-      <p class="text-gray-600">Configurez votre compte et vos préférences</p>
+      <h1 class="mb-2 text-2xl font-bold text-gray-900 dark:text-gray-100">
+        Paramètres
+      </h1>
+      <p class="text-gray-600 dark:text-gray-400">
+        Configurez votre compte et vos préférences
+      </p>
     </div>
 
     <div v-if="loading" class="animate-pulse space-y-6">
-      <div class="h-64 rounded bg-gray-200"></div>
+      <div class="h-64 rounded bg-gray-200 dark:bg-gray-700"></div>
     </div>
 
     <div v-else class="space-y-6">
       <UiCard class="p-6">
         <h3
-          class="mb-4 flex items-center gap-2 text-lg font-semibold text-gray-900"
+          class="mb-4 flex items-center gap-2 text-lg font-semibold text-gray-900 dark:text-gray-100"
         >
-          <Eye class="h-5 w-5 text-gray-500" /> Visibilité du profil
+          <Eye class="h-5 w-5 text-gray-500 dark:text-gray-400" /> Visibilité du
+          profil
         </h3>
 
         <div class="space-y-4">
-          <div class="rounded-lg border border-gray-200 bg-gray-50 p-4">
+          <div
+            class="rounded-lg border border-gray-200 bg-gray-50 p-4 dark:border-gray-800 dark:bg-gray-950"
+          >
             <div class="mb-3 flex items-start justify-between">
               <div class="flex-1">
-                <h4 class="font-medium text-gray-800">
+                <h4 class="font-medium text-gray-800 dark:text-gray-200">
                   Rendre mon profil public
                 </h4>
-                <p class="mt-1 text-sm text-gray-500">
+                <p class="mt-1 text-sm text-gray-500 dark:text-gray-400">
                   Permet aux patients de trouver votre profil et de prendre
                   rendez-vous en ligne.
                 </p>
@@ -38,14 +45,14 @@
                   :disabled="!profileVisibility.tarifsAreDefined"
                 />
                 <div
-                  class="peer h-6 w-11 rounded-full bg-gray-200 after:absolute after:left-[2px] after:top-[2px] after:h-5 after:w-5 after:rounded-full after:border after:border-gray-300 after:bg-white after:transition-all after:content-[''] peer-checked:bg-orange-500 peer-checked:after:translate-x-full peer-checked:after:border-white peer-focus:outline-none peer-focus:ring-4 peer-focus:ring-orange-300 peer-disabled:cursor-not-allowed peer-disabled:opacity-50"
+                  class="peer h-6 w-11 rounded-full bg-gray-200 after:absolute after:left-[2px] after:top-[2px] after:h-5 after:w-5 after:rounded-full after:border after:border-gray-300 after:bg-white after:transition-all after:content-[''] peer-checked:bg-orange-500 peer-checked:after:translate-x-full peer-checked:after:border-white peer-focus:outline-none peer-focus:ring-4 peer-focus:ring-orange-300 peer-disabled:cursor-not-allowed peer-disabled:opacity-50 dark:bg-gray-700"
                 ></div>
               </label>
             </div>
 
             <div
               v-if="!profileVisibility.tarifsAreDefined"
-              class="mt-3 flex items-start gap-2 rounded-md bg-yellow-50 p-3 text-sm text-yellow-800"
+              class="mt-3 flex items-start gap-2 rounded-md bg-yellow-50 p-3 text-sm text-yellow-800 dark:bg-yellow-950/40 dark:text-yellow-200"
             >
               <AlertCircle class="mt-0.5 h-4 w-4 flex-shrink-0" />
               <div>
@@ -68,7 +75,7 @@
                 profileVisibility.isProfilePublic &&
                 profileVisibility.tarifsAreDefined
               "
-              class="mt-3 flex items-start gap-2 rounded-md bg-green-50 p-3 text-sm text-green-800"
+              class="mt-3 flex items-start gap-2 rounded-md bg-green-50 p-3 text-sm text-green-800 dark:bg-green-950/40 dark:text-green-200"
             >
               <CheckCircle class="mt-0.5 h-4 w-4 flex-shrink-0" />
               <p>
@@ -78,19 +85,25 @@
             </div>
           </div>
 
-          <div class="rounded-lg border border-gray-100 bg-white p-4">
-            <h5 class="mb-2 text-sm font-semibold text-gray-700">
+          <div
+            class="rounded-lg border border-gray-100 bg-white p-4 dark:border-gray-800 dark:bg-gray-900"
+          >
+            <h5
+              class="mb-2 text-sm font-semibold text-gray-700 dark:text-gray-300"
+            >
               Statut des tarifs
             </h5>
             <div class="space-y-2 text-sm">
               <div class="flex items-center justify-between">
-                <span class="text-gray-600">Consultation standard</span>
+                <span class="text-gray-600 dark:text-gray-400"
+                  >Consultation standard</span
+                >
                 <span
                   :class="[
                     'font-medium',
                     profileVisibility.tarifs.baseConsultationFee
-                      ? 'text-green-600'
-                      : 'text-gray-400',
+                      ? 'text-green-600 dark:text-green-400'
+                      : 'text-gray-400 dark:text-gray-500',
                   ]"
                 >
                   {{
@@ -101,13 +114,15 @@
                 </span>
               </div>
               <div class="flex items-center justify-between">
-                <span class="text-gray-600">Téléconsultation</span>
+                <span class="text-gray-600 dark:text-gray-400"
+                  >Téléconsultation</span
+                >
                 <span
                   :class="[
                     'font-medium',
                     profileVisibility.tarifs.teleconsultationFee
-                      ? 'text-green-600'
-                      : 'text-gray-400',
+                      ? 'text-green-600 dark:text-green-400'
+                      : 'text-gray-400 dark:text-gray-500',
                   ]"
                 >
                   {{
@@ -118,13 +133,13 @@
                 </span>
               </div>
               <div class="flex items-center justify-between">
-                <span class="text-gray-600">Urgence</span>
+                <span class="text-gray-600 dark:text-gray-400">Urgence</span>
                 <span
                   :class="[
                     'font-medium',
                     profileVisibility.tarifs.emergencyFee
-                      ? 'text-green-600'
-                      : 'text-gray-400',
+                      ? 'text-green-600 dark:text-green-400'
+                      : 'text-gray-400 dark:text-gray-500',
                   ]"
                 >
                   {{
@@ -141,35 +156,37 @@
 
       <UiCard class="p-6">
         <h3
-          class="mb-4 flex items-center gap-2 text-lg font-semibold text-gray-900"
+          class="mb-4 flex items-center gap-2 text-lg font-semibold text-gray-900 dark:text-gray-100"
         >
-          <Shield class="h-5 w-5 text-gray-500" /> Sécurité
+          <Shield class="h-5 w-5 text-gray-500 dark:text-gray-400" /> Sécurité
         </h3>
 
         <div class="space-y-6">
           <div class="border-b pb-6">
-            <h4 class="mb-3 font-medium text-gray-800">
+            <h4 class="mb-3 font-medium text-gray-800 dark:text-gray-200">
               Changer le mot de passe
             </h4>
             <div class="grid grid-cols-1 gap-4 md:grid-cols-2">
               <div>
-                <label class="mb-1 block text-sm font-medium text-gray-700"
+                <label
+                  class="mb-1 block text-sm font-medium text-gray-700 dark:text-gray-300"
                   >Mot de passe actuel</label
                 >
                 <input
                   v-model="passwords.currentPassword"
                   type="password"
-                  class="w-full rounded-lg border border-gray-300 px-3 py-2 text-sm focus:border-orange-500 focus:outline-none focus:ring-1 focus:ring-orange-500"
+                  class="w-full rounded-lg border border-gray-300 px-3 py-2 text-sm focus:border-orange-500 focus:outline-none focus:ring-1 focus:ring-orange-500 dark:border-gray-700"
                 />
               </div>
               <div>
-                <label class="mb-1 block text-sm font-medium text-gray-700"
+                <label
+                  class="mb-1 block text-sm font-medium text-gray-700 dark:text-gray-300"
                   >Nouveau mot de passe</label
                 >
                 <input
                   v-model="passwords.newPassword"
                   type="password"
-                  class="w-full rounded-lg border border-gray-300 px-3 py-2 text-sm focus:border-orange-500 focus:outline-none focus:ring-1 focus:ring-orange-500"
+                  class="w-full rounded-lg border border-gray-300 px-3 py-2 text-sm focus:border-orange-500 focus:outline-none focus:ring-1 focus:ring-orange-500 dark:border-gray-700"
                 />
               </div>
             </div>
@@ -185,10 +202,10 @@
           <div>
             <div class="flex items-center justify-between">
               <div>
-                <h4 class="font-medium text-gray-800">
+                <h4 class="font-medium text-gray-800 dark:text-gray-200">
                   Authentification à deux facteurs (2FA)
                 </h4>
-                <p class="text-sm text-gray-500">
+                <p class="text-sm text-gray-500 dark:text-gray-400">
                   Ajoute une couche de sécurité supplémentaire à votre compte.
                 </p>
               </div>
@@ -200,7 +217,7 @@
                   @change="toggle2fa"
                 />
                 <div
-                  class="peer h-6 w-11 rounded-full bg-gray-200 after:absolute after:left-[2px] after:top-[2px] after:h-5 after:w-5 after:rounded-full after:border after:border-gray-300 after:bg-white after:transition-all after:content-[''] peer-checked:bg-orange-500 peer-checked:after:translate-x-full peer-checked:after:border-white peer-focus:outline-none peer-focus:ring-4 peer-focus:ring-orange-300"
+                  class="peer h-6 w-11 rounded-full bg-gray-200 after:absolute after:left-[2px] after:top-[2px] after:h-5 after:w-5 after:rounded-full after:border after:border-gray-300 after:bg-white after:transition-all after:content-[''] peer-checked:bg-orange-500 peer-checked:after:translate-x-full peer-checked:after:border-white peer-focus:outline-none peer-focus:ring-4 peer-focus:ring-orange-300 dark:bg-gray-700"
                 ></div>
               </label>
             </div>
@@ -210,9 +227,10 @@
 
       <UiCard class="p-6">
         <h3
-          class="mb-4 flex items-center gap-2 text-lg font-semibold text-gray-900"
+          class="mb-4 flex items-center gap-2 text-lg font-semibold text-gray-900 dark:text-gray-100"
         >
-          <Bell class="h-5 w-5 text-gray-500" /> Notifications Email
+          <Bell class="h-5 w-5 text-gray-500 dark:text-gray-400" />
+          Notifications Email
         </h3>
         <div class="space-y-4">
           <div
@@ -221,7 +239,7 @@
             :key="key"
           >
             <div>
-              <h4 class="font-medium text-gray-800">
+              <h4 class="font-medium text-gray-800 dark:text-gray-200">
                 {{ getNotificationLabel(key) }}
               </h4>
             </div>
@@ -233,7 +251,7 @@
                 @change="updateNotifications"
               />
               <div
-                class="peer h-6 w-11 rounded-full bg-gray-200 after:absolute after:left-[2px] after:top-[2px] after:h-5 after:w-5 after:rounded-full after:border after:border-gray-300 after:bg-white after:transition-all after:content-[''] peer-checked:bg-orange-500 peer-checked:after:translate-x-full peer-checked:after:border-white peer-focus:outline-none peer-focus:ring-4 peer-focus:ring-orange-300"
+                class="peer h-6 w-11 rounded-full bg-gray-200 after:absolute after:left-[2px] after:top-[2px] after:h-5 after:w-5 after:rounded-full after:border after:border-gray-300 after:bg-white after:transition-all after:content-[''] peer-checked:bg-orange-500 peer-checked:after:translate-x-full peer-checked:after:border-white peer-focus:outline-none peer-focus:ring-4 peer-focus:ring-orange-300 dark:bg-gray-700"
               ></div>
             </label>
           </div>
@@ -242,31 +260,36 @@
 
       <UiCard class="p-6">
         <h3
-          class="mb-4 flex items-center gap-2 text-lg font-semibold text-gray-900"
+          class="mb-4 flex items-center gap-2 text-lg font-semibold text-gray-900 dark:text-gray-100"
         >
-          <CreditCard class="h-5 w-5 text-gray-500" /> Mon abonnement
+          <CreditCard class="h-5 w-5 text-gray-500 dark:text-gray-400" /> Mon
+          abonnement
         </h3>
         <div v-if="subscription">
           <div
-            class="mb-4 flex items-center justify-between rounded-lg border border-orange-100 bg-orange-50 p-4"
+            class="mb-4 flex items-center justify-between rounded-lg border border-orange-100 bg-orange-50 p-4 dark:bg-orange-950/40"
           >
             <div>
-              <h4 class="text-lg font-bold text-orange-700">
+              <h4
+                class="text-lg font-bold text-orange-700 dark:text-orange-300"
+              >
                 Plan {{ subscription.plan }}
               </h4>
-              <p class="mt-1 text-sm text-orange-700">
+              <p class="mt-1 text-sm text-orange-700 dark:text-orange-300">
                 Statut :
                 <span class="font-semibold">{{ subscription.status }}</span>
               </p>
               <p
                 v-if="subscription.cancelAtPeriodEnd"
-                class="mt-1 text-sm text-red-500"
+                class="mt-1 text-sm text-red-500 dark:text-red-400"
               >
                 Sera annulé à la fin de la période
               </p>
             </div>
             <div class="text-right">
-              <p class="mb-1 text-2xl font-bold text-orange-700">
+              <p
+                class="mb-1 text-2xl font-bold text-orange-700 dark:text-orange-300"
+              >
                 12 000 XOF <span class="text-sm font-normal">/ mois</span>
               </p>
             </div>
@@ -275,7 +298,7 @@
             <UiButton
               v-if="!subscription.cancelAtPeriodEnd"
               variant="outline"
-              class="border-red-200 text-red-600 hover:bg-red-50"
+              class="border-red-200 text-red-600 hover:bg-red-50 dark:text-red-400 dark:hover:bg-red-950/40"
               @click="cancelSubscription"
             >
               Annuler l'abonnement
@@ -286,27 +309,33 @@
 
       <UiCard class="p-6">
         <h3
-          class="mb-4 flex items-center gap-2 text-lg font-semibold text-gray-900"
+          class="mb-4 flex items-center gap-2 text-lg font-semibold text-gray-900 dark:text-gray-100"
         >
-          <FileText class="h-5 w-5 text-gray-500" /> Historique de facturation
-          (Medicote)
+          <FileText class="h-5 w-5 text-gray-500 dark:text-gray-400" />
+          Historique de facturation (Medicote)
         </h3>
-        <p class="mb-4 text-sm text-gray-500">
+        <p class="mb-4 text-sm text-gray-500 dark:text-gray-400">
           Vos factures pour l'utilisation de la plateforme Medicote et
           paiements.
         </p>
 
         <div
           v-if="invoices.length === 0"
-          class="py-6 text-center text-gray-500"
+          class="py-6 text-center text-gray-500 dark:text-gray-400"
         >
-          <FileText class="mx-auto mb-2 h-12 w-12 text-gray-300" />
+          <FileText
+            class="mx-auto mb-2 h-12 w-12 text-gray-300 dark:text-gray-600"
+          />
           Aucune facture disponible.
         </div>
 
         <div v-else class="overflow-x-auto">
-          <table class="w-full border-collapse text-left text-sm text-gray-500">
-            <thead class="border-b bg-gray-50 text-xs uppercase text-gray-700">
+          <table
+            class="w-full border-collapse text-left text-sm text-gray-500 dark:text-gray-400"
+          >
+            <thead
+              class="border-b bg-gray-50 text-xs uppercase text-gray-700 dark:bg-gray-950 dark:text-gray-300"
+            >
               <tr>
                 <th scope="col" class="px-4 py-3">Date</th>
                 <th scope="col" class="px-4 py-3">Numéro</th>
