@@ -18,7 +18,10 @@ COPY --chown=medicote:appgroup frontend/package*.json ./frontend/
 COPY --chown=medicote:appgroup shared/package*.json ./shared/
 COPY --chown=medicote:appgroup shared ./shared
 
-RUN npm install
+# package-lock.json is generated on Windows and lacks linux-x64-musl optional
+# native binaries (e.g. @oxc-parser/binding-linux-x64-musl needed by Nuxt on
+# Alpine). Removing it forces a fresh cross-platform resolution.
+RUN rm -f package-lock.json && npm install
 
 
 # stage 3: builder
