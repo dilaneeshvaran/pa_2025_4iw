@@ -753,6 +753,7 @@ import {
 } from "lucide-vue-next";
 import { useAuthStore } from "~/stores/auth";
 import { useMessagingStore } from "~/stores/messaging";
+import { useToast } from "vue-toastification";
 
 definePageMeta({
   layout: "practitioner",
@@ -760,6 +761,7 @@ definePageMeta({
 });
 
 const authStore = useAuthStore();
+const toast = useToast();
 const route = useRoute();
 const router = useRouter();
 const currentUserId = computed(() => authStore.user?.id || "");
@@ -1221,9 +1223,10 @@ const handleSendMessage = async () => {
       await nextTick();
       scrollToBottom();
     }
-  } catch (error) {
+  } catch (error: any) {
     console.error("Error sending message:", error);
     newMessage.value = content;
+    toast.error(error?.data?.message || "Erreur lors de l'envoi du message");
   } finally {
     sendingMessage.value = false;
   }
@@ -1262,10 +1265,11 @@ const sendAttachmentMessage = async () => {
       await nextTick();
       scrollToBottom();
     }
-  } catch (error) {
+  } catch (error: any) {
     console.error("Error sending attachment:", error);
     pendingAttachment.value = file;
     newMessage.value = content;
+    toast.error(error?.data?.message || "Erreur lors de l'envoi du fichier");
   } finally {
     sendingMessage.value = false;
   }
