@@ -8,7 +8,6 @@ on:
     branches:
       - main
 
-# Cancel superseded PR runs, but never cancel a deploy in progress.
 concurrency:
   group: ci-cd-${{ github.ref }}
   cancel-in-progress: ${{ github.event_name == 'pull_request' }}
@@ -17,10 +16,6 @@ env:
   REGISTRY: ghcr.io
 
 jobs:
-  # ── CI: single install → parallel tests ───────────────────────────────────
-  # One checkout + one npm install shared across all test steps.
-  # The Docker build-and-push stage handles its own install/compile inside the
-  # Dockerfile, so we skip redundant bare `npm run build` steps here.
   ci:
     name: Install, lint & test
     runs-on: ubuntu-latest
@@ -31,9 +26,6 @@ jobs:
         with:
           node-version: 22
 
-      # package-lock.json is generated on Windows and lacks linux-x64-gnu/musl
-      # optional native binaries (e.g. oxc-parser used by Nuxt).
-      # Removing it forces a fresh cross-platform resolution.
       - name: Install dependencies
         run: |
           rm -f package-lock.json
@@ -43,14 +35,12 @@ jobs:
         run: npx prisma generate
         working-directory: backend
 
-      # Run backend and frontend tests in parallel within the same job.
       - name: Test backend
         run: npm test --workspace=backend
 
       - name: Test frontend
         run: npm test --workspace=frontend
 
-  # ── CD: build images + deploy (only on push to main) ─────────────────────
   build-and-push:
     name: Build & push (${{ matrix.service }})
     runs-on: ubuntu-latest
@@ -62,8 +52,6 @@ jobs:
     strategy:
       matrix:
         include:
-          # backend/frontend build from the repo root (Dockerfiles COPY root
-          # manifests + the shared/ workspace), targeting the production stage.
           - service: backend
             context: .
             dockerfile: backend/Dockerfile
@@ -72,7 +60,6 @@ jobs:
             context: .
             dockerfile: frontend/Dockerfile
             target: production
-          # swarm reverse proxy (single-stage image, no target).
           - service: nginx
             context: infrastructure/nginx
             dockerfile: infrastructure/nginx/Dockerfile
@@ -122,8 +109,6 @@ jobs:
     steps:
       - uses: actions/checkout@v4
 
-      # Ship the swarm stack file + the observability configs it bind-mounts.
-      # The .env files (root + backend/.env) and Docker secrets live on the VPS.
       - name: Copy stack files to VPS
         uses: appleboy/scp-action@v0.1.7
         with:
