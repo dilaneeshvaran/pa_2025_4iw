@@ -26,15 +26,17 @@ jobs:
 
       - uses: actions/setup-node@v4
         with:
-          node-version: 20
+          node-version: 22
           cache: npm
           cache-dependency-path: package-lock.json
 
       # Install from the monorepo root with workspaces intact (mirrors the
       # Dockerfile) so the @medicote/shared workspace resolves; legacy-peer-deps
       # (.npmrc) clears the @ts-rest/fastify peer mismatch with fastify@5.
+      # npm install (not ci) is required because the lockfile is generated on
+      # Windows and lacks linux-x64 native binaries (e.g. oxc-parser).
       - name: Install dependencies
-        run: npm ci
+        run: npm install
 
       - name: Generate Prisma client
         run: npx prisma generate
@@ -54,12 +56,14 @@ jobs:
 
       - uses: actions/setup-node@v4
         with:
-          node-version: 20
+          node-version: 22
           cache: npm
           cache-dependency-path: package-lock.json
 
+      # npm install (not ci) resolves linux-x64 native binaries missing from the
+      # Windows-generated lockfile (e.g. oxc-parser used by Nuxt).
       - name: Install dependencies
-        run: npm ci
+        run: npm install
 
       - name: Run tests
         run: npm test --workspace=frontend
