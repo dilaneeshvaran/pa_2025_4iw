@@ -38,8 +38,11 @@ jest.mock('../../../config/database', () => ({
       update: jest.fn(),
       updateMany: jest.fn(),
     },
+    $transaction: jest.fn((cb) => cb(prismaMockInstance)),
   },
 }))
+
+const prismaMockInstance = require('../../../config/database').default
 
 jest.mock('../../../utils/bcrypt', () => ({
   hashPassword: jest.fn().mockResolvedValue('hashed_password'),

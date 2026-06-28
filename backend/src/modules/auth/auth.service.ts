@@ -29,42 +29,46 @@ export class AuthService {
 
     const hashedPassword = await hashPassword(data.password)
 
-    // Force PATIENT role for public signup
-    const user = await prisma.user.create({
-      data: {
-        email: normalizedEmail,
-        password: hashedPassword,
-        role: UserRole.PATIENT, // Always PATIENT for public signup
-        status: UserStatus.PENDING_VERIFICATION,
-      },
+    const { user } = await prisma.$transaction(async (tx) => {
+      // Force PATIENT role for public signup
+      const createdUser = await tx.user.create({
+        data: {
+          email: normalizedEmail,
+          password: hashedPassword,
+          role: UserRole.PATIENT, // Always PATIENT for public signup
+          status: UserStatus.PENDING_VERIFICATION,
+        },
+      })
+
+      // Create patient profile
+      await tx.patient.create({
+        data: {
+          userId: createdUser.id,
+          firstName: data.firstName,
+          lastName: data.lastName,
+          phone: data.phone,
+          dateOfBirth: data.dateOfBirth || new Date(),
+          gender: data.gender || 'PREFER_NOT_TO_SAY',
+        },
+      })
+
+      const verificationToken = generateToken()
+      const expiresAt = new Date()
+      expiresAt.setHours(expiresAt.getHours() + 24) // 24 hours
+
+      await tx.emailVerificationToken.create({
+        data: {
+          userId: createdUser.id,
+          email: createdUser.email,
+          token: verificationToken,
+          expiresAt,
+        },
+      })
+
+      await sendVerificationEmail(createdUser.email, verificationToken)
+
+      return { user: createdUser }
     })
-
-    // Create patient profile
-    await prisma.patient.create({
-      data: {
-        userId: user.id,
-        firstName: data.firstName,
-        lastName: data.lastName,
-        phone: data.phone,
-        dateOfBirth: data.dateOfBirth || new Date(),
-        gender: data.gender || 'PREFER_NOT_TO_SAY',
-      },
-    })
-
-    const verificationToken = generateToken()
-    const expiresAt = new Date()
-    expiresAt.setHours(expiresAt.getHours() + 24) // 24 hours
-
-    await prisma.emailVerificationToken.create({
-      data: {
-        userId: user.id,
-        email: user.email,
-        token: verificationToken,
-        expiresAt,
-      },
-    })
-
-    await sendVerificationEmail(user.email, verificationToken)
 
     const tokens = await this.generateTokens(user.id, user.email, user.role)
 
