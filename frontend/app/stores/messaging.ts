@@ -38,8 +38,16 @@ export const useMessagingStore = defineStore("messaging", () => {
     intentionalClose = false;
 
     const apiBase = config.public.apiBase as string;
-    const wsBase = apiBase.replace(/^http/, "ws").replace(/\/api$/, "");
-    const wsUrl = `${wsBase}/api/ws/messages?token=${encodeURIComponent(token)}`;
+    let wsUrl = "";
+    if (apiBase.startsWith("/")) {
+      const proto = window.location.protocol === "https:" ? "wss:" : "ws:";
+      const host = window.location.host;
+      const wsBase = apiBase.replace(/\/api$/, "");
+      wsUrl = `${proto}//${host}${wsBase}/api/ws/messages?token=${encodeURIComponent(token)}`;
+    } else {
+      const wsBase = apiBase.replace(/^http/, "ws").replace(/\/api$/, "");
+      wsUrl = `${wsBase}/api/ws/messages?token=${encodeURIComponent(token)}`;
+    }
 
     const ws = new WebSocket(wsUrl);
 

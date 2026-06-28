@@ -3,12 +3,12 @@ name: CI/CD
 on:
   push:
     branches:
-      - production
+      - main
   pull_request:
     branches:
-      - production
+      - main
 
-# Cancel superseded PR runs, but never cancel a production deploy in progress.
+# Cancel superseded PR runs, but never cancel a deploy in progress.
 concurrency:
   group: ci-cd-${{ github.ref }}
   cancel-in-progress: ${{ github.event_name == 'pull_request' }}
@@ -77,7 +77,7 @@ jobs:
       - name: Success
         run: echo "All build and test stages completed successfully!"
 
-  # ── CD: build images + deploy (only on push to production) ─────────────────
+  # ── CD: build images + deploy (only on push to main) ─────────────────
   build-and-push:
     name: Build & push (${{ matrix.service }})
     runs-on: ubuntu-latest
