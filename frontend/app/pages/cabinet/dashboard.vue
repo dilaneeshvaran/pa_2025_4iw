@@ -1,89 +1,84 @@
 <template>
-  <div class="space-y-6">
-    <div>
-      <h1 class="mb-2 text-2xl font-bold text-gray-900">
+  <div>
+    <div class="mb-8">
+      <h1 class="font-display text-xl font-bold tracking-tight text-gray-900">
         Tableau de bord du cabinet
       </h1>
-      <p class="text-gray-600">
+      <p class="mt-1 text-sm text-gray-500">
         Bienvenue sur votre espace d'administration du cabinet
       </p>
     </div>
 
     <!-- kpi  -->
     <div class="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
-      <div class="rounded-xl border border-gray-200 bg-white p-6 shadow-sm">
-        <div class="flex items-center gap-4">
-          <div
-            class="flex h-12 w-12 items-center justify-center rounded-lg bg-orange-100"
-          >
-            <Users class="h-6 w-6 text-orange-600" />
-          </div>
+      <!-- kpi 1 -->
+      <div class="rounded-2xl border border-[#E5E3DC] border-t-2 border-t-[#00804A]/30 bg-white p-5 shadow-sm hover:shadow-md transition-all duration-300">
+        <div class="flex items-start justify-between">
           <div>
-            <p class="text-sm text-gray-500">Praticiens</p>
+            <p class="text-[10px] font-medium uppercase tracking-widest text-gray-400">Praticiens</p>
             <p
               v-if="loading"
-              class="h-7 w-12 animate-pulse rounded bg-gray-200"
+              class="mt-1 h-8 w-12 animate-pulse rounded bg-gray-200"
             ></p>
-            <p v-else class="text-2xl font-bold text-gray-900">
+            <p v-else class="mt-1 font-display text-2xl font-bold tabular-nums text-gray-900">
               {{ dashboard?.practitionersCount ?? 0 }}
             </p>
           </div>
+          <Users class="h-5 w-5 text-gray-300" :stroke-width="1.5" />
         </div>
       </div>
 
-      <div class="rounded-xl border border-gray-200 bg-white p-6 shadow-sm">
-        <div class="flex items-center gap-4">
-          <div
-            class="flex h-12 w-12 items-center justify-center rounded-lg bg-green-100"
-          >
-            <UserPlus class="h-6 w-6 text-green-600" />
-          </div>
+      <!-- kpi 2 -->
+      <div class="rounded-2xl border border-[#E5E3DC] border-t-2 border-t-[#D96F00]/30 bg-white p-5 shadow-sm hover:shadow-md transition-all duration-300">
+        <div class="flex items-start justify-between">
           <div>
-            <p class="text-sm text-gray-500">Personnel</p>
+            <p class="text-[10px] font-medium uppercase tracking-widest text-gray-400">Personnel</p>
             <p
               v-if="loading"
-              class="h-7 w-12 animate-pulse rounded bg-gray-200"
+              class="mt-1 h-8 w-12 animate-pulse rounded bg-gray-200"
             ></p>
-            <p v-else class="text-2xl font-bold text-gray-900">
+            <p v-else class="mt-1 font-display text-2xl font-bold tabular-nums text-gray-900">
               {{ dashboard?.staffCount ?? 0 }}
             </p>
           </div>
+          <UserPlus class="h-5 w-5 text-gray-300" :stroke-width="1.5" />
         </div>
       </div>
 
-      <div class="rounded-xl border border-gray-200 bg-white p-6 shadow-sm">
-        <div class="flex items-center gap-4">
-          <div
-            class="flex h-12 w-12 items-center justify-center rounded-lg bg-orange-100"
-          >
-            <Calendar class="h-6 w-6 text-orange-600" />
-          </div>
+      <!-- kpi 3 -->
+      <div class="rounded-2xl border border-[#E5E3DC] border-t-2 border-t-[#00804A]/30 bg-white p-5 shadow-sm hover:shadow-md transition-all duration-300">
+        <div class="flex items-start justify-between">
           <div>
-            <p class="text-sm text-gray-500">RDV aujourd'hui</p>
+            <p class="text-[10px] font-medium uppercase tracking-widest text-gray-400">RDV aujourd'hui</p>
             <p
               v-if="loading"
-              class="h-7 w-12 animate-pulse rounded bg-gray-200"
+              class="mt-1 h-8 w-12 animate-pulse rounded bg-gray-200"
             ></p>
-            <p v-else class="text-2xl font-bold text-gray-900">
+            <p v-else class="mt-1 font-display text-2xl font-bold tabular-nums text-gray-900">
               {{ dashboard?.todayAppointmentsCount ?? 0 }}
             </p>
           </div>
+          <Calendar class="h-5 w-5 text-gray-300" :stroke-width="1.5" />
         </div>
       </div>
     </div>
 
+    <!-- section divider -->
+    <div class="my-6 border-b border-gray-100"></div>
+
     <!-- practitioners list -->
-    <div class="rounded-xl border border-gray-200 bg-white p-6 shadow-sm">
+    <UiCard>
       <div class="mb-4 flex items-center justify-between">
-        <h3 class="text-lg font-semibold text-gray-900">
+        <h3 class="font-display text-base font-semibold text-gray-900">
           Praticiens du cabinet
         </h3>
-        <button
+        <UiButton
+          variant="ghost"
+          size="sm"
           @click="navigateTo('/cabinet/practitioners')"
-          class="text-sm font-medium text-orange-600 hover:text-orange-800"
         >
           Voir tout →
-        </button>
+        </UiButton>
       </div>
 
       <div v-if="loading" class="animate-pulse space-y-3">
@@ -92,47 +87,50 @@
 
       <div
         v-else-if="!dashboard?.practitioners?.length"
-        class="py-8 text-center"
+        class="flex flex-col items-center justify-center py-12 text-center"
       >
-        <Users class="mx-auto mb-3 h-12 w-12 text-gray-300" />
-        <p class="text-gray-500">Aucun praticien dans ce cabinet</p>
-        <button
+        <Users class="mb-3 h-12 w-12 text-gray-300 opacity-60" :stroke-width="1.25" />
+        <h3 class="font-display text-base font-semibold text-gray-800">Aucun praticien</h3>
+        <p class="mt-1 max-w-[280px] text-sm text-gray-400">Aucun praticien dans ce cabinet.</p>
+        <UiButton
+          variant="outline"
+          size="sm"
+          class-name="mt-4"
           @click="navigateTo('/cabinet/practitioners')"
-          class="mt-3 text-sm font-medium text-orange-600 hover:text-orange-800"
         >
           Inviter un praticien
-        </button>
+        </UiButton>
       </div>
 
-      <div v-else class="space-y-3">
+      <div v-else class="space-y-1">
         <div
           v-for="prac in dashboard.practitioners.slice(0, 5)"
           :key="prac.id"
-          class="flex items-center justify-between rounded-lg bg-gray-50 p-4 transition-colors hover:bg-gray-100"
+          class="flex items-center justify-between rounded-lg border border-transparent p-3 hover:border-black/[0.05] hover:bg-gray-50 transition-all duration-150"
         >
           <div class="flex items-center gap-3">
             <div
-              class="flex h-10 w-10 items-center justify-center rounded-full bg-orange-100"
+              class="flex h-9 w-9 items-center justify-center rounded-full bg-gray-100 text-xs font-semibold text-gray-600 shadow-inner"
             >
-              <span class="text-sm font-bold text-orange-600">
+              <span>
                 {{ prac.firstName[0] }}{{ prac.lastName[0] }}
               </span>
             </div>
             <div>
-              <p class="font-medium text-gray-900">
+              <p class="text-sm font-semibold text-gray-900">
                 {{ prac.title }} {{ prac.firstName }} {{ prac.lastName }}
               </p>
-              <p class="text-sm text-gray-500">
+              <p class="text-xs text-gray-500">
                 {{ prac.specialties?.join(", ") || "-" }}
               </p>
             </div>
           </div>
-          <span class="text-xs text-gray-400">
+          <span class="text-xs text-gray-400 tabular-nums">
             Rejoint le {{ formatDate(prac.joinedAt) }}
           </span>
         </div>
       </div>
-    </div>
+    </UiCard>
   </div>
 </template>
 

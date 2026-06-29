@@ -1,41 +1,35 @@
 <template>
-  <div class="flex min-h-screen bg-[#FBFBF9]">
+  <div class="flex min-h-screen bg-gray-50">
     <!-- sidebar -->
     <aside
-      class="fixed left-4 top-4 bottom-4 z-40 w-60 rounded-2xl border border-[#E5E3DC]/60 bg-white/70 shadow-sm backdrop-blur-md transition-all duration-300"
+      class="fixed left-0 top-0 z-40 h-full w-64 border-r border-black/[0.08] bg-white"
     >
       <div class="flex h-full flex-col">
         <!-- logo -->
         <NuxtLink
           to="/cabinet/dashboard"
-          class="flex items-center gap-2.5 border-b border-[#E5E3DC]/40 px-5 py-5 transition-all select-none group"
+          class="flex items-center gap-3 border-b border-gray-100 px-5 py-4 transition-colors hover:bg-gray-50"
           aria-label="Aller au tableau de bord cabinet"
         >
-          <div
-            class="flex h-9 w-9 items-center justify-center rounded-xl bg-gradient-to-br from-green-600 to-emerald-500 shadow-sm group-hover:scale-105 transition-transform duration-300"
-          >
-            <Building2 class="h-5 w-5 text-white" />
-          </div>
-          <div class="flex flex-col">
-            <span class="text-sm font-black tracking-tight leading-none"><span class="text-[#FF7A00]">Medi</span><span class="text-[#0EA252]">côte</span></span>
-            <span class="text-[9px] font-bold text-gray-400 uppercase tracking-widest mt-1">Cabinet</span>
-          </div>
+          <span class="font-display text-lg font-bold tracking-tight"><span class="text-orange-500">Medi</span><span class="text-green-600">côte</span></span>
+          <span class="rounded-full bg-[#D96F00]/10 px-2 py-0.5 text-[10px] font-medium text-[#D96F00]">Cabinet</span>
         </NuxtLink>
 
         <!-- navigation -->
-        <nav class="flex-1 overflow-y-auto px-2 py-4 custom-scrollbar">
-          <ul class="space-y-1">
+        <nav class="flex-1 overflow-y-auto px-3 py-4">
+          <p class="px-3 pb-2 pt-1 text-[10px] font-medium uppercase tracking-[0.12em] text-gray-400">Gestion cabinet</p>
+          <ul class="space-y-0.5">
             <li v-for="item in menuItems" :key="item.path">
               <NuxtLink
                 :to="item.path"
                 :class="[
-                  'flex items-center gap-3 rounded-xl px-4.5 py-3 text-sm font-semibold transition-all duration-200',
+                  'flex h-9 items-center gap-2.5 rounded-md px-3 text-sm transition-all duration-150',
                   isActive(item.path)
-                    ? 'bg-gradient-to-r from-green-600/10 to-emerald-500/5 text-green-700 shadow-sm border-l-4 border-green-600 pl-3.5'
-                    : 'text-[#5C5A52] hover:bg-[#F2EFF7] hover:text-[#1B2321]',
+                    ? 'border-l-2 border-[#00804A] bg-[#00804A]/10 pl-[calc(0.75rem-2px)] font-semibold text-[#00804A]'
+                    : 'font-medium text-gray-500 hover:bg-gray-100 hover:text-gray-900',
                 ]"
               >
-                <component :is="item.icon" class="h-4.5 w-4.5" />
+                <component :is="item.icon" class="h-4 w-4" :stroke-width="1.75" />
                 {{ item.label }}
               </NuxtLink>
             </li>
@@ -43,25 +37,25 @@
         </nav>
 
         <!-- user -->
-        <div class="border-t border-[#E5E3DC]/40 p-4 bg-[#FAF9F6]/40 rounded-b-2xl">
+        <div class="border-t border-gray-100 p-4">
           <div class="mb-3 flex items-center gap-3">
             <div
-              class="flex h-9 w-9 items-center justify-center rounded-full bg-green-50 shadow-inner"
+              class="flex h-9 w-9 items-center justify-center rounded-full bg-gray-100 text-sm font-semibold text-gray-600"
             >
-              <Building2 class="h-4.5 w-4.5 text-green-600" />
+              <Building2 class="h-4 w-4" :stroke-width="1.75" />
             </div>
             <div class="min-w-0 flex-1">
-              <p class="truncate text-xs font-bold text-[#1B2321]">
+              <p class="truncate text-sm font-medium text-gray-900">
                 {{ authStore.user?.email }}
               </p>
-              <p class="text-[10px] font-semibold text-[#8C897E] uppercase tracking-wider">Admin Cabinet</p>
+              <span class="inline-flex items-center rounded-full bg-[#D96F00]/10 px-2 py-0.5 text-[10px] font-medium text-[#D96F00]">Cabinet Admin</span>
             </div>
           </div>
           <button
             @click="handleLogout"
-            class="flex w-full items-center justify-center gap-2 rounded-xl border border-orange-200/50 bg-orange-50/40 py-2.5 text-xs font-bold text-orange-600 transition-all hover:bg-orange-100 hover:text-orange-700"
+            class="flex w-full items-center gap-2 rounded-md px-3 py-1.5 text-sm font-medium text-gray-500 transition-all duration-150 hover:bg-gray-100 hover:text-gray-900"
           >
-            <LogOut class="h-3.5 w-3.5" />
+            <LogOut class="h-4 w-4" :stroke-width="1.75" />
             Déconnexion
           </button>
         </div>
@@ -69,13 +63,13 @@
     </aside>
 
     <!-- main content -->
-    <div class="ml-68 flex-1 flex flex-col min-h-screen">
+    <div class="ml-64 flex-1">
       <header
-        class="sticky top-4 z-30 mx-4 lg:mx-8 mt-4 mb-2 flex justify-end rounded-2xl border border-[#E5E3DC]/60 bg-white/70 px-6 py-3 shadow-sm backdrop-blur-md"
+        class="sticky top-0 z-30 flex justify-end border-b border-black/[0.08] bg-gray-50/95 px-6 py-3 backdrop-blur"
       >
         <CommonNotificationBell />
       </header>
-      <main class="flex-1 p-4 lg:p-8">
+      <main class="p-6">
         <slot />
       </main>
     </div>

@@ -7,7 +7,7 @@
 
     <div class="grid gap-6 lg:grid-cols-2">
       <!-- next appointment - visual moment -->
-      <div class="rounded-lg border border-[#00804A]/15 bg-[#00804A]/5 p-5">
+      <div class="rounded-2xl border border-[#00804A]/15 bg-[#00804A]/5 p-6">
         <h3 class="font-display text-base font-semibold text-gray-900">
           Prochain rendez-vous
         </h3>

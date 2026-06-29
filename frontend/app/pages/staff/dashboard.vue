@@ -62,12 +62,10 @@
           </div>
         </div>
       </div>
-    </div>
-
-    <!-- kpi -->
+    </div>    <!-- kpis -->
     <div class="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
       <!-- kpi 1 -->
-      <div class="rounded-lg border border-black/[0.08] border-t-2 border-t-[#00804A]/30 bg-white p-4 shadow-[0_1px_3px_rgba(26,21,16,0.07)]">
+      <div class="rounded-2xl border border-[#E5E3DC] border-t-2 border-t-[#00804A]/30 bg-white p-5 shadow-sm hover:shadow-md transition-all duration-300">
         <div class="flex items-start justify-between">
           <div>
             <p class="text-[10px] font-medium uppercase tracking-widest text-gray-400">
@@ -86,7 +84,7 @@
       </div>
 
       <!-- kpi 2 -->
-      <div class="rounded-lg border border-black/[0.08] border-t-2 border-t-[#D96F00]/30 bg-white p-4 shadow-[0_1px_3px_rgba(26,21,16,0.07)]">
+      <div class="rounded-2xl border border-[#E5E3DC] border-t-2 border-t-[#D96F00]/30 bg-white p-5 shadow-sm hover:shadow-md transition-all duration-300">
         <div class="flex items-start justify-between">
           <div>
             <p class="text-[10px] font-medium uppercase tracking-widest text-gray-400">
@@ -105,7 +103,7 @@
       </div>
 
       <!-- kpi 3 -->
-      <div class="rounded-lg border border-black/[0.08] border-t-2 border-t-[#00804A]/30 bg-white p-4 shadow-[0_1px_3px_rgba(26,21,16,0.07)]">
+      <div class="rounded-2xl border border-[#E5E3DC] border-t-2 border-t-[#00804A]/30 bg-white p-5 shadow-sm hover:shadow-md transition-all duration-300">
         <div class="flex items-start justify-between">
           <div>
             <p class="text-[10px] font-medium uppercase tracking-widest text-gray-400">
@@ -115,7 +113,6 @@
               {{ dashboard?.staff?.position || "Personnel" }}
             </p>
           </div>
-          <ClipboardList class="h-5 w-5 text-gray-300" :stroke-width="1.5" />
         </div>
       </div>
     </div>

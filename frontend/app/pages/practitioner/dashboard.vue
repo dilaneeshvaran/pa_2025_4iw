@@ -8,7 +8,7 @@
     <!-- profile visibility alert -->
     <div
       v-if="showProfileAlert"
-      class="mb-6 rounded-lg border border-[#D96F00]/20 bg-[#D96F00]/5 p-4"
+      class="mb-6 rounded-2xl border border-[#D96F00]/20 bg-[#D96F00]/5 p-5 shadow-sm"
     >
       <div class="flex items-start gap-3">
         <Info class="mt-0.5 h-5 w-5 flex-shrink-0 text-[#D96F00]" :stroke-width="1.75" />
@@ -42,7 +42,7 @@
         v-for="(kpi, i) in kpiCards"
         :key="i"
         :class="[
-          'rounded-lg border border-black/[0.08] bg-white p-4 shadow-[0_1px_3px_rgba(26,21,16,0.07)]',
+          'rounded-2xl border border-[#E5E3DC] bg-white p-5 shadow-sm hover:shadow-md transition-all duration-300',
           kpi.borderColor,
         ]"
       >
@@ -70,7 +70,7 @@
     <!--  row: next rdv + today appointments  -->
     <div class="grid gap-6 lg:grid-cols-2">
       <!-- next appointment - elevated -->
-      <div class="rounded-lg border border-[#00804A]/15 bg-[#00804A]/5 p-5">
+      <div class="rounded-2xl border border-[#00804A]/15 bg-[#00804A]/5 p-6">
         <h3 class="font-display text-base font-semibold text-gray-900">
           Prochain rendez-vous
         </h3>
