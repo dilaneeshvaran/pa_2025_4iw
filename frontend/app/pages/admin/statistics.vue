@@ -310,7 +310,7 @@ const kpis = computed(() => {
     },
     {
       label: "Note moyenne",
-      value: o.averageRating ? `${o.averageRating}/5` : "—",
+      value: o.averageRating ? `${o.averageRating}/5` : "-",
       sub: `${o.totalReviews} avis`,
       color: "text-yellow-600",
     },

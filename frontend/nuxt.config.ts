@@ -75,23 +75,27 @@ export default defineNuxtConfig({
 
   googleFonts: {
     families: {
-      Inter: [300, 400, 500, 600, 700],
+      "Plus Jakarta Sans": [400, 500, 600, 700],
+      Outfit: [400, 500, 600, 700, 800, 900],
     },
     display: "swap",
   },
 
   app: {
     head: {
-      title: "Medical Appointment App",
+      title: "MediCôte - Plateforme médicale en Côte d'Ivoire",
       meta: [
         { charset: "utf-8" },
         { name: "viewport", content: "width=device-width, initial-scale=1" },
         {
           name: "description",
-          content: "Book medical appointments in Côte d'Ivoire",
+          content:
+            "MediCôte - Prenez rendez-vous avec un professionnel de santé en Côte d'Ivoire. Consultations en cabinet et téléconsultations.",
         },
       ],
-      link: [{ rel: "icon", type: "image/x-icon", href: "/favicon.ico" }],
+      link: [
+        { rel: "icon", type: "image/x-icon", href: "/favicon.ico" },
+      ],
     },
   },
 

@@ -1,4 +1,4 @@
-# Medicote — raccourcis de développement
+# Medicote - raccourcis de développement
 # Tout l'environnement tourne via docker compose.
 
 COMPOSE := docker compose

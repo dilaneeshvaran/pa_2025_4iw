@@ -52,8 +52,8 @@ const emit = defineEmits<{
 
 const inputClass = computed(() => {
   return [
-    "w-full rounded-lg border border-gray-300 px-4 py-2.5 text-base transition-colors",
-    "focus:border-[var(--color-primary)] focus:outline-none focus:ring-2 focus:ring-[var(--color-primary)] focus:ring-opacity-20",
+    "w-full rounded-md border border-black/[0.08] px-4 py-2.5 text-sm transition-all duration-150",
+    "focus-visible:border-[#00804A] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#00804A]/20",
     "disabled:cursor-not-allowed disabled:opacity-50 disabled:bg-gray-50",
     props.icon && "pl-10",
     props.className,

@@ -45,7 +45,7 @@
                   <span class="text-sm text-gray-700">
                     <span class="font-medium">Analytics anonymes (optionnel)</span>
                     <span id="analytics-consent-desc" class="ml-1 text-gray-500">
-                      — Aide à améliorer MediCôte. Aucune donnée médicale ni personnelle n'est
+                      - Aide à améliorer MediCôte. Aucune donnée médicale ni personnelle n'est
                       collectée.
                     </span>
                   </span>

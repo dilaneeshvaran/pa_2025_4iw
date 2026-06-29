@@ -61,7 +61,7 @@ function toDto(sub: SubscriptionWithPractitioner): AdminSubscriptionDto {
   return {
     id: sub.id,
     practitionerId: sub.practitionerId,
-    practitionerName: fullName || '—',
+    practitionerName: fullName || '-',
     email: p?.user?.email ?? null,
     title: p?.title ?? null,
     city: p?.city ?? null,

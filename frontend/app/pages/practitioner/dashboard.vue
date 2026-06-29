@@ -1,109 +1,116 @@
 <template>
-  <div class="space-y-6">
-    <div>
-      <h1 class="mb-2 text-2xl font-bold text-gray-900">Tableau de bord</h1>
-      <p class="text-gray-600">Bienvenue sur votre espace praticien</p>
+  <div>
+    <div class="mb-8">
+      <h1 class="font-display text-xl font-bold tracking-tight text-gray-900">Tableau de bord</h1>
+      <p class="mt-1 text-sm text-gray-500">Bienvenue sur votre espace praticien</p>
     </div>
 
     <!-- profile visibility alert -->
     <div
       v-if="showProfileAlert"
-      class="rounded-lg border border-orange-200 bg-orange-50 p-4"
+      class="mb-6 rounded-lg border border-[#D96F00]/20 bg-[#D96F00]/5 p-4"
     >
       <div class="flex items-start gap-3">
-        <Info class="mt-0.5 h-5 w-5 flex-shrink-0 text-orange-600" />
+        <Info class="mt-0.5 h-5 w-5 flex-shrink-0 text-[#D96F00]" :stroke-width="1.75" />
         <div class="flex-1">
-          <h3 class="font-semibold text-orange-700">
+          <h3 class="font-display text-sm font-semibold text-gray-900">
             {{ profileAlertTitle }}
           </h3>
-          <p class="mt-1 text-sm text-orange-700">
+          <p class="mt-1 text-sm text-gray-600">
             {{ profileAlertMessage }}
           </p>
           <NuxtLink
             :to="profileAlertLink"
-            class="mt-2 inline-flex items-center text-sm font-semibold text-orange-600 hover:text-orange-700"
+            class="mt-2 inline-flex items-center text-sm font-semibold text-[#D96F00] hover:text-[#B85E00]"
           >
             {{ profileAlertAction }}
-            <ArrowRight class="ml-1 h-4 w-4" />
+            <ArrowRight class="ml-1 h-4 w-4" :stroke-width="1.75" />
           </NuxtLink>
         </div>
         <button
           @click="dismissProfileAlert"
-          class="text-orange-500 hover:text-orange-600"
+          class="text-gray-400 transition-colors hover:text-gray-600"
         >
-          <X class="h-5 w-5" />
+          <X class="h-4 w-4" :stroke-width="1.75" />
         </button>
       </div>
     </div>
 
     <!-- kpi  -->
     <div class="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
-      <UiCard v-for="(kpi, i) in kpiCards" :key="i">
-        <div class="flex items-center gap-4">
-          <div
-            :class="[
-              'flex h-12 w-12 flex-shrink-0 items-center justify-center rounded-lg',
-              kpi.bgColor,
-            ]"
-          >
-            <component :is="kpi.icon" :class="['h-6 w-6', kpi.iconColor]" />
-          </div>
-          <div class="min-w-0 flex-1">
-            <p class="text-sm text-gray-500">{{ kpi.label }}</p>
+      <div
+        v-for="(kpi, i) in kpiCards"
+        :key="i"
+        :class="[
+          'rounded-lg border border-black/[0.08] bg-white p-4 shadow-[0_1px_3px_rgba(26,21,16,0.07)]',
+          kpi.borderColor,
+        ]"
+      >
+        <div class="flex items-start justify-between">
+          <div>
+            <p class="text-[10px] font-medium uppercase tracking-widest text-gray-400">
+              {{ kpi.label }}
+            </p>
             <p
               v-if="loading"
-              class="h-7 w-16 animate-pulse rounded bg-gray-200"
+              class="mt-1 h-8 w-16 animate-pulse rounded bg-gray-200"
             ></p>
-            <p v-else class="text-2xl font-bold text-gray-900">
+            <p v-else class="mt-1 font-display text-2xl font-bold tabular-nums text-gray-900">
               {{ kpi.value }}
             </p>
           </div>
+          <component :is="kpi.icon" class="h-5 w-5 text-gray-300" :stroke-width="1.5" />
         </div>
-      </UiCard>
+      </div>
     </div>
+
+    <!-- section divider -->
+    <div class="my-6 border-b border-gray-100"></div>
 
     <!--  row: next rdv + today appointments  -->
     <div class="grid gap-6 lg:grid-cols-2">
-      <UiCard>
-        <h3 class="mb-4 text-lg font-semibold text-gray-900">
+      <!-- next appointment - elevated -->
+      <div class="rounded-lg border border-[#00804A]/15 bg-[#00804A]/5 p-5">
+        <h3 class="font-display text-base font-semibold text-gray-900">
           Prochain rendez-vous
         </h3>
 
-        <div v-if="loading" class="animate-pulse space-y-3">
-          <div class="h-4 w-3/4 rounded bg-gray-200"></div>
-          <div class="h-3 w-1/2 rounded bg-gray-200"></div>
-          <div class="h-3 w-1/3 rounded bg-gray-200"></div>
+        <div v-if="loading" class="mt-4 animate-pulse space-y-3">
+          <div class="h-4 w-3/4 rounded bg-[#00804A]/10"></div>
+          <div class="h-3 w-1/2 rounded bg-[#00804A]/10"></div>
+          <div class="h-3 w-1/3 rounded bg-[#00804A]/10"></div>
         </div>
 
         <div
           v-else-if="!dashboard?.nextAppointment"
-          class="flex flex-col items-center justify-center py-8"
+          class="flex flex-col items-center justify-center py-12 text-center"
         >
-          <Calendar class="mb-3 h-12 w-12 text-gray-300" />
-          <p class="text-gray-500">Aucun rendez-vous à venir</p>
+          <Calendar class="mb-3 h-12 w-12 text-gray-300 opacity-60" :stroke-width="1.25" />
+          <h3 class="font-display text-base font-semibold text-gray-800">Aucun rendez-vous</h3>
+          <p class="mt-1 max-w-[280px] text-sm text-gray-400">Aucun rendez-vous à venir pour le moment.</p>
         </div>
 
-        <div v-else class="flex flex-col">
-          <div class="flex items-center gap-4 rounded-lg bg-orange-50 p-4">
+        <div v-else class="mt-4 flex flex-col">
+          <div class="flex items-center gap-4 rounded-lg border border-[#00804A]/10 bg-white/60 p-4">
             <div
-              class="flex h-14 w-14 flex-shrink-0 items-center justify-center rounded-full bg-orange-100"
+              class="flex h-12 w-12 flex-shrink-0 items-center justify-center rounded-full bg-white text-sm font-bold text-[#00804A]"
             >
-              <User class="h-7 w-7 text-orange-600" />
+              {{ dashboard.nextAppointment.patient.firstName[0] }}{{ dashboard.nextAppointment.patient.lastName[0] }}
             </div>
             <div class="min-w-0 flex-1">
-              <p class="text-lg font-semibold text-gray-900">
+              <p class="font-display text-base font-semibold text-gray-900">
                 {{ dashboard.nextAppointment.patient.firstName }}
                 {{ dashboard.nextAppointment.patient.lastName }}
               </p>
-              <div class="mt-1 flex items-center gap-2 text-sm text-gray-600">
-                <Clock class="h-4 w-4" />
-                {{ formatDate(dashboard.nextAppointment.appointmentDate) }} à
-                {{ dashboard.nextAppointment.startTime }}
+              <div class="mt-1 flex items-center gap-2 text-sm text-gray-500">
+                <Clock class="h-3.5 w-3.5" :stroke-width="1.75" />
+                <span class="tabular-nums">{{ formatDate(dashboard.nextAppointment.appointmentDate) }} à
+                {{ dashboard.nextAppointment.startTime }}</span>
               </div>
             </div>
           </div>
 
-          <div class="mt-4 flex flex-wrap items-center gap-2">
+          <div class="mt-3 flex flex-wrap items-center gap-2">
             <UiBadge
               :variant="
                 dashboard.nextAppointment.type === 'TELECONSULTATION'
@@ -124,7 +131,7 @@
 
           <p
             v-if="dashboard.nextAppointment.reason"
-            class="mt-3 rounded-lg bg-gray-50 p-3 text-sm text-gray-600"
+            class="mt-3 rounded-lg border border-black/[0.05] bg-white/60 p-3 text-sm text-gray-600"
           >
             <span class="font-medium text-gray-700">Motif :</span>
             {{ dashboard.nextAppointment.reason }}
@@ -132,7 +139,7 @@
 
           <div class="mt-4 flex gap-2">
             <UiButton
-              variant="secondary"
+              variant="outline"
               size="sm"
               class="flex-1"
               @click="
@@ -145,21 +152,22 @@
             </UiButton>
             <UiButton
               v-if="canJoinNextTeleconsultation"
+              variant="secondary"
               size="sm"
               class="flex-1"
               @click="navigateTo('/practitioner/teleconsultations')"
             >
-              <Video class="mr-1.5 h-4 w-4" />
+              <Video class="mr-1.5 h-4 w-4" :stroke-width="1.75" />
               Rejoindre
             </UiButton>
           </div>
         </div>
-      </UiCard>
+      </div>
 
       <!-- today appointments -->
       <UiCard>
         <div class="mb-4 flex items-center justify-between">
-          <h3 class="text-lg font-semibold text-gray-900">
+          <h3 class="font-display text-base font-semibold text-gray-900">
             Rendez-vous aujourd'hui
           </h3>
           <div class="flex items-center gap-2">
@@ -167,11 +175,11 @@
               {{ loading ? "..." : dashboard?.todayAppointments?.length || 0 }}
             </UiBadge>
             <UiButton
-              variant="secondary"
+              variant="ghost"
               size="sm"
               @click="navigateTo('/practitioner/agenda')"
             >
-              Voir agenda complet
+              Voir agenda
             </UiButton>
           </div>
         </div>
@@ -191,19 +199,20 @@
 
         <div
           v-else-if="!dashboard?.todayAppointments?.length"
-          class="py-6 text-center"
+          class="flex flex-col items-center justify-center py-12 text-center"
         >
-          <CalendarCheck class="mx-auto mb-3 h-12 w-12 text-gray-300" />
-          <p class="text-gray-500">Aucun rendez-vous aujourd'hui</p>
+          <CalendarCheck class="mb-3 h-12 w-12 text-gray-300 opacity-60" :stroke-width="1.25" />
+          <h3 class="font-display text-base font-semibold text-gray-800">Aucun rendez-vous</h3>
+          <p class="mt-1 max-w-[280px] text-sm text-gray-400">Aucun rendez-vous prévu aujourd'hui.</p>
         </div>
 
-        <div v-else class="max-h-64 space-y-2 overflow-y-auto">
+        <div v-else class="max-h-64 space-y-1 overflow-y-auto">
           <div
             v-for="apt in dashboard.todayAppointments"
             :key="apt.id"
-            class="flex items-center gap-3 rounded-lg bg-gray-50 p-3 transition-colors hover:bg-gray-100"
+            class="group flex items-center gap-3 rounded-lg border border-transparent p-3 transition-all duration-150 hover:border-black/[0.05] hover:bg-gray-50"
           >
-            <span class="font-mono text-sm font-medium text-orange-600">
+            <span class="tabular-nums text-sm font-semibold text-[#00804A]">
               {{ apt.startTime }}
             </span>
             <div class="min-w-0 flex-1">
@@ -226,8 +235,8 @@
             <UiButton
               v-if="apt.status === 'COMPLETED' && apt.type === 'CABINET'"
               size="sm"
-              variant="outline"
-              class="ml-2 h-6 px-2 py-0 text-xs"
+              variant="ghost"
+              class="ml-1 h-7 px-2 py-0 text-xs opacity-0 transition-opacity duration-150 group-hover:opacity-100"
               @click.stop="openInvoiceModal(apt)"
             >
               Facturer
@@ -237,14 +246,17 @@
       </UiCard>
     </div>
 
+    <!-- section divider -->
+    <div class="my-6 border-b border-gray-100"></div>
+
     <!--  row: waiting teleconsultations + recent messages  -->
     <div class="grid gap-6 lg:grid-cols-2">
       <!-- waiting teleconsultations -->
       <UiCard>
-        <div class="mb-4 flex items-center gap-3">
-          <Video class="h-5 w-5 text-green-600" />
-          <h3 class="text-lg font-semibold text-gray-900">
-            Patients en attente – Téléconsultations
+        <div class="mb-4 flex items-center gap-2">
+          <Video class="h-4 w-4 text-[#00804A]" :stroke-width="1.75" />
+          <h3 class="font-display text-base font-semibold text-gray-900">
+            Patients en attente
           </h3>
         </div>
 
@@ -252,16 +264,12 @@
           <div class="h-16 rounded bg-gray-200"></div>
         </div>
 
-        <div v-else class="flex items-center gap-4 rounded-lg bg-green-50 p-4">
-          <div
-            class="flex h-14 w-14 items-center justify-center rounded-full bg-green-100"
-          >
-            <span class="text-2xl font-bold text-green-700">
-              {{ dashboard?.waitingTeleconsultations || 0 }}
-            </span>
-          </div>
+        <div v-else class="flex items-center gap-4 rounded-lg border border-[#00804A]/10 bg-[#00804A]/5 p-4">
+          <p class="font-display text-3xl font-bold tabular-nums text-[#00804A]">
+            {{ dashboard?.waitingTeleconsultations || 0 }}
+          </p>
           <div>
-            <p class="font-medium text-green-800">
+            <p class="text-sm font-medium text-gray-900">
               {{
                 (dashboard?.waitingTeleconsultations || 0) === 0
                   ? "Aucun patient en attente"
@@ -270,7 +278,7 @@
                     : `${dashboard?.waitingTeleconsultations} patients en attente`
               }}
             </p>
-            <p class="text-sm text-green-600">Salle d'attente virtuelle</p>
+            <p class="text-xs text-gray-400">Salle d'attente virtuelle</p>
           </div>
         </div>
       </UiCard>
@@ -278,14 +286,14 @@
       <!-- recent messages -->
       <UiCard>
         <div class="mb-4 flex items-center justify-between">
-          <div class="flex items-center gap-3">
-            <MessageSquare class="h-5 w-5 text-purple-600" />
-            <h3 class="text-lg font-semibold text-gray-900">
+          <div class="flex items-center gap-2">
+            <MessageSquare class="h-4 w-4 text-gray-400" :stroke-width="1.75" />
+            <h3 class="font-display text-base font-semibold text-gray-900">
               Messages récents
             </h3>
           </div>
           <UiButton
-            variant="secondary"
+            variant="ghost"
             size="sm"
             @click="navigateTo('/practitioner/messages')"
           >
@@ -299,7 +307,7 @@
             :key="i"
             class="flex gap-3 rounded-lg bg-gray-50 p-3"
           >
-            <div class="h-10 w-10 rounded-full bg-gray-200"></div>
+            <div class="h-8 w-8 rounded-full bg-gray-200"></div>
             <div class="flex-1 space-y-2">
               <div class="h-4 w-1/2 rounded bg-gray-200"></div>
               <div class="h-3 w-3/4 rounded bg-gray-200"></div>
@@ -309,30 +317,31 @@
 
         <div
           v-else-if="!dashboard?.recentMessages?.length"
-          class="py-6 text-center"
+          class="flex flex-col items-center justify-center py-12 text-center"
         >
-          <MessageSquare class="mx-auto mb-3 h-12 w-12 text-gray-300" />
-          <p class="text-gray-500">Aucun message récent</p>
+          <MessageSquare class="mb-3 h-12 w-12 text-gray-300 opacity-60" :stroke-width="1.25" />
+          <h3 class="font-display text-base font-semibold text-gray-800">Aucun message</h3>
+          <p class="mt-1 max-w-[280px] text-sm text-gray-400">Vos échanges apparaîtront ici.</p>
         </div>
 
-        <div v-else class="space-y-2">
+        <div v-else class="space-y-1">
           <div
             v-for="msg in dashboard.recentMessages"
             :key="msg.conversationId"
-            class="flex cursor-pointer items-start gap-3 rounded-lg p-3 transition-colors hover:bg-gray-50"
+            class="flex cursor-pointer items-start gap-3 rounded-lg p-3 transition-all duration-150 hover:bg-gray-50"
             @click="navigateTo('/practitioner/messages')"
           >
             <div
-              class="flex h-10 w-10 flex-shrink-0 items-center justify-center rounded-full bg-purple-100"
+              class="flex h-8 w-8 flex-shrink-0 items-center justify-center rounded-full bg-gray-100 text-xs font-semibold text-gray-500"
             >
-              <User class="h-5 w-5 text-purple-600" />
+              {{ msg.patientName.split(' ').map((n: string) => n[0]).join('').slice(0, 2) }}
             </div>
             <div class="min-w-0 flex-1">
               <div class="flex items-center justify-between">
                 <p class="text-sm font-medium text-gray-900">
                   {{ msg.patientName }}
                 </p>
-                <span class="text-xs text-gray-400">
+                <span class="tabular-nums text-xs text-gray-400">
                   {{ formatRelativeTime(msg.createdAt) }}
                 </span>
               </div>
@@ -342,20 +351,21 @@
             </div>
             <span
               v-if="msg.unread"
-              class="mt-1 h-2.5 w-2.5 flex-shrink-0 rounded-full bg-orange-500"
+              class="mt-1.5 h-2 w-2 flex-shrink-0 rounded-full bg-[#D96F00]"
             ></span>
           </div>
         </div>
       </UiCard>
     </div>
 
+    <!-- section divider -->
+    <div class="my-6 border-b border-gray-100"></div>
+
     <!--  row: todo list  -->
     <UiCard>
-      <div class="mb-4 flex items-center justify-between">
-        <div class="flex items-center gap-3">
-          <ListTodo class="h-5 w-5 text-orange-600" />
-          <h3 class="text-lg font-semibold text-gray-900">À faire</h3>
-        </div>
+      <div class="mb-4 flex items-center gap-2">
+        <ListTodo class="h-4 w-4 text-[#D96F00]" :stroke-width="1.75" />
+        <h3 class="font-display text-base font-semibold text-gray-900">À faire</h3>
       </div>
 
       <!-- add new todo -->
@@ -364,7 +374,7 @@
           v-model="newTodoTitle"
           type="text"
           placeholder="Ajouter une tâche..."
-          class="flex-1 rounded-lg border border-gray-300 px-4 py-2 text-sm focus:border-orange-500 focus:outline-none focus:ring-1 focus:ring-orange-500"
+          class="flex-1"
           :disabled="addingTodo"
         />
         <UiButton
@@ -372,7 +382,7 @@
           size="sm"
           :disabled="!newTodoTitle.trim() || addingTodo"
         >
-          <Plus class="h-4 w-4" />
+          <Plus class="h-4 w-4" :stroke-width="1.75" />
           Ajouter
         </UiButton>
       </form>
@@ -381,16 +391,17 @@
         <div v-for="i in 3" :key="i" class="h-10 rounded bg-gray-200"></div>
       </div>
 
-      <div v-else-if="!dashboard?.todos?.length" class="py-6 text-center">
-        <ListTodo class="mx-auto mb-3 h-12 w-12 text-gray-300" />
-        <p class="text-gray-500">Aucune tâche en cours</p>
+      <div v-else-if="!dashboard?.todos?.length" class="flex flex-col items-center justify-center py-12 text-center">
+        <ListTodo class="mb-3 h-12 w-12 text-gray-300 opacity-60" :stroke-width="1.25" />
+        <h3 class="font-display text-base font-semibold text-gray-800">Aucune tâche</h3>
+        <p class="mt-1 max-w-[280px] text-sm text-gray-400">Vos tâches en cours apparaîtront ici.</p>
       </div>
 
-      <div v-else class="space-y-2">
+      <div v-else class="space-y-1">
         <div
           v-for="todo in dashboard.todos"
           :key="todo.id"
-          class="flex items-center gap-3 rounded-lg border border-gray-100 px-4 py-3 transition-colors hover:bg-gray-50"
+          class="flex items-center gap-3 rounded-lg border border-transparent px-4 py-3 transition-all duration-150 hover:border-black/[0.05] hover:bg-gray-50"
         >
           <button
             @click="toggleTodo(todo.id)"
@@ -398,8 +409,8 @@
             :class="[
               'flex h-4 w-4 flex-shrink-0 items-center justify-center rounded border transition-colors',
               todo.completed
-                ? 'border-green-500 bg-green-500 text-white'
-                : 'border-gray-300 hover:border-orange-400',
+                ? 'border-[#00804A] bg-[#00804A] text-white'
+                : 'border-gray-300 hover:border-[#00804A]',
             ]"
           >
             <Check v-if="todo.completed" class="h-2.5 w-2.5" />
@@ -578,8 +589,7 @@ const kpiCards = computed(() => [
     label: "Consultations ce mois",
     value: dashboard.value?.consultationsThisMonth ?? "-",
     icon: Calendar,
-    bgColor: "bg-orange-100",
-    iconColor: "text-orange-600",
+    borderColor: "border-t-2 border-t-[#00804A]/30",
   },
   {
     label: "Revenus ce mois",
@@ -587,22 +597,19 @@ const kpiCards = computed(() => [
       ? `${dashboard.value.revenue.toLocaleString("fr-FR")} XOF`
       : "-",
     icon: CreditCard,
-    bgColor: "bg-green-100",
-    iconColor: "text-green-600",
+    borderColor: "border-t-2 border-t-[#D96F00]/30",
   },
   {
     label: "Taux de présence ce mois",
     value: dashboard.value ? `${dashboard.value.attendanceRate}%` : "-",
     icon: TrendingUp,
-    bgColor: "bg-purple-100",
-    iconColor: "text-purple-600",
+    borderColor: "border-t-2 border-t-[#00804A]/30",
   },
   {
     label: "Nouveaux patients ce mois",
     value: dashboard.value?.newPatients ?? "-",
     icon: UserPlus,
-    bgColor: "bg-orange-100",
-    iconColor: "text-orange-600",
+    borderColor: "border-t-2 border-t-[#D96F00]/30",
   },
 ]);
 

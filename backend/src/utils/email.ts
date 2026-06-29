@@ -18,7 +18,7 @@ function escapeEmailHtml(value: string): string {
     .replace(/'/g, '&#39;')
 }
 
-// reusable Resend client (HTTP API — avoids blocked SMTP ports on the VPS).
+// reusable Resend client (HTTP API - avoids blocked SMTP ports on the VPS).
 // Lazily instantiated: `new Resend('')` throws "Missing API key", which would
 // break any module that merely imports this file (e.g. test suites that never
 // send mail). We only build the client on the first actual send.

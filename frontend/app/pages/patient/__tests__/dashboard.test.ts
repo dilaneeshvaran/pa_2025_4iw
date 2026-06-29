@@ -129,7 +129,7 @@ function pastTime(hours: number): string {
 
 // ── Tests ────────────────────────────────────────────────────────────────────
 
-describe('patient dashboard — canModifyNext', () => {
+describe('patient dashboard - canModifyNext', () => {
   it("retourne false si le rendez-vous est null", () => {
     expect(canModifyNext(null)).toBe(false)
   })
@@ -201,7 +201,7 @@ describe('patient dashboard — canModifyNext', () => {
   })
 })
 
-describe('patient dashboard — canCancelNext', () => {
+describe('patient dashboard - canCancelNext', () => {
   it("retourne false si le rendez-vous est null", () => {
     expect(canCancelNext(null)).toBe(false)
   })
@@ -252,7 +252,7 @@ describe('patient dashboard — canCancelNext', () => {
   })
 })
 
-describe('patient dashboard — canJoinNext', () => {
+describe('patient dashboard - canJoinNext', () => {
   it("retourne false si le rendez-vous est null", () => {
     expect(canJoinNext(null)).toBe(false)
   })
@@ -336,7 +336,7 @@ describe('patient dashboard — canJoinNext', () => {
   })
 })
 
-describe('patient dashboard — getNotificationIcon', () => {
+describe('patient dashboard - getNotificationIcon', () => {
   it("retourne 'Bell' pour APPOINTMENT_REMINDER", () => {
     expect(getNotificationIcon('APPOINTMENT_REMINDER')).toBe('Bell')
   })

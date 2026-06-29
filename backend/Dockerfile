@@ -48,7 +48,7 @@ CMD ["npm", "run", "dev"]
 
 # stage 4: production
 # Runs the TypeScript sources directly via tsx (same runtime as dev). This lets
-# the @medicote/shared workspace resolve from source — shared has no JS build,
+# the @medicote/shared workspace resolve from source - shared has no JS build,
 # so a compiled `node dist/index.js` cannot require it. tsx is a runtime
 # dependency (see backend/package.json), so it survives `npm install --omit=dev`.
 FROM base AS production
