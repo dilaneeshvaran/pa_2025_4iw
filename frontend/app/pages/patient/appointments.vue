@@ -1000,11 +1000,19 @@ const canModify = (apt: Appointment): boolean => {
   )
     return false;
   const cancellationNotice = apt.practitioner?.cancellationNotice || 24;
-  const now = new Date();
+  const now = Date.now();
   const aptDate = new Date(apt.appointmentDate);
   const parts = apt.startTime.split(":").map(Number);
-  aptDate.setHours(parts[0] || 0, parts[1] || 0, 0, 0);
-  const diffMs = aptDate.getTime() - now.getTime();
+  const appointmentUTC = Date.UTC(
+    aptDate.getUTCFullYear(),
+    aptDate.getUTCMonth(),
+    aptDate.getUTCDate(),
+    parts[0] || 0,
+    parts[1] || 0,
+    0,
+    0
+  );
+  const diffMs = appointmentUTC - now;
   const diffHours = diffMs / (1000 * 60 * 60);
   return diffHours >= cancellationNotice;
 };
@@ -1016,11 +1024,19 @@ const canCancel = (apt: Appointment): boolean => {
     apt.status === "NO_SHOW"
   )
     return false;
-  const now = new Date();
+  const now = Date.now();
   const aptDate = new Date(apt.appointmentDate);
   const parts = apt.startTime.split(":").map(Number);
-  aptDate.setHours(parts[0] || 0, parts[1] || 0, 0, 0);
-  return aptDate > now;
+  const appointmentUTC = Date.UTC(
+    aptDate.getUTCFullYear(),
+    aptDate.getUTCMonth(),
+    aptDate.getUTCDate(),
+    parts[0] || 0,
+    parts[1] || 0,
+    0,
+    0
+  );
+  return appointmentUTC > now;
 };
 
 const canJoin = (apt: Appointment): boolean => {
@@ -1050,11 +1066,19 @@ const isBefore48h = (apt: Appointment): boolean => {
     apt.status === "NO_SHOW"
   )
     return false;
-  const now = new Date();
+  const now = Date.now();
   const aptDate = new Date(apt.appointmentDate);
   const parts = apt.startTime.split(":").map(Number);
-  aptDate.setHours(parts[0] || 0, parts[1] || 0, 0, 0);
-  const diffMs = aptDate.getTime() - now.getTime();
+  const appointmentUTC = Date.UTC(
+    aptDate.getUTCFullYear(),
+    aptDate.getUTCMonth(),
+    aptDate.getUTCDate(),
+    parts[0] || 0,
+    parts[1] || 0,
+    0,
+    0
+  );
+  const diffMs = appointmentUTC - now;
   const diffHours = diffMs / (1000 * 60 * 60);
   return diffHours >= 48;
 };
