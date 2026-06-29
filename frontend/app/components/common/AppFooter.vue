@@ -114,7 +114,7 @@
           &copy; {{ new Date().getFullYear() }} MediCôte. Tous droits réservés. Projet académique ESGI.
         </p>
         <p class="text-xs text-gray-400 flex items-center gap-1">
-          Fait avec <span class="text-red-500">❤️</span> pour la Côte d'Ivoire
+          Fait avec <span class="text-red-500">💲</span> pour la Côte d'Ivoire
         </p>
       </div>
     </div>
