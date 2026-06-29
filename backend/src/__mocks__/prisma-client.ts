@@ -1,4 +1,4 @@
-// Mock manuel du client Prisma généré — utilisé en environnement de test
+// Mock manuel du client Prisma généré - utilisé en environnement de test
 // quand le client Prisma n'a pas été généré (npx prisma generate)
 
 export const AppointmentStatus = {

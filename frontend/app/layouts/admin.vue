@@ -1,35 +1,41 @@
 <template>
-  <div class="flex min-h-screen bg-gray-50">
+  <div class="flex min-h-screen bg-[#FBFBF9]">
+    <!-- sidebar -->
     <aside
-      class="fixed left-0 top-0 z-40 h-full w-64 border-r border-gray-200 bg-white shadow-sm"
+      class="fixed left-4 top-4 bottom-4 z-40 w-60 rounded-2xl border border-[#E5E3DC]/60 bg-white/70 shadow-sm backdrop-blur-md transition-all duration-300"
     >
       <div class="flex h-full flex-col">
+        <!-- logo -->
         <NuxtLink
           to="/admin/dashboard"
-          class="flex items-center gap-3 border-b border-gray-100 px-6 py-5 transition-colors hover:bg-orange-50"
+          class="flex items-center gap-2.5 border-b border-[#E5E3DC]/40 px-5 py-5 transition-all select-none group"
           aria-label="Aller au tableau de bord administrateur"
         >
           <div
-            class="flex h-10 w-10 items-center justify-center rounded-lg bg-orange-500"
+            class="flex h-9 w-9 items-center justify-center rounded-xl bg-gradient-to-br from-orange-500 to-amber-500 shadow-sm group-hover:scale-105 transition-transform duration-300"
           >
-            <ShieldCheck class="h-6 w-6 text-white" />
+            <ShieldCheck class="h-5 w-5 text-white" />
           </div>
-          <span class="text-xl font-bold text-gray-900">MediCôte Admin</span>
+          <div class="flex flex-col">
+            <span class="text-sm font-black tracking-tight leading-none"><span class="text-[#FF7A00]">Medi</span><span class="text-[#0EA252]">côte</span></span>
+            <span class="text-[9px] font-bold text-gray-400 uppercase tracking-widest mt-1">Admin</span>
+          </div>
         </NuxtLink>
 
-        <nav class="flex-1 overflow-y-auto px-3 py-4">
+        <!-- navigation -->
+        <nav class="flex-1 overflow-y-auto px-2 py-4 custom-scrollbar">
           <ul class="space-y-1">
             <li v-for="item in menuItems" :key="item.path">
               <NuxtLink
                 :to="item.path"
                 :class="[
-                  'flex items-center gap-3 rounded-lg px-4 py-3 text-sm font-medium transition-colors',
+                  'flex items-center gap-3 rounded-xl px-4.5 py-3 text-sm font-semibold transition-all duration-200',
                   isActive(item.path)
-                    ? 'bg-orange-50 text-orange-700'
-                    : 'text-gray-700 hover:bg-gray-100',
+                    ? 'bg-gradient-to-r from-orange-500/10 to-amber-500/5 text-orange-700 shadow-sm border-l-4 border-orange-500 pl-3.5'
+                    : 'text-[#5C5A52] hover:bg-[#F2EFF7] hover:text-[#1B2321]',
                 ]"
               >
-                <component :is="item.icon" class="h-5 w-5" />
+                <component :is="item.icon" class="h-4.5 w-4.5" />
                 {{ item.label }}
               </NuxtLink>
             </li>
@@ -37,38 +43,39 @@
         </nav>
 
         <!-- user -->
-        <div class="border-t border-gray-100 p-4">
+        <div class="border-t border-[#E5E3DC]/40 p-4 bg-[#FAF9F6]/40 rounded-b-2xl">
           <div class="mb-3 flex items-center gap-3">
             <div
-              class="flex h-10 w-10 items-center justify-center rounded-full bg-orange-100"
+              class="flex h-9 w-9 items-center justify-center rounded-full bg-orange-50 shadow-inner"
             >
-              <ShieldCheck class="h-5 w-5 text-orange-600" />
+              <ShieldCheck class="h-4.5 w-4.5 text-orange-600" />
             </div>
             <div class="min-w-0 flex-1">
-              <p class="truncate text-sm font-medium text-gray-900">
+              <p class="truncate text-xs font-bold text-[#1B2321]">
                 {{ authStore.user?.email }}
               </p>
-              <p class="text-xs text-gray-500">Administrateur</p>
+              <p class="text-[10px] font-semibold text-[#8C897E] uppercase tracking-wider">Administrateur</p>
             </div>
           </div>
           <button
-            class="flex w-full items-center gap-2 rounded-lg px-4 py-2 text-sm text-orange-600 transition-colors hover:bg-orange-50"
+            class="flex w-full items-center justify-center gap-2 rounded-xl border border-orange-200/50 bg-orange-50/40 py-2.5 text-xs font-bold text-orange-600 transition-all hover:bg-orange-100 hover:text-orange-700"
             @click="handleLogout"
           >
-            <LogOut class="h-4 w-4" />
+            <LogOut class="h-3.5 w-3.5" />
             Déconnexion
           </button>
         </div>
       </div>
     </aside>
 
-    <div class="ml-64 flex-1">
+    <!-- main content -->
+    <div class="ml-68 flex-1 flex flex-col min-h-screen">
       <header
-        class="sticky top-0 z-30 flex justify-end border-b border-gray-200 bg-gray-50/95 px-6 py-3 backdrop-blur"
+        class="sticky top-4 z-30 mx-4 lg:mx-8 mt-4 mb-2 flex justify-end rounded-2xl border border-[#E5E3DC]/60 bg-white/70 px-6 py-3 shadow-sm backdrop-blur-md"
       >
         <CommonNotificationBell />
       </header>
-      <main class="p-6">
+      <main class="flex-1 p-4 lg:p-8">
         <slot />
       </main>
     </div>

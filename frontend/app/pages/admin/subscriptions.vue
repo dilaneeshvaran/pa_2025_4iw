@@ -105,7 +105,7 @@
               <div class="font-medium text-gray-900">
                 {{ s.practitionerName }}
               </div>
-              <div class="text-sm text-gray-500">{{ s.email || "—" }}</div>
+              <div class="text-sm text-gray-500">{{ s.email || "-" }}</div>
               <div v-if="s.city" class="text-xs text-gray-400">
                 {{ s.title ? s.title + " · " : "" }}{{ s.city }}
               </div>
@@ -133,7 +133,7 @@
               </span>
             </td>
             <td class="whitespace-nowrap px-6 py-4 text-sm text-gray-600">
-              {{ s.currentPeriodEnd ? formatDate(s.currentPeriodEnd) : "—" }}
+              {{ s.currentPeriodEnd ? formatDate(s.currentPeriodEnd) : "-" }}
             </td>
             <td class="whitespace-nowrap px-6 py-4">
               <button
@@ -154,7 +154,7 @@
       class="mt-4 flex items-center justify-between"
     >
       <p class="text-sm text-gray-600">
-        {{ pagination.total }} abonnement(s) — page {{ pagination.page }} /
+        {{ pagination.total }} abonnement(s) - page {{ pagination.page }} /
         {{ pagination.totalPages }}
       </p>
       <div class="flex gap-2">

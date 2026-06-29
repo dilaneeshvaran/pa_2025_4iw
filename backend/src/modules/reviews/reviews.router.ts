@@ -10,8 +10,8 @@ const s = initServer()
 
 // @ts-rest/core 3.x types target zod 3, but this project uses zod 4 (whose
 // schema types, e.g. ZodObject<…, $strip>, don't line up with ts-rest's
-// inference). The handlers below are correctly shaped at runtime — explicit
-// params and `status` codes matching the contract — so we assert the
+// inference). The handlers below are correctly shaped at runtime - explicit
+// params and `status` codes matching the contract - so we assert the
 // implementation to bypass the upstream zod 4 / ts-rest type mismatch.
 const reviewsImpl = {
   createReview: (async ({

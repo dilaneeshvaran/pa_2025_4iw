@@ -619,7 +619,7 @@ export class PractitionersService {
               finalSlots = []
             }
           } catch {
-            // openHours jso is malformed — treat as no restriction
+            // openHours jso is malformed - treat as no restriction
           }
         }
 

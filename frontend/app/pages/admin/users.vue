@@ -128,7 +128,7 @@
               </span>
             </td>
             <td class="whitespace-nowrap px-6 py-4 text-sm text-gray-600">
-              {{ u.lastLoginAt ? formatDate(u.lastLoginAt) : "—" }}
+              {{ u.lastLoginAt ? formatDate(u.lastLoginAt) : "-" }}
             </td>
             <td class="whitespace-nowrap px-6 py-4 text-sm text-gray-600">
               {{ formatDate(u.createdAt) }}
@@ -161,7 +161,7 @@
                   Supprimer
                 </button>
               </div>
-              <span v-else class="text-xs text-gray-400">—</span>
+              <span v-else class="text-xs text-gray-400">-</span>
             </td>
           </tr>
         </tbody>
@@ -174,7 +174,7 @@
       class="mt-4 flex items-center justify-between"
     >
       <p class="text-sm text-gray-600">
-        {{ pagination.total }} utilisateur(s) — page {{ pagination.page }} /
+        {{ pagination.total }} utilisateur(s) - page {{ pagination.page }} /
         {{ pagination.totalPages }}
       </p>
       <div class="flex gap-2">

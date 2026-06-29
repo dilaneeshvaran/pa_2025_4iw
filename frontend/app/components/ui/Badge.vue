@@ -19,14 +19,14 @@ const props = withDefaults(defineProps<Props>(), {
 
 const badgeClass = computed(() => {
   const baseClass =
-    "inline-flex items-center rounded-full px-2.5 py-0.5 text-xs font-medium";
+    "inline-flex items-center rounded-full px-2.5 py-0.5 text-xs font-medium border";
 
   const variantClasses = {
-    default: "bg-gray-100 text-gray-800",
-    primary: "bg-orange-100 text-orange-800",
-    success: "bg-green-100 text-green-800",
-    warning: "bg-yellow-100 text-yellow-800",
-    danger: "bg-red-100 text-red-800",
+    default: "bg-gray-100 text-gray-500 border-gray-200",
+    primary: "bg-[#D96F00]/10 text-[#D96F00] border-[#D96F00]/20",
+    success: "bg-[#00804A]/10 text-[#00804A] border-[#00804A]/20",
+    warning: "bg-[#D96F00]/10 text-[#D96F00] border-[#D96F00]/20",
+    danger: "bg-red-500/10 text-red-600 border-red-500/20",
   };
 
   return [baseClass, variantClasses[props.variant], props.className]
