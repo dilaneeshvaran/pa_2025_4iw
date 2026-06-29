@@ -480,11 +480,19 @@ const canCancelNext = computed(() => {
   if (!nextAppointment.value) return false;
   const apt = nextAppointment.value;
   if (apt.status === "CANCELLED" || apt.status === "COMPLETED") return false;
-  const now = new Date();
+  const now = Date.now();
   const aptDate = new Date(apt.appointmentDate);
   const parts = apt.startTime.split(":").map(Number);
-  aptDate.setHours(parts[0] || 0, parts[1] || 0, 0, 0);
-  return aptDate > now;
+  const appointmentUTC = Date.UTC(
+    aptDate.getUTCFullYear(),
+    aptDate.getUTCMonth(),
+    aptDate.getUTCDate(),
+    parts[0] || 0,
+    parts[1] || 0,
+    0,
+    0
+  );
+  return appointmentUTC > now;
 });
 
 const canJoinNext = computed(() => {
@@ -492,11 +500,19 @@ const canJoinNext = computed(() => {
   const apt = nextAppointment.value;
   if (apt.type !== "TELECONSULTATION") return false;
   if (apt.status === "CANCELLED" || apt.status === "NO_SHOW") return false;
-  const now = new Date();
+  const now = Date.now();
   const aptDate = new Date(apt.appointmentDate);
   const parts = apt.startTime.split(":").map(Number);
-  aptDate.setHours(parts[0] || 0, parts[1] || 0, 0, 0);
-  const diffMinutes = (aptDate.getTime() - now.getTime()) / (1000 * 60);
+  const appointmentUTC = Date.UTC(
+    aptDate.getUTCFullYear(),
+    aptDate.getUTCMonth(),
+    aptDate.getUTCDate(),
+    parts[0] || 0,
+    parts[1] || 0,
+    0,
+    0
+  );
+  const diffMinutes = (appointmentUTC - now) / (1000 * 60);
   return diffMinutes <= 15 && diffMinutes >= -60;
 });
 

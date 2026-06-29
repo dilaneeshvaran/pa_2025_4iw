@@ -1026,14 +1026,22 @@ const canCancel = (apt: Appointment): boolean => {
 const canJoin = (apt: Appointment): boolean => {
   if (apt.type !== "TELECONSULTATION") return false;
   if (apt.status === "CANCELLED" || apt.status === "NO_SHOW") return false;
-  const now = new Date();
+  const now = Date.now();
   const aptDate = new Date(apt.appointmentDate);
   const parts = apt.startTime.split(":").map(Number);
-  aptDate.setHours(parts[0] || 0, parts[1] || 0, 0, 0);
-  const diffMs = aptDate.getTime() - now.getTime();
-  const diffMinutes = diffMs / (1000 * 60);
+  const appointmentUTC = Date.UTC(
+    aptDate.getUTCFullYear(),
+    aptDate.getUTCMonth(),
+    aptDate.getUTCDate(),
+    parts[0] || 0,
+    parts[1] || 0,
+    0,
+    0
+  );
+  const diffMinutes = (appointmentUTC - now) / (1000 * 60);
   return diffMinutes <= 15 && diffMinutes >= -60; // 15 min before, up to 1h after start
 };
+
 
 const isBefore48h = (apt: Appointment): boolean => {
   if (
@@ -1098,32 +1106,54 @@ const getActions = (apt: Appointment): string[] => {
 
 const canJoinTeleconsultation = (apt: Appointment): boolean => {
   if (apt.status === "CANCELLED" || apt.status === "NO_SHOW") return false;
-  const now = new Date();
+  const now = Date.now();
   const aptDate = new Date(apt.appointmentDate);
   const parts = apt.startTime.split(":").map(Number);
-  aptDate.setHours(parts[0] || 0, parts[1] || 0, 0, 0);
-  const diffMs = aptDate.getTime() - now.getTime();
-  const diffMinutes = diffMs / (1000 * 60);
+  const appointmentUTC = Date.UTC(
+    aptDate.getUTCFullYear(),
+    aptDate.getUTCMonth(),
+    aptDate.getUTCDate(),
+    parts[0] || 0,
+    parts[1] || 0,
+    0,
+    0
+  );
+  const diffMinutes = (appointmentUTC - now) / (1000 * 60);
   return diffMinutes <= 15 && diffMinutes >= -60;
 };
 
 const isTeleconsultationSoon = (apt: Appointment): boolean => {
-  const now = new Date();
+  const now = Date.now();
   const aptDate = new Date(apt.appointmentDate);
   const parts = apt.startTime.split(":").map(Number);
-  aptDate.setHours(parts[0] || 0, parts[1] || 0, 0, 0);
-  const diffMs = aptDate.getTime() - now.getTime();
-  const diffMinutes = diffMs / (1000 * 60);
+  const appointmentUTC = Date.UTC(
+    aptDate.getUTCFullYear(),
+    aptDate.getUTCMonth(),
+    aptDate.getUTCDate(),
+    parts[0] || 0,
+    parts[1] || 0,
+    0,
+    0
+  );
+  const diffMinutes = (appointmentUTC - now) / (1000 * 60);
   return diffMinutes > 15 && diffMinutes <= 120; // within 2 hours but not yet joinable
 };
 
 const getTimeUntilJoin = (apt: Appointment): string => {
-  const now = new Date();
+  const now = Date.now();
   const aptDate = new Date(apt.appointmentDate);
   const parts = apt.startTime.split(":").map(Number);
-  aptDate.setHours(parts[0] || 0, parts[1] || 0, 0, 0);
-  const joinTime = new Date(aptDate.getTime() - 15 * 60 * 1000);
-  const diffMs = joinTime.getTime() - now.getTime();
+  const appointmentUTC = Date.UTC(
+    aptDate.getUTCFullYear(),
+    aptDate.getUTCMonth(),
+    aptDate.getUTCDate(),
+    parts[0] || 0,
+    parts[1] || 0,
+    0,
+    0
+  );
+  const joinTime = appointmentUTC - 15 * 60 * 1000;
+  const diffMs = joinTime - now;
   const diffMinutes = Math.ceil(diffMs / (1000 * 60));
   if (diffMinutes >= 60) {
     const hours = Math.floor(diffMinutes / 60);
@@ -1132,6 +1162,7 @@ const getTimeUntilJoin = (apt: Appointment): string => {
   }
   return `${diffMinutes} min`;
 };
+
 
 const joinTeleconsultation = async (apt: Appointment) => {
   try {
