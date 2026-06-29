@@ -38,7 +38,7 @@
                 />
                 <div
                   v-else
-                  class="flex h-full w-full items-center justify-center bg-gradient-to-br from-blue-500 to-purple-500 text-3xl font-bold text-white"
+                  class="flex h-full w-full items-center justify-center bg-green-100 text-3xl font-bold text-green-700"
                 >
                   {{ practitioner.firstName?.charAt(0)
                   }}{{ practitioner.lastName?.charAt(0) }}
@@ -411,7 +411,7 @@
             <Card v-for="review in reviews" :key="review.id">
               <div class="flex items-start gap-4">
                 <div
-                  class="flex h-12 w-12 flex-shrink-0 items-center justify-center rounded-full bg-gradient-to-br from-blue-500 to-purple-500 font-medium text-white"
+                  class="flex h-12 w-12 flex-shrink-0 items-center justify-center rounded-full bg-orange-100 font-medium text-orange-700"
                 >
                   {{ review.patientName.charAt(0) }}
                 </div>
