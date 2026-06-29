@@ -23,6 +23,7 @@ const app = Fastify({
     level: process.env.BACKEND_NODE_ENV === 'development' ? 'info' : 'error',
   },
   trustProxy: true,
+  bodyLimit: 10 * 1024 * 1024,
 })
   .setValidatorCompiler(validatorCompiler)
   .setSerializerCompiler(serializerCompiler)
