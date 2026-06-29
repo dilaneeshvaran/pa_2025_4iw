@@ -13,7 +13,7 @@
         v-for="(kpi, i) in kpiCards"
         :key="i"
         :class="[
-          'rounded-lg border border-black/[0.08] bg-white p-4 shadow-[0_1px_3px_rgba(26,21,16,0.07)]',
+          'rounded-2xl border border-[#E5E3DC] bg-white p-5 shadow-sm hover:shadow-md transition-all duration-300',
           kpi.borderColor,
         ]"
       >
