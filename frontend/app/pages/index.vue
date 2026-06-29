@@ -55,7 +55,7 @@
           <NuxtLink
             v-if="!authStore.isAuthenticated"
             to="/auth/register"
-            class="inline-flex min-h-11 items-center justify-center rounded-xl bg-gradient-to-r from-orange-500 to-amber-500 px-8 py-3.5 text-base font-semibold text-white shadow-md transition-all duration-300 hover:from-orange-600 hover:to-amber-600 hover:shadow-lg focus:outline-none focus:ring-4 focus:ring-orange-500/20 active:scale-[0.98]"
+            class="inline-flex min-h-11 items-center justify-center rounded-xl bg-[#D96F00] px-8 py-3.5 text-base font-semibold text-white shadow-md transition-all duration-300 hover:bg-[#B85E00] hover:shadow-lg focus:outline-none focus:ring-4 focus:ring-orange-500/20 active:scale-[0.98]"
           >
             Créer un compte patient
           </NuxtLink>
@@ -194,7 +194,7 @@
             <div class="pt-2" v-if="!authStore.isAuthenticated">
               <NuxtLink
                 to="/auth/register"
-                class="inline-flex min-h-9 items-center justify-center gap-1.5 rounded-xl bg-gradient-to-r from-orange-500 to-amber-500 px-4 py-2 text-xs font-bold text-white shadow-sm hover:from-orange-600 hover:to-amber-600 hover:shadow-md transition-all duration-300"
+                class="inline-flex min-h-9 items-center justify-center gap-1.5 rounded-xl bg-[#D96F00] px-4 py-2 text-xs font-bold text-white shadow-sm hover:bg-[#B85E00] hover:shadow-md transition-all duration-300"
               >
                 Commencer mon parcours patient
                 <ArrowRight class="h-3.5 w-3.5" :stroke-width="2" />
@@ -244,7 +244,7 @@
             <div class="pt-2">
               <NuxtLink
                 to="/contact/practitioner"
-                class="inline-flex min-h-9 items-center justify-center gap-1.5 rounded-xl bg-gradient-to-r from-green-600 to-emerald-500 px-4 py-2 text-xs font-bold text-white shadow-sm hover:from-green-700 hover:to-emerald-600 hover:shadow-md transition-all duration-300"
+                class="inline-flex min-h-9 items-center justify-center gap-1.5 rounded-xl bg-[#00804A] px-4 py-2 text-xs font-bold text-white shadow-sm hover:bg-[#006B3D] hover:shadow-md transition-all duration-300"
               >
                 Rejoindre le réseau de soignants
                 <ArrowRight class="h-3.5 w-3.5" :stroke-width="2" />
