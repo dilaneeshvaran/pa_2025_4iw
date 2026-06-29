@@ -1003,7 +1003,7 @@ const canModify = (apt: Appointment): boolean => {
   const now = Date.now();
   const aptDate = new Date(apt.appointmentDate);
   const parts = apt.startTime.split(":").map(Number);
-  const appointmentUTC = Date.UTC(
+  const appointmentLocal = new Date(
     aptDate.getUTCFullYear(),
     aptDate.getUTCMonth(),
     aptDate.getUTCDate(),
@@ -1011,8 +1011,8 @@ const canModify = (apt: Appointment): boolean => {
     parts[1] || 0,
     0,
     0
-  );
-  const diffMs = appointmentUTC - now;
+  ).getTime();
+  const diffMs = appointmentLocal - now;
   const diffHours = diffMs / (1000 * 60 * 60);
   return diffHours >= cancellationNotice;
 };
@@ -1027,7 +1027,7 @@ const canCancel = (apt: Appointment): boolean => {
   const now = Date.now();
   const aptDate = new Date(apt.appointmentDate);
   const parts = apt.startTime.split(":").map(Number);
-  const appointmentUTC = Date.UTC(
+  const appointmentLocal = new Date(
     aptDate.getUTCFullYear(),
     aptDate.getUTCMonth(),
     aptDate.getUTCDate(),
@@ -1035,8 +1035,8 @@ const canCancel = (apt: Appointment): boolean => {
     parts[1] || 0,
     0,
     0
-  );
-  return appointmentUTC > now;
+  ).getTime();
+  return appointmentLocal > now;
 };
 
 const canJoin = (apt: Appointment): boolean => {
@@ -1045,7 +1045,7 @@ const canJoin = (apt: Appointment): boolean => {
   const now = Date.now();
   const aptDate = new Date(apt.appointmentDate);
   const parts = apt.startTime.split(":").map(Number);
-  const appointmentUTC = Date.UTC(
+  const appointmentLocal = new Date(
     aptDate.getUTCFullYear(),
     aptDate.getUTCMonth(),
     aptDate.getUTCDate(),
@@ -1053,8 +1053,8 @@ const canJoin = (apt: Appointment): boolean => {
     parts[1] || 0,
     0,
     0
-  );
-  const diffMinutes = (appointmentUTC - now) / (1000 * 60);
+  ).getTime();
+  const diffMinutes = (appointmentLocal - now) / (1000 * 60);
   return diffMinutes <= 15 && diffMinutes >= -60; // 15 min before, up to 1h after start
 };
 
@@ -1069,7 +1069,7 @@ const isBefore48h = (apt: Appointment): boolean => {
   const now = Date.now();
   const aptDate = new Date(apt.appointmentDate);
   const parts = apt.startTime.split(":").map(Number);
-  const appointmentUTC = Date.UTC(
+  const appointmentLocal = new Date(
     aptDate.getUTCFullYear(),
     aptDate.getUTCMonth(),
     aptDate.getUTCDate(),
@@ -1077,8 +1077,8 @@ const isBefore48h = (apt: Appointment): boolean => {
     parts[1] || 0,
     0,
     0
-  );
-  const diffMs = appointmentUTC - now;
+  ).getTime();
+  const diffMs = appointmentLocal - now;
   const diffHours = diffMs / (1000 * 60 * 60);
   return diffHours >= 48;
 };
@@ -1133,7 +1133,7 @@ const canJoinTeleconsultation = (apt: Appointment): boolean => {
   const now = Date.now();
   const aptDate = new Date(apt.appointmentDate);
   const parts = apt.startTime.split(":").map(Number);
-  const appointmentUTC = Date.UTC(
+  const appointmentLocal = new Date(
     aptDate.getUTCFullYear(),
     aptDate.getUTCMonth(),
     aptDate.getUTCDate(),
@@ -1141,8 +1141,8 @@ const canJoinTeleconsultation = (apt: Appointment): boolean => {
     parts[1] || 0,
     0,
     0
-  );
-  const diffMinutes = (appointmentUTC - now) / (1000 * 60);
+  ).getTime();
+  const diffMinutes = (appointmentLocal - now) / (1000 * 60);
   return diffMinutes <= 15 && diffMinutes >= -60;
 };
 
@@ -1150,7 +1150,7 @@ const isTeleconsultationSoon = (apt: Appointment): boolean => {
   const now = Date.now();
   const aptDate = new Date(apt.appointmentDate);
   const parts = apt.startTime.split(":").map(Number);
-  const appointmentUTC = Date.UTC(
+  const appointmentLocal = new Date(
     aptDate.getUTCFullYear(),
     aptDate.getUTCMonth(),
     aptDate.getUTCDate(),
@@ -1158,8 +1158,8 @@ const isTeleconsultationSoon = (apt: Appointment): boolean => {
     parts[1] || 0,
     0,
     0
-  );
-  const diffMinutes = (appointmentUTC - now) / (1000 * 60);
+  ).getTime();
+  const diffMinutes = (appointmentLocal - now) / (1000 * 60);
   return diffMinutes > 15 && diffMinutes <= 120; // within 2 hours but not yet joinable
 };
 
@@ -1167,7 +1167,7 @@ const getTimeUntilJoin = (apt: Appointment): string => {
   const now = Date.now();
   const aptDate = new Date(apt.appointmentDate);
   const parts = apt.startTime.split(":").map(Number);
-  const appointmentUTC = Date.UTC(
+  const appointmentLocal = new Date(
     aptDate.getUTCFullYear(),
     aptDate.getUTCMonth(),
     aptDate.getUTCDate(),
@@ -1175,8 +1175,8 @@ const getTimeUntilJoin = (apt: Appointment): string => {
     parts[1] || 0,
     0,
     0
-  );
-  const joinTime = appointmentUTC - 15 * 60 * 1000;
+  ).getTime();
+  const joinTime = appointmentLocal - 15 * 60 * 1000;
   const diffMs = joinTime - now;
   const diffMinutes = Math.ceil(diffMs / (1000 * 60));
   if (diffMinutes >= 60) {

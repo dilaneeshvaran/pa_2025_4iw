@@ -1235,22 +1235,36 @@ const canJoinSession = (session: SessionItem) => {
     return false;
 
   const now = Date.now();
-  const scheduledTime = new Date(session.scheduledAt).getTime();
-  const fifteenMin = 15 * 60 * 1000;
-
-  // Parse start and end times to calculate the appointment duration in minutes
+  const aptDate = new Date(session.scheduledAt);
   const [startH, startM] = session.startTime.split(":").map(Number);
   const [endH, endM] = session.endTime.split(":").map(Number);
-  const startMin = (startH || 0) * 60 + (startM || 0);
-  let endMin = (endH || 0) * 60 + (endM || 0);
-  if (endMin < startMin) {
-    endMin += 24 * 60; // Handle wrap-around past midnight
-  }
-  const durationMin = endMin - startMin;
-  const lateJoinLimit = scheduledTime + (durationMin + 30) * 60 * 1000;
+
+  // Construct start and end times in local timezone to match browser display
+  const startLocal = new Date(
+    aptDate.getUTCFullYear(),
+    aptDate.getUTCMonth(),
+    aptDate.getUTCDate(),
+    startH || 0,
+    startM || 0,
+    0,
+    0
+  ).getTime();
+
+  const endLocal = new Date(
+    aptDate.getUTCFullYear(),
+    aptDate.getUTCMonth(),
+    aptDate.getUTCDate(),
+    endH || 0,
+    endM || 0,
+    0,
+    0
+  ).getTime();
+
+  const fifteenMin = 15 * 60 * 1000;
+  const lateJoinLimit = endLocal + 30 * 60 * 1000;
 
   // Can join from 15 min before scheduled to 30 min after appointment end time
-  return now >= scheduledTime - fifteenMin && now <= lateJoinLimit;
+  return now >= startLocal - fifteenMin && now <= lateJoinLimit;
 };
 
 
