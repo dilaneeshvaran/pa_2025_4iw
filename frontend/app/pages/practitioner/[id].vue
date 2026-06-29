@@ -466,14 +466,30 @@
                 </div>
               </div>
             </div>
+            <LocationMap
+              v-if="
+                activeTab === 'location' &&
+                practitioner.latitude != null &&
+                practitioner.longitude != null
+              "
+              :latitude="practitioner.latitude"
+              :longitude="practitioner.longitude"
+              :label="practitioner.clinicName || 'Cabinet médical'"
+              :address="
+                [practitioner.address, practitioner.city]
+                  .filter(Boolean)
+                  .join(', ')
+              "
+            />
             <div
+              v-else
               class="flex h-96 items-center justify-center rounded-lg bg-gray-200"
             >
               <div class="text-center text-gray-600">
                 <IconMapPin class="mx-auto mb-2 h-12 w-12" />
                 <p>{{ practitioner.city }}</p>
                 <p class="mt-2 text-sm">
-                  Carte interactive disponible prochainement
+                  Localisation non disponible pour ce praticien
                 </p>
               </div>
             </div>
