@@ -576,13 +576,22 @@ const canJoinNextTeleconsultation = computed(() => {
   const apt = dashboard.value.nextAppointment;
   if (apt.type !== "TELECONSULTATION") return false;
   if (apt.status === "CANCELLED" || apt.status === "NO_SHOW") return false;
-  const now = new Date();
+  const now = Date.now();
   const aptDate = new Date(apt.appointmentDate);
   const parts = apt.startTime.split(":").map(Number);
-  aptDate.setHours(parts[0] || 0, parts[1] || 0, 0, 0);
-  const diffMinutes = (aptDate.getTime() - now.getTime()) / (1000 * 60);
+  const appointmentUTC = Date.UTC(
+    aptDate.getUTCFullYear(),
+    aptDate.getUTCMonth(),
+    aptDate.getUTCDate(),
+    parts[0] || 0,
+    parts[1] || 0,
+    0,
+    0
+  );
+  const diffMinutes = (appointmentUTC - now) / (1000 * 60);
   return diffMinutes <= 15 && diffMinutes >= -60;
 });
+
 
 const kpiCards = computed(() => [
   {

@@ -1238,15 +1238,21 @@ const canJoinSession = (session: SessionItem) => {
   const scheduledTime = new Date(session.scheduledAt).getTime();
   const fifteenMin = 15 * 60 * 1000;
 
-  // Use endTime for the late boundary (appointment end + 30 min grace)
-  const endParts = session.endTime.split(":").map(Number);
-  const endDate = new Date(session.scheduledAt);
-  endDate.setHours(endParts[0] || 0, endParts[1] || 0, 0, 0);
-  const lateJoinLimit = endDate.getTime() + 30 * 60 * 1000;
+  // Parse start and end times to calculate the appointment duration in minutes
+  const [startH, startM] = session.startTime.split(":").map(Number);
+  const [endH, endM] = session.endTime.split(":").map(Number);
+  const startMin = (startH || 0) * 60 + (startM || 0);
+  let endMin = (endH || 0) * 60 + (endM || 0);
+  if (endMin < startMin) {
+    endMin += 24 * 60; // Handle wrap-around past midnight
+  }
+  const durationMin = endMin - startMin;
+  const lateJoinLimit = scheduledTime + (durationMin + 30) * 60 * 1000;
 
   // Can join from 15 min before scheduled to 30 min after appointment end time
   return now >= scheduledTime - fifteenMin && now <= lateJoinLimit;
 };
+
 
 const joinSession = async (session: SessionItem) => {
   try {
