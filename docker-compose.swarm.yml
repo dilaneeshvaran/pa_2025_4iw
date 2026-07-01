@@ -110,6 +110,7 @@ services:
       BACKEND_DATABASE_URL: postgresql://admin:admin@postgres-db:5432/medicote?schema=public
       BACKEND_REDIS_URL: redis://redis-db:6379
       FRONTEND_URL: ${PUBLIC_FRONTEND_URL:-http://localhost:3000}
+      BACKEND_FRONTEND_URL: ${PUBLIC_FRONTEND_URL:-http://localhost:3000}
       BACKEND_JWT_SECRET_FILE: /run/secrets/jwt_secret
       BACKEND_ENCRYPTION_KEY_FILE: /run/secrets/encryption_key
     secrets:
