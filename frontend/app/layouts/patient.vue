@@ -75,7 +75,7 @@
     </aside>
 
     <!-- main content -->
-    <div class="ml-64 flex-1">
+    <div class="ml-64 min-w-0 flex-1 overflow-x-hidden">
       <header
         class="sticky top-0 z-30 flex justify-end border-b border-black/[0.08] bg-gray-50/95 px-6 py-3 backdrop-blur"
       >
