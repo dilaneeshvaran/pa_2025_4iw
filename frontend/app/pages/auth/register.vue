@@ -169,6 +169,39 @@
               placeholder="••••••••"
             />
           </div>
+
+          <div class="md:col-span-2 flex items-start mt-2">
+            <div class="flex h-5 items-center">
+              <input
+                id="agreeTerms"
+                v-model="agreeTerms"
+                type="checkbox"
+                required
+                class="h-4 w-4 rounded border-gray-300 text-orange-600 focus:ring-orange-500"
+              />
+            </div>
+            <div class="ml-3 text-sm">
+              <label for="agreeTerms" class="font-medium text-gray-700">
+                J'accepte les
+                <NuxtLink
+                  to="/legal/terms"
+                  target="_blank"
+                  class="font-semibold text-orange-600 hover:text-orange-500 hover:underline"
+                >
+                  conditions générales d'utilisation
+                </NuxtLink>
+                et la
+                <NuxtLink
+                  to="/legal/privacy"
+                  target="_blank"
+                  class="font-semibold text-orange-600 hover:text-orange-500 hover:underline"
+                >
+                  politique de confidentialité
+                </NuxtLink>
+                <span class="text-red-500">*</span>
+              </label>
+            </div>
+          </div>
         </div>
 
         <div>
@@ -247,6 +280,7 @@ const formData = ref<{
 });
 
 const loading = ref(false);
+const agreeTerms = ref(false);
 const errorMessage = ref("");
 const successMessage = ref("");
 
@@ -270,6 +304,12 @@ const handleRegister = async () => {
 
   if (!isValidPhone(formData.value.phone)) {
     errorMessage.value = "Le numéro de téléphone contient des caractères non autorisés ou sa longueur est incorrecte (8-15 chiffres requis).";
+    loading.value = false;
+    return;
+  }
+
+  if (!agreeTerms.value) {
+    errorMessage.value = "Veuillez accepter les conditions générales d'utilisation et la politique de confidentialité.";
     loading.value = false;
     return;
   }
