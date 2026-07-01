@@ -1190,7 +1190,33 @@
               </button>
             </div>
           </div>
-          <div class="flex-1 overflow-hidden">
+          <div class="flex-1 overflow-hidden relative">
+            <div
+              v-if="docViewerLoading"
+              class="absolute inset-0 flex flex-col items-center justify-center bg-gray-50"
+            >
+              <svg
+                class="mb-3 h-10 w-10 animate-spin text-orange-500"
+                xmlns="http://www.w3.org/2000/svg"
+                fill="none"
+                viewBox="0 0 24 24"
+              >
+                <circle
+                  class="opacity-25"
+                  cx="12"
+                  cy="12"
+                  r="10"
+                  stroke="currentColor"
+                  stroke-width="4"
+                />
+                <path
+                  class="opacity-75"
+                  fill="currentColor"
+                  d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4z"
+                />
+              </svg>
+              <p class="text-sm text-gray-500">Chargement du document...</p>
+            </div>
             <iframe
               v-if="docViewerUrl"
               :src="docViewerUrl"
@@ -1538,6 +1564,7 @@ const docUploadForm = reactive({
 const showDocViewer = ref(false);
 const docViewerUrl = ref("");
 const docViewerTitle = ref("");
+const docViewerLoading = ref(false);
 
 interface VaccinationItem {
   id: string;
@@ -1964,17 +1991,26 @@ const deleteOwnDocument = async (docId: string) => {
 
 const viewOwnDocument = (doc: DocItem) => {
   docViewerTitle.value = doc.title;
+  docViewerUrl.value = "";
+  docViewerLoading.value = true;
+  showDocViewer.value = true;
   const url = `${config.public.apiBase}/documents/${doc.id}/view`;
   fetch(url, {
     headers: { Authorization: `Bearer ${authStore.accessToken}` },
   })
-    .then((r) => r.blob())
+    .then((r) => {
+      if (!r.ok) throw new Error(`HTTP ${r.status}`);
+      return r.blob();
+    })
     .then((blob) => {
       docViewerUrl.value = URL.createObjectURL(blob);
-      showDocViewer.value = true;
     })
     .catch(() => {
+      showDocViewer.value = false;
       alert("Erreur lors de l'ouverture du document");
+    })
+    .finally(() => {
+      docViewerLoading.value = false;
     });
 };
 

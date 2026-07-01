@@ -412,7 +412,33 @@
               </button>
             </div>
           </div>
-          <div class="flex-1 overflow-hidden">
+          <div class="flex-1 overflow-hidden relative">
+            <div
+              v-if="viewerLoading"
+              class="absolute inset-0 flex flex-col items-center justify-center bg-gray-50"
+            >
+              <svg
+                class="mb-3 h-10 w-10 animate-spin text-orange-500"
+                xmlns="http://www.w3.org/2000/svg"
+                fill="none"
+                viewBox="0 0 24 24"
+              >
+                <circle
+                  class="opacity-25"
+                  cx="12"
+                  cy="12"
+                  r="10"
+                  stroke="currentColor"
+                  stroke-width="4"
+                />
+                <path
+                  class="opacity-75"
+                  fill="currentColor"
+                  d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4z"
+                />
+              </svg>
+              <p class="text-sm text-gray-500">Chargement du document...</p>
+            </div>
             <iframe
               v-if="viewerUrl"
               :src="viewerUrl"
@@ -536,6 +562,7 @@ const loadingDocs = ref(false);
 const showViewer = ref(false);
 const viewerDoc = ref<DocItem | null>(null);
 const viewerUrl = ref("");
+const viewerLoading = ref(false);
 
 const InfoField = defineComponent({
   props: {
@@ -659,18 +686,27 @@ const downloadDocument = async (doc: DocItem) => {
 
 const viewDocument = (doc: DocItem) => {
   viewerDoc.value = doc;
+  viewerUrl.value = "";
+  viewerLoading.value = true;
+  showViewer.value = true;
   const url = `${config.public.apiBase}/documents/patient/${patientId.value}/${doc.id}/view`;
 
   fetch(url, {
     headers: { Authorization: `Bearer ${authStore.accessToken}` },
   })
-    .then((r) => r.blob())
+    .then((r) => {
+      if (!r.ok) throw new Error(`HTTP ${r.status}`);
+      return r.blob();
+    })
     .then((blob) => {
       viewerUrl.value = URL.createObjectURL(blob);
-      showViewer.value = true;
     })
     .catch(() => {
+      showViewer.value = false;
       alert("Erreur lors de l'ouverture du document");
+    })
+    .finally(() => {
+      viewerLoading.value = false;
     });
 };
 

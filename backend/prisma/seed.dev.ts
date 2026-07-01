@@ -1375,8 +1375,13 @@ async function main() {
       },
       {
         userId: patientUsers[1].id,
-        status: 'PENDING',
-        requestedAt: new Date(),
+        status: 'COMPLETED',
+        requestedAt: new Date(now.getTime() - 3 * 24 * 60 * 60 * 1000), // 3 days ago
+        processedAt: new Date(now.getTime() - 3 * 24 * 60 * 60 * 1000 + 3600000),
+        completedAt: new Date(now.getTime() - 3 * 24 * 60 * 60 * 1000 + 7200000),
+        filePath: '/exports/user_' + patientUsers[1].id + '_export.json',
+        fileSize: 204800,
+        expiresAt: new Date(now.getTime() + 4 * 24 * 60 * 60 * 1000),
         ipAddress: '192.168.1.101',
       },
     ],
