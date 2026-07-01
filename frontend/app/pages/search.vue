@@ -1,20 +1,25 @@
 <template>
   <div class="min-h-screen bg-gray-50">
     <div class="mx-auto max-w-7xl px-4 py-8 sm:px-6 lg:px-8">
-      <Card class="mb-6">
-        <div class="relative">
-          <div
-            class="pointer-events-none absolute inset-y-0 left-0 flex items-center pl-3"
-          >
+      <Card class="mb-6 shadow-sm border border-gray-100 rounded-xl bg-white p-2">
+        <div class="relative flex items-center">
+          <div class="pointer-events-none absolute inset-y-0 left-0 flex items-center pl-3">
             <IconSearch class="h-5 w-5 text-gray-400" />
           </div>
           <input
             v-model="filters.search"
             type="text"
-            placeholder="Rechercher un praticien, une spécialité..."
-            class="block w-full rounded-lg border border-gray-300 py-3 pl-10 pr-3 focus:border-[var(--color-primary)] focus:outline-none focus:ring-2 focus:ring-[var(--color-primary)] focus:ring-opacity-20"
+            placeholder="Rechercher un praticien par nom, mot-clé ou spécialité..."
+            class="block w-full rounded-xl border-none py-3.5 pl-11 pr-10 text-base text-gray-900 bg-gray-50/50 focus:bg-white focus:outline-none focus:ring-2 focus:ring-[var(--color-primary)]/20 transition-all placeholder-gray-400"
             @input="debouncedSearch"
           />
+          <button
+            v-if="filters.search"
+            @click="filters.search = ''; searchPractitioners()"
+            class="absolute inset-y-0 right-0 flex items-center pr-3.5 text-gray-400 hover:text-gray-600 focus:outline-none"
+          >
+            <IconX class="h-5 w-5" />
+          </button>
         </div>
       </Card>
 
@@ -75,52 +80,123 @@
       </div>
 
       <!-- ── PRACTITIONERS TAB ── -->
-      <div v-if="activeTab === 'practitioners'">
-        <!-- MAP VIEW -->
-        <div v-if="viewMode === 'map'" class="rounded-xl border border-gray-200 bg-white p-4 shadow-sm">
-          <p class="mb-3 text-sm text-gray-500">
-            <template v-if="loading">Chargement...</template>
-            <template v-else>
-              {{ pagination.total }} praticien{{ pagination.total > 1 ? "s" : "" }} trouvé{{ pagination.total > 1 ? "s" : "" }}
-              <span v-if="geoFilters.active" class="ml-2 inline-flex items-center gap-1 rounded-full bg-blue-50 px-2 py-0.5 text-xs text-blue-700">
-                <IconLocate class="h-3 w-3" /> Recherche géolocalisée
+      <div v-if="activeTab === 'practitioners'" class="grid gap-6 lg:grid-cols-4">
+        <!-- Sidebar filters -->
+        <aside class="lg:col-span-1">
+          <!-- Mobile Filters Toggle Button -->
+          <div class="lg:hidden mb-4">
+            <button
+              @click="showMobileFilters = !showMobileFilters"
+              class="w-full flex items-center justify-between px-4 py-2.5 bg-white border border-gray-200 rounded-lg shadow-sm font-semibold text-gray-700 hover:bg-gray-50 active:scale-[0.98] transition-all"
+            >
+              <span class="flex items-center gap-2">
+                <IconFilter class="h-4 w-4 text-[var(--color-primary)]" />
+                Filtrer les résultats
+                <span
+                  v-if="activeFiltersCount > 0"
+                  class="ml-1.5 px-2 py-0.5 text-xs font-bold text-white bg-orange-500 rounded-full font-mono"
+                >
+                  {{ activeFiltersCount }}
+                </span>
               </span>
-            </template>
-          </p>
-          <ClientOnly>
-            <PractitionersMap
-              :practitioners="practitioners"
-              :cabinets="cabinets"
-              :loading="loading"
-              @locate="onMapLocate"
-            />
-            <template #fallback>
-              <div class="flex h-[560px] items-center justify-center rounded-lg bg-gray-100">
-                <p class="text-gray-400">Chargement de la carte...</p>
-              </div>
-            </template>
-          </ClientOnly>
-        </div>
+              <component :is="showMobileFilters ? IconChevronUp : IconChevronDown" class="h-4 w-4 text-gray-500" />
+            </button>
+          </div>
 
-        <!-- LIST VIEW -->
-        <div v-else class="grid gap-6 lg:grid-cols-4">
-          <aside class="lg:col-span-1">
-            <Card>
-              <div class="mb-6 flex items-center gap-2">
-                <IconFilter class="h-5 w-5 text-[var(--color-primary)]" />
-                <h3 class="text-lg font-semibold">Filtres</h3>
+          <!-- Filters Card -->
+          <Card
+            :class="[
+              showMobileFilters ? 'block' : 'hidden lg:block',
+              'transition-all duration-300 shadow-sm border border-gray-100 rounded-xl bg-white p-5'
+            ]"
+          >
+            <!-- Title & Reset Button -->
+            <div class="flex items-center justify-between border-b border-gray-155 pb-4 mb-5">
+              <div class="flex items-center gap-2">
+                <IconSliders class="h-5 w-5 text-[var(--color-primary)]" />
+                <h3 class="text-base font-bold text-gray-900">Filtres</h3>
+                <span v-if="activeFiltersCount > 0" class="flex h-5 w-5 items-center justify-center rounded-full bg-orange-100 text-xs font-bold text-orange-600 font-mono">
+                  {{ activeFiltersCount }}
+                </span>
+              </div>
+              <button
+                v-if="activeFiltersCount > 0"
+                @click="resetFilters"
+                class="flex items-center gap-1 text-xs font-medium text-red-650 hover:text-red-750 transition-colors focus:outline-none"
+              >
+                <IconRotateCcw class="h-3.5 w-3.5" />
+                Effacer
+              </button>
+            </div>
+
+            <!-- Group 1: Recherche & Localisation -->
+            <div class="space-y-4 mb-6">
+              <div>
+                <label class="mb-1.5 block text-xs font-bold uppercase tracking-wider text-gray-400">
+                  Mots-clés
+                </label>
+                <div class="relative">
+                  <div class="pointer-events-none absolute inset-y-0 left-0 flex items-center pl-3">
+                    <IconSearch class="h-4 w-4 text-gray-400" />
+                  </div>
+                  <input
+                    v-model="filters.search"
+                    type="text"
+                    placeholder="Nom, bio..."
+                    class="block w-full rounded-lg border border-gray-300 py-2 pl-9 pr-8 text-sm focus:border-[var(--color-primary)] focus:outline-none focus:ring-2 focus:ring-[var(--color-primary)] focus:ring-opacity-20"
+                    @input="debouncedSearch"
+                  />
+                  <button
+                    v-if="filters.search"
+                    @click="filters.search = ''; searchPractitioners()"
+                    class="absolute inset-y-0 right-0 flex items-center pr-2.5 text-gray-400 hover:text-gray-650"
+                  >
+                    <IconX class="h-4 w-4" />
+                  </button>
+                </div>
               </div>
 
-              <div class="mb-6">
-                <label class="mb-2 block text-sm font-medium text-gray-700">
+              <div>
+                <label class="mb-1.5 block text-xs font-bold uppercase tracking-wider text-gray-400">
+                  Localisation
+                </label>
+                <div class="relative">
+                  <div class="pointer-events-none absolute inset-y-0 left-0 flex items-center pl-3">
+                    <IconMapPin class="h-4 w-4 text-gray-400" />
+                  </div>
+                  <input
+                    v-model="filters.city"
+                    type="text"
+                    placeholder="Ville (ex: Cocody...)"
+                    class="block w-full rounded-lg border border-gray-300 py-2 pl-9 pr-8 text-sm focus:border-[var(--color-primary)] focus:outline-none focus:ring-2 focus:ring-[var(--color-primary)] focus:ring-opacity-20"
+                    @input="debouncedSearch"
+                  />
+                  <button
+                    v-if="filters.city"
+                    @click="filters.city = ''; searchPractitioners()"
+                    class="absolute inset-y-0 right-0 flex items-center pr-2.5 text-gray-400 hover:text-gray-655"
+                  >
+                    <IconX class="h-4 w-4" />
+                  </button>
+                </div>
+              </div>
+            </div>
+
+            <hr class="border-gray-100 my-4" />
+
+            <!-- Group 2: Spécialité & Cabinet -->
+            <div class="space-y-4 mb-6">
+              <div>
+                <label class="mb-1.5 block text-xs font-bold uppercase tracking-wider text-gray-400 flex items-center gap-1">
+                  <IconStethoscope class="h-3.5 w-3.5 text-gray-400" />
                   Spécialité
                 </label>
                 <select
                   v-model="filters.specialtyId"
-                  class="w-full rounded-lg border border-gray-300 px-4 py-2.5 focus:border-[var(--color-primary)] focus:outline-none focus:ring-2 focus:ring-[var(--color-primary)]"
+                  class="w-full rounded-lg border border-gray-300 px-3 py-2 text-sm focus:border-[var(--color-primary)] focus:outline-none focus:ring-2 focus:ring-[var(--color-primary)] bg-white"
                   @change="searchPractitioners"
                 >
-                  <option value="">Toutes</option>
+                  <option value="">Toutes les spécialités</option>
                   <option
                     v-for="specialty in specialties"
                     :key="specialty.id"
@@ -131,13 +207,14 @@
                 </select>
               </div>
 
-              <div class="mb-6">
-                <label class="mb-2 block text-sm font-medium text-gray-700">
-                  Cabinet
+              <div>
+                <label class="mb-1.5 block text-xs font-bold uppercase tracking-wider text-gray-400 flex items-center gap-1">
+                  <IconBuilding class="h-3.5 w-3.5 text-gray-400" />
+                  Cabinet / Clinique
                 </label>
                 <select
                   v-model="filters.cabinetId"
-                  class="w-full rounded-lg border border-gray-300 px-4 py-2.5 focus:border-[var(--color-primary)] focus:outline-none focus:ring-2 focus:ring-[var(--color-primary)]"
+                  class="w-full rounded-lg border border-gray-300 px-3 py-2 text-sm focus:border-[var(--color-primary)] focus:outline-none focus:ring-2 focus:ring-[var(--color-primary)] bg-white"
                   @change="searchPractitioners"
                 >
                   <option value="">Tous les cabinets</option>
@@ -151,88 +228,136 @@
                   </option>
                 </select>
               </div>
+            </div>
 
-              <div class="mb-6">
-                <label class="mb-2 block text-sm font-medium text-gray-700">
-                  Localisation
-                </label>
+            <hr class="border-gray-100 my-4" />
+
+            <!-- Group 3: Disponibilités & Mode -->
+            <div class="space-y-3 mb-6">
+              <label class="mb-1.5 block text-xs font-bold uppercase tracking-wider text-gray-400">
+                Services & Options
+              </label>
+              
+              <label class="flex cursor-pointer items-center justify-between py-1.5 group select-none">
+                <span class="flex items-center gap-2 text-sm text-gray-700 group-hover:text-gray-900 transition-colors">
+                  <IconVideo class="h-4 w-4 text-emerald-600" />
+                  Téléconsultation
+                </span>
                 <input
-                  v-model="filters.city"
-                  type="text"
-                  placeholder="Ville..."
-                  class="w-full rounded-lg border border-gray-300 px-4 py-2.5 focus:border-[var(--color-primary)] focus:outline-none focus:ring-2 focus:ring-[var(--color-primary)]"
-                  @input="debouncedSearch"
+                  v-model="filters.teleconsultationEnabled"
+                  type="checkbox"
+                  class="h-4.5 w-4.5 rounded border-gray-300 text-[var(--color-primary)] focus:ring-[var(--color-primary)]"
+                  @change="searchPractitioners"
                 />
-              </div>
+              </label>
 
-              <div class="mb-6 space-y-3">
-                <label class="flex cursor-pointer items-center gap-2">
-                  <input
-                    v-model="filters.teleconsultationEnabled"
-                    type="checkbox"
-                    class="h-4 w-4 rounded text-[var(--color-primary)]"
-                    @change="searchPractitioners"
-                  />
-                  <span class="text-sm">Téléconsultation</span>
-                </label>
-                <label class="flex cursor-pointer items-center gap-2">
-                  <input
-                    v-model="filters.availableToday"
-                    type="checkbox"
-                    class="h-4 w-4 rounded text-[var(--color-primary)]"
-                    @change="searchPractitioners"
-                  />
-                  <span class="text-sm">Disponible aujourd'hui</span>
-                </label>
-                <label class="flex cursor-pointer items-center gap-2">
-                  <input
-                    v-model="filters.acceptsInsurance"
-                    type="checkbox"
-                    class="h-4 w-4 rounded text-[var(--color-primary)]"
-                    @change="searchPractitioners"
-                  />
-                  <span class="text-sm">Accepte l'assurance</span>
-                </label>
-              </div>
-
-              <div class="mb-6">
-                <label class="mb-2 block text-sm font-medium text-gray-700">
-                  Prix maximum (FCFA)
-                </label>
+              <label class="flex cursor-pointer items-center justify-between py-1.5 group select-none">
+                <span class="flex items-center gap-2 text-sm text-gray-700 group-hover:text-gray-900 transition-colors">
+                  <IconCalendar class="h-4 w-4 text-orange-500" />
+                  Disponible aujourd'hui
+                </span>
                 <input
-                  v-model.number="filters.maxPrice"
-                  type="range"
-                  min="0"
-                  max="50000"
-                  step="5000"
-                  class="w-full"
-                  @input="debouncedSearch"
+                  v-model="filters.availableToday"
+                  type="checkbox"
+                  class="h-4.5 w-4.5 rounded border-gray-300 text-[var(--color-primary)] focus:ring-[var(--color-primary)]"
+                  @change="searchPractitioners"
                 />
-                <div class="mt-1 flex justify-between text-sm text-gray-600">
-                  <span>0</span>
-                  <span>{{ filters.maxPrice?.toLocaleString() || "50,000" }} FCFA</span>
+              </label>
+
+              <label class="flex cursor-pointer items-center justify-between py-1.5 group select-none">
+                <span class="flex items-center gap-2 text-sm text-gray-700 group-hover:text-gray-900 transition-colors">
+                  <IconCreditCard class="h-4 w-4 text-blue-500" />
+                  Accepte l'assurance
+                </span>
+                <input
+                  v-model="filters.acceptsInsurance"
+                  type="checkbox"
+                  class="h-4.5 w-4.5 rounded border-gray-300 text-[var(--color-primary)] focus:ring-[var(--color-primary)]"
+                  @change="searchPractitioners"
+                />
+              </label>
+            </div>
+
+            <hr class="border-gray-100 my-4" />
+
+            <!-- Group 4: Budget & Notes -->
+            <div class="space-y-4">
+              <div>
+                <div class="flex items-center justify-between mb-1.5">
+                  <label class="block text-xs font-bold uppercase tracking-wider text-gray-400">
+                    Tarif consultation max
+                  </label>
+                  <span class="text-xs font-semibold text-emerald-750 bg-emerald-50 px-2.5 py-0.5 rounded-full border border-emerald-100 font-mono">
+                    {{ filters.maxPrice.toLocaleString() }} XOF
+                  </span>
+                </div>
+                <div class="relative pt-1">
+                  <input
+                    v-model.number="filters.maxPrice"
+                    type="range"
+                    min="0"
+                    max="50000"
+                    step="5000"
+                    class="h-1.5 w-full cursor-pointer appearance-none rounded-lg bg-gray-200 accent-[#00804A] focus:outline-none"
+                    @input="debouncedSearch"
+                  />
+                  <div class="mt-1 flex justify-between text-[10px] font-semibold text-gray-400">
+                    <span>0 XOF</span>
+                    <span>50 000 XOF</span>
+                  </div>
                 </div>
               </div>
 
               <div>
-                <label class="mb-2 block text-sm font-medium text-gray-700">
-                  Note minimum
+                <label class="mb-1.5 block text-xs font-bold uppercase tracking-wider text-gray-400 flex items-center gap-1">
+                  <IconStar class="h-3.5 w-3.5 text-yellow-500" />
+                  Note minimale
                 </label>
                 <select
                   v-model.number="filters.minRating"
-                  class="w-full rounded-lg border border-gray-300 px-4 py-2.5 focus:border-[var(--color-primary)] focus:outline-none focus:ring-2 focus:ring-[var(--color-primary)]"
+                  class="w-full rounded-lg border border-gray-300 px-3 py-2 text-sm focus:border-[var(--color-primary)] focus:outline-none focus:ring-2 focus:ring-[var(--color-primary)] bg-white"
                   @change="searchPractitioners"
                 >
-                  <option :value="0">Toutes</option>
-                  <option :value="3">3+ ⭐</option>
-                  <option :value="4">4+ ⭐</option>
-                  <option :value="4.5">4.5+ ⭐</option>
+                  <option :value="0">Toutes les notes</option>
+                  <option :value="3">3+ ⭐ Excellent</option>
+                  <option :value="4">4+ ⭐ Remarquable</option>
+                  <option :value="4.5">4.5+ ⭐ Exceptionnel</option>
                 </select>
               </div>
-            </Card>
-          </aside>
+            </div>
+          </Card>
+        </aside>
 
-          <div class="lg:col-span-3">
+        <!-- Results Area -->
+        <div class="lg:col-span-3">
+          <!-- MAP VIEW -->
+          <div v-if="viewMode === 'map'" class="rounded-xl border border-gray-200 bg-white p-4 shadow-sm">
+            <p class="mb-3 text-sm text-gray-500">
+              <template v-if="loading">Chargement...</template>
+              <template v-else>
+                {{ pagination.total }} praticien{{ pagination.total > 1 ? "s" : "" }} trouvé{{ pagination.total > 1 ? "s" : "" }}
+                <span v-if="geoFilters.active" class="ml-2 inline-flex items-center gap-1 rounded-full bg-blue-50 px-2 py-0.5 text-xs text-blue-700">
+                  <IconLocate class="h-3 w-3" /> Recherche géolocalisée
+                </span>
+              </template>
+            </p>
+            <ClientOnly>
+              <PractitionersMap
+                :practitioners="practitioners"
+                :cabinets="cabinets"
+                :loading="loading"
+                @locate="onMapLocate"
+              />
+              <template #fallback>
+                <div class="flex h-[560px] items-center justify-center rounded-lg bg-gray-100">
+                  <p class="text-gray-400">Chargement de la carte...</p>
+                </div>
+              </template>
+            </ClientOnly>
+          </div>
+
+          <!-- LIST VIEW -->
+          <div v-else>
             <div class="mb-4 flex items-center justify-between">
               <p class="text-gray-600">
                 <template v-if="loading">Chargement...</template>
@@ -297,7 +422,7 @@
                           {{ practitioner.title }} {{ practitioner.firstName }}
                           {{ practitioner.lastName }}
                         </h3>
-                        <p class="text-gray-600">
+                        <p class="text-gray-600 font-sans">
                           {{ practitioner.specialties[0]?.name || "Généraliste" }}
                         </p>
                       </div>
@@ -314,9 +439,9 @@
                         v-if="practitioner.averageRating"
                         class="flex items-center gap-1"
                       >
-                        <IconStar class="h-4 w-4 fill-yellow-400 text-yellow-400" />
+                        <IconStar class="h-4 w-4 fill-yellow-455 text-yellow-455" />
                         <span class="font-medium">{{ practitioner.averageRating }}</span>
-                        <span class="text-sm text-gray-600">({{ practitioner.totalReviews }})</span>
+                        <span class="text-sm text-gray-600 font-sans">({{ practitioner.totalReviews }})</span>
                       </div>
                       <div class="flex items-center gap-1 text-sm text-gray-600">
                         <IconMapPin class="h-4 w-4" />
@@ -363,7 +488,7 @@
               >
                 Précédent
               </Button>
-              <span class="flex items-center px-4 text-sm text-gray-600">
+              <span class="flex items-center px-4 text-sm text-gray-600 font-sans">
                 Page {{ pagination.page }} sur {{ pagination.totalPages }}
               </span>
               <Button
@@ -455,7 +580,7 @@
 </template>
 
 <script setup lang="ts">
-import { ref, reactive, computed, onMounted } from "vue";
+import { ref, reactive, computed, onMounted, watch } from "vue";
 import {
   Search as IconSearch,
   Filter as IconFilter,
@@ -464,11 +589,23 @@ import {
   List as IconList,
   Map as IconMap,
   Locate as IconLocate,
+  RotateCcw as IconRotateCcw,
+  Stethoscope as IconStethoscope,
+  Building as IconBuilding,
+  CreditCard as IconCreditCard,
+  Video as IconVideo,
+  X as IconX,
+  ChevronDown as IconChevronDown,
+  ChevronUp as IconChevronUp,
+  SlidersHorizontal as IconSliders,
+  Calendar as IconCalendar,
 } from "lucide-vue-next";
 import Card from "~/components/ui/Card.vue";
 import Button from "~/components/ui/Button.vue";
 import Badge from "~/components/ui/Badge.vue";
+
 const config = useRuntimeConfig();
+const route = useRoute();
 
 interface Specialty {
   id: string;
@@ -508,6 +645,7 @@ interface Practitioner {
 
 const activeTab = ref<"practitioners" | "cabinets">("practitioners");
 const viewMode = ref<"list" | "map">("list");
+const showMobileFilters = ref(false);
 
 const filters = reactive({
   search: "",
@@ -542,6 +680,37 @@ const pagination = reactive({
   totalPages: 0,
 });
 
+const activeFiltersCount = computed(() => {
+  let count = 0;
+  if (filters.search.trim() !== "") count++;
+  if (filters.specialtyId !== "") count++;
+  if (filters.cabinetId !== "") count++;
+  if (filters.city.trim() !== "") count++;
+  if (filters.teleconsultationEnabled) count++;
+  if (filters.availableToday) count++;
+  if (filters.acceptsInsurance) count++;
+  if (filters.maxPrice !== 50000) count++;
+  if (filters.minRating !== 0) count++;
+  return count;
+});
+
+const resetFilters = () => {
+  filters.search = "";
+  filters.specialtyId = "";
+  filters.cabinetId = "";
+  filters.city = "";
+  filters.teleconsultationEnabled = false;
+  filters.availableToday = false;
+  filters.acceptsInsurance = false;
+  filters.minPrice = 0;
+  filters.maxPrice = 50000;
+  filters.minRating = 0;
+  filters.page = 1;
+  geoFilters.active = false;
+  navigateTo({ path: "/search" });
+  searchPractitioners();
+};
+
 let debounceTimeout: NodeJS.Timeout | null = null;
 
 const debouncedSearch = () => {
@@ -554,8 +723,22 @@ const searchPractitioners = async () => {
   try {
     const queryParams = new URLSearchParams();
 
-    if (filters.search) queryParams.append("search", filters.search);
-    if (filters.specialtyId) queryParams.append("specialtyId", filters.specialtyId);
+    let activeSearch = filters.search;
+    let activeSpecialtyId = filters.specialtyId;
+
+    if (activeSearch) {
+      const trimmed = activeSearch.trim();
+      const matchedSpecialty = specialties.value.find(
+        (s) => s.name.toLowerCase() === trimmed.toLowerCase()
+      );
+      if (matchedSpecialty) {
+        activeSpecialtyId = matchedSpecialty.id;
+        activeSearch = "";
+      }
+    }
+
+    if (activeSearch) queryParams.append("search", activeSearch);
+    if (activeSpecialtyId) queryParams.append("specialtyId", activeSpecialtyId);
     if (filters.cabinetId) queryParams.append("cabinetId", filters.cabinetId);
     if (filters.city) queryParams.append("city", filters.city);
     if (filters.teleconsultationEnabled)
@@ -643,11 +826,50 @@ const handleReserve = (practitioner: Practitioner) => {
   navigateTo(`/practitioner/${practitioner.id}`);
 };
 
-onMounted(() => {
-  loadSpecialties();
-  loadCabinets();
-  searchPractitioners();
+const applyFiltersFromQuery = () => {
+  const query = route.query;
+
+  if (query.search) {
+    const searchTerm = String(query.search).trim();
+    const matchedSpecialty = specialties.value.find(
+      (s) => s.name.toLowerCase() === searchTerm.toLowerCase()
+    );
+    if (matchedSpecialty) {
+      filters.specialtyId = matchedSpecialty.id;
+      filters.search = "";
+    } else {
+      filters.search = searchTerm;
+      filters.specialtyId = "";
+    }
+  } else {
+    filters.search = "";
+  }
+
+  if (query.specialtyId) {
+    filters.specialtyId = String(query.specialtyId);
+  }
+
+  if (query.city) {
+    filters.city = String(query.city);
+  } else {
+    filters.city = "";
+  }
+};
+
+onMounted(async () => {
+  loading.value = true;
+  await Promise.all([loadSpecialties(), loadCabinets()]);
+  applyFiltersFromQuery();
+  await searchPractitioners();
 });
+
+watch(
+  () => route.query,
+  async () => {
+    applyFiltersFromQuery();
+    await searchPractitioners();
+  }
+);
 
 definePageMeta({
   layout: "default",
