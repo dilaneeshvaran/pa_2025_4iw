@@ -20,43 +20,64 @@
           </div>
 
           <!-- step indicator -->
-          <div class="mb-6">
-            <div class="flex items-center justify-between">
+          <div class="mb-6 select-none">
+            <!-- Circles and Lines -->
+            <div class="flex items-center w-full">
               <div
                 v-for="(step, index) in steps"
                 :key="index"
-                class="flex items-center"
+                :class="[
+                  index < steps.length - 1 ? 'flex-grow flex-1 flex items-center' : 'flex items-center shrink-0 w-8'
+                ]"
               >
+                <!-- Circle -->
                 <div
                   :class="[
-                    'flex h-8 w-8 items-center justify-center rounded-full text-sm font-medium',
+                    'flex h-8 w-8 items-center justify-center rounded-full text-sm font-semibold transition-all duration-300',
                     currentStep > index
                       ? 'bg-green-500 text-white'
                       : currentStep === index
-                        ? 'bg-orange-500 text-white'
-                        : 'bg-gray-200 text-gray-600',
+                        ? 'bg-orange-500 text-white shadow-md shadow-orange-500/20 ring-2 ring-orange-500 ring-offset-2'
+                        : 'bg-gray-100 text-gray-500 border border-gray-200',
                   ]"
                 >
                   <IconCheck v-if="currentStep > index" class="h-4 w-4" />
                   <span v-else>{{ index + 1 }}</span>
                 </div>
-                <span
+                <!-- Connector Line -->
+                <div
                   v-if="index < steps.length - 1"
-                  class="mx-2 hidden h-0.5 w-8 bg-gray-200 sm:block"
+                  class="h-0.5 flex-1 mx-2 bg-gray-200 rounded-full transition-all duration-300"
                   :class="{ 'bg-green-500': currentStep > index }"
                 />
               </div>
             </div>
-            <div class="mt-2 flex justify-between text-xs text-gray-500">
-              <span
+
+            <!-- Labels aligned under circles -->
+            <div class="mt-3 flex w-full h-6 relative">
+              <div
                 v-for="(step, index) in steps"
                 :key="index"
-                :class="{
-                  'font-medium text-orange-600': currentStep === index,
-                }"
+                :class="[
+                  index < steps.length - 1 ? 'flex-grow flex-1' : 'shrink-0 w-8',
+                  'relative'
+                ]"
               >
-                {{ step }}
-              </span>
+                <div class="absolute left-4 -translate-x-1/2 whitespace-nowrap text-center">
+                  <span
+                    class="text-xs transition-colors duration-300"
+                    :class="[
+                      currentStep === index
+                        ? 'font-semibold text-orange-600'
+                        : currentStep > index
+                          ? 'text-gray-700 font-medium'
+                          : 'text-gray-400 font-normal',
+                    ]"
+                  >
+                    {{ step }}
+                  </span>
+                </div>
+              </div>
             </div>
           </div>
 
