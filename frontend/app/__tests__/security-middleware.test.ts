@@ -41,6 +41,7 @@ describe('Nuxt Security Middleware', () => {
     expect(headers['Content-Security-Policy']).toContain(
       'https://*.openstreetmap.org',
     )
+    expect(headers['Content-Security-Policy']).toContain("frame-src 'self' blob:")
   })
 
   it('should handle empty umamiUrl gracefully in CSP', () => {

@@ -211,13 +211,47 @@
       <div v-if="activeTab === 'documents'">
         <UiCard>
           <div class="mb-6 flex flex-col justify-between gap-4 sm:flex-row sm:items-center">
-            <h2 class="text-lg font-semibold text-gray-900">
-              Documents du patient
-            </h2>
+            <h2 class="text-lg font-semibold text-gray-900">Documents</h2>
             <UiButton size="sm" @click="openUploadModal" class="flex items-center gap-1.5">
               <Plus class="h-4 w-4" />
               Envoyer un document
             </UiButton>
+          </div>
+
+          <div class="mb-4 grid grid-cols-1 gap-2 sm:grid-cols-2">
+            <button
+              v-for="scope in documentScopes"
+              :key="scope.key"
+              :class="[
+                'rounded-lg border px-4 py-2 text-sm font-medium transition-colors',
+                activeDocumentScope === scope.key
+                  ? 'border-orange-600 bg-orange-50 text-orange-700'
+                  : 'border-gray-200 text-gray-600 hover:bg-gray-50',
+              ]"
+              @click="activeDocumentScope = scope.key"
+            >
+              {{ scope.label }}
+              <span class="ml-1 text-xs">({{ getScopeCount(scope.key) }})</span>
+            </button>
+          </div>
+
+          <div class="mb-6 border-b border-gray-200">
+            <nav class="-mb-px flex space-x-4 overflow-x-auto" aria-label="Filtres documents">
+              <button
+                v-for="filter in documentTypeFilters"
+                :key="filter.key"
+                :class="[
+                  'whitespace-nowrap border-b-2 px-1 py-2 text-sm font-medium transition-colors',
+                  activeDocumentTypeFilter === filter.key
+                    ? 'border-orange-600 text-orange-600'
+                    : 'border-transparent text-gray-500 hover:border-gray-300 hover:text-gray-700',
+                ]"
+                @click="activeDocumentTypeFilter = filter.key"
+              >
+                {{ filter.label }}
+                <span class="ml-1.5 text-xs">({{ getTypeCount(filter.key) }})</span>
+              </button>
+            </nav>
           </div>
 
           <div v-if="loadingDocs" class="space-y-3">
@@ -236,14 +270,20 @@
             </div>
           </div>
 
-          <div v-else-if="documents.length === 0" class="py-8 text-center">
+          <div v-else-if="filteredDocuments.length === 0" class="py-8 text-center">
             <FileText class="mx-auto mb-3 h-12 w-12 text-gray-300" />
-            <p class="text-gray-500">Aucun document disponible</p>
+            <p class="text-gray-500">
+              {{
+                activeDocumentScope === "patient"
+                  ? "Aucun document du patient disponible"
+                  : "Aucun document envoyé disponible"
+              }}
+            </p>
           </div>
 
           <div v-else class="space-y-3">
             <div
-              v-for="doc in documents"
+              v-for="doc in filteredDocuments"
               :key="doc.id"
               class="flex items-center justify-between rounded-lg border border-gray-200 p-4 transition-shadow hover:shadow-sm"
             >
@@ -496,6 +536,7 @@
                 <option value="MEDICAL_REPORT">Rapport médical</option>
                 <option value="CERTIFICATE">Certificat médical</option>
                 <option value="CONSENT_FORM">Formulaire de consentement</option>
+                <option value="INSURANCE">Document d'assurance</option>
                 <option value="OTHER">Autre</option>
               </select>
             </div>
@@ -585,7 +626,6 @@ import {
   FileSearch,
   Award,
   Plus,
-  Upload,
 } from "lucide-vue-next";
 import { useAuthStore } from "~/stores/auth";
 import { formatShortDate as formatDate } from "~/utils/date";
@@ -669,11 +709,44 @@ interface DocItem {
   fileSize: number;
   mimeType: string;
   uploadedAt: string;
+  origin: "PATIENT" | "SENT";
+  sentByCurrentPractitioner: boolean;
 }
+
+type DocumentScope = "patient" | "sent";
+type DocumentTypeFilter =
+  | "all"
+  | "prescriptions"
+  | "exams"
+  | "certificates"
+  | "others";
+
+const documentScopes: { key: DocumentScope; label: string }[] = [
+  { key: "patient", label: "Documents du patient" },
+  { key: "sent", label: "Documents envoyés" },
+];
+
+const documentTypeFilters: { key: DocumentTypeFilter; label: string }[] = [
+  { key: "all", label: "Tous" },
+  { key: "prescriptions", label: "Ordonnances" },
+  { key: "exams", label: "Examens" },
+  { key: "certificates", label: "Certificats" },
+  { key: "others", label: "Autres" },
+];
+
+const documentTypeGroups: Record<DocumentTypeFilter, string[]> = {
+  all: [],
+  prescriptions: ["PRESCRIPTION"],
+  exams: ["LAB_RESULT", "RADIOLOGY"],
+  certificates: ["CERTIFICATE", "MEDICAL_REPORT"],
+  others: ["CONSENT_FORM", "INSURANCE", "OTHER"],
+};
 
 const patient = ref<PatientDetail | null>(null);
 const documents = ref<DocItem[]>([]);
 const loadingDocs = ref(false);
+const activeDocumentScope = ref<DocumentScope>("patient");
+const activeDocumentTypeFilter = ref<DocumentTypeFilter>("all");
 
 // pdf viewer
 const showViewer = ref(false);
@@ -690,6 +763,32 @@ const newDocType = ref("PRESCRIPTION");
 const newDocDescription = ref("");
 const newDocFile = ref<File | null>(null);
 const fileInput = ref<HTMLInputElement | null>(null);
+
+const scopeDocuments = computed(() =>
+  documents.value.filter((doc) =>
+    activeDocumentScope.value === "patient"
+      ? doc.origin === "PATIENT"
+      : doc.origin === "SENT",
+  ),
+);
+
+const filteredDocuments = computed(() => {
+  const selectedTypes = documentTypeGroups[activeDocumentTypeFilter.value];
+  if (selectedTypes.length === 0) return scopeDocuments.value;
+  return scopeDocuments.value.filter((doc) => selectedTypes.includes(doc.type));
+});
+
+const getScopeCount = (scope: DocumentScope) =>
+  documents.value.filter((doc) =>
+    scope === "patient" ? doc.origin === "PATIENT" : doc.origin === "SENT",
+  ).length;
+
+const getTypeCount = (filter: DocumentTypeFilter) => {
+  const selectedTypes = documentTypeGroups[filter];
+  if (selectedTypes.length === 0) return scopeDocuments.value.length;
+  return scopeDocuments.value.filter((doc) => selectedTypes.includes(doc.type))
+    .length;
+};
 
 const openUploadModal = () => {
   newDocTitle.value = "";
@@ -730,12 +829,12 @@ const handleUpload = async () => {
 
   try {
     const formData = new FormData();
-    formData.append("file", newDocFile.value);
     formData.append("title", newDocTitle.value);
     formData.append("type", newDocType.value);
     if (newDocDescription.value) {
       formData.append("description", newDocDescription.value);
     }
+    formData.append("file", newDocFile.value);
 
     const response = await fetch(`${config.public.apiBase}/documents/patient/${patientId.value}/upload`, {
       method: "POST",
@@ -753,9 +852,12 @@ const handleUpload = async () => {
 
     showUploadModal.value = false;
     await fetchDocuments();
-  } catch (err: any) {
+  } catch (err: unknown) {
     console.error("Upload error:", err);
-    uploadError.value = err.message || "Une erreur est survenue lors de l'envoi du document.";
+    uploadError.value =
+      err instanceof Error
+        ? err.message
+        : "Une erreur est survenue lors de l'envoi du document.";
   } finally {
     uploading.value = false;
   }
@@ -851,6 +953,7 @@ const fetchDocuments = async () => {
 
     if (response.success) {
       documents.value = response.data;
+      activeDocumentTypeFilter.value = "all";
     }
   } catch (err) {
     console.error("Error fetching documents:", err);

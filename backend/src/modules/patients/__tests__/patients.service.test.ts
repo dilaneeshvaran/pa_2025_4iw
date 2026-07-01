@@ -28,6 +28,9 @@ jest.mock('../../../config/database', () => ({
       findUnique: jest.fn(),
       count: jest.fn(),
     },
+    document: {
+      findMany: jest.fn(),
+    },
   },
 }))
 
@@ -281,6 +284,67 @@ describe('PatientsService.getPatientDetail', () => {
   beforeEach(() => {
     service = new PatientsService()
     jest.clearAllMocks()
+  })
+
+  describe('PatientsService.getPatientDocuments', () => {
+    let service: PatientsService
+
+    beforeEach(() => {
+      service = new PatientsService()
+      jest.clearAllMocks()
+    })
+
+    it("retourne null si le praticien n'a pas de relation avec le patient", async () => {
+      ;(mockPrisma.appointment.findFirst as jest.Mock).mockResolvedValue(null)
+
+      const result = await service.getPatientDocuments('pract-1', 'patient-1')
+
+      expect(result).toBeNull()
+      expect(mockPrisma.document.findMany).not.toHaveBeenCalled()
+    })
+
+    it('retourne les documents patient et envoyés par le praticien courant', async () => {
+      ;(mockPrisma.appointment.findFirst as jest.Mock).mockResolvedValue({ id: 'apt-1' })
+      ;(mockPrisma.document.findMany as jest.Mock).mockResolvedValue([
+        {
+          id: 'doc-patient',
+          type: 'LAB_RESULT',
+          title: 'Bilan sanguin',
+          description: null,
+          fileName: 'bilan.pdf',
+          fileSize: 1234,
+          mimeType: 'application/pdf',
+          uploadedAt: new Date('2026-06-01T09:00:00.000Z'),
+          practitionerId: null,
+        },
+        {
+          id: 'doc-sent',
+          type: 'PRESCRIPTION',
+          title: 'Ordonnance',
+          description: 'Traitement 7 jours',
+          fileName: 'ordonnance.pdf',
+          fileSize: 4321,
+          mimeType: 'application/pdf',
+          uploadedAt: new Date('2026-06-02T09:00:00.000Z'),
+          practitionerId: 'pract-1',
+        },
+      ])
+
+      const result = await service.getPatientDocuments('pract-1', 'patient-1')
+
+      expect(result).toHaveLength(2)
+      expect(result?.[0]?.origin).toBe('PATIENT')
+      expect(result?.[0]?.sentByCurrentPractitioner).toBe(false)
+      expect(result?.[1]?.origin).toBe('SENT')
+      expect(result?.[1]?.sentByCurrentPractitioner).toBe(true)
+      expect(mockPrisma.document.findMany).toHaveBeenCalledWith(
+        expect.objectContaining({
+          where: expect.objectContaining({
+            patientId: 'patient-1',
+          }),
+        }),
+      )
+    })
   })
 
   it("retourne null si le patient n'a aucun rendez-vous avec ce praticien", async () => {
