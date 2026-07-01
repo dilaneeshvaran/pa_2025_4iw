@@ -30,14 +30,17 @@ export default defineNuxtRouteMiddleware((to, _from) => {
   ];
 
   //  if route is public checker
+  const isPractitionerProfile =
+    to.name === "practitioner-id" ||
+    (/^\/practitioner\/[^/]+$/.test(to.path) &&
+      !["dashboard", "agenda", "settings", "billing", "cabinets", "cabinet-appointments", "patients", "messages", "statistics", "teleconsultations", "staff", "public-profile"].includes(to.path.split("/")[2] || ""));
+
   const isPublicRoute =
     to.path === "/" ||
+    isPractitionerProfile ||
     publicRoutes.some((route) => to.path.startsWith(route));
 
-  // initialize auth from localstorage on client side
-  if (import.meta.client && !authStore.isAuthenticated) {
-    authStore.initAuth();
-  }
+
 
   // check authentication status
   const isUserAuthenticated = import.meta.server
