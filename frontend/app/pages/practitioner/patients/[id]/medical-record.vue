@@ -210,9 +210,15 @@
       <!--documents  -->
       <div v-if="activeTab === 'documents'">
         <UiCard>
-          <h2 class="mb-6 text-lg font-semibold text-gray-900">
-            Documents du patient
-          </h2>
+          <div class="mb-6 flex flex-col justify-between gap-4 sm:flex-row sm:items-center">
+            <h2 class="text-lg font-semibold text-gray-900">
+              Documents du patient
+            </h2>
+            <UiButton size="sm" @click="openUploadModal" class="flex items-center gap-1.5">
+              <Plus class="h-4 w-4" />
+              Envoyer un document
+            </UiButton>
+          </div>
 
           <div v-if="loadingDocs" class="space-y-3">
             <div
@@ -449,6 +455,115 @@
         </div>
       </div>
     </Teleport>
+
+    <!-- upload document modal -->
+    <Teleport to="body">
+      <div
+        v-if="showUploadModal"
+        class="fixed inset-0 z-50 flex items-center justify-center bg-black/60 p-4"
+        @click.self="showUploadModal = false"
+      >
+        <div class="w-full max-w-lg rounded-xl bg-white p-6 shadow-2xl">
+          <div class="mb-4 flex items-center justify-between border-b pb-4">
+            <h3 class="text-lg font-semibold text-gray-900">
+              Envoyer un document
+            </h3>
+            <button
+              class="rounded-lg p-2 text-gray-500 hover:bg-gray-100"
+              @click="showUploadModal = false"
+            >
+              <X class="h-5 w-5" />
+            </button>
+          </div>
+
+          <form @submit.prevent="handleUpload" class="space-y-4">
+            <div v-if="uploadError" class="rounded-lg bg-red-50 p-3 text-sm text-red-700">
+              {{ uploadError }}
+            </div>
+
+            <div>
+              <label class="block text-sm font-medium text-gray-700 mb-1">
+                Type de document *
+              </label>
+              <select
+                v-model="newDocType"
+                class="w-full rounded-lg border border-gray-300 px-3 py-2 text-sm focus:border-orange-600 focus:outline-none focus:ring-1 focus:ring-orange-600"
+                required
+              >
+                <option value="PRESCRIPTION">Ordonnance</option>
+                <option value="LAB_RESULT">Examen de laboratoire</option>
+                <option value="RADIOLOGY">Radiographie / Imagerie</option>
+                <option value="MEDICAL_REPORT">Rapport médical</option>
+                <option value="CERTIFICATE">Certificat médical</option>
+                <option value="CONSENT_FORM">Formulaire de consentement</option>
+                <option value="OTHER">Autre</option>
+              </select>
+            </div>
+
+            <div>
+              <label class="block text-sm font-medium text-gray-700 mb-1">
+                Titre du document *
+              </label>
+              <input
+                v-model="newDocTitle"
+                type="text"
+                class="w-full rounded-lg border border-gray-300 px-3 py-2 text-sm focus:border-orange-600 focus:outline-none focus:ring-1 focus:ring-orange-600"
+                placeholder="Ex: Ordonnance Paracétamol"
+                required
+              />
+            </div>
+
+            <div>
+              <label class="block text-sm font-medium text-gray-700 mb-1">
+                Description (facultatif)
+              </label>
+              <textarea
+                v-model="newDocDescription"
+                rows="3"
+                class="w-full rounded-lg border border-gray-300 px-3 py-2 text-sm focus:border-orange-600 focus:outline-none focus:ring-1 focus:ring-orange-600"
+                placeholder="Ajouter des notes ou consignes pour le patient..."
+              ></textarea>
+            </div>
+
+            <div>
+              <label class="block text-sm font-medium text-gray-700 mb-1">
+                Fichier *
+              </label>
+              <input
+                ref="fileInput"
+                type="file"
+                accept=".pdf,.jpg,.jpeg,.png,.webp,.doc,.docx"
+                class="w-full text-sm text-gray-500 file:mr-4 file:py-2 file:px-4 file:rounded-lg file:border-0 file:text-sm file:font-semibold file:bg-orange-50 file:text-orange-700 hover:file:bg-orange-100"
+                @change="handleFileChange"
+                required
+              />
+              <p class="mt-1 text-xs text-gray-500">
+                Formats acceptés : PDF, JPEG, PNG, WEBP, DOC, DOCX. Max 10 Mo.
+              </p>
+            </div>
+
+            <div class="mt-6 flex justify-end gap-3 border-t pt-4">
+              <UiButton
+                type="button"
+                variant="outline"
+                :disabled="uploading"
+                @click="showUploadModal = false"
+              >
+                Annuler
+              </UiButton>
+              <UiButton
+                type="submit"
+                :disabled="uploading"
+                class="flex items-center gap-1.5"
+              >
+                <span v-if="uploading">Envoi...</span>
+                <span v-else>Envoyer</span>
+              </UiButton>
+            </div>
+          </form>
+        </div>
+      </div>
+    </Teleport>
   </div>
 </template>
 
@@ -469,6 +584,8 @@ import {
   TestTubes,
   FileSearch,
   Award,
+  Plus,
+  Upload,
 } from "lucide-vue-next";
 import { useAuthStore } from "~/stores/auth";
 import { formatShortDate as formatDate } from "~/utils/date";
@@ -563,6 +680,86 @@ const showViewer = ref(false);
 const viewerDoc = ref<DocItem | null>(null);
 const viewerUrl = ref("");
 const viewerLoading = ref(false);
+
+// document upload
+const showUploadModal = ref(false);
+const uploading = ref(false);
+const uploadError = ref("");
+const newDocTitle = ref("");
+const newDocType = ref("PRESCRIPTION");
+const newDocDescription = ref("");
+const newDocFile = ref<File | null>(null);
+const fileInput = ref<HTMLInputElement | null>(null);
+
+const openUploadModal = () => {
+  newDocTitle.value = "";
+  newDocType.value = "PRESCRIPTION";
+  newDocDescription.value = "";
+  newDocFile.value = null;
+  uploadError.value = "";
+  if (fileInput.value) {
+    fileInput.value.value = "";
+  }
+  showUploadModal.value = true;
+};
+
+const handleFileChange = (event: Event) => {
+  const target = event.target as HTMLInputElement;
+  if (target.files && target.files.length > 0) {
+    newDocFile.value = target.files[0];
+    if (!newDocTitle.value && target.files[0]) {
+      const name = target.files[0].name;
+      const lastDotIndex = name.lastIndexOf(".");
+      newDocTitle.value = lastDotIndex !== -1 ? name.substring(0, lastDotIndex) : name;
+    }
+  }
+};
+
+const handleUpload = async () => {
+  if (!newDocTitle.value) {
+    uploadError.value = "Le titre est requis";
+    return;
+  }
+  if (!newDocFile.value) {
+    uploadError.value = "Veuillez sélectionner un fichier";
+    return;
+  }
+
+  uploading.value = true;
+  uploadError.value = "";
+
+  try {
+    const formData = new FormData();
+    formData.append("file", newDocFile.value);
+    formData.append("title", newDocTitle.value);
+    formData.append("type", newDocType.value);
+    if (newDocDescription.value) {
+      formData.append("description", newDocDescription.value);
+    }
+
+    const response = await fetch(`${config.public.apiBase}/documents/patient/${patientId.value}/upload`, {
+      method: "POST",
+      headers: {
+        Authorization: `Bearer ${authStore.accessToken}`,
+      },
+      body: formData,
+    });
+
+    const result = await response.json();
+
+    if (!response.ok || !result.success) {
+      throw new Error(result.message || "Erreur lors de l'envoi du document.");
+    }
+
+    showUploadModal.value = false;
+    await fetchDocuments();
+  } catch (err: any) {
+    console.error("Upload error:", err);
+    uploadError.value = err.message || "Une erreur est survenue lors de l'envoi du document.";
+  } finally {
+    uploading.value = false;
+  }
+};
 
 const InfoField = defineComponent({
   props: {

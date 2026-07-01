@@ -371,6 +371,53 @@ export class DocumentsService {
 
     return document
   }
+
+  // for practitioner to upload a document directly to a patient
+  async uploadDocumentForPatient(
+    practitionerUserId: string,
+    patientId: string,
+    data: {
+      type: string
+      title: string
+      description?: string
+      fileName: string
+      filePath: string
+      fileSize: number
+      mimeType: string
+    },
+  ) {
+    const practitioner = await prisma.practitioner.findUnique({
+      where: { userId: practitionerUserId },
+      select: { id: true },
+    })
+    if (!practitioner) throw new Error('Profil praticien non trouvé')
+
+    // verify the practitioner has a real appointment with this patient
+    const hasRelation = await prisma.appointment.findFirst({
+      where: {
+        practitionerId: practitioner.id,
+        patientId,
+        status: { not: 'CANCELLED' as any },
+      },
+    })
+    if (!hasRelation)
+      throw new Error("Vous n'avez pas de relation avec ce patient")
+
+    return prisma.document.create({
+      data: {
+        patientId,
+        practitionerId: practitioner.id,
+        type: data.type as any,
+        title: data.title,
+        description: data.description,
+        fileName: data.fileName,
+        filePath: data.filePath,
+        fileSize: data.fileSize,
+        mimeType: data.mimeType,
+        isEncrypted: false,
+      },
+    })
+  }
 }
 
 export const documentsService = new DocumentsService()
