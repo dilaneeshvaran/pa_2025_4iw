@@ -452,7 +452,7 @@ export class AppointmentsService {
     const minNoticeMinutes = practitioner.minBookingNotice || 60
     const [requestHours, requestMinutes] = data.startTime.split(':').map(Number)
     const requestedAppointmentTime = new Date(appointmentDate)
-    requestedAppointmentTime.setUTCHours(requestHours, requestMinutes, 0, 0)
+    requestedAppointmentTime.setHours(requestHours, requestMinutes, 0, 0)
 
     const earliestBookable = new Date(
       now.getTime() + minNoticeMinutes * 60 * 1000,
