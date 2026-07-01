@@ -480,6 +480,14 @@
             </div>
           </div>
 
+          <!-- Note message indicating appointment visited & verified review -->
+          <div class="mb-5 flex gap-2 rounded-lg bg-green-50 p-3 text-xs text-gray-800 border border-green-200">
+            <Info class="h-4 w-4 text-green-600 flex-shrink-0 mt-0.5" />
+            <p class="leading-relaxed">
+              <strong>Charte de confiance :</strong> Tous les avis sur MediCôte proviennent de patients vérifiés ayant honoré une consultation avec le praticien.
+            </p>
+          </div>
+
           <div class="mb-5">
             <label class="mb-2 block text-sm font-medium text-gray-700">
               Note *
@@ -697,6 +705,7 @@ import {
   Mic,
   Star,
   Bell,
+  Info,
 } from "lucide-vue-next";
 import { useAuthStore } from "~/stores/auth";
 import { formatDateLong as formatDate } from "~/utils/date";
