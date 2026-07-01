@@ -989,7 +989,10 @@ async function sendNewMessageEmail(
   senderName: string,
   messagePreview: string,
 ): Promise<void> {
-  const APP_URL = process.env.BACKEND_FRONTEND_URL || 'http://localhost:3000'
+  const APP_URL =
+    process.env.BACKEND_FRONTEND_URL ||
+    process.env.FRONTEND_URL ||
+    'http://localhost:3000'
 
   const html = buildEmailHtml({
     title: 'Nouveau message - MediCôte',

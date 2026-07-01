@@ -332,7 +332,10 @@ export class ContactRequestsService {
     tempPassword: string,
     resetToken: string,
   ) {
-    const APP_URL = process.env.BACKEND_FRONTEND_URL || 'http://localhost:3000'
+    const APP_URL =
+      process.env.BACKEND_FRONTEND_URL ||
+      process.env.FRONTEND_URL ||
+      'http://localhost:3000'
     const resetUrl = `${APP_URL}/auth/reset-password?token=${resetToken}`
 
     const html = buildEmailHtml({

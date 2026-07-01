@@ -7,7 +7,10 @@ const RESEND_API_KEY = process.env.BACKEND_RESEND_API_KEY || ''
 const EMAIL_FROM = (
   process.env.BACKEND_EMAIL_FROM || 'MediCôte <noreply@medicote.me>'
 ).replace(/^["']|["']$/g, '')
-const APP_URL = process.env.BACKEND_FRONTEND_URL || 'http://localhost:3000'
+const APP_URL =
+  process.env.BACKEND_FRONTEND_URL ||
+  process.env.FRONTEND_URL ||
+  'http://localhost:3000'
 
 function escapeEmailHtml(value: string): string {
   return value
