@@ -32,8 +32,8 @@ export default defineEventHandler((event) => {
     "img-src 'self' data: blob: https://*.openstreetmap.org https://tile.openstreetmap.org",
     // connect-src: self, websocket protocols, backend API origin, stripe API, google accounts, and optional umami
     "connect-src 'self' ws: wss: https://api.stripe.com https://accounts.google.com" + (apiOrigin ? ` ${apiOrigin}` : '') + (umamiOrigin ? ` ${umamiOrigin}` : ''),
-    // frame-src: self, stripe checkout, google accounts
-    "frame-src 'self' https://js.stripe.com https://accounts.google.com",
+    // frame-src: self, blob urls for in-app PDF previews, stripe checkout, google accounts
+    "frame-src 'self' blob: https://js.stripe.com https://accounts.google.com",
     // frame-ancestors: self (protect against clickjacking)
     "frame-ancestors 'self'",
     // object-src: none (disallow plugins like flash)

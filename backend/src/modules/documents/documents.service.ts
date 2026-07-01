@@ -1,8 +1,8 @@
 import prisma from '../../config/database'
-import { Prisma } from '@prisma/client'
+import { Prisma, AppointmentStatus, DocumentType } from '@prisma/client'
 
 // type mapping for tabs
-const TYPE_FILTERS: Record<string, string[]> = {
+const TYPE_FILTERS: Record<string, DocumentType[]> = {
   all: [],
   prescriptions: ['PRESCRIPTION'],
   exams: ['LAB_RESULT', 'RADIOLOGY'],
@@ -39,7 +39,7 @@ export class DocumentsService {
     const where: Prisma.DocumentWhereInput = { ...baseWhere }
 
     if (typeFilter.length > 0) {
-      where.type = { in: typeFilter as any }
+      where.type = { in: typeFilter }
     }
 
     if (search) {
@@ -139,7 +139,7 @@ export class DocumentsService {
     const where: Prisma.DocumentWhereInput = { ...baseWhere }
 
     if (typeFilter.length > 0) {
-      where.type = { in: typeFilter as any }
+      where.type = { in: typeFilter }
     }
 
     if (search) {
@@ -222,7 +222,7 @@ export class DocumentsService {
     return prisma.document.create({
       data: {
         patientId: patient.id,
-        type: data.type as any,
+        type: data.type as DocumentType,
         title: data.title,
         description: data.description,
         fileName: data.fileName,
@@ -273,9 +273,9 @@ export class DocumentsService {
         }
       : undefined
 
-    const buildWhere = (types?: string[]): Prisma.DocumentWhereInput => {
+    const buildWhere = (types?: DocumentType[]): Prisma.DocumentWhereInput => {
       const w: Prisma.DocumentWhereInput = { ...baseWhere }
-      if (types && types.length > 0) w.type = { in: types as any }
+      if (types && types.length > 0) w.type = { in: types }
       if (searchFilter) w.AND = [searchFilter]
       return w
     }
@@ -314,9 +314,9 @@ export class DocumentsService {
         }
       : undefined
 
-    const buildWhere = (types?: string[]): Prisma.DocumentWhereInput => {
+    const buildWhere = (types?: DocumentType[]): Prisma.DocumentWhereInput => {
       const w: Prisma.DocumentWhereInput = { ...baseWhere }
-      if (types && types.length > 0) w.type = { in: types as any }
+      if (types && types.length > 0) w.type = { in: types }
       if (searchFilter) w.AND = [searchFilter]
       return w
     }
@@ -353,7 +353,7 @@ export class DocumentsService {
       where: {
         practitionerId,
         patientId,
-        status: { not: 'CANCELLED' as any },
+        status: { not: AppointmentStatus.CANCELLED },
       },
     })
 
@@ -364,8 +364,15 @@ export class DocumentsService {
       where: {
         id: documentId,
         patientId,
-        practitionerId: null,
-        medicalRecordId: null,
+        OR: [
+          {
+            practitionerId: null,
+            medicalRecordId: null,
+          },
+          {
+            practitionerId,
+          },
+        ],
       },
     })
 
@@ -397,7 +404,7 @@ export class DocumentsService {
       where: {
         practitionerId: practitioner.id,
         patientId,
-        status: { not: 'CANCELLED' as any },
+        status: { not: AppointmentStatus.CANCELLED },
       },
     })
     if (!hasRelation)
@@ -407,7 +414,7 @@ export class DocumentsService {
       data: {
         patientId,
         practitionerId: practitioner.id,
-        type: data.type as any,
+        type: data.type as DocumentType,
         title: data.title,
         description: data.description,
         fileName: data.fileName,

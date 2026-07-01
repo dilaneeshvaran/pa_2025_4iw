@@ -346,10 +346,19 @@ export class PatientsService {
 
     if (!hasRelation) return null
 
-    // get all patient documents (uploaded by patient or by practitioners)
+    // get patient-uploaded documents and documents sent by the current practitioner
     const documents = await prisma.document.findMany({
       where: {
         patientId,
+        OR: [
+          {
+            practitionerId: null,
+            medicalRecordId: null,
+          },
+          {
+            practitionerId,
+          },
+        ],
       },
       orderBy: { uploadedAt: 'desc' },
     })
@@ -363,6 +372,8 @@ export class PatientsService {
       fileSize: doc.fileSize,
       mimeType: doc.mimeType,
       uploadedAt: doc.uploadedAt.toISOString(),
+      origin: doc.practitionerId === practitionerId ? 'SENT' : 'PATIENT',
+      sentByCurrentPractitioner: doc.practitionerId === practitionerId,
     }))
   }
 

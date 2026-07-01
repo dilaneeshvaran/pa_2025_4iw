@@ -10,11 +10,37 @@ import path from 'path'
 import fs from 'fs'
 import { randomUUID } from 'crypto'
 import '@fastify/multipart'
+import type { MultipartFile } from '@fastify/multipart'
 import prisma from '../../config/database'
 
 // UPLOAD_DIR can be overridden via environment variable (useful for Docker volume mounts).
 // Default mirrors the relative path used in development (cwd = backend/).
 const UPLOAD_DIR = process.env.UPLOAD_DIR ?? path.resolve('uploads')
+
+type MultipartFieldValue = { value?: unknown }
+type MultipartFields = Record<string, MultipartFieldValue>
+
+const extractMultipartFields = (fields: MultipartFields): Record<string, string> => {
+  const values: Record<string, string> = {}
+
+  for (const [key, field] of Object.entries(fields)) {
+    if (typeof field?.value === 'string') {
+      values[key] = field.value
+    }
+  }
+
+  return values
+}
+
+const getMultipartFile = async (
+  request: FastifyRequest,
+): Promise<MultipartFile | undefined> => {
+  const multipartRequest = request as FastifyRequest & {
+    file: () => Promise<MultipartFile | undefined>
+  }
+
+  return multipartRequest.file()
+}
 
 export async function documentsRoutes(fastify: FastifyInstance) {
   // docs received from practitioners
@@ -237,7 +263,7 @@ export async function documentsRoutes(fastify: FastifyInstance) {
           })
         }
 
-        const data = await (request as any).file()
+        const data = await getMultipartFile(request)
         if (!data) {
           return reply.status(400).send({
             success: false,
@@ -245,14 +271,10 @@ export async function documentsRoutes(fastify: FastifyInstance) {
           })
         }
 
-        // Parse fields from multipart
-        const fields: Record<string, string> = {}
-        for (const [key, field] of Object.entries(data.fields)) {
-          if (field && typeof field === 'object' && 'value' in field) {
-            fields[key] = (field as any).value
-          }
-        }
+        const fileBuffer = await data.toBuffer()
 
+        // Parse fields from multipart
+        const fields = extractMultipartFields(data.fields as MultipartFields)
         const validated = uploadDocumentSchema.parse(fields)
 
         // Ensure uploads directory exists
@@ -266,7 +288,6 @@ export async function documentsRoutes(fastify: FastifyInstance) {
         const filePath = path.join(uploadsDir, uniqueName)
 
         // Save file
-        const fileBuffer = await data.toBuffer()
         fs.writeFileSync(filePath, fileBuffer)
 
         const document = await documentsService.uploadPatientDocument(user.id, {
@@ -493,7 +514,7 @@ export async function documentsRoutes(fastify: FastifyInstance) {
           })
         }
 
-        const data = await (request as any).file()
+        const data = await getMultipartFile(request)
         if (!data) {
           return reply.status(400).send({
             success: false,
@@ -518,14 +539,11 @@ export async function documentsRoutes(fastify: FastifyInstance) {
           })
         }
 
-        // parse fields
-        const fields: Record<string, string> = {}
-        for (const [key, field] of Object.entries(data.fields)) {
-          if (field && typeof field === 'object' && 'value' in field) {
-            fields[key] = (field as any).value
-          }
-        }
+        const fileBuffer = await data.toBuffer()
 
+        // parse fields after the file stream is consumed to avoid missing values
+        // when multipart sends the file part before text fields.
+        const fields = extractMultipartFields(data.fields as MultipartFields)
         const validated = uploadDocumentSchema.parse(fields)
 
         // save file
@@ -533,8 +551,6 @@ export async function documentsRoutes(fastify: FastifyInstance) {
         if (!fs.existsSync(uploadsDir)) {
           fs.mkdirSync(uploadsDir, { recursive: true })
         }
-
-        const fileBuffer = await data.toBuffer()
 
         // enforce 10 MB size limit
         const MAX_SIZE = 10 * 1024 * 1024
