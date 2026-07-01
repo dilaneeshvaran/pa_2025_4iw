@@ -98,6 +98,16 @@
               Sélectionnez une date et un créneau
             </h3>
 
+            <!-- warning for non-patient roles -->
+            <div
+              v-if="authStore.isAuthenticated && authStore.user?.role !== 'PATIENT'"
+              class="rounded-lg bg-yellow-50 p-4 text-sm text-yellow-800"
+            >
+              <p class="font-medium flex items-center gap-2">
+                ⚠️ Seuls les comptes patients peuvent réserver des rendez-vous.
+              </p>
+            </div>
+
             <div
               v-if="loadingSlots"
               class="flex items-center justify-center py-8"
@@ -1116,6 +1126,10 @@ const selectTime = async (time: string) => {
   selectedTime.value = time;
 
   if (authStore.isAuthenticated && props.practitioner) {
+    if (authStore.user?.role !== "PATIENT") {
+      error.value = "Seuls les patients peuvent réserver des rendez-vous.";
+      return;
+    }
     try {
       await useAuthenticatedFetch("/appointments/reserve-slot", {
         method: "POST",
@@ -1133,11 +1147,20 @@ const selectTime = async (time: string) => {
 };
 
 const nextStep = () => {
-  if (currentStep.value === 0 && !authStore.isAuthenticated) {
-    const route = useRoute();
-    const returnUrl = route.fullPath;
-    navigateTo(`/auth/login?redirect=${encodeURIComponent(returnUrl)}`);
-    return;
+  if (currentStep.value === 0) {
+    if (!authStore.isAuthenticated) {
+      const route = useRoute();
+      let returnUrl = `${route.path}?bookDate=${selectedDate.value}&bookTime=${selectedTime.value}`;
+      if (route.query.cabinetId) {
+        returnUrl += `&cabinetId=${route.query.cabinetId}`;
+      }
+      navigateTo(`/auth/login?redirect=${encodeURIComponent(returnUrl)}`);
+      return;
+    }
+    if (authStore.user?.role !== "PATIENT") {
+      error.value = "Seuls les patients peuvent réserver des rendez-vous.";
+      return;
+    }
   }
   currentStep.value++;
 };
@@ -1192,6 +1215,11 @@ const handleSubmit = async () => {
     const route = useRoute();
     const returnUrl = route.fullPath;
     navigateTo(`/auth/login?redirect=${encodeURIComponent(returnUrl)}`);
+    return;
+  }
+
+  if (authStore.user?.role !== "PATIENT") {
+    error.value = "Seuls les patients peuvent réserver des rendez-vous.";
     return;
   }
 

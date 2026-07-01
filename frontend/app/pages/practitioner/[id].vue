@@ -513,6 +513,7 @@
 
 <script setup lang="ts">
 import { ref, onMounted, computed, watch } from "vue";
+import { useToast } from "vue-toastification";
 import { useRoute, navigateTo } from "#app";
 import { useAuthStore } from "~/stores/auth";
 import { formatDateLong as formatDate } from "~/utils/date";
@@ -734,8 +735,17 @@ const goToAvailability = () => {
 
 const selectTimeSlot = (date: string, time: string) => {
   if (!authStore.isAuthenticated) {
-    const returnUrl = `${route.fullPath}?bookDate=${date}&bookTime=${time}`;
+    let returnUrl = `${route.path}?bookDate=${date}&bookTime=${time}`;
+    if (route.query.cabinetId) {
+      returnUrl += `&cabinetId=${route.query.cabinetId}`;
+    }
     navigateTo(`/auth/login?redirect=${encodeURIComponent(returnUrl)}`);
+    return;
+  }
+
+  if (authStore.user?.role !== "PATIENT") {
+    const toast = useToast();
+    toast.error("Seuls les patients peuvent réserver des rendez-vous.");
     return;
   }
 
@@ -746,6 +756,11 @@ const selectTimeSlot = (date: string, time: string) => {
 };
 
 const openBookingModalFromAvailability = () => {
+  if (authStore.isAuthenticated && authStore.user?.role !== "PATIENT") {
+    const toast = useToast();
+    toast.error("Seuls les patients peuvent réserver des rendez-vous.");
+    return;
+  }
   preselectedDate.value = null;
   preselectedTime.value = null;
   isBookingModalOpen.value = true;
@@ -853,7 +868,6 @@ onMounted(async () => {
 
 definePageMeta({
   layout: "default",
-  middleware: "patient-only",
 });
 </script>
 
