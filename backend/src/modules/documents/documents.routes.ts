@@ -476,4 +476,107 @@ export async function documentsRoutes(fastify: FastifyInstance) {
       }
     },
   )
+
+  // practitioner: upload a document to a patient
+  fastify.post(
+    '/patient/:patientId/upload',
+    { preHandler: [authenticate] },
+    async (request: FastifyRequest, reply: FastifyReply) => {
+      try {
+        const user = request.user as { id: string; role: string }
+        const { patientId } = request.params as { patientId: string }
+
+        if (user.role !== 'PRACTITIONER') {
+          return reply.status(403).send({
+            success: false,
+            message: 'Accès réservé aux praticiens',
+          })
+        }
+
+        const data = await (request as any).file()
+        if (!data) {
+          return reply.status(400).send({
+            success: false,
+            message: 'Aucun fichier fourni',
+          })
+        }
+
+        // validate MIME type
+        const allowedMimeTypes = [
+          'application/pdf',
+          'image/jpeg',
+          'image/png',
+          'image/webp',
+          'application/msword',
+          'application/vnd.openxmlformats-officedocument.wordprocessingml.document',
+        ]
+        if (!allowedMimeTypes.includes(data.mimetype)) {
+          return reply.status(400).send({
+            success: false,
+            message:
+              'Type de fichier non autorisé. Formats acceptés : PDF, images, Word.',
+          })
+        }
+
+        // parse fields
+        const fields: Record<string, string> = {}
+        for (const [key, field] of Object.entries(data.fields)) {
+          if (field && typeof field === 'object' && 'value' in field) {
+            fields[key] = (field as any).value
+          }
+        }
+
+        const validated = uploadDocumentSchema.parse(fields)
+
+        // save file
+        const uploadsDir = path.join(UPLOAD_DIR, 'practitioner-documents')
+        if (!fs.existsSync(uploadsDir)) {
+          fs.mkdirSync(uploadsDir, { recursive: true })
+        }
+
+        const fileBuffer = await data.toBuffer()
+
+        // enforce 10 MB size limit
+        const MAX_SIZE = 10 * 1024 * 1024
+        if (fileBuffer.length > MAX_SIZE) {
+          return reply.status(400).send({
+            success: false,
+            message: 'Le fichier dépasse la taille maximale autorisée (10 Mo)',
+          })
+        }
+
+        const ext = path.extname(data.filename)
+        const uniqueName = `${randomUUID()}${ext}`
+        const filePath = path.join(uploadsDir, uniqueName)
+        fs.writeFileSync(filePath, fileBuffer)
+
+        const document = await documentsService.uploadDocumentForPatient(
+          user.id,
+          patientId,
+          {
+            type: validated.type,
+            title: validated.title,
+            description: validated.description,
+            fileName: data.filename,
+            filePath,
+            fileSize: fileBuffer.length,
+            mimeType: data.mimetype,
+          },
+        )
+
+        return reply.status(201).send({
+          success: true,
+          data: document,
+          message: 'Document envoyé avec succès',
+        })
+      } catch (error) {
+        request.log.error(error)
+        const message = sanitizeErrorMessage(
+          error,
+          "Erreur lors de l'envoi du document",
+        )
+        return reply.status(400).send({ success: false, message })
+      }
+    },
+  )
 }
