@@ -380,6 +380,22 @@
         <!-- reviews tab -->
         <div v-show="activeTab === 'reviews'">
           <div class="space-y-4">
+            <!-- Charte de confiance pour les utilisateurs connectés -->
+            <div
+              v-if="authStore.isAuthenticated"
+              class="flex items-start gap-3 rounded-xl border border-green-200 bg-green-50 p-4 text-gray-800 shadow-sm"
+            >
+              <IconCheckCircle class="mt-0.5 h-5 w-5 flex-shrink-0 text-green-600" />
+              <div>
+                <p class="font-semibold text-green-900">
+                  Charte de confiance - Avis vérifiés
+                </p>
+                <p class="mt-1 text-sm leading-relaxed text-gray-700">
+                  Tous les avis présentés sur MediCôte proviennent de patients vérifiés. Pour pouvoir rédiger un avis, vous devez avoir préalablement effectué et validé une consultation (rendez-vous) avec ce praticien.
+                </p>
+              </div>
+            </div>
+
             <Card>
               <div class="flex items-center gap-6">
                 <div class="text-center">
