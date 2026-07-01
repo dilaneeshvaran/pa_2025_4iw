@@ -203,11 +203,11 @@
             <span
               v-for="(item, idx) in profile.allergies"
               :key="idx"
-              class="inline-flex items-center gap-1.5 rounded-full bg-red-50 px-3 py-1.5 text-sm font-medium text-red-700"
+              class="inline-flex items-center gap-1 rounded-full bg-red-50 px-2.5 py-1 text-xs font-medium text-red-700"
             >
               {{ item }}
               <button
-                class="ml-1 rounded-full p-0.5 hover:bg-red-200"
+                class="ml-0.5 inline-flex h-4 w-4 items-center justify-center rounded-full hover:bg-red-200"
                 @click="removeAntecedent('allergies', idx)"
               >
                 <X class="h-3 w-3" />
@@ -244,11 +244,11 @@
             <span
               v-for="(item, idx) in profile.chronicConditions"
               :key="idx"
-              class="inline-flex items-center gap-1.5 rounded-full bg-orange-50 px-3 py-1.5 text-sm font-medium text-orange-700"
+              class="inline-flex items-center gap-1 rounded-full bg-orange-50 px-2.5 py-1 text-xs font-medium text-orange-700"
             >
               {{ item }}
               <button
-                class="ml-1 rounded-full p-0.5 hover:bg-orange-200"
+                class="ml-0.5 inline-flex h-4 w-4 items-center justify-center rounded-full hover:bg-orange-200"
                 @click="removeAntecedent('chronicConditions', idx)"
               >
                 <X class="h-3 w-3" />
@@ -285,11 +285,11 @@
             <span
               v-for="(item, idx) in profile.surgicalOperations"
               :key="idx"
-              class="inline-flex items-center gap-1.5 rounded-full bg-purple-50 px-3 py-1.5 text-sm font-medium text-purple-700"
+              class="inline-flex items-center gap-1 rounded-full bg-purple-50 px-2.5 py-1 text-xs font-medium text-purple-700"
             >
               {{ item }}
               <button
-                class="ml-1 rounded-full p-0.5 hover:bg-purple-200"
+                class="ml-0.5 inline-flex h-4 w-4 items-center justify-center rounded-full hover:bg-purple-200"
                 @click="removeAntecedent('surgicalOperations', idx)"
               >
                 <X class="h-3 w-3" />

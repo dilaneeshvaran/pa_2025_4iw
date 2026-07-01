@@ -31,7 +31,7 @@
       <div class="mb-4 flex flex-wrap items-center gap-3">
         <select
           v-model="statusFilter"
-          class="rounded-lg border border-gray-300 px-3 py-2 text-sm focus:border-orange-600 focus:outline-none"
+          class="rounded-lg border border-gray-300 pl-3 pr-8 py-2 text-sm focus:border-orange-600 focus:outline-none"
         >
           <option value="all">Tous les statuts</option>
           <option value="COMPLETED">Payé</option>
@@ -428,7 +428,7 @@
                 <label class="text-sm font-medium text-gray-700">Mois</label>
                 <select
                   v-model="newCardExpMonth"
-                  class="mt-1 w-full rounded-lg border border-gray-300 px-3 py-2.5 focus:border-orange-600 focus:outline-none"
+                  class="mt-1 w-full rounded-lg border border-gray-300 pl-3 pr-8 py-2.5 focus:border-orange-600 focus:outline-none"
                 >
                   <option v-for="m in 12" :key="m" :value="m">
                     {{ String(m).padStart(2, "0") }}
@@ -439,7 +439,7 @@
                 <label class="text-sm font-medium text-gray-700">Année</label>
                 <select
                   v-model="newCardExpYear"
-                  class="mt-1 w-full rounded-lg border border-gray-300 px-3 py-2.5 focus:border-orange-600 focus:outline-none"
+                  class="mt-1 w-full rounded-lg border border-gray-300 pl-3 pr-8 py-2.5 focus:border-orange-600 focus:outline-none"
                 >
                   <option v-for="y in 10" :key="y" :value="2025 + y">
                     {{ 2025 + y }}
