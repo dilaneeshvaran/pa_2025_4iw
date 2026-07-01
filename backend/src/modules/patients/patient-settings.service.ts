@@ -283,9 +283,9 @@ export class PatientSettingsService {
   // rdpd data export
 
   async requestDataExport(userId: string, ipAddress?: string) {
-    // check for pending request
+    // check for pending or processing request
     const pending = await prisma.dataExportRequest.findFirst({
-      where: { userId, status: 'PENDING' },
+      where: { userId, status: { in: ['PENDING', 'PROCESSING'] } },
     })
     if (pending) {
       throw new Error("Une demande d'export est déjà en cours")
