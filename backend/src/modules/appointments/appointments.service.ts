@@ -1,4 +1,5 @@
 import prisma from '../../config/database'
+import { getClientLocalTime } from '../../utils/timezone'
 import { AppointmentStatus, AppointmentType } from '@prisma/client'
 import {
   PatientAppointmentsResult,
@@ -14,7 +15,10 @@ import {
   sendAppointmentModifiedByPatientEmail,
   sendEarlierSlotAlertEmail,
 } from '../../utils/email'
-import { scheduleAppointmentReminders } from '../../utils/reminder-scheduler'
+import {
+  scheduleAppointmentReminders,
+  cancelAppointmentReminders,
+} from '../../utils/reminder-scheduler'
 
 export class AppointmentsService {
   async getPatientAppointments(
@@ -182,18 +186,23 @@ export class AppointmentsService {
     const today = new Date()
     today.setUTCHours(0, 0, 0, 0)
 
-    // fetch potential next appointments starting from today
+    const utcToday = new Date()
+    utcToday.setUTCHours(0, 0, 0, 0)
+    const queryDate = new Date(utcToday)
+    queryDate.setDate(queryDate.getDate() - 1)
+ 
+    // fetch potential next appointments starting from queryDate
     // checking a reasonable number to find the first valid one
     const appointments = await prisma.appointment.findMany({
       where: {
         patientId,
-        appointmentDate: { gte: today },
+        appointmentDate: { gte: queryDate },
         status: { in: ['PENDING', 'CONFIRMED'] as AppointmentStatus[] },
       },
       orderBy: {
         appointmentDate: 'asc',
       },
-      take: 10, // check first 10, usually enough
+      take: 20, // check first 10, usually enough
       include: {
         practitioner: {
           include: {
@@ -221,8 +230,14 @@ export class AppointmentsService {
     // find first appointment that is in the future
     const nextAppointment = appointments.find((apt) => {
       const aptDate = new Date(apt.appointmentDate)
-      // specific check for today
-      if (aptDate.getTime() === today.getTime()) {
+      const localAptDate = new Date(aptDate)
+      localAptDate.setUTCHours(0, 0, 0, 0)
+
+      if (localAptDate < today) {
+        return false
+      }
+ 
+      if (localAptDate.getTime() === today.getTime()) {
         const [hours, minutes] = apt.startTime.split(':').map(Number)
         const appointmentTime = new Date(today)
         appointmentTime.setUTCHours(hours, minutes, 0, 0)
@@ -279,19 +294,21 @@ export class AppointmentsService {
     today.setUTCHours(0, 0, 0, 0)
     const now = new Date()
 
+    const utcToday = new Date()
+    utcToday.setUTCHours(0, 0, 0, 0)
+    const queryDate = new Date(utcToday)
+    queryDate.setDate(queryDate.getDate() + 1)
+ 
     // fetch slightly more to filter in memory
     const appointments = await prisma.appointment.findMany({
       where: {
         patientId,
         OR: [
-          { status: 'COMPLETED' as AppointmentStatus },
-          { status: 'CANCELLED' as AppointmentStatus },
-          { status: 'NO_SHOW' as AppointmentStatus },
-          { appointmentDate: { lt: today } }, // strictly past dates
-          { appointmentDate: today }, // today needs time check
+          { status: { in: ['COMPLETED', 'CANCELLED', 'NO_SHOW'] as AppointmentStatus[] } },
+          { appointmentDate: { lte: queryDate } }, // fetch lte queryDate
         ],
       },
-      take: limit * 2, // fetch more to filter
+      take: limit * 4, // fetch more to filter
       orderBy: {
         appointmentDate: 'desc',
       },
@@ -325,19 +342,22 @@ export class AppointmentsService {
       if (['COMPLETED', 'CANCELLED', 'NO_SHOW'].includes(apt.status)) {
         return true
       }
-
+ 
       const aptDate = new Date(apt.appointmentDate)
-      if (aptDate < today) {
+      const localAptDate = new Date(aptDate)
+      localAptDate.setUTCHours(0, 0, 0, 0)
+
+      if (localAptDate < today) {
         return true
       }
-
-      if (aptDate.getTime() === today.getTime()) {
+ 
+      if (localAptDate.getTime() === today.getTime()) {
         const [hours, minutes] = apt.startTime.split(':').map(Number)
         const appointmentTime = new Date(today)
         appointmentTime.setUTCHours(hours, minutes, 0, 0)
         return appointmentTime < now
       }
-
+ 
       return false
     })
 
@@ -378,6 +398,236 @@ export class AppointmentsService {
     })
   }
 
+  async validateSlotBooking(data: {
+    practitionerId: string
+    appointmentDate: string
+    startTime: string
+    patientId: string
+    excludeAppointmentId?: string
+    timezoneOffset?: string
+  }): Promise<void> {
+    const practitioner = await prisma.practitioner.findUnique({
+      where: { id: data.practitionerId },
+      include: {
+        user: { select: { status: true } },
+      },
+    })
+
+    if (!practitioner) {
+      throw new Error('Praticien non trouvé')
+    }
+
+    if (!practitioner.acceptsNewPatients) {
+      throw new Error("Ce praticien n'accepte pas de nouveaux patients")
+    }
+
+    if (practitioner.user.status !== 'ACTIVE') {
+      throw new Error("Ce praticien n'est pas disponible")
+    }
+
+    const patient = await prisma.patient.findUnique({
+      where: { id: data.patientId },
+    })
+
+    if (!patient) {
+      throw new Error('Profil patient non trouvé')
+    }
+
+    if (patient.penaltyUntil && patient.penaltyUntil > new Date()) {
+      throw new Error(
+        "Vous ne pouvez pas prendre de rendez-vous en raison d'absences répétées",
+      )
+    }
+
+    const appointmentDate = new Date(data.appointmentDate)
+    appointmentDate.setUTCHours(0, 0, 0, 0)
+
+    const now = new Date()
+    const clientLocalTime = getClientLocalTime(now, data.timezoneOffset)
+    const today = new Date(clientLocalTime)
+    today.setUTCHours(0, 0, 0, 0)
+
+    if (appointmentDate < today) {
+      throw new Error('La date du rendez-vous ne peut pas être dans le passé')
+    }
+
+    const maxAdvanceDays = practitioner.maxBookingAdvance || 60
+    const maxDate = new Date(clientLocalTime)
+    maxDate.setUTCDate(maxDate.getUTCDate() + maxAdvanceDays)
+    if (appointmentDate > maxDate) {
+      throw new Error(
+        `Vous ne pouvez pas réserver plus de ${maxAdvanceDays} jours à l'avance`,
+      )
+    }
+
+    const minNoticeMinutes = practitioner.minBookingNotice || 60
+    const [requestHours, requestMinutes] = data.startTime.split(':').map(Number)
+    const requestedAppointmentTime = new Date(appointmentDate)
+    requestedAppointmentTime.setUTCHours(requestHours, requestMinutes, 0, 0)
+
+    const earliestBookable = new Date(
+      clientLocalTime.getTime() + minNoticeMinutes * 60 * 1000,
+    )
+    if (requestedAppointmentTime < earliestBookable) {
+      const noticeLabel =
+        minNoticeMinutes >= 60
+          ? `${Math.round(minNoticeMinutes / 60)} heure(s)`
+          : `${minNoticeMinutes} minutes`
+      throw new Error(`Vous devez réserver au moins ${noticeLabel} à l'avance`)
+    }
+
+    if (practitioner.newPatientMaxPerDay > 0) {
+      const previousAppointment = await prisma.appointment.findFirst({
+        where: {
+          patientId: data.patientId,
+          practitionerId: data.practitionerId,
+          status: { in: ['COMPLETED', 'CONFIRMED', 'PENDING'] },
+          appointmentDate: { lt: today },
+        },
+      })
+
+      if (!previousAppointment) {
+        const existingNewPatientsToday = await prisma.appointment.findMany({
+          where: {
+            practitionerId: data.practitionerId,
+            appointmentDate: appointmentDate,
+            status: { in: ['PENDING', 'CONFIRMED'] },
+            id: data.excludeAppointmentId ? { not: data.excludeAppointmentId } : undefined,
+          },
+          select: { patientId: true },
+          distinct: ['patientId'],
+        })
+
+        let newPatientCount = 0
+        for (const apt of existingNewPatientsToday) {
+          const prior = await prisma.appointment.findFirst({
+            where: {
+              patientId: apt.patientId,
+              practitionerId: data.practitionerId,
+              status: { in: ['COMPLETED', 'CONFIRMED', 'PENDING'] },
+              appointmentDate: { lt: today },
+            },
+          })
+          if (!prior) newPatientCount++
+        }
+
+        if (newPatientCount >= practitioner.newPatientMaxPerDay) {
+          throw new Error(
+            `Le praticien a atteint la limite de ${practitioner.newPatientMaxPerDay} nouveau(x) patient(s) par jour`,
+          )
+        }
+      }
+    }
+
+    const patientExistingAppointment = await prisma.appointment.findFirst({
+      where: {
+        patientId: data.patientId,
+        appointmentDate,
+        startTime: data.startTime,
+        status: { in: ['PENDING', 'CONFIRMED'] },
+        id: data.excludeAppointmentId ? { not: data.excludeAppointmentId } : undefined,
+      },
+    })
+
+    if (patientExistingAppointment) {
+      throw new Error(
+        'Vous avez déjà un rendez-vous à cette date et à cette heure',
+      )
+    }
+
+    const sameDaySameDoctor = await prisma.appointment.findFirst({
+      where: {
+        patientId: data.patientId,
+        practitionerId: data.practitionerId,
+        appointmentDate: appointmentDate,
+        status: { in: ['PENDING', 'CONFIRMED'] },
+        id: data.excludeAppointmentId ? { not: data.excludeAppointmentId } : undefined,
+      },
+    })
+
+    if (sameDaySameDoctor) {
+      throw new Error(
+        'Vous avez déjà un rendez-vous avec ce praticien ce jour-là',
+      )
+    }
+
+    const dayAppointments = await prisma.appointment.findMany({
+      where: {
+        patientId: data.patientId,
+        appointmentDate: appointmentDate,
+        status: { in: ['PENDING', 'CONFIRMED'] },
+        id: data.excludeAppointmentId ? { not: data.excludeAppointmentId } : undefined,
+      },
+    })
+
+    const duration = practitioner.consultationDuration
+    const requestedEndTime = new Date(
+      requestedAppointmentTime.getTime() + duration * 60000,
+    )
+
+    for (const apt of dayAppointments) {
+      const [aptHours, aptMinutes] = apt.startTime.split(':').map(Number)
+      const aptStartTime = new Date(appointmentDate)
+      aptStartTime.setUTCHours(aptHours, aptMinutes, 0, 0)
+
+      const [aptEndHours, aptEndMinutes] = apt.endTime.split(':').map(Number)
+      const aptEndTime = new Date(appointmentDate)
+      aptEndTime.setUTCHours(aptEndHours, aptEndMinutes, 0, 0)
+
+      const bufferMs = 60 * 60 * 1000
+
+      if (
+        requestedAppointmentTime >= aptEndTime &&
+        requestedAppointmentTime.getTime() - aptEndTime.getTime() < bufferMs
+      ) {
+        throw new Error(
+          "Ce rendez-vous est trop proche d'un autre rendez-vous existant",
+        )
+      }
+
+      if (
+        requestedEndTime <= aptStartTime &&
+        aptStartTime.getTime() - requestedEndTime.getTime() < bufferMs
+      ) {
+        throw new Error(
+          "Ce rendez-vous est trop proche d'un autre rendez-vous existant",
+        )
+      }
+
+      if (
+        requestedAppointmentTime < aptEndTime &&
+        requestedEndTime > aptStartTime
+      ) {
+        throw new Error('Ce créneau chevauche un autre rendez-vous')
+      }
+    }
+
+    const isReserved = await isSlotReserved(
+      data.practitionerId,
+      data.appointmentDate,
+      data.startTime,
+      data.patientId,
+    )
+
+    if (isReserved) {
+      throw new Error("Ce créneau vient d'être réservé par un autre patient")
+    }
+
+    const existingAppointment = await prisma.appointment.findFirst({
+      where: {
+        practitionerId: data.practitionerId,
+        appointmentDate,
+        startTime: data.startTime,
+        status: { in: ['PENDING', 'CONFIRMED'] },
+        id: data.excludeAppointmentId ? { not: data.excludeAppointmentId } : undefined,
+      },
+    })
+
+    if (existingAppointment) {
+      throw new Error("Ce créneau n'est plus disponible")
+    }
+  }
+
   async createAppointment(
     data: CreateAppointmentData,
   ): Promise<AppointmentCreatedResult> {
@@ -416,217 +666,17 @@ export class AppointmentsService {
       throw new Error('Profil patient non trouvé')
     }
 
-    // check patient penalty
-    if (patient.penaltyUntil && patient.penaltyUntil > new Date()) {
-      throw new Error(
-        "Vous ne pouvez pas prendre de rendez-vous en raison d'absences répétées",
-      )
-    }
+    await this.validateSlotBooking({
+      practitionerId: data.practitionerId,
+      appointmentDate: data.appointmentDate,
+      startTime: data.startTime,
+      patientId: data.patientId,
+      timezoneOffset: data.timezoneOffset,
+    })
 
-    // parse date as utc midnight. "YYYY-MM-DD" strings are interpreted by
-    // js as utc, but setHours(0,0,0,0) would then reapply local
-    // midnight, drifting the utc timestamp when the server is not at utc+0.
-    // setUTCHours keeps it pinned to utc midnight unconditionally.
     const appointmentDate = new Date(data.appointmentDate)
     appointmentDate.setUTCHours(0, 0, 0, 0)
-
-    const now = new Date()
-    const today = new Date(now)
-    today.setUTCHours(0, 0, 0, 0)
-
-    if (appointmentDate < today) {
-      throw new Error('La date du rendez-vous ne peut pas être dans le passé')
-    }
-
-    // enforce maxBookingAdvance: prevent booking too far in the future
-    const maxAdvanceDays = practitioner.maxBookingAdvance || 60
-    const maxDate = new Date(now)
-    maxDate.setDate(maxDate.getDate() + maxAdvanceDays)
-    if (appointmentDate > maxDate) {
-      throw new Error(
-        `Vous ne pouvez pas réserver plus de ${maxAdvanceDays} jours à l'avance`,
-      )
-    }
-
-    // prevent booking slots too close to current time (use practitioners minBookingNotice)
-    const minNoticeMinutes = practitioner.minBookingNotice || 60
-    const [requestHours, requestMinutes] = data.startTime.split(':').map(Number)
-    const requestedAppointmentTime = new Date(appointmentDate)
-    requestedAppointmentTime.setHours(requestHours, requestMinutes, 0, 0)
-
-    const earliestBookable = new Date(
-      now.getTime() + minNoticeMinutes * 60 * 1000,
-    )
-    if (requestedAppointmentTime < earliestBookable) {
-      const noticeLabel =
-        minNoticeMinutes >= 60
-          ? `${Math.round(minNoticeMinutes / 60)} heure(s)`
-          : `${minNoticeMinutes} minutes`
-      throw new Error(`Vous devez réserver au moins ${noticeLabel} à l'avance`)
-    }
-
-    // enforce newPatientMaxPerDay limit
-    if (practitioner.newPatientMaxPerDay > 0) {
-      // check if this patient has had any previous appointment with this practitioner
-      const previousAppointment = await prisma.appointment.findFirst({
-        where: {
-          patientId: data.patientId,
-          practitionerId: data.practitionerId,
-          status: {
-            in: ['COMPLETED', 'CONFIRMED', 'PENDING'],
-          },
-          appointmentDate: { lt: today },
-        },
-      })
-
-      // if no previous appointment, this is a new patient
-      if (!previousAppointment) {
-        // count how many new patients already booked today
-        const existingNewPatientsToday = await prisma.appointment.findMany({
-          where: {
-            practitionerId: data.practitionerId,
-            appointmentDate: appointmentDate,
-            status: { in: ['PENDING', 'CONFIRMED'] },
-          },
-          select: { patientId: true },
-          distinct: ['patientId'],
-        })
-
-        // for each patient, check if they are "new" (no prior appointments)
-        let newPatientCount = 0
-        for (const apt of existingNewPatientsToday) {
-          const prior = await prisma.appointment.findFirst({
-            where: {
-              patientId: apt.patientId,
-              practitionerId: data.practitionerId,
-              status: { in: ['COMPLETED', 'CONFIRMED', 'PENDING'] },
-              appointmentDate: { lt: today },
-            },
-          })
-          if (!prior) newPatientCount++
-        }
-
-        if (newPatientCount >= practitioner.newPatientMaxPerDay) {
-          throw new Error(
-            `Le praticien a atteint la limite de ${practitioner.newPatientMaxPerDay} nouveau(x) patient(s) par jour`,
-          )
-        }
-      }
-    }
-
-    // check if patient already has an appointment at the same time
-    const patientExistingAppointment = await prisma.appointment.findFirst({
-      where: {
-        patientId: data.patientId,
-        appointmentDate,
-        startTime: data.startTime,
-        status: { in: ['PENDING', 'CONFIRMED'] },
-      },
-    })
-
-    if (patientExistingAppointment) {
-      throw new Error(
-        'Vous avez déjà un rendez-vous à cette date et à cette heure',
-      )
-    }
-
-    // prevent multiple active appointments with same doctor on same day
-    const sameDaySameDoctor = await prisma.appointment.findFirst({
-      where: {
-        patientId: data.patientId,
-        practitionerId: data.practitionerId,
-        appointmentDate: appointmentDate,
-        status: { in: ['PENDING', 'CONFIRMED'] },
-      },
-    })
-
-    if (sameDaySameDoctor) {
-      throw new Error(
-        'Vous avez déjà un rendez-vous avec ce praticien ce jour-là',
-      )
-    }
-
-    // warn and prevent booking if too close to another existing appointment (less than 1 hour)
-    // check for any appointment on the same day that ends within 1 hour of start time
-    // or starts within 1 hour of end time
-    const dayAppointments = await prisma.appointment.findMany({
-      where: {
-        patientId: data.patientId,
-        appointmentDate: appointmentDate,
-        status: { in: ['PENDING', 'CONFIRMED'] },
-      },
-    })
-
     const duration = practitioner.consultationDuration
-    const requestedEndTime = new Date(
-      requestedAppointmentTime.getTime() + duration * 60000,
-    )
-
-    for (const apt of dayAppointments) {
-      const [aptHours, aptMinutes] = apt.startTime.split(':').map(Number)
-      const aptStartTime = new Date(appointmentDate)
-      aptStartTime.setUTCHours(aptHours, aptMinutes, 0, 0)
-
-      const [aptEndHours, aptEndMinutes] = apt.endTime.split(':').map(Number)
-      const aptEndTime = new Date(appointmentDate)
-      aptEndTime.setUTCHours(aptEndHours, aptEndMinutes, 0, 0)
-
-      // buffer time (60 minutes)
-      const bufferMs = 60 * 60 * 1000
-
-      // check if requested start is too close to existing end
-      if (
-        requestedAppointmentTime >= aptEndTime &&
-        requestedAppointmentTime.getTime() - aptEndTime.getTime() < bufferMs
-      ) {
-        throw new Error(
-          "Ce rendez-vous est trop proche d'un autre rendez-vous existant",
-        )
-      }
-
-      // check if requested end is too close to existing start
-      if (
-        requestedEndTime <= aptStartTime &&
-        aptStartTime.getTime() - requestedEndTime.getTime() < bufferMs
-      ) {
-        throw new Error(
-          "Ce rendez-vous est trop proche d'un autre rendez-vous existant",
-        )
-      }
-
-      // also check for overlaps
-      if (
-        requestedAppointmentTime < aptEndTime &&
-        requestedEndTime > aptStartTime
-      ) {
-        throw new Error('Ce créneau chevauche un autre rendez-vous')
-      }
-    }
-
-    // check if slot is reserved by another user
-    const isReserved = await isSlotReserved(
-      data.practitionerId,
-      data.appointmentDate,
-      data.startTime,
-      data.patientId, // xclude current patient
-    )
-
-    if (isReserved) {
-      throw new Error("Ce créneau vient d'être réservé par un autre patient")
-    }
-
-    const existingAppointment = await prisma.appointment.findFirst({
-      where: {
-        practitionerId: data.practitionerId,
-        appointmentDate,
-        startTime: data.startTime,
-        status: { in: ['PENDING', 'CONFIRMED'] },
-      },
-    })
-
-    if (existingAppointment) {
-      throw new Error("Ce créneau n'est plus disponible")
-    }
 
     const [hours, minutes] = data.startTime.split(':').map(Number)
     const endMinutes = hours * 60 + minutes + duration
@@ -782,6 +832,8 @@ export class AppointmentsService {
       },
     })
 
+    await cancelAppointmentReminders(appointmentId)
+
     // notify patients who want a closer slot
     try {
       await this.notifyPatientsOfEarlierSlot(
@@ -930,7 +982,19 @@ export class AppointmentsService {
         },
       },
     })
-
+    // reschedule reminders
+    if (data.appointmentDate || data.startTime) {
+      try {
+        await cancelAppointmentReminders(appointmentId)
+        await scheduleAppointmentReminders(
+          appointmentId,
+          newDate,
+          newStartTime,
+        )
+      } catch (remError) {
+        console.error('Failed to reschedule reminders:', remError)
+      }
+    }
     // send email notification to practitien when patient modifies appointment
     const oldDate = appointment.appointmentDate.toLocaleDateString('fr-FR')
     const oldTime = appointment.startTime

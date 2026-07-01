@@ -1007,7 +1007,7 @@ const navigateToDateWeek = (dateStr: string) => {
 
 const filteredAvailableSlots = computed(() => {
   const now = new Date();
-  const todayStr = now.toISOString().split("T")[0] || "";
+  const todayStr = `${now.getFullYear()}-${String(now.getMonth() + 1).padStart(2, "0")}-${String(now.getDate()).padStart(2, "0")}`;
   const currentHour = now.getHours();
   const currentMinute = now.getMinutes();
 
@@ -1112,6 +1112,9 @@ const fetchAvailableSlots = async () => {
       data: AvailableSlot[];
     }>(`/practitioners/${props.practitioner.id}/available-slots?days=90`, {
       baseURL: config.public.apiBase,
+      headers: {
+        "x-timezone-offset": new Date().getTimezoneOffset().toString(),
+      },
     });
 
     if (response.success) {

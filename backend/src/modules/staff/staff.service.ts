@@ -1,6 +1,10 @@
 import prisma from '../../config/database'
 import { AppointmentType, AppointmentStatus } from '@prisma/client'
 import { normalizeEmail } from '../../utils/normalize-email'
+import {
+  cancelAppointmentReminders,
+  scheduleAppointmentReminders,
+} from '../../utils/reminder-scheduler'
 
 class StaffService {
   async getStaffByUserId(userId: string) {
@@ -291,7 +295,7 @@ class StaffService {
       throw new Error("Vous n'avez pas accès à ce rendez-vous")
     }
 
-    return prisma.appointment.update({
+    const updated = await prisma.appointment.update({
       where: { id: appointmentId },
       data: {
         status: AppointmentStatus.CANCELLED,
@@ -300,6 +304,10 @@ class StaffService {
         cancellationReason: 'Annulé par le personnel',
       },
     })
+
+    await cancelAppointmentReminders(appointmentId)
+
+    return updated
   }
 
   async moveAppointment(
@@ -339,7 +347,7 @@ class StaffService {
     const duration =
       (endParts[0] - startParts[0]) * 60 + (endParts[1] - startParts[1])
 
-    return prisma.appointment.update({
+    const updated = await prisma.appointment.update({
       where: { id: appointmentId },
       data: {
         appointmentDate: new Date(data.newDate),
@@ -349,6 +357,19 @@ class StaffService {
         status: AppointmentStatus.RESCHEDULED,
       },
     })
+
+    try {
+      await cancelAppointmentReminders(appointmentId)
+      await scheduleAppointmentReminders(
+        appointmentId,
+        new Date(data.newDate),
+        data.newStartTime,
+      )
+    } catch (remError) {
+      console.error('Failed to reschedule reminders:', remError)
+    }
+
+    return updated
   }
 
   async searchPatients(userId: string, practitionerId: string, query: string) {

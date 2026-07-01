@@ -1,4 +1,5 @@
 import prisma from '../../config/database'
+import { getClientLocalTime } from '../../utils/timezone'
 import { AppointmentStatus, DayOfWeek } from '@prisma/client'
 import type {
   PractitionerSearchFilters,
@@ -425,6 +426,7 @@ export class PractitionersService {
     startDate?: Date,
     endDate?: Date,
     days = 7,
+    timezoneOffset?: string,
   ): Promise<AvailableSlot[]> {
     // fetch practitioner settings for slot generation rules
     const practitioner = await prisma.practitioner.findUnique({
@@ -448,11 +450,12 @@ export class PractitionersService {
     const maxBookingAdvance = practitioner?.maxBookingAdvance ?? 60 // days
 
     const now = new Date()
-    const start = startDate || new Date()
-    start.setHours(0, 0, 0, 0)
+    const clientLocalTime = getClientLocalTime(now, timezoneOffset)
+    const start = startDate || new Date(clientLocalTime)
+    start.setUTCHours(0, 0, 0, 0)
 
     // cap end date to maxBookingAdvance days from now
-    const maxEnd = new Date(now)
+    const maxEnd = new Date(clientLocalTime)
     maxEnd.setDate(maxEnd.getDate() + maxBookingAdvance)
     maxEnd.setHours(23, 59, 59, 999)
 
@@ -532,9 +535,9 @@ export class PractitionersService {
       | null
       | undefined
 
-    // earliest bookable time = now + minBookingNotice
+    // earliest bookable time = clientLocalTime + minBookingNotice
     const earliestBookable = new Date(
-      now.getTime() + minBookingNotice * 60 * 1000,
+      clientLocalTime.getTime() + minBookingNotice * 60 * 1000,
     )
 
     const result: AvailableSlot[] = []
@@ -601,7 +604,7 @@ export class PractitionersService {
 
             // check minBookingNotice: slot must be after earliest bookable time
             const slotDateTime = new Date(currentDate)
-            slotDateTime.setHours(slotH, slotM, 0, 0)
+            slotDateTime.setUTCHours(slotH, slotM, 0, 0)
             if (slotDateTime < earliestBookable) return false
 
             return true
@@ -704,6 +707,16 @@ export class PractitionersService {
       }
     }
 
+    const practitioner = await prisma.practitioner.findUnique({
+      where: { id: practitionerId },
+      select: { minBookingNotice: true },
+    })
+    const minNoticeMinutes = practitioner?.minBookingNotice ?? 60
+    const now = new Date()
+    const earliestBookable = new Date(
+      now.getTime() + minNoticeMinutes * 60 * 1000,
+    )
+
     const bookedSlots = appointments.map((a) => a.startTime)
     const slots: string[] = []
 
@@ -716,9 +729,16 @@ export class PractitionersService {
         availability.breakEndTime,
       )
 
-      const availableSlots = timeSlots.filter(
-        (slot) => !bookedSlots.includes(slot),
-      )
+      const availableSlots = timeSlots.filter((slot) => {
+        if (bookedSlots.includes(slot)) return false
+
+        const [slotH, slotM] = slot.split(':').map(Number)
+        const slotDateTime = new Date(date)
+        slotDateTime.setHours(slotH, slotM, 0, 0)
+        if (slotDateTime < earliestBookable) return false
+
+        return true
+      })
 
       slots.push(...availableSlots)
     }

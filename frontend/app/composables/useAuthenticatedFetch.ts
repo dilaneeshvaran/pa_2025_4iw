@@ -47,6 +47,7 @@ export const useAuthenticatedFetch = async <T>(
   const headers = {
     ...opts?.headers,
     Authorization: `Bearer ${authStore.accessToken}`,
+    "x-timezone-offset": new Date().getTimezoneOffset().toString(),
   };
 
   try {
@@ -69,10 +70,7 @@ export const useAuthenticatedFetch = async <T>(
           return await $fetch<T>(request, {
             baseURL: config.public.apiBase,
             ...opts,
-            headers: {
-              ...opts?.headers,
-              Authorization: `Bearer ${authStore.accessToken}`,
-            },
+            headers,
           });
         } catch {
           // refresh failed, logout

@@ -33,6 +33,7 @@ export async function appointmentsRoutes(fastify: FastifyInstance) {
         }
 
         const appointment = await appointmentsService.createAppointment({
+          timezoneOffset: request.headers['x-timezone-offset'] as string | undefined,
           ...body,
           patientId: patient.id,
         })
@@ -71,6 +72,22 @@ export async function appointmentsRoutes(fastify: FastifyInstance) {
           return reply.status(404).send({
             success: false,
             message: 'Patient profile not found',
+          })
+        }
+
+        // Validate slot booking constraints (lead time, past time, new patient limit, penalties)
+        try {
+          await appointmentsService.validateSlotBooking({
+            practitionerId: body.practitionerId,
+            appointmentDate: body.appointmentDate,
+            startTime: body.startTime,
+            patientId: patient.id,
+            timezoneOffset: request.headers['x-timezone-offset'] as string | undefined,
+          })
+        } catch (valError: any) {
+          return reply.status(400).send({
+            success: false,
+            message: valError.message || 'Créneau de réservation non valide',
           })
         }
 
