@@ -1,6 +1,10 @@
 import prisma from '../../config/database'
 import { AppointmentStatus, AppointmentType, DayOfWeek } from '@prisma/client'
 import {
+  cancelAppointmentReminders,
+  scheduleAppointmentReminders,
+} from '../../utils/reminder-scheduler'
+import {
   sendEmail,
   sendAppointmentCancelledByPractitionerEmail,
   sendAppointmentModifiedByPractitionerEmail,
@@ -1020,6 +1024,8 @@ export class AvailabilitiesService {
       },
     })
 
+    await cancelAppointmentReminders(appointmentId)
+
     // patient user email
     const patientUser = await prisma.user.findFirst({
       where: { patient: { id: appointment.patientId } },
@@ -1172,6 +1178,17 @@ export class AvailabilitiesService {
         },
       },
     })
+
+    try {
+      await cancelAppointmentReminders(appointmentId)
+      await scheduleAppointmentReminders(
+        appointmentId,
+        newDate,
+        data.startTime,
+      )
+    } catch (remError) {
+      console.error('Failed to reschedule reminders:', remError)
+    }
 
     // email notification
     const patientUser = await prisma.user.findFirst({

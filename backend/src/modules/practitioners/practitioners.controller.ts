@@ -81,11 +81,14 @@ export class PractitionersController {
       const start = startDate ? new Date(startDate) : undefined
       const end = endDate ? new Date(endDate) : undefined
 
+      const timezoneOffset = request.headers['x-timezone-offset'] as string | undefined
+
       const slots = await practitionersService.getAvailableSlots(
         id,
         start,
         end,
         days,
+        timezoneOffset,
       )
 
       return reply.status(200).send({

@@ -1,3 +1,4 @@
+process.env.TZ = 'UTC'
 import { AppointmentsService } from '../appointments.service'
 
 // Valeurs d'enum Prisma utilisées dans les tests (évite une dépendance au client généré)
@@ -52,6 +53,7 @@ jest.mock('../../../utils/email', () => ({
 
 jest.mock('../../../utils/reminder-scheduler', () => ({
   scheduleAppointmentReminders: jest.fn().mockResolvedValue(undefined),
+  cancelAppointmentReminders: jest.fn().mockResolvedValue(undefined),
 }))
 
 // ── Imports après mocks ────────────────────────────────────────────────────────
@@ -64,16 +66,14 @@ const mockPrisma = prisma as jest.Mocked<typeof prisma>
 
 const today = new Date()
 today.setUTCHours(0, 0, 0, 0)
-
+ 
 const tomorrow = new Date(today)
-tomorrow.setDate(tomorrow.getDate() + 1)
-
+tomorrow.setUTCDate(tomorrow.getUTCDate() + 1)
+ 
 const yesterday = new Date(today)
-yesterday.setDate(yesterday.getDate() - 1)
-
+yesterday.setUTCDate(yesterday.getUTCDate() - 1)
+ 
 // Heure de référence déterministe : aujourd'hui à midi UTC.
-// Le service interprète startTime en UTC (setUTCHours), donc on fige l'horloge
-// pour éviter toute dépendance à la timezone ou à l'heure d'exécution.
 const noonUTC = new Date(today)
 noonUTC.setUTCHours(12, 0, 0, 0)
 
@@ -88,6 +88,8 @@ const buildPractitioner = (overrides = {}) => ({
   consultationDuration: 30,
   specialties: [{ specialty: { name: 'Médecine générale' }, isPrimary: true }],
   cabinets: [],
+  acceptsNewPatients: true,
+  user: { status: 'ACTIVE' },
   ...overrides,
 })
 
@@ -620,5 +622,79 @@ describe('AppointmentsService.notifyPatientsOfEarlierSlot', () => {
         practitionerId: 'pract-1',
       }),
     )
+  })
+})
+
+describe('AppointmentsService.validateSlotBooking', () => {
+  let service: AppointmentsService
+
+  beforeEach(() => {
+    service = new AppointmentsService()
+    jest.clearAllMocks()
+  })
+
+  afterEach(() => {
+    jest.useRealTimers()
+  })
+
+  it('lève une erreur si le créneau est dans le passé', async () => {
+    jest.useFakeTimers().setSystemTime(noonUTC)
+    const y = yesterday
+    const pastDateStr = `${y.getUTCFullYear()}-${String(y.getUTCMonth() + 1).padStart(2, '0')}-${String(y.getUTCDate()).padStart(2, '0')}`
+
+    const practitioner = buildPractitioner({ minBookingNotice: 60 })
+    ;(mockPrisma.practitioner.findUnique as jest.Mock).mockResolvedValue(practitioner)
+    ;(mockPrisma.patient.findUnique as jest.Mock).mockResolvedValue({ id: 'patient-1' })
+
+    await expect(
+      service.validateSlotBooking({
+        practitionerId: 'pract-1',
+        appointmentDate: pastDateStr,
+        startTime: '10:00',
+        patientId: 'patient-1',
+      })
+    ).rejects.toThrow('La date du rendez-vous ne peut pas être dans le passé')
+  })
+
+  it('lève une erreur si le créneau est trop proche (minBookingNotice)', async () => {
+    jest.useFakeTimers().setSystemTime(noonUTC)
+
+    const practitioner = buildPractitioner({ minBookingNotice: 60 })
+    ;(mockPrisma.practitioner.findUnique as jest.Mock).mockResolvedValue(practitioner)
+    ;(mockPrisma.patient.findUnique as jest.Mock).mockResolvedValue({ id: 'patient-1' })
+
+    const t = today
+    const todayStr = `${t.getUTCFullYear()}-${String(t.getUTCMonth() + 1).padStart(2, '0')}-${String(t.getUTCDate()).padStart(2, '0')}`
+
+    await expect(
+      service.validateSlotBooking({
+        practitionerId: 'pract-1',
+        appointmentDate: todayStr,
+        startTime: '12:10',
+        patientId: 'patient-1',
+      })
+    ).rejects.toThrow("Vous devez réserver au moins 1 heure(s) à l'avance")
+  })
+
+  it('accepte si le créneau respecte le délai minimum', async () => {
+    jest.useFakeTimers().setSystemTime(noonUTC)
+
+    const practitioner = buildPractitioner({ minBookingNotice: 60 })
+    ;(mockPrisma.practitioner.findUnique as jest.Mock).mockResolvedValue(practitioner)
+    ;(mockPrisma.patient.findUnique as jest.Mock).mockResolvedValue({ id: 'patient-1' })
+    ;(mockPrisma.appointment.findFirst as jest.Mock).mockResolvedValue(null)
+    ;(mockPrisma.appointment.findMany as jest.Mock).mockResolvedValue([])
+
+    const t = today
+    const todayStr = `${t.getUTCFullYear()}-${String(t.getUTCMonth() + 1).padStart(2, '0')}-${String(t.getUTCDate()).padStart(2, '0')}`
+
+    await expect(
+      service.validateSlotBooking({
+        practitionerId: 'pract-1',
+        appointmentDate: todayStr,
+        startTime: '13:30',
+        patientId: 'patient-1',
+      })
+    ).resolves.not.toThrow()
   })
 })

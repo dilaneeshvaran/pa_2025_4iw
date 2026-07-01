@@ -59,6 +59,7 @@ export interface CreateAppointmentData {
   startTime: string
   type: 'IN_PERSON' | 'TELECONSULTATION'
   reason?: string
+  timezoneOffset?: string
 }
 
 export interface AppointmentCreatedResult {

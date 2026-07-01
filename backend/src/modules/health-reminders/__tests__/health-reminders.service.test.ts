@@ -1,3 +1,4 @@
+process.env.TZ = 'UTC'
 import { HealthReminderStatus } from '@prisma/client'
 import { HealthRemindersService } from '../health-reminders.service'
 import { HealthReminderAccessError } from '../health-reminders.types'

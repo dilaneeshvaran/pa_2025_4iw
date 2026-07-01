@@ -679,15 +679,27 @@ const fetchAvailableSlots = async () => {
     const today = new Date();
     const endDate = new Date();
     endDate.setDate(today.getDate() + 7);
+    const y = today.getFullYear();
+    const m = String(today.getMonth() + 1).padStart(2, "0");
+    const d = String(today.getDate()).padStart(2, "0");
+    const todayStr = `${y}-${m}-${d}`;
+
+    const ey = endDate.getFullYear();
+    const em = String(endDate.getMonth() + 1).padStart(2, "0");
+    const ed = String(endDate.getDate()).padStart(2, "0");
+    const endDateStr = `${ey}-${em}-${ed}`;
 
     const response = await $fetch<ApiResponse<AvailableSlot[]>>(
       `/practitioners/${practitionerId.value}/available-slots`,
       {
         baseURL: config.public.apiBase,
         params: {
-          startDate: today.toISOString().split("T")[0],
-          endDate: endDate.toISOString().split("T")[0],
+          startDate: todayStr,
+          endDate: endDateStr,
           days: 7,
+        },
+        headers: {
+          "x-timezone-offset": new Date().getTimezoneOffset().toString(),
         },
       },
     );
@@ -769,7 +781,7 @@ const openBookingModalFromAvailability = () => {
 // filter slots to exclude past dates and times
 const filteredAvailableSlots = computed(() => {
   const now = new Date();
-  const todayStr = now.toISOString().split("T")[0] || "";
+  const todayStr = `${now.getFullYear()}-${String(now.getMonth() + 1).padStart(2, "0")}-${String(now.getDate()).padStart(2, "0")}`;
   const currentHour = now.getHours();
   const currentMinute = now.getMinutes();
 

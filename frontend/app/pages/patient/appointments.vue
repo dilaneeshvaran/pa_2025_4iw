@@ -1475,6 +1475,9 @@ const openModifyModal = async (apt: Appointment) => {
       data: AvailableSlotDay[];
     }>(`/practitioners/${apt.practitioner.id}/available-slots?days=14`, {
       baseURL: config.public.apiBase,
+      headers: {
+        "x-timezone-offset": new Date().getTimezoneOffset().toString(),
+      },
     });
     if (response.success && response.data) {
       // filter out past time slots for today
