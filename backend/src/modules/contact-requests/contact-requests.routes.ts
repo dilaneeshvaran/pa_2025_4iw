@@ -1,7 +1,10 @@
 import { FastifyInstance } from 'fastify'
 import { ZodTypeProvider } from 'fastify-type-provider-zod'
 import { ContactRequestsController } from './contact-requests.controller'
-import { createContactRequestSchema } from './contact-requests.schema'
+import {
+  createContactRequestSchema,
+  approveRequestSchema,
+} from './contact-requests.schema'
 import {
   authenticate,
   authenticateAttachmentRequest,
@@ -93,6 +96,7 @@ export async function contactRequestsRoutes(fastify: FastifyInstance) {
     {
       preHandler: [authenticate, authorize(['ADMIN'])],
       schema: {
+        body: approveRequestSchema,
         tags: ['Contact Requests'],
         description:
           'Approve a registration request and create the account (Admin only)',

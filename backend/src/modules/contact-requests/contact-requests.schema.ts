@@ -81,3 +81,10 @@ export type CreatePractitionerRequestInput = z.infer<
 export type CreateCabinetRequestInput = z.infer<
   typeof createCabinetRequestSchema
 >
+
+export const approveRequestSchema = z.object({
+  plan: z.string().optional(),
+})
+
+export type ApproveRequestInput = z.infer<typeof approveRequestSchema>
+

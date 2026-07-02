@@ -183,10 +183,9 @@
                 <template v-if="activeTab === 'pending'">
                   <button
                     class="rounded bg-green-600 px-3 py-1.5 text-xs font-medium text-white transition-colors hover:bg-green-700"
-                    :disabled="processingId === req.id"
-                    @click="approveRequest(req.id)"
+                    @click="openApproveModal(req)"
                   >
-                    {{ processingId === req.id ? "..." : "Approuver" }}
+                    Approuver
                   </button>
                   <button
                     class="rounded bg-red-600 px-3 py-1.5 text-xs font-medium text-white transition-colors hover:bg-red-700"
@@ -512,6 +511,64 @@
       </div>
     </div>
 
+    <!-- approve modal -->
+    <div
+      v-if="showApproveModal && approveTarget"
+      class="fixed inset-0 z-50 flex items-center justify-center bg-black/50 p-4"
+      @click.self="showApproveModal = false"
+    >
+      <div class="w-full max-w-md rounded-2xl bg-white p-6 shadow-xl">
+        <h2 class="mb-4 text-xl font-bold text-gray-900">Approuver la demande</h2>
+        <p class="mb-4 text-sm text-gray-600">
+          Êtes-vous sûr de vouloir approuver la demande d'inscription de
+          <strong>{{ approveTarget.firstName }} {{ approveTarget.lastName }}</strong> ?
+        </p>
+        <form @submit.prevent="submitApprove">
+          <!-- plan selection only for practitioners -->
+          <div v-if="approveTarget.requestType === 'PRACTITIONER'" class="mb-4">
+            <label class="mb-2 block text-sm font-medium text-gray-700">
+              Choisir un plan d'abonnement *
+            </label>
+            <select
+              v-model="selectedPlan"
+              class="w-full rounded-lg border border-gray-300 px-4 py-2.5 focus:outline-none focus:ring-2 focus:ring-green-600"
+              required
+            >
+              <option value="premium">Premium</option>
+              <option value="pro">Pro</option>
+              <option value="free">Free</option>
+            </select>
+          </div>
+          <div
+            v-if="approveError"
+            class="mb-4 rounded-lg bg-red-50 p-3 text-sm text-red-800"
+          >
+            {{ approveError }}
+          </div>
+          <div class="flex justify-end gap-3">
+            <button
+              type="button"
+              class="rounded-lg border border-gray-300 px-4 py-2 text-sm font-medium text-gray-700 hover:bg-gray-50"
+              @click="showApproveModal = false"
+            >
+              Annuler
+            </button>
+            <button
+              type="submit"
+              :disabled="processingId === approveTarget.id"
+              class="rounded-lg bg-green-600 px-4 py-2 text-sm font-medium text-white hover:bg-green-700 disabled:opacity-50"
+            >
+              {{
+                processingId === approveTarget.id
+                  ? "En cours..."
+                  : "Confirmer l'approbation"
+              }}
+            </button>
+          </div>
+        </form>
+      </div>
+    </div>
+
     <!-- reject modal -->
     <div
       v-if="showRejectModal && rejectTarget"
@@ -635,6 +692,11 @@ const rejectTarget = ref<ContactRequest | null>(null);
 const rejectionReason = ref("");
 const rejectError = ref("");
 
+const showApproveModal = ref(false);
+const approveTarget = ref<ContactRequest | null>(null);
+const selectedPlan = ref("premium");
+const approveError = ref("");
+
 const filteredRequests = computed(() => {
   let statusFilter: string;
   if (activeTab.value === "pending") statusFilter = "PENDING";
@@ -717,17 +779,37 @@ async function fetchRequests() {
   }
 }
 
-async function approveRequest(id: string) {
-  processingId.value = id;
+function openApproveModal(req: ContactRequest) {
+  approveTarget.value = req;
+  selectedPlan.value = "premium";
+  approveError.value = "";
+  showApproveModal.value = true;
+}
+
+async function submitApprove() {
+  if (!approveTarget.value) return;
+  processingId.value = approveTarget.value.id;
+  approveError.value = "";
+
   try {
-    await useAuthenticatedFetch(`/contact-requests/${id}/approve`, {
-      method: "POST",
-    });
+    const body: { plan?: string } = {};
+    if (approveTarget.value.requestType === "PRACTITIONER") {
+      body.plan = selectedPlan.value;
+    }
+
+    await useAuthenticatedFetch(
+      `/contact-requests/${approveTarget.value.id}/approve`,
+      {
+        method: "POST",
+        body,
+      },
+    );
+    showApproveModal.value = false;
     showToast("Demande approuvée - compte créé et email envoyé");
     await fetchRequests();
   } catch (error: unknown) {
     const err = error as { data?: { message?: string } };
-    showToast(err?.data?.message || "Erreur lors de l'approbation");
+    approveError.value = err?.data?.message || "Erreur lors de l'approbation";
   } finally {
     processingId.value = null;
   }
