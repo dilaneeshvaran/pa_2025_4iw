@@ -129,6 +129,15 @@ function pastTime(hours: number): string {
 
 // ── Tests ────────────────────────────────────────────────────────────────────
 
+beforeEach(() => {
+  vi.useFakeTimers()
+  vi.setSystemTime(new Date('2026-07-03T12:00:00'))
+})
+
+afterEach(() => {
+  vi.useRealTimers()
+})
+
 describe('patient dashboard - canModifyNext', () => {
   it("retourne false si le rendez-vous est null", () => {
     expect(canModifyNext(null)).toBe(false)
