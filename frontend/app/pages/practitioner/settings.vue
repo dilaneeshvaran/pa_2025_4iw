@@ -191,6 +191,40 @@
         </h3>
 
         <div class="space-y-6">
+          <!-- email -->
+          <div class="border-b pb-6">
+            <h4 class="mb-3 font-medium text-gray-800">Changer l'adresse email</h4>
+            <p class="mb-3 text-sm text-gray-500">
+              Email actuel : <strong>{{ currentEmail }}</strong>
+            </p>
+            <div class="grid grid-cols-1 gap-4 md:grid-cols-2">
+              <div>
+                <label class="mb-1 block text-sm font-medium text-gray-700">Nouvel email</label>
+                <input
+                  v-model="emailForm.newEmail"
+                  type="email"
+                  placeholder="nouveau@email.com"
+                  class="w-full rounded-lg border border-gray-300 px-3 py-2 text-sm focus:border-orange-500 focus:outline-none focus:ring-1 focus:ring-orange-500"
+                />
+              </div>
+              <div>
+                <label class="mb-1 block text-sm font-medium text-gray-700">Mot de passe (confirmation)</label>
+                <input
+                  v-model="emailForm.password"
+                  type="password"
+                  class="w-full rounded-lg border border-gray-300 px-3 py-2 text-sm focus:border-orange-500 focus:outline-none focus:ring-1 focus:ring-orange-500"
+                />
+              </div>
+            </div>
+            <UiButton
+              size="sm"
+              class="mt-4"
+              @click="updateEmail"
+              :disabled="savingEmail || !emailForm.newEmail || !emailForm.password"
+              >{{ savingEmail ? "Mise à jour..." : "Changer l'email" }}</UiButton
+            >
+          </div>
+
           <div class="border-b pb-6">
             <h4 class="mb-3 font-medium text-gray-800">
               Changer le mot de passe
@@ -212,6 +246,16 @@
                 >
                 <input
                   v-model="passwords.newPassword"
+                  type="password"
+                  class="w-full rounded-lg border border-gray-300 px-3 py-2 text-sm focus:border-orange-500 focus:outline-none focus:ring-1 focus:ring-orange-500"
+                />
+              </div>
+              <div>
+                <label class="mb-1 block text-sm font-medium text-gray-700"
+                  >Confirmer le nouveau mot de passe</label
+                >
+                <input
+                  v-model="passwords.confirmPassword"
                   type="password"
                   class="w-full rounded-lg border border-gray-300 px-3 py-2 text-sm focus:border-orange-500 focus:outline-none focus:ring-1 focus:ring-orange-500"
                 />
@@ -629,8 +673,13 @@ const getNotificationLabel = (key: string) => {
 const passwords = ref({
   currentPassword: "",
   newPassword: "",
+  confirmPassword: "",
 });
 const savingPwd = ref(false);
+
+const currentEmail = ref("");
+const emailForm = ref({ newEmail: "", password: "" });
+const savingEmail = ref(false);
 
 interface SubscriptionInfo {
   plan: string;
@@ -705,6 +754,7 @@ const fetchData = async () => {
 
     if (profRes.success) {
       twoFactorEnabled.value = profRes.data.twoFactorEnabled;
+      currentEmail.value = (profRes.data as any).email ?? "";
     }
     if (notifRes.success) {
       notifications.value = {
@@ -745,6 +795,10 @@ const fetchData = async () => {
 
 const updatePassword = async () => {
   if (!passwords.value.currentPassword || !passwords.value.newPassword) return;
+  if (passwords.value.newPassword !== passwords.value.confirmPassword) {
+    toast.error("Les mots de passe ne correspondent pas");
+    return;
+  }
   savingPwd.value = true;
   try {
     const res = await useAuthenticatedFetch<{
@@ -752,17 +806,38 @@ const updatePassword = async () => {
       message?: string;
     }>("/settings/password", {
       method: "PATCH",
-      body: passwords.value,
+      body: { currentPassword: passwords.value.currentPassword, newPassword: passwords.value.newPassword },
     });
     if (res.success) {
       toast.success("Mot de passe mis à jour");
-      passwords.value = { currentPassword: "", newPassword: "" };
+      passwords.value = { currentPassword: "", newPassword: "", confirmPassword: "" };
     }
   } catch (err: unknown) {
     const apiError = err as { response?: { message?: string } };
     toast.error(apiError.response?.message || "Erreur");
   } finally {
     savingPwd.value = false;
+  }
+};
+
+const updateEmail = async () => {
+  if (!emailForm.value.newEmail || !emailForm.value.password) return;
+  savingEmail.value = true;
+  try {
+    const res = await useAuthenticatedFetch<{ success: boolean; data?: { message: string } }>("/settings/email", {
+      method: "PATCH",
+      body: emailForm.value,
+    });
+    if (res.success) {
+      toast.success(res.data?.message || "Email mis à jour avec succès");
+      currentEmail.value = emailForm.value.newEmail;
+      emailForm.value = { newEmail: "", password: "" };
+    }
+  } catch (err: unknown) {
+    const apiError = err as { data?: { message?: string } };
+    toast.error(apiError.data?.message || "Erreur lors de la mise à jour de l'email");
+  } finally {
+    savingEmail.value = false;
   }
 };
 

@@ -3,16 +3,43 @@
     <div>
       <h1 class="mb-2 text-2xl font-bold text-gray-900">Paramètres</h1>
       <p class="text-gray-600">
-        Gerez vos informations de connexion et la sécurité de votre compte administrateur.
+        Gérez vos informations personnelles et la sécurité de votre compte administrateur.
       </p>
     </div>
 
     <div v-if="loading" class="animate-pulse space-y-6">
-      <div class="h-64 rounded-2xl bg-gray-200"></div>
-      <div class="h-64 rounded-2xl bg-gray-200"></div>
+      <div class="h-48 rounded-2xl bg-gray-200"></div>
+      <div class="h-48 rounded-2xl bg-gray-200"></div>
+      <div class="h-48 rounded-2xl bg-gray-200"></div>
     </div>
 
     <div v-else class="space-y-6">
+      <!-- profile settings -->
+      <UiCard class="p-6">
+        <h3 class="mb-4 flex items-center gap-2 text-lg font-semibold text-gray-900">
+          <User class="h-5 w-5 text-gray-500" /> Informations personnelles
+        </h3>
+        <div class="grid gap-4 sm:grid-cols-2">
+          <div>
+            <label class="mb-1 block text-sm font-medium text-gray-700">Prénom</label>
+            <UiInput v-model="profileForm.firstName" placeholder="Prénom" />
+          </div>
+          <div>
+            <label class="mb-1 block text-sm font-medium text-gray-700">Nom</label>
+            <UiInput v-model="profileForm.lastName" placeholder="Nom" />
+          </div>
+          <div>
+            <label class="mb-1 block text-sm font-medium text-gray-700">Téléphone</label>
+            <UiInput v-model="profileForm.phone" type="tel" placeholder="+225 XX XX XX XX" />
+          </div>
+        </div>
+        <div class="mt-4 flex justify-end">
+          <UiButton @click="saveProfile" :disabled="savingProfile" class="bg-orange-600 hover:bg-orange-700 text-white">
+            {{ savingProfile ? 'Enregistrement...' : 'Mettre à jour le profil' }}
+          </UiButton>
+        </div>
+      </UiCard>
+
       <!-- email settings -->
       <UiCard class="p-6">
         <h3 class="mb-4 flex items-center gap-2 text-lg font-semibold text-gray-900">
@@ -311,6 +338,7 @@ import {
   Mail,
   Lock,
   Shield,
+  User,
 } from "lucide-vue-next";
 import { useToast } from "vue-toastification";
 import { useAuthenticatedFetch } from "~/composables/useAuthenticatedFetch";
@@ -324,6 +352,10 @@ const toast = useToast();
 
 const loading = ref(true);
 const currentEmail = ref("");
+
+// Profile form
+const profileForm = ref({ firstName: "", lastName: "", phone: "" });
+const savingProfile = ref(false);
 
 // Email forms
 const emailForm = ref({
@@ -359,18 +391,38 @@ const loadSettings = async () => {
   try {
     const profRes = await useAuthenticatedFetch<{
       success: boolean;
-      data: { email: string; twoFactorEnabled: boolean };
+      data: { email: string; twoFactorEnabled: boolean; admin?: { firstName: string; lastName: string; phone: string } };
     }>("/settings/profile");
 
     if (profRes.success) {
       currentEmail.value = profRes.data.email;
       twoFactorEnabled.value = profRes.data.twoFactorEnabled;
+      const a = profRes.data.admin || profRes.data as any;
+      profileForm.value.firstName = a.firstName ?? '';
+      profileForm.value.lastName = a.lastName ?? '';
+      profileForm.value.phone = a.phone ?? '';
     }
   } catch (error: unknown) {
     console.error("Error fetching settings:", error);
     toast.error("Erreur lors du chargement des informations de compte");
   } finally {
     loading.value = false;
+  }
+};
+
+const saveProfile = async () => {
+  savingProfile.value = true;
+  try {
+    await useAuthenticatedFetch<{ success: boolean }>("/settings/profile", {
+      method: "PATCH",
+      body: profileForm.value,
+    });
+    toast.success("Profil mis à jour avec succès");
+  } catch (err: unknown) {
+    const apiError = err as { data?: { message?: string } };
+    toast.error(apiError.data?.message || "Erreur lors de la mise à jour du profil");
+  } finally {
+    savingProfile.value = false;
   }
 };
 
