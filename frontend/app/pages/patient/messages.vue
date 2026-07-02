@@ -343,71 +343,88 @@
           <!-- message input -->
           <div class="border-t px-4 py-3">
             <div
-              v-if="pendingAttachment"
-              class="mb-2 flex items-center gap-2 rounded-lg bg-gray-50 px-3 py-2"
+              v-if="activeConversation?.practitioner && !activeConversation.practitioner.messagingEnabled"
+              class="rounded-xl border border-amber-200 bg-amber-50 p-4 text-amber-800"
             >
-              <Paperclip class="h-4 w-4 text-gray-500" />
-              <span class="flex-1 truncate text-sm text-gray-700">
-                {{ pendingAttachment.name }}
-              </span>
-              <span class="text-xs text-gray-400">
-                {{ formatFileSize(pendingAttachment.size) }}
-              </span>
-              <button
-                class="rounded p-0.5 text-gray-400 hover:text-red-500"
-                @click="pendingAttachment = null"
-              >
-                <X class="h-4 w-4" />
-              </button>
+              <div class="flex gap-3">
+                <AlertTriangle class="h-5 w-5 flex-shrink-0 text-amber-500" />
+                <div class="space-y-1">
+                  <p class="text-sm font-semibold">Messagerie non activée</p>
+                  <p class="text-xs text-amber-700 leading-relaxed">
+                    Vous ne pouvez pas envoyer de message car ce praticien n'a pas activé la réception de messages, mais vous pouvez uniquement recevoir ses messages.
+                  </p>
+                </div>
+              </div>
             </div>
 
-            <form
-              class="flex items-end gap-2"
-              @submit.prevent="handleSendMessage"
-            >
-              <div class="relative">
+            <template v-else>
+              <div
+                v-if="pendingAttachment"
+                class="mb-2 flex items-center gap-2 rounded-lg bg-gray-50 px-3 py-2"
+              >
+                <Paperclip class="h-4 w-4 text-gray-500" />
+                <span class="flex-1 truncate text-sm text-gray-700">
+                  {{ pendingAttachment.name }}
+                </span>
+                <span class="text-xs text-gray-400">
+                  {{ formatFileSize(pendingAttachment.size) }}
+                </span>
                 <button
-                  type="button"
-                  class="flex h-10 w-10 items-center justify-center rounded-xl text-gray-500 transition-colors hover:bg-gray-100"
-                  :title="`Joindre un fichier (${fileConstraintsInfo.allowedFormatsLabel}, max ${fileConstraintsInfo.maxSizeLabel})`"
-                  @click="triggerFileUpload"
+                  class="rounded p-0.5 text-gray-400 hover:text-red-500"
+                  @click="pendingAttachment = null"
                 >
-                  <Paperclip class="h-5 w-5" />
+                  <X class="h-4 w-4" />
                 </button>
-                <input
-                  ref="fileInput"
-                  type="file"
-                  class="hidden"
-                  :accept="fileAcceptString"
-                  @change="handleFileSelect"
-                />
               </div>
 
-              <div class="relative flex-1">
-                <textarea
-                  ref="messageInput"
-                  v-model="newMessage"
-                  placeholder="Votre message..."
-                  rows="1"
-                  class="max-h-32 w-full resize-none rounded-xl border border-gray-200 bg-gray-50 px-4 py-2.5 text-sm focus:border-orange-500 focus:outline-none focus:ring-1 focus:ring-orange-500"
-                  @keydown.enter.exact.prevent="handleSendMessage"
-                  @input="handleTyping"
-                />
-              </div>
-              <button
-                type="submit"
-                :disabled="
-                  (!newMessage.trim() && !pendingAttachment) || sendingMessage
-                "
-                class="flex h-10 w-10 flex-shrink-0 items-center justify-center rounded-xl bg-orange-500 text-white transition-colors hover:bg-orange-600 disabled:cursor-not-allowed disabled:opacity-50"
+              <form
+                class="flex items-end gap-2"
+                @submit.prevent="handleSendMessage"
               >
-                <Send class="h-4 w-4" />
-              </button>
-            </form>
-            <p class="mt-1 text-[10px] text-gray-400">
-              Formats : {{ fileConstraintsInfo.allowedFormatsLabel }} · Max
-              {{ fileConstraintsInfo.maxSizeLabel }} par fichier
-            </p>
+                <div class="relative">
+                  <button
+                    type="button"
+                    class="flex h-10 w-10 items-center justify-center rounded-xl text-gray-500 transition-colors hover:bg-gray-100"
+                    :title="`Joindre un fichier (${fileConstraintsInfo.allowedFormatsLabel}, max ${fileConstraintsInfo.maxSizeLabel})`"
+                    @click="triggerFileUpload"
+                  >
+                    <Paperclip class="h-5 w-5" />
+                  </button>
+                  <input
+                    ref="fileInput"
+                    type="file"
+                    class="hidden"
+                    :accept="fileAcceptString"
+                    @change="handleFileSelect"
+                  />
+                </div>
+
+                <div class="relative flex-1">
+                  <textarea
+                    ref="messageInput"
+                    v-model="newMessage"
+                    placeholder="Votre message..."
+                    rows="1"
+                    class="max-h-32 w-full resize-none rounded-xl border border-gray-200 bg-gray-50 px-4 py-2.5 text-sm focus:border-orange-500 focus:outline-none focus:ring-1 focus:ring-orange-500"
+                    @keydown.enter.exact.prevent="handleSendMessage"
+                    @input="handleTyping"
+                  />
+                </div>
+                <button
+                  type="submit"
+                  :disabled="
+                    (!newMessage.trim() && !pendingAttachment) || sendingMessage
+                  "
+                  class="flex h-10 w-10 flex-shrink-0 items-center justify-center rounded-xl bg-orange-500 text-white transition-colors hover:bg-orange-600 disabled:cursor-not-allowed disabled:opacity-50"
+                >
+                  <Send class="h-4 w-4" />
+                </button>
+              </form>
+              <p class="mt-1 text-[10px] text-gray-400">
+                Formats : {{ fileConstraintsInfo.allowedFormatsLabel }} · Max
+                {{ fileConstraintsInfo.maxSizeLabel }} par fichier
+              </p>
+            </template>
           </div>
         </template>
       </div>
