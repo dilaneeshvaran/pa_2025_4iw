@@ -357,6 +357,21 @@
               </div>
             </div>
 
+            <div
+              v-else-if="activeConversation && activeConversation.practitioner && (activeConversation.isClosedForPatient || conversations.find(c => c.id === activeConversationId)?.isClosedForPatient)"
+              class="rounded-xl border border-amber-200 bg-amber-50 p-4 text-amber-800"
+            >
+              <div class="flex gap-3">
+                <AlertTriangle class="h-5 w-5 flex-shrink-0 text-amber-500" />
+                <div class="space-y-1">
+                  <p class="text-sm font-semibold">Conversation fermée</p>
+                  <p class="text-xs text-amber-700 leading-relaxed">
+                    Ce praticien a fermé cette conversation. Vous ne pouvez pas envoyer de nouveaux messages pour le moment.
+                  </p>
+                </div>
+              </div>
+            </div>
+
             <template v-else>
               <div
                 v-if="pendingAttachment"
@@ -630,6 +645,7 @@ interface ConversationSummary {
   lastMessagePreview: string | null;
   lastMessageAt: string | null;
   unreadCount: number;
+  isClosedForPatient?: boolean;
 }
 
 interface Message {
@@ -671,6 +687,7 @@ interface ConversationDetail {
     lastName: string;
   };
   messages: Message[];
+  isClosedForPatient?: boolean;
 }
 
 interface MessagablePractitioner {
@@ -855,6 +872,14 @@ const handleSendMessage = async () => {
   )
     return;
 
+  const isClosed = activeConversation.value?.isClosedForPatient ||
+    conversations.value.find((c) => c.id === activeConversationId.value)?.isClosedForPatient;
+
+  if (isClosed) {
+    toast.error("Cette conversation est fermée par le praticien.");
+    return;
+  }
+
   if (pendingAttachment.value) {
     await sendAttachmentMessage();
     return;
@@ -903,6 +928,14 @@ const handleSendMessage = async () => {
 
 const sendAttachmentMessage = async () => {
   if (!pendingAttachment.value || !activeConversationId.value) return;
+
+  const isClosed = activeConversation.value?.isClosedForPatient ||
+    conversations.value.find((c) => c.id === activeConversationId.value)?.isClosedForPatient;
+
+  if (isClosed) {
+    toast.error("Cette conversation est fermée par le praticien.");
+    return;
+  }
 
   sendingMessage.value = true;
   const formData = new FormData();
@@ -1211,6 +1244,24 @@ const handleTypingStop = (data: { conversationId: string }) => {
   }
 };
 
+const handleConversationStatusChanged = (data: {
+  conversationId: string;
+  isClosedForPatient: boolean;
+}) => {
+  const conv = conversations.value.find((c) => c.id === data.conversationId);
+  if (conv) {
+    conv.isClosedForPatient = data.isClosedForPatient;
+  }
+  if (activeConversation.value && activeConversation.value.id === data.conversationId) {
+    activeConversation.value.isClosedForPatient = data.isClosedForPatient;
+    if (data.isClosedForPatient) {
+      toast.info("Cette conversation a été fermée par le praticien.");
+    } else {
+      toast.success("Cette conversation a été rouverte par le praticien.");
+    }
+  }
+};
+
 //init
 onMounted(async () => {
   if (!authStore.isAuthenticated) {
@@ -1233,6 +1284,7 @@ onMounted(async () => {
     wsOn("messages_read", handleMessagesRead);
     wsOn("typing", handleTypingStart);
     wsOn("stop_typing", handleTypingStop);
+    wsOn("conversation_status_changed", handleConversationStatusChanged);
   }
 });
 
@@ -1242,5 +1294,6 @@ onUnmounted(() => {
   wsOff("messages_read", handleMessagesRead);
   wsOff("typing", handleTypingStart);
   wsOff("stop_typing", handleTypingStop);
+  wsOff("conversation_status_changed", handleConversationStatusChanged);
 });
 </script>

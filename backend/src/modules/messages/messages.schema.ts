@@ -35,3 +35,7 @@ export const startConversationWithPractitionerSchema = z.object({
     .min(1, 'Le message ne peut pas être vide')
     .max(5000, 'Le message est trop long (max 5000 caractères)'),
 })
+
+export const toggleConversationClosedSchema = z.object({
+  conversationId: z.string().min(1, 'ID de la conversation requis'),
+})

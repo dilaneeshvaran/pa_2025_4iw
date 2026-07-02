@@ -510,6 +510,7 @@ model Conversation {
   updatedAt          DateTime                   @updatedAt
   type               ConversationType           @default(PATIENT_PRACTITIONER)
   practitioner2Id    String?
+  isClosedForPatient Boolean                    @default(false)
   userSettings       ConversationUserSettings[]
   patient            Patient?                   @relation("PatientConversations", fields: [patientId], references: [id], onDelete: Cascade)
   practitioner2      Practitioner?              @relation("Practitioner2Conversations", fields: [practitioner2Id], references: [id], onDelete: Cascade)
@@ -522,6 +523,7 @@ model Conversation {
   @@index([practitioner2Id])
   @@index([lastMessageAt])
   @@index([type])
+  @@index([isClosedForPatient])
   @@map("conversations")
 }
 

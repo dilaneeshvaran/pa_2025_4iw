@@ -231,6 +231,7 @@ export class MessagesService {
         : null,
       lastMessageAt: c.lastMessageAt?.toISOString() ?? null,
       unreadCount: c.messages.length,
+      isClosedForPatient: c.isClosedForPatient,
     }))
   }
 
@@ -332,6 +333,7 @@ export class MessagesService {
         lastMessageAt: c.lastMessageAt?.toISOString() ?? null,
         unreadCount: c.messages.length,
         emailMuted,
+        isClosedForPatient: c.isClosedForPatient,
       }
     })
   }
@@ -482,6 +484,7 @@ export class MessagesService {
         createdAt: m.createdAt.toISOString(),
       })),
       emailMuted,
+      isClosedForPatient: conversation.isClosedForPatient,
     }
   }
 
@@ -973,6 +976,71 @@ export class MessagesService {
     }
 
     return 'Utilisateur'
+  }
+
+  // toggle conversation closed/open for patient (practitioner only)
+  async toggleConversationClosedForPatient(
+    conversationId: string,
+    practitionerUserId: string,
+  ): Promise<boolean> {
+    const conversation = await prisma.conversation.findUnique({
+      where: { id: conversationId },
+      include: {
+        practitioner: { include: { user: { select: { id: true } } } },
+        patient: { include: { user: { select: { id: true } } } },
+      },
+    })
+
+    if (!conversation) {
+      throw new Error('Conversation introuvable')
+    }
+
+    // verify the user is the practitioner in this conversation
+    if (conversation.practitioner.user.id !== practitionerUserId) {
+      throw new Error('Non autorisé à modifier cette conversation')
+    }
+
+    // only applicable for patient-practitioner conversations
+    if (conversation.type !== 'PATIENT_PRACTITIONER') {
+      throw new Error('Cette action n\'est disponible que pour les conversations patient-praticien')
+    }
+
+    const newValue = !conversation.isClosedForPatient
+
+    await prisma.conversation.update({
+      where: { id: conversationId },
+      data: { isClosedForPatient: newValue },
+    })
+
+    return newValue
+  }
+
+  // check if a patient can send a message in a conversation
+  async canPatientSendMessage(
+    conversationId: string,
+    patientUserId: string,
+  ): Promise<boolean> {
+    const conversation = await prisma.conversation.findUnique({
+      where: { id: conversationId },
+      include: {
+        patient: { include: { user: { select: { id: true } } } },
+      },
+    })
+
+    if (!conversation) return false
+
+    // verify the user is the patient in this conversation
+    if (conversation.patient?.user?.id !== patientUserId) {
+      return false
+    }
+
+    // only check for patient-practitioner conversations
+    if (conversation.type !== 'PATIENT_PRACTITIONER') {
+      return true
+    }
+
+    // patient can send if conversation is not closed for patient
+    return !conversation.isClosedForPatient
   }
 
   private safeDecrypt(text: string): string {

@@ -11,6 +11,7 @@ import {
   getMessagesQuerySchema,
   startConversationWithPatientSchema,
   startConversationWithPractitionerSchema,
+  toggleConversationClosedSchema,
 } from './messages.schema'
 import {
   saveMessageAttachment,
@@ -335,6 +336,18 @@ export async function messagesRoutes(fastify: FastifyInstance) {
           })
         }
 
+        // check if patient can send message when conversation is closed for patient
+        if (
+          access.conversation.type === 'PATIENT_PRACTITIONER' &&
+          user.role === 'PATIENT' &&
+          access.conversation.isClosedForPatient
+        ) {
+          return reply.status(403).send({
+            success: false,
+            message: 'Cette conversation est fermée par le praticien. Vous ne pouvez pas envoyer de message.',
+          })
+        }
+
         const message = await messagesService.sendMessage(
           conversationId,
           user.id,
@@ -625,6 +638,75 @@ export async function messagesRoutes(fastify: FastifyInstance) {
         return reply.status(500).send({
           success: false,
           message: 'Erreur lors de la modification des notifications',
+        })
+      }
+    },
+  )
+
+  // toggle conversation closed/open for patient (practitioner only)
+  fastify.patch(
+    '/conversations/:id/toggle-closed',
+    { preHandler: [authenticate, authorize(['PRACTITIONER'])] },
+    async (request: FastifyRequest, reply: FastifyReply) => {
+      try {
+        const user = request.user as { id: string }
+        const params = request.params as { id: string }
+        const conversationId = params.id
+
+        // verify access
+        const access = await messagesService.validateConversationAccess(
+          conversationId,
+          user.id,
+        )
+        if (!access.valid || !access.conversation) {
+          return reply.status(404).send({
+            success: false,
+            message: 'Conversation introuvable',
+          })
+        }
+
+        // only applicable for patient-practitioner conversations
+        if (access.conversation.type !== 'PATIENT_PRACTITIONER') {
+          return reply.status(400).send({
+            success: false,
+            message: 'Cette action n\'est disponible que pour les conversations patient-praticien',
+          })
+        }
+
+        // verify the user is the practitioner in this conversation
+        if (access.conversation.practitioner.user.id !== user.id) {
+          return reply.status(403).send({
+            success: false,
+            message: 'Non autorisé à modifier cette conversation',
+          })
+        }
+
+        const isClosedForPatient = await messagesService.toggleConversationClosedForPatient(
+          conversationId,
+          user.id,
+        )
+
+        // Notify the patient via ws
+        const recipientUserIds = await messagesService.getRecipientUserIds(
+          conversationId,
+          user.id,
+        )
+        for (const recipientUserId of recipientUserIds) {
+          sendToUser(recipientUserId, 'conversation_status_changed', {
+            conversationId,
+            isClosedForPatient,
+          })
+        }
+
+        return reply.status(200).send({
+          success: true,
+          data: { isClosedForPatient },
+        })
+      } catch (error) {
+        request.log.error(error)
+        return reply.status(500).send({
+          success: false,
+          message: 'Erreur lors de la modification de l\'état de la conversation',
         })
       }
     },
