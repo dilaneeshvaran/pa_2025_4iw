@@ -146,10 +146,21 @@ export class AvailabilitiesService {
     await prisma.availability.delete({ where: { id: availabilityId } })
   }
 
-  async getAbsences(practitionerId: string, cabinetId?: string | null): Promise<AbsenceInfo[]> {
+  async getAbsences(
+    practitionerId: string,
+    cabinetId?: string | null,
+    startDate?: Date,
+    endDate?: Date,
+  ): Promise<AbsenceInfo[]> {
     const where: any = { practitionerId }
     if (cabinetId !== undefined) {
       where.cabinetId = cabinetId
+    }
+    if (startDate && endDate) {
+      where.AND = [
+        { startDate: { lte: endDate } },
+        { endDate: { gte: startDate } },
+      ]
     }
     const rows = await prisma.absence.findMany({
       where,
@@ -372,16 +383,22 @@ export class AvailabilitiesService {
     return { notifiedCount }
   }
 
-  async getBlockedSlots(practitionerId: string, cabinetId?: string | null): Promise<BlockedSlotInfo[]> {
-    const today = new Date()
-    today.setHours(0, 0, 0, 0)
-
-    const where: any = {
-      practitionerId,
-      date: { gte: today },
-    }
+  async getBlockedSlots(
+    practitionerId: string,
+    cabinetId?: string | null,
+    startDate?: Date,
+    endDate?: Date,
+  ): Promise<BlockedSlotInfo[]> {
+    const where: any = { practitionerId }
     if (cabinetId !== undefined) {
       where.cabinetId = cabinetId
+    }
+    if (startDate && endDate) {
+      where.date = { gte: startDate, lte: endDate }
+    } else {
+      const today = new Date()
+      today.setHours(0, 0, 0, 0)
+      where.date = { gte: today }
     }
 
     const rows = await prisma.blockedSlot.findMany({

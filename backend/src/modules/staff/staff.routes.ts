@@ -38,6 +38,26 @@ export async function staffRoutes(fastify: FastifyInstance) {
     staffController.getPractitionerAppointments.bind(staffController),
   )
 
+  // Practitioner blocked slots
+  fastify.get(
+    '/practitioners/:id/blocked-slots',
+    {
+      preHandler: [authenticate, authorize(['STAFF'])],
+      schema: { tags: ['staff'] },
+    },
+    staffController.getPractitionerBlockedSlots.bind(staffController),
+  )
+
+  // Practitioner absences
+  fastify.get(
+    '/practitioners/:id/absences',
+    {
+      preHandler: [authenticate, authorize(['STAFF'])],
+      schema: { tags: ['staff'] },
+    },
+    staffController.getPractitionerAbsences.bind(staffController),
+  )
+
   fastify.post(
     '/practitioners/:id/appointments',
     {

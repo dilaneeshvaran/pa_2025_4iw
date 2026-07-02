@@ -509,6 +509,73 @@ class StaffService {
 
     return { message: 'Mot de passe mis à jour avec succès' }
   }
+
+  async getPractitionerBlockedSlots(
+    userId: string,
+    practitionerId: string,
+    startDate?: string,
+    endDate?: string,
+  ) {
+    const staff = await this.getStaffByUserId(userId)
+
+    const practitioners = await this.getAssignedPractitioners(staff)
+    const hasAccess = practitioners.some((p) => p.id === practitionerId)
+    if (!hasAccess) {
+      throw new Error("Vous n'avez pas accès aux indisponibilités de ce praticien")
+    }
+
+    const where: any = { practitionerId }
+
+    if (startDate && endDate) {
+      const start = new Date(startDate)
+      start.setHours(0, 0, 0, 0)
+      const end = new Date(endDate)
+      end.setHours(23, 59, 59, 999)
+      where.date = { gte: start, lte: end }
+    } else {
+      const today = new Date()
+      today.setHours(0, 0, 0, 0)
+      where.date = { gte: today }
+    }
+
+    return prisma.blockedSlot.findMany({
+      where,
+      orderBy: [{ date: 'asc' }, { startTime: 'asc' }],
+    })
+  }
+
+  async getPractitionerAbsences(
+    userId: string,
+    practitionerId: string,
+    startDate?: string,
+    endDate?: string,
+  ) {
+    const staff = await this.getStaffByUserId(userId)
+
+    const practitioners = await this.getAssignedPractitioners(staff)
+    const hasAccess = practitioners.some((p) => p.id === practitionerId)
+    if (!hasAccess) {
+      throw new Error("Vous n'avez pas accès aux indisponibilités de ce praticien")
+    }
+
+    const where: any = { practitionerId }
+
+    if (startDate && endDate) {
+      const start = new Date(startDate)
+      start.setHours(0, 0, 0, 0)
+      const end = new Date(endDate)
+      end.setHours(23, 59, 59, 999)
+      where.AND = [
+        { startDate: { lte: end } },
+        { endDate: { gte: start } },
+      ]
+    }
+
+    return prisma.absence.findMany({
+      where,
+      orderBy: { startDate: 'asc' },
+    })
+  }
 }
 
 export const staffService = new StaffService()

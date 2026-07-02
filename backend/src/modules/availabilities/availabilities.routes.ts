@@ -96,7 +96,11 @@ export async function availabilitiesRoutes(fastify: FastifyInstance) {
         .status(404)
         .send({ success: false, message: 'Profil praticien non trouvé' })
 
-    const { cabinetId } = request.query as { cabinetId?: string }
+    const { cabinetId, startDate, endDate } = request.query as {
+      cabinetId?: string
+      startDate?: string
+      endDate?: string
+    }
     let filterCabinetId: string | null | undefined = undefined
     if (cabinetId === 'null') {
       filterCabinetId = null
@@ -104,7 +108,17 @@ export async function availabilitiesRoutes(fastify: FastifyInstance) {
       filterCabinetId = cabinetId
     }
 
-    const data = await availabilitiesService.getAbsences(practitionerId, filterCabinetId)
+    const start = startDate ? new Date(startDate) : undefined
+    const end = endDate ? new Date(endDate) : undefined
+    if (start) start.setHours(0, 0, 0, 0)
+    if (end) end.setHours(23, 59, 59, 999)
+
+    const data = await availabilitiesService.getAbsences(
+      practitionerId,
+      filterCabinetId,
+      start,
+      end,
+    )
     return reply.send({ success: true, data })
   })
 
@@ -193,7 +207,11 @@ export async function availabilitiesRoutes(fastify: FastifyInstance) {
         .status(404)
         .send({ success: false, message: 'Profil praticien non trouvé' })
 
-    const { cabinetId } = request.query as { cabinetId?: string }
+    const { cabinetId, startDate, endDate } = request.query as {
+      cabinetId?: string
+      startDate?: string
+      endDate?: string
+    }
     let filterCabinetId: string | null | undefined = undefined
     if (cabinetId === 'null') {
       filterCabinetId = null
@@ -201,7 +219,17 @@ export async function availabilitiesRoutes(fastify: FastifyInstance) {
       filterCabinetId = cabinetId
     }
 
-    const data = await availabilitiesService.getBlockedSlots(practitionerId, filterCabinetId)
+    const start = startDate ? new Date(startDate) : undefined
+    const end = endDate ? new Date(endDate) : undefined
+    if (start) start.setHours(0, 0, 0, 0)
+    if (end) end.setHours(23, 59, 59, 999)
+
+    const data = await availabilitiesService.getBlockedSlots(
+      practitionerId,
+      filterCabinetId,
+      start,
+      end,
+    )
     return reply.send({ success: true, data })
   })
 
