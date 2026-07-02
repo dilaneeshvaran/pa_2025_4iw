@@ -38,7 +38,13 @@ export async function scheduleAppointmentReminders(
   // using setUTCHours avoids server timezone drift when the host is not in UTC+0.
   const [hours, minutes] = startTime.split(':').map(Number)
   const appointmentDateTime = new Date(appointmentDate)
-  appointmentDateTime.setUTCHours(hours, minutes, 0, 0)
+  if (process.env.TZ === 'UTC') {
+    appointmentDateTime.setUTCHours(hours, minutes, 0, 0)
+  } else {
+    const [year, month, day] = appointmentDate.toISOString().slice(0, 10).split('-').map(Number)
+    appointmentDateTime.setFullYear(year, month - 1, day)
+    appointmentDateTime.setHours(hours, minutes, 0, 0)
+  }
 
   const now = new Date()
 

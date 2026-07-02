@@ -20,6 +20,19 @@ import {
   cancelAppointmentReminders,
 } from '../../utils/reminder-scheduler'
 
+function combineDateAndTime(date: Date, timeStr: string): Date {
+  const [hours, minutes] = timeStr.split(':').map(Number)
+  const appointmentTime = new Date(date)
+  if (process.env.TZ === 'UTC') {
+    appointmentTime.setUTCHours(hours, minutes, 0, 0)
+  } else {
+    const [year, month, day] = date.toISOString().slice(0, 10).split('-').map(Number)
+    appointmentTime.setFullYear(year, month - 1, day)
+    appointmentTime.setHours(hours, minutes, 0, 0)
+  }
+  return appointmentTime
+}
+
 export class AppointmentsService {
   async getPatientAppointments(
     patientId: string,
@@ -121,9 +134,7 @@ export class AppointmentsService {
         const aptDate = new Date(apt.appointmentDate)
         aptDate.setUTCHours(0, 0, 0, 0)
         if (aptDate.getTime() === today.getTime()) {
-          const [hours, minutes] = apt.startTime.split(':').map(Number)
-          const appointmentTime = new Date(today)
-          appointmentTime.setUTCHours(hours, minutes, 0, 0)
+          const appointmentTime = combineDateAndTime(aptDate, apt.startTime)
           return appointmentTime > now
         }
         return true
@@ -238,9 +249,7 @@ export class AppointmentsService {
       }
  
       if (localAptDate.getTime() === today.getTime()) {
-        const [hours, minutes] = apt.startTime.split(':').map(Number)
-        const appointmentTime = new Date(today)
-        appointmentTime.setUTCHours(hours, minutes, 0, 0)
+        const appointmentTime = combineDateAndTime(aptDate, apt.startTime)
         return appointmentTime > now
       }
       return true // future date
@@ -352,9 +361,7 @@ export class AppointmentsService {
       }
  
       if (localAptDate.getTime() === today.getTime()) {
-        const [hours, minutes] = apt.startTime.split(':').map(Number)
-        const appointmentTime = new Date(today)
-        appointmentTime.setUTCHours(hours, minutes, 0, 0)
+        const appointmentTime = combineDateAndTime(aptDate, apt.startTime)
         return appointmentTime < now
       }
  
@@ -814,11 +821,9 @@ export class AppointmentsService {
     }
 
     const now = new Date()
-    const aptDate = new Date(appointment.appointmentDate)
-    const [hours, minutes] = appointment.startTime.split(':').map(Number)
-    aptDate.setUTCHours(hours, minutes, 0, 0)
+    const aptDateLocal = combineDateAndTime(appointment.appointmentDate, appointment.startTime)
 
-    if (aptDate <= now) {
+    if (aptDateLocal <= now) {
       throw new Error('Vous ne pouvez pas annuler un rendez-vous passé')
     }
 
@@ -921,10 +926,8 @@ export class AppointmentsService {
     const cancellationNoticeHours =
       appointment.practitioner.cancellationNotice || 24
     const now = new Date()
-    const aptDate = new Date(appointment.appointmentDate)
-    const [hours, minutes] = appointment.startTime.split(':').map(Number)
-    aptDate.setUTCHours(hours, minutes, 0, 0)
-    const diffMs = aptDate.getTime() - now.getTime()
+    const aptDateLocal = combineDateAndTime(appointment.appointmentDate, appointment.startTime)
+    const diffMs = aptDateLocal.getTime() - now.getTime()
     const diffHours = diffMs / (1000 * 60 * 60)
 
     if (diffHours < cancellationNoticeHours) {
@@ -1098,10 +1101,8 @@ export class AppointmentsService {
 
     // Check if the appointment is more than 48 hours away
     const now = new Date()
-    const aptDate = new Date(appointment.appointmentDate)
-    const [hours, minutes] = appointment.startTime.split(':').map(Number)
-    aptDate.setUTCHours(hours, minutes, 0, 0)
-    const diffMs = aptDate.getTime() - now.getTime()
+    const aptDateLocal = combineDateAndTime(appointment.appointmentDate, appointment.startTime)
+    const diffMs = aptDateLocal.getTime() - now.getTime()
     const diffHours = diffMs / (1000 * 60 * 60)
 
     if (diffHours < 48) {
