@@ -85,7 +85,6 @@ import {
   AlertTriangle,
   Send,
   BarChart3,
-  ScrollText,
   Settings,
   ShieldCheck,
   LogOut,
@@ -119,7 +118,6 @@ const menuItems = [
     label: "Statistiques globales",
     icon: BarChart3,
   },
-  { path: "/admin/audit-logs", label: "Logs d'audit", icon: ScrollText },
   { path: "/admin/settings", label: "Paramètres", icon: Settings },
 ];
 
