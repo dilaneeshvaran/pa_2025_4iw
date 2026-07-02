@@ -31,5 +31,7 @@ describe('Security Plugin', () => {
     expect(response.headers['x-dns-prefetch-control']).toBe('off')
     expect(response.headers['x-download-options']).toBe('noopen')
     expect(response.headers['x-permitted-cross-domain-policies']).toBe('none')
+
+    await app.close()
   })
 })
