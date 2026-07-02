@@ -816,7 +816,7 @@ export async function sendCabinetInvitationEmail(
 
       <p style="color: #666; font-size: 14px; margin-top: 24px; border-top: 1px solid #e2e8f0; padding-top: 16px;">Cette invitation expirera dans 7 jours. Si vous ne souhaitez pas rejoindre ce cabinet, vous pouvez ignorer cet email.</p>
     `,
-    actionUrl: `${APP_URL}/auth/login`,
+    actionUrl: `${APP_URL}/practitioner/cabinets?tab=invitations`,
     actionText: "Voir l'invitation",
   })
 
