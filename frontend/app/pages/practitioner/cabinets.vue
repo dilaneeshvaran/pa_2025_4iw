@@ -56,7 +56,6 @@
       </nav>
     </div>
 
-    <!-- loading  -->
     <div v-if="loading" class="animate-pulse space-y-4">
       <UiCard v-for="i in 2" :key="i">
         <div class="flex items-center space-x-4">
@@ -69,7 +68,6 @@
       </UiCard>
     </div>
 
-    <!-- active cabinets tabb -->
     <div v-else-if="currentTab === 'active'" class="space-y-4">
       <div v-if="!cabinets.length" class="py-12 text-center">
         <Building class="mx-auto mb-4 h-12 w-12 text-gray-300" />
@@ -126,7 +124,7 @@
             <UiButton
               variant="secondary"
               size="sm"
-              @click="togglePauseCabinet(item.cabinet.id, item.isPaused)"
+              @click="confirmAction('pause', item.cabinet.id, item.isPaused)"
               :disabled="actionLoading === item.cabinet.id"
             >
               <span v-if="item.isPaused">Reprendre</span>
@@ -135,12 +133,11 @@
             <UiButton
               variant="danger"
               size="sm"
-              @click="leaveCabinet(item.cabinet.id)"
+              @click="confirmAction('leave', item.cabinet.id)"
               :disabled="actionLoading === item.cabinet.id"
             >
               <LogOut class="mr-2 h-4 w-4" />
-              <span v-if="actionLoading === item.cabinet.id">Patientez...</span>
-              <span v-else>Quitter le cabinet</span>
+              <span>Quitter</span>
             </UiButton>
           </div>
         </div>
@@ -170,7 +167,6 @@
       </UiCard>
     </div>
 
-    <!-- invitations Tab -->
     <div v-else-if="currentTab === 'invitations'" class="space-y-4">
       <div v-if="!invitations.length" class="py-12 text-center">
         <Mail class="mx-auto mb-4 h-12 w-12 text-gray-300" />
@@ -213,7 +209,7 @@
           <UiButton
             variant="outline"
             size="sm"
-            @click="rejectInvitation(invitation.id)"
+            @click="confirmAction('reject', invitation.id)"
             :disabled="actionLoading === invitation.id"
           >
             <X class="mr-1 h-4 w-4" />
@@ -222,7 +218,7 @@
           <UiButton
             variant="primary"
             size="sm"
-            @click="acceptInvitation(invitation.id)"
+            @click="confirmAction('accept', invitation.id)"
             :disabled="actionLoading === invitation.id"
           >
             <Check class="mr-1 h-4 w-4" />
@@ -232,6 +228,15 @@
       </UiCard>
     </div>
   </div>
+
+  <UiConfirmModal
+    v-model="isModalOpen"
+    :title="modalData.title"
+    :description="modalData.description"
+    :variant="modalData.variant"
+    :loading="!!actionLoading"
+    @confirm="executeAction"
+  />
 </template>
 
 <script setup lang="ts">
@@ -266,6 +271,59 @@ const invitations = ref<any[]>([]);
 const expandedColleagues = ref<Record<string, boolean>>({});
 const colleagues = ref<Record<string, any[]>>({});
 const colleaguesLoading = ref<Record<string, boolean>>({});
+
+const isModalOpen = ref(false)
+const modalData = ref({
+  type: '',
+  id: '',
+  payload: null as any,
+  title: '',
+  description: '',
+  variant: 'danger' as 'danger' | 'warning' | 'success' | 'info',
+})
+
+const ACTION_META: Record<string, { title: string; description: string; variant: 'danger' | 'warning' | 'success' | 'info' }> = {
+  accept: {
+    title: "Accepter l'invitation",
+    description: 'Voulez-vous vraiment accepter cette invitation ? Vous rejoindrez le cabinet immédiatement.',
+    variant: 'success',
+  },
+  reject: {
+    title: "Refuser l'invitation",
+    description: 'Voulez-vous vraiment refuser cette invitation ?',
+    variant: 'danger',
+  },
+  pause: {
+    title: 'Changer le statut',
+    description: "Voulez-vous vraiment modifier l'état de pause de ce cabinet ?",
+    variant: 'warning',
+  },
+  leave: {
+    title: 'Quitter le cabinet',
+    description: 'Voulez-vous vraiment quitter ce cabinet ? Cette action est irréversible.',
+    variant: 'danger',
+  },
+}
+
+const confirmAction = (type: string, id: string, payload?: any) => {
+  const meta = ACTION_META[type]
+  modalData.value = { type, id, payload, ...meta }
+  isModalOpen.value = true
+}
+
+const executeAction = async () => {
+  const { type, id, payload } = modalData.value;
+  actionLoading.value = id;
+  isModalOpen.value = false;
+  try {
+    if (type === 'accept') await acceptInvitation(id);
+    else if (type === 'reject') await rejectInvitation(id);
+    else if (type === 'pause') await togglePauseCabinet(id, payload);
+    else if (type === 'leave') await leaveCabinet(id);
+  } finally {
+    actionLoading.value = null;
+  }
+};
 
 const toggleColleagues = async (cabinetId: string) => {
   expandedColleagues.value[cabinetId] = !expandedColleagues.value[cabinetId];
@@ -317,89 +375,34 @@ const fetchData = async () => {
 };
 
 const acceptInvitation = async (id: string) => {
-  if (!confirm("Voulez-vous vraiment accepter cette invitation ?")) return;
-  actionLoading.value = id;
-  try {
-    const response = await useAuthenticatedFetch<{
-      success: boolean;
-      data: any;
-    }>(`/practitioner/cabinets/invitations/${id}/accept`, { method: "POST" });
-    if (response.success) {
-      toast.success("Invitation acceptée");
-      await fetchData();
-    }
-  } catch (error: any) {
-    toast.error(error.message || "Erreur lors de l'acceptation");
-  } finally {
-    actionLoading.value = null;
+  const response = await useAuthenticatedFetch<{ success: boolean }>(`/practitioner/cabinets/invitations/${id}/accept`, { method: "POST" });
+  if (response.success) {
+    toast.success("Invitation acceptée");
+    await fetchData();
   }
 };
 
 const rejectInvitation = async (id: string) => {
-  if (!confirm("Voulez-vous vraiment refuser cette invitation ?")) return;
-  actionLoading.value = id;
-  try {
-    const response = await useAuthenticatedFetch<{ success: boolean }>(
-      `/practitioner/cabinets/invitations/${id}/reject`,
-      { method: "POST" },
-    );
-    if (response.success) {
-      toast.success("Invitation refusée");
-      await fetchData();
-    }
-  } catch (error: any) {
-    toast.error(error.message || "Erreur lors du refus");
-  } finally {
-    actionLoading.value = null;
+  const response = await useAuthenticatedFetch<{ success: boolean }>(`/practitioner/cabinets/invitations/${id}/reject`, { method: "POST" });
+  if (response.success) {
+    toast.success("Invitation refusée");
+    await fetchData();
   }
 };
 
 const togglePauseCabinet = async (id: string, isCurrentlyPaused: boolean) => {
-  const actionText = isCurrentlyPaused
-    ? "reprendre l'activité"
-    : "mettre en pause";
-  if (!confirm(`Voulez-vous vraiment ${actionText} dans ce cabinet ?`)) return;
-
-  actionLoading.value = id;
-  try {
-    const response = await useAuthenticatedFetch<{ success: boolean }>(
-      `/practitioner/cabinets/${id}/toggle-pause`,
-      { method: "PATCH" },
-    );
-    if (response.success) {
-      toast.success(
-        isCurrentlyPaused ? "Activité reprise" : "Cabinet mis en pause",
-      );
-      await fetchData();
-    }
-  } catch (error: any) {
-    toast.error(error.message || "Erreur lors de la modification du statut");
-  } finally {
-    actionLoading.value = null;
+  const response = await useAuthenticatedFetch<{ success: boolean }>(`/practitioner/cabinets/${id}/toggle-pause`, { method: "PATCH" });
+  if (response.success) {
+    toast.success(isCurrentlyPaused ? "Activité reprise" : "Cabinet mis en pause");
+    await fetchData();
   }
 };
 
 const leaveCabinet = async (id: string) => {
-  if (
-    !confirm(
-      "Voulez-vous vraiment quitter ce cabinet ? Cette action est irréversible.",
-    )
-  )
-    return;
-  actionLoading.value = id;
-  try {
-    const response = await useAuthenticatedFetch<{ success: boolean }>(
-      `/practitioner/cabinets/${id}`,
-      { method: "DELETE" },
-    );
-    if (response.success) {
-      toast.success("Vous avez quitté le cabinet");
-      await fetchData();
-    }
-  } catch (error: any) {
-    toast.error(error.message || "Erreur lors du retrait du cabinet");
-  } finally {
-    actionLoading.value = null;
+  const response = await useAuthenticatedFetch<{ success: boolean }>(`/practitioner/cabinets/${id}`, { method: "DELETE" });
+  if (response.success) {
+    toast.success("Vous avez quitté le cabinet");
+    await fetchData();
   }
 };
 
