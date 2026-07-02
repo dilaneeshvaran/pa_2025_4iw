@@ -35,7 +35,7 @@
                   v-model="profileVisibility.isProfilePublic"
                   class="peer sr-only"
                   @change="updateProfileVisibility"
-                  :disabled="!profileVisibility.tarifsAreDefined"
+                  :disabled="!profileVisibility.tarifsAreDefined || !profileVisibility.paymentMethodsAreDefined"
                 />
                 <div
                   class="peer h-6 w-11 rounded-full bg-gray-200 after:absolute after:left-[2px] after:top-[2px] after:h-5 after:w-5 after:rounded-full after:border after:border-gray-300 after:bg-white after:transition-all after:content-[''] peer-checked:bg-orange-500 peer-checked:after:translate-x-full peer-checked:after:border-white peer-focus:outline-none peer-focus:ring-4 peer-focus:ring-orange-300 peer-disabled:cursor-not-allowed peer-disabled:opacity-50"
@@ -64,9 +64,29 @@
             </div>
 
             <div
+              v-if="!profileVisibility.paymentMethodsAreDefined"
+              class="mt-3 flex items-start gap-2 rounded-md bg-yellow-50 p-3 text-sm text-yellow-800"
+            >
+              <AlertCircle class="mt-0.5 h-4 w-4 flex-shrink-0" />
+              <div>
+                <p class="font-medium">Moyens de paiement requis</p>
+                <p class="mt-1">
+                  Vous devez sélectionner au moins un moyen de paiement accepté en cabinet avant de rendre votre profil public.
+                  <NuxtLink
+                    to="/practitioner/billing"
+                    class="font-semibold underline hover:text-yellow-900"
+                  >
+                    Configurer les moyens de paiement
+                  </NuxtLink>
+                </p>
+              </div>
+            </div>
+
+            <div
               v-if="
                 profileVisibility.isProfilePublic &&
-                profileVisibility.tarifsAreDefined
+                profileVisibility.tarifsAreDefined &&
+                profileVisibility.paymentMethodsAreDefined
               "
               class="mt-3 flex items-start gap-2 rounded-md bg-green-50 p-3 text-sm text-green-800"
             >
@@ -637,6 +657,7 @@ const profileVisibility = ref({
   isProfilePublic: false,
   messagingEnabled: false,
   tarifsAreDefined: false,
+  paymentMethodsAreDefined: false,
   tarifs: {
     baseConsultationFee: undefined as number | undefined,
     teleconsultationFee: undefined as number | undefined,
@@ -650,6 +671,7 @@ interface ProfileData {
   baseConsultationFee?: number;
   teleconsultationFee?: number;
   emergencyFee?: number;
+  acceptedPaymentMethods?: string[];
 }
 
 interface NotificationPreferences {
@@ -710,6 +732,9 @@ const fetchData = async () => {
         profileRes.data.emergencyFee;
       profileVisibility.value.tarifsAreDefined =
         !!profileRes.data.baseConsultationFee;
+      profileVisibility.value.paymentMethodsAreDefined =
+        !!profileRes.data.acceptedPaymentMethods &&
+        profileRes.data.acceptedPaymentMethods.length > 0;
     }
   } catch (error: unknown) {
     console.error("Error fetching settings:", error);

@@ -452,6 +452,7 @@ export class PractitionerDashboardService {
         ? Number(p.teleconsultationFee)
         : null,
       emergencyFee: p.emergencyFee ? Number(p.emergencyFee) : null,
+      acceptedPaymentMethods: p.acceptedPaymentMethods,
       qualifications: p.qualifications,
     }
   }
@@ -467,12 +468,19 @@ export class PractitionerDashboardService {
           baseConsultationFee: true,
           teleconsultationFee: true,
           emergencyFee: true,
+          acceptedPaymentMethods: true,
         },
       })
 
       if (!practitioner || !practitioner.baseConsultationFee) {
         throw new Error(
           'Vous devez définir au moins le tarif de consultation de base avant de rendre votre profil public',
+        )
+      }
+
+      if (!practitioner.acceptedPaymentMethods || practitioner.acceptedPaymentMethods.length === 0) {
+        throw new Error(
+          'Vous devez sélectionner au moins un moyen de paiement accepté en cabinet avant de rendre votre profil public',
         )
       }
     }
@@ -515,6 +523,7 @@ export class PractitionerDashboardService {
       photoUrl: p.photoUrl,
       isProfilePublic: p.isProfilePublic,
       messagingEnabled: p.messagingEnabled,
+      acceptedPaymentMethods: p.acceptedPaymentMethods,
       qualifications: p.qualifications,
     }
   }
