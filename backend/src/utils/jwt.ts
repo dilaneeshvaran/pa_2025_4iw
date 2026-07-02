@@ -30,3 +30,17 @@ export function generateRefreshToken(payload: JwtPayload): string {
 export function verifyRefreshToken(token: string): JwtPayload {
   return jwt.verify(token, JWT_REFRESH_SECRET) as JwtPayload
 }
+
+export function generateMfaToken(userId: string): string {
+  return jwt.sign({ userId, type: '2fa_challenge' }, JWT_SECRET, {
+    expiresIn: '5m',
+  })
+}
+
+export function verifyMfaToken(token: string): { userId: string } {
+  const payload = jwt.verify(token, JWT_SECRET) as any
+  if (payload.type !== '2fa_challenge') {
+    throw new Error('Token MFA invalide')
+  }
+  return { userId: payload.userId }
+}

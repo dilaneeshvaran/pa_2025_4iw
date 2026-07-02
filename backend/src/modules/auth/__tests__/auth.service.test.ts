@@ -53,10 +53,26 @@ jest.mock('../../../utils/jwt', () => ({
   generateAccessToken: jest.fn().mockReturnValue('access_token'),
   generateRefreshToken: jest.fn().mockReturnValue('refresh_token'),
   verifyRefreshToken: jest.fn(),
+  generateMfaToken: jest.fn().mockReturnValue('mfa_token_123'),
+  verifyMfaToken: jest.fn().mockReturnValue({ userId: 'user-1' }),
 }))
 
 jest.mock('../../../utils/crypto', () => ({
   generateToken: jest.fn().mockReturnValue('verification_token_abc'),
+  encrypt: jest.fn().mockImplementation((val) => `encrypted_${val}`),
+  decrypt: jest.fn().mockImplementation((val) => val.replace('encrypted_', '')),
+}))
+
+jest.mock('otplib', () => ({
+  generateSecret: jest.fn().mockReturnValue('secret_key_123'),
+  generateURI: jest.fn().mockReturnValue('otpauth://totp/MediCote:test@example.com?secret=secret_key_123'),
+  verifySync: jest.fn().mockReturnValue({ valid: true }),
+}))
+
+jest.mock('../../../config/redis', () => ({
+  redis: {
+    set: jest.fn().mockResolvedValue('OK'),
+  },
 }))
 
 jest.mock('../../../utils/email', () => ({
@@ -282,6 +298,83 @@ describe('AuthService', () => {
       const updateCall = (mockPrisma.user.update as jest.Mock).mock.calls[0][0]
       expect(updateCall.data.failedLoginAttempts).toBe(0)
       expect(updateCall.data.lockedUntil).toBeNull()
+    })
+
+    it('retourne requires2FA: true et mfaToken si 2FA est activé', async () => {
+      const user = buildUser({ status: UserStatus.ACTIVE, twoFactorEnabled: true })
+      ;(mockPrisma.user.findFirst as jest.Mock).mockResolvedValue(user)
+      mockComparePassword.mockResolvedValue(true)
+      ;(mockPrisma.user.update as jest.Mock).mockResolvedValue(user)
+
+      const result = await service.login('test@example.com', 'Password1!')
+
+      expect(result.requires2FA).toBe(true)
+      expect(result.mfaToken).toBe('mfa_token_123')
+      expect(result.tokens).toBeUndefined()
+    })
+  })
+
+  describe('verify2fa', () => {
+    it('authentifie avec succès avec un code TOTP valide', async () => {
+      const user = buildUser({ twoFactorEnabled: true, twoFactorSecret: 'encrypted_secret_key_123' })
+      ;(mockPrisma.user.findUnique as jest.Mock).mockResolvedValue(user)
+      ;(mockPrisma.patient.findUnique as jest.Mock).mockResolvedValue({ firstName: 'Aya', lastName: 'Koffi' })
+
+      const result = await service.verify2fa('mfa_token_123', '123456')
+
+      expect(result.tokens?.accessToken).toBe('access_token')
+      expect(result.user?.firstName).toBe('Aya')
+    })
+
+    it('rejette si le code TOTP est invalide', async () => {
+      const user = buildUser({ twoFactorEnabled: true, twoFactorSecret: 'encrypted_secret_key_123' })
+      ;(mockPrisma.user.findUnique as jest.Mock).mockResolvedValue(user)
+      const otplib = require('otplib')
+      jest.spyOn(otplib, 'verifySync').mockReturnValueOnce({ valid: false })
+
+      await expect(service.verify2fa('mfa_token_123', '123456')).rejects.toThrow(
+        'Code 2FA incorrect',
+      )
+    })
+
+    it('rejette si le code est rejoué (replay prevention)', async () => {
+      const user = buildUser({ twoFactorEnabled: true, twoFactorSecret: 'encrypted_secret_key_123' })
+      ;(mockPrisma.user.findUnique as jest.Mock).mockResolvedValue(user)
+      const { redis } = require('../../../config/redis')
+      jest.spyOn(redis, 'set').mockResolvedValueOnce(null) // already set
+
+      await expect(service.verify2fa('mfa_token_123', '123456')).rejects.toThrow(
+        'Ce code a déjà été utilisé',
+      )
+    })
+
+    it('authentifie et consomme un code de secours (backup code) valide', async () => {
+      const user = buildUser({
+        twoFactorEnabled: true,
+        backupCodes: ['hashed_backup_1'],
+      })
+      ;(mockPrisma.user.findUnique as jest.Mock).mockResolvedValue(user)
+      mockComparePassword.mockResolvedValueOnce(true) // match backup code
+      ;(mockPrisma.user.update as jest.Mock).mockResolvedValue({})
+
+      const result = await service.verify2fa('mfa_token_123', 'backup_123')
+
+      expect(result.tokens?.accessToken).toBe('access_token')
+      const updateCall = (mockPrisma.user.update as jest.Mock).mock.calls[0][0]
+      expect(updateCall.data.backupCodes).toEqual([]) // removed
+    })
+
+    it('rejette si le code de secours est invalide', async () => {
+      const user = buildUser({
+        twoFactorEnabled: true,
+        backupCodes: ['hashed_backup_1'],
+      })
+      ;(mockPrisma.user.findUnique as jest.Mock).mockResolvedValue(user)
+      mockComparePassword.mockResolvedValueOnce(false)
+
+      await expect(service.verify2fa('mfa_token_123', 'wrong_backup')).rejects.toThrow(
+        'Code de secours incorrect',
+      )
     })
   })
 

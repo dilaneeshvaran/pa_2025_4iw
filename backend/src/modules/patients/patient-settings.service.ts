@@ -1,6 +1,11 @@
+import crypto from 'crypto'
+import { generateSecret, generateURI, verifySync } from 'otplib'
+import QRCode from 'qrcode'
+import { AuditAction } from '@prisma/client'
 import prisma from '../../config/database'
+import { redis } from '../../config/redis'
 import { hashPassword, comparePassword } from '../../utils/bcrypt'
-import { generateToken } from '../../utils/crypto'
+import { generateToken, encrypt, decrypt } from '../../utils/crypto'
 import { sendVerificationEmail } from '../../utils/email'
 import { normalizeEmail } from '../../utils/normalize-email'
 import {
@@ -158,19 +163,175 @@ export class PatientSettingsService {
     return { message: 'Mot de passe mis à jour avec succès' }
   }
 
-  // 2fa toggle
+  // 2fa settings management
 
-  async toggle2FA(userId: string, enabled: boolean) {
+  async setup2FA(userId: string) {
+    const user = await prisma.user.findUnique({
+      where: { id: userId },
+    })
+
+    if (!user) {
+      throw new Error('Utilisateur introuvable')
+    }
+
+    const secret = generateSecret()
+    const encryptedSecret = encrypt(secret)
+
+    // Save secret immediately as pending setup (twoFactorEnabled remains false)
     await prisma.user.update({
       where: { id: userId },
-      data: { twoFactorEnabled: enabled },
+      data: {
+        twoFactorSecret: encryptedSecret,
+      },
+    })
+
+    const otpauthUrl = generateURI({ secret, label: user.email, issuer: 'MediCote' })
+    const qrCodeUrl = await QRCode.toDataURL(otpauthUrl)
+
+    return {
+      secret,
+      qrCodeUrl,
+    }
+  }
+
+  async verifyAndEnable2FA(userId: string, code: string) {
+    const user = await prisma.user.findUnique({
+      where: { id: userId },
+    })
+
+    if (!user || !user.twoFactorSecret) {
+      throw new Error('Secret 2FA non configuré. Lancez d\'abord l\'étape de configuration.')
+    }
+
+    const decryptedSecret = decrypt(user.twoFactorSecret)
+    const isValid = verifySync({
+      token: code,
+      secret: decryptedSecret,
+    }).valid
+
+    if (!isValid) {
+      throw new Error('Code de vérification incorrect')
+    }
+
+    // Replay prevention
+    const replayKey = `mfa:replay:${user.id}:${code}`
+    const isNew = await redis.set(replayKey, '1', 'EX', 60, 'NX')
+    if (!isNew) {
+      throw new Error('Ce code a déjà été utilisé')
+    }
+
+    // Generate 8 backup codes
+    const rawBackupCodes: string[] = []
+    const hashedBackupCodes: string[] = []
+
+    for (let i = 0; i < 8; i++) {
+      const rawCode = crypto.randomBytes(5).toString('hex') // 10 chars
+      rawBackupCodes.push(rawCode)
+      const hashedCode = await hashPassword(rawCode)
+      hashedBackupCodes.push(hashedCode)
+    }
+
+    await prisma.user.update({
+      where: { id: userId },
+      data: {
+        twoFactorEnabled: true,
+        backupCodes: hashedBackupCodes,
+      },
+    })
+
+    // Write audit log
+    await prisma.auditLog.create({
+      data: {
+        userId,
+        action: AuditAction.UPDATE,
+        resource: 'User',
+        resourceId: userId,
+        metadata: {
+          change: 'enable_2fa',
+        },
+      },
     })
 
     return {
-      twoFactorEnabled: enabled,
-      message: enabled
-        ? 'Authentification à deux facteurs activée'
-        : 'Authentification à deux facteurs désactivée',
+      twoFactorEnabled: true,
+      backupCodes: rawBackupCodes,
+      message: 'L\'authentification à deux facteurs a été activée avec succès.',
+    }
+  }
+
+  async disable2FA(userId: string, verificationCode?: string, password?: string) {
+    const user = await prisma.user.findUnique({
+      where: { id: userId },
+    })
+
+    if (!user) {
+      throw new Error('Utilisateur introuvable')
+    }
+
+    if (!user.twoFactorEnabled) {
+      throw new Error('L\'authentification à deux facteurs n\'est pas activée')
+    }
+
+    let verified = false
+
+    if (verificationCode) {
+      const isBackupCode = verificationCode.length !== 6
+      if (isBackupCode) {
+        // Verify backup code
+        let matchedIndex = -1
+        for (let i = 0; i < user.backupCodes.length; i++) {
+          const isMatch = await comparePassword(verificationCode, user.backupCodes[i])
+          if (isMatch) {
+            matchedIndex = i
+            break
+          }
+        }
+        if (matchedIndex !== -1) {
+          verified = true
+        }
+      } else {
+        // Verify TOTP code
+        if (user.twoFactorSecret) {
+          const decryptedSecret = decrypt(user.twoFactorSecret)
+          verified = verifySync({
+            token: verificationCode,
+            secret: decryptedSecret,
+          }).valid
+        }
+      }
+    } else if (password && user.password) {
+      verified = await comparePassword(password, user.password)
+    }
+
+    if (!verified) {
+      throw new Error('Vérification échouée. Impossible de désactiver la 2FA.')
+    }
+
+    await prisma.user.update({
+      where: { id: userId },
+      data: {
+        twoFactorEnabled: false,
+        twoFactorSecret: null,
+        backupCodes: [],
+      },
+    })
+
+    // Write audit log
+    await prisma.auditLog.create({
+      data: {
+        userId,
+        action: AuditAction.UPDATE,
+        resource: 'User',
+        resourceId: userId,
+        metadata: {
+          change: 'disable_2fa',
+        },
+      },
+    })
+
+    return {
+      twoFactorEnabled: false,
+      message: 'L\'authentification à deux facteurs a été désactivée avec succès.',
     }
   }
 

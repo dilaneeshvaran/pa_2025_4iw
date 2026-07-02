@@ -25,6 +25,18 @@ export const useAuth = () => {
     });
   };
 
+  const verify2fa = async (data: {
+    mfaToken: string;
+    code: string;
+  }): Promise<AuthResponse> => {
+    return await $fetch<AuthResponse>("/auth/verify-2fa", {
+      baseURL: apiBase,
+      method: "POST",
+      body: data,
+      credentials: "include",
+    });
+  };
+
   const requestPasswordReset = async (data: { email: string }) => {
     return await $fetch("/auth/request-password-reset", {
       baseURL: apiBase,
@@ -76,6 +88,7 @@ export const useAuth = () => {
   return {
     signup,
     login,
+    verify2fa,
     requestPasswordReset,
     resetPassword,
     verifyEmail,

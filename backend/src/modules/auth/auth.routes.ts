@@ -9,6 +9,7 @@ import {
   requestPasswordResetSchema,
   resetPasswordSchema,
   refreshTokenSchema,
+  verify2faSchema,
 } from './auth.schema'
 import { authenticate } from '../../middleware/authenticate'
 
@@ -121,5 +122,17 @@ export async function authRoutes(fastify: FastifyInstance) {
       },
     },
     authController.validateSession,
+  )
+
+  app.post(
+    '/verify-2fa',
+    {
+      schema: {
+        body: verify2faSchema,
+        tags: ['Authentication'],
+        description: 'Verify 2FA TOTP code or backup code during login challenge',
+      },
+    },
+    authController.verify2fa,
   )
 }

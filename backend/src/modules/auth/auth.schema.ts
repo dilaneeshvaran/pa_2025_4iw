@@ -84,3 +84,13 @@ export const resendVerificationSchema = z.object({
 })
 
 export type ResendVerificationInput = z.infer<typeof resendVerificationSchema>
+
+export const verify2faSchema = z.object({
+  mfaToken: z.string().min(1, 'Le token MFA est requis'),
+  code: z
+    .string()
+    .min(6, 'Le code doit contenir au moins 6 caractères')
+    .max(10, 'Le code ne peut pas dépasser 10 caractères'),
+})
+
+export type Verify2faInput = z.infer<typeof verify2faSchema>

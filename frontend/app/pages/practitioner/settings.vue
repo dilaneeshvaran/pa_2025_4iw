@@ -371,6 +371,187 @@
         </div>
       </UiCard>
     </div>
+
+    <!-- 2FA SETUP MODAL -->
+    <div
+      v-if="showSetupModal"
+      class="fixed inset-0 z-50 flex items-center justify-center p-4 bg-gray-900/60 backdrop-blur-sm"
+      role="dialog"
+      aria-modal="true"
+      aria-labelledby="setup-modal-title"
+    >
+      <div class="bg-white rounded-2xl max-w-md w-full p-6 shadow-2xl border border-gray-100 transition-all transform scale-100 max-h-[90vh] overflow-y-auto">
+        <!-- Setup Phase -->
+        <div v-if="!showBackupCodes">
+          <div class="flex items-center justify-between mb-4">
+            <h3 id="setup-modal-title" class="text-xl font-bold text-gray-900 flex items-center gap-2">
+              <Shield class="w-6 h-6 text-orange-500" />
+              Configurer la 2FA
+            </h3>
+            <button
+              @click="showSetupModal = false"
+              class="text-gray-400 hover:text-gray-600 transition p-1 rounded-lg focus:ring-2 focus:ring-orange-500"
+              aria-label="Fermer"
+            >
+              &times;
+            </button>
+          </div>
+          <p class="text-sm text-gray-600 mb-4">
+            Scannez ce code QR avec votre application d'authentification (Google Authenticator, Authy, etc.) ou saisissez la clé de configuration manuellement.
+          </p>
+
+          <div class="flex flex-col items-center justify-center my-4 p-4 bg-gray-50 rounded-xl border border-dashed border-gray-200">
+            <img :src="qrCodeUrl" alt="QR Code 2FA" class="w-48 h-48 shadow-sm rounded-lg" />
+            <div class="mt-4 text-center w-full">
+              <span class="text-xs text-gray-400 font-medium uppercase tracking-wider block">Clé de configuration</span>
+              <div class="flex items-center justify-center gap-2 mt-1">
+                <code class="text-sm font-mono bg-gray-100 px-2 py-1 rounded text-orange-600 font-bold block select-all break-all">
+                  {{ secretKey }}
+                </code>
+              </div>
+            </div>
+          </div>
+
+          <div class="mt-4">
+            <label for="2fa-verification-code-practitioner" class="block text-sm font-medium text-gray-700 mb-1">
+              Code de vérification (6 chiffres)
+            </label>
+            <input
+              id="2fa-verification-code-practitioner"
+              v-model="verificationCode"
+              type="text"
+              pattern="[0-9]*"
+              inputmode="numeric"
+              maxlength="6"
+              placeholder="000000"
+              class="w-full text-center tracking-widest text-lg font-bold font-mono rounded-xl border border-gray-300 px-3 py-2.5 placeholder-gray-400 shadow-sm focus:border-orange-500 focus:outline-none focus:ring-2 focus:ring-orange-500"
+              @keyup.enter="verify2FA"
+            />
+            <p v-if="codeError" class="mt-2 text-sm text-red-600" role="alert">
+              {{ codeError }}
+            </p>
+          </div>
+
+          <div class="mt-6 flex justify-end gap-3">
+            <button
+              @click="showSetupModal = false"
+              class="px-4 py-2 text-sm font-semibold text-gray-700 bg-gray-100 hover:bg-gray-200 rounded-xl transition focus:ring-2 focus:ring-gray-400"
+            >
+              Annuler
+            </button>
+            <button
+              @click="verify2FA"
+              :disabled="toggling2FA || verificationCode.length < 6"
+              class="px-5 py-2 text-sm font-semibold text-white bg-orange-500 hover:bg-orange-600 rounded-xl transition focus:ring-2 focus:ring-orange-500 disabled:opacity-50 disabled:cursor-not-allowed flex items-center gap-1.5"
+            >
+              <span v-if="toggling2FA">Vérification...</span>
+              <span v-else>Activer</span>
+            </button>
+          </div>
+        </div>
+
+        <!-- Backup Codes Phase -->
+        <div v-else>
+          <div class="flex items-center justify-between mb-4">
+            <h3 class="text-xl font-bold text-gray-900 flex items-center gap-2">
+              <Shield class="w-6 h-6 text-green-600" />
+              Codes de secours générés
+            </h3>
+          </div>
+          <p class="text-sm text-gray-600 mb-4">
+            Voici vos codes de secours. Conservez-les précieusement dans un endroit sûr (comme un gestionnaire de mots de passe). Ils vous permettront d'accéder à votre compte si vous n'avez plus accès à votre application d'authentification.
+          </p>
+
+          <div class="bg-red-50 border border-red-200 rounded-xl p-3 mb-4 text-xs text-red-800">
+            <strong>ATTENTION :</strong> Ces codes de secours ne seront affichés qu'une seule fois. Chacun d'eux ne peut être utilisé qu'une seule fois.
+          </div>
+
+          <div class="grid grid-cols-2 gap-2 p-3 bg-gray-50 border border-gray-100 rounded-xl font-mono text-center text-sm text-gray-800">
+            <div v-for="code in backupCodes" :key="code" class="p-1 rounded bg-white border border-gray-200 select-all font-bold">
+              {{ code }}
+            </div>
+          </div>
+
+          <div class="mt-6 flex flex-col sm:flex-row gap-2">
+            <button
+              @click="copyBackupCodes"
+              class="flex-1 px-4 py-2 text-sm font-semibold text-gray-700 bg-gray-100 hover:bg-gray-200 rounded-xl transition focus:ring-2 focus:ring-gray-400 flex items-center justify-center gap-1.5"
+            >
+              <svg class="w-4 h-4 inline mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4"></path></svg>
+              Copier les codes
+            </button>
+            <button
+              @click="showSetupModal = false"
+              class="flex-1 px-4 py-2 text-sm font-semibold text-white bg-green-600 hover:bg-green-700 rounded-xl transition focus:ring-2 focus:ring-green-500"
+            >
+              J'ai sauvegardé mes codes
+            </button>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- 2FA DISABLE MODAL -->
+    <div
+      v-if="showDisableModal"
+      class="fixed inset-0 z-50 flex items-center justify-center p-4 bg-gray-900/60 backdrop-blur-sm"
+      role="dialog"
+      aria-modal="true"
+      aria-labelledby="disable-modal-title"
+    >
+      <div class="bg-white rounded-2xl max-w-md w-full p-6 shadow-2xl border border-gray-100 transition-all transform scale-100">
+        <div class="flex items-center justify-between mb-4">
+          <h3 id="disable-modal-title" class="text-xl font-bold text-gray-900 flex items-center gap-2">
+            <svg class="w-6 h-6 text-red-500" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"></path></svg>
+            Désactiver la 2FA ?
+          </h3>
+          <button
+            @click="showDisableModal = false"
+            class="text-gray-400 hover:text-gray-600 transition p-1 rounded-lg focus:ring-2 focus:ring-red-500"
+            aria-label="Fermer"
+          >
+            &times;
+          </button>
+        </div>
+        <p class="text-sm text-gray-600 mb-4">
+          La désactivation de la double authentification réduit la sécurité de votre compte. Saisissez votre mot de passe pour confirmer cette action.
+        </p>
+
+        <div>
+          <label for="2fa-disable-password-practitioner" class="block text-sm font-medium text-gray-700 mb-1">
+            Mot de passe actuel
+          </label>
+          <input
+            id="2fa-disable-password-practitioner"
+            v-model="disablePassword"
+            type="password"
+            placeholder="••••••••"
+            class="w-full rounded-xl border border-gray-300 px-3 py-2 placeholder-gray-400 shadow-sm focus:border-red-500 focus:outline-none focus:ring-2 focus:ring-red-500"
+            @keyup.enter="confirmDisable2FA"
+          />
+          <p v-if="disableError" class="mt-2 text-sm text-red-600" role="alert">
+            {{ disableError }}
+          </p>
+        </div>
+
+        <div class="mt-6 flex justify-end gap-3">
+          <button
+            @click="showDisableModal = false"
+            class="px-4 py-2 text-sm font-semibold text-gray-700 bg-gray-100 hover:bg-gray-200 rounded-xl transition focus:ring-2 focus:ring-gray-400"
+          >
+            Annuler
+          </button>
+          <button
+            @click="confirmDisable2FA"
+            :disabled="toggling2FA || !disablePassword"
+            class="px-5 py-2 text-sm font-semibold text-white bg-red-600 hover:bg-red-700 rounded-xl transition focus:ring-2 focus:ring-red-500 disabled:opacity-50 disabled:cursor-not-allowed"
+          >
+            <span v-if="toggling2FA">Désactivation...</span>
+            <span v-else>Désactiver</span>
+          </button>
+        </div>
+      </div>
+    </div>
   </div>
 </template>
 
@@ -396,6 +577,19 @@ const toast = useToast();
 
 const loading = ref(true);
 const twoFactorEnabled = ref(false);
+
+// 2FA modal state refs
+const showSetupModal = ref(false);
+const showDisableModal = ref(false);
+const qrCodeUrl = ref("");
+const secretKey = ref("");
+const verificationCode = ref("");
+const disablePassword = ref("");
+const backupCodes = ref<string[]>([]);
+const showBackupCodes = ref(false);
+const codeError = ref("");
+const disableError = ref("");
+const toggling2FA = ref(false);
 const notifications = ref<Record<string, boolean>>({
   appointmentReminders: true,
   newMessages: true,
@@ -547,16 +741,106 @@ const updatePassword = async () => {
 };
 
 const toggle2fa = async () => {
-  try {
-    await useAuthenticatedFetch("/settings/2fa", {
-      method: "PATCH",
-      body: { enabled: twoFactorEnabled.value },
-    });
-    toast.success("2FA mis à jour");
-  } catch (error: unknown) {
-    twoFactorEnabled.value = !twoFactorEnabled.value; // revert
-    console.error("Error updating 2FA:", error);
+  if (twoFactorEnabled.value) {
+    // Checkbox is checked (meaning they want to enable). Revert visually first.
+    twoFactorEnabled.value = false;
+    await start2FASetup();
+  } else {
+    // Checkbox is unchecked (meaning they want to disable). Revert visually first.
+    twoFactorEnabled.value = true;
+    disablePassword.value = "";
+    disableError.value = "";
+    showDisableModal.value = true;
   }
+};
+
+const start2FASetup = async () => {
+  toggling2FA.value = true;
+  codeError.value = "";
+  verificationCode.value = "";
+  try {
+    const res = await useAuthenticatedFetch<{
+      success: boolean;
+      data: { secret: string; qrCodeUrl: string };
+    }>("/settings/2fa/setup", {
+      method: "POST",
+    });
+    if (res.success && res.data) {
+      secretKey.value = res.data.secret;
+      qrCodeUrl.value = res.data.qrCodeUrl;
+      showSetupModal.value = true;
+      showBackupCodes.value = false;
+    }
+  } catch (e: unknown) {
+    const err = e as { data?: { message?: string } };
+    toast.error(err.data?.message || "Erreur lors de la configuration du 2FA");
+  } finally {
+    toggling2FA.value = false;
+  }
+};
+
+const verify2FA = async () => {
+  if (!verificationCode.value || verificationCode.value.length < 6) {
+    codeError.value = "Veuillez entrer un code de 6 chiffres";
+    return;
+  }
+  codeError.value = "";
+  toggling2FA.value = true;
+  try {
+    const res = await useAuthenticatedFetch<{
+      success: boolean;
+      data: { twoFactorEnabled: boolean; backupCodes: string[]; message: string };
+    }>("/settings/2fa/verify", {
+      method: "POST",
+      body: { code: verificationCode.value },
+    });
+    if (res.success && res.data) {
+      twoFactorEnabled.value = res.data.twoFactorEnabled;
+      backupCodes.value = res.data.backupCodes;
+      showBackupCodes.value = true;
+      toast.success("Authentification à deux facteurs activée !");
+    }
+  } catch (e: unknown) {
+    const err = e as { data?: { message?: string } };
+    codeError.value = err.data?.message || "Code incorrect. Veuillez réessayer.";
+  } finally {
+    toggling2FA.value = false;
+  }
+};
+
+const confirmDisable2FA = async () => {
+  if (!disablePassword.value) {
+    disableError.value = "Le mot de passe est requis";
+    return;
+  }
+  disableError.value = "";
+  toggling2FA.value = true;
+  try {
+    const res = await useAuthenticatedFetch<{
+      success: boolean;
+      data: { twoFactorEnabled: boolean; message: string };
+    }>("/settings/2fa/disable", {
+      method: "POST",
+      body: { password: disablePassword.value },
+    });
+    if (res.success) {
+      twoFactorEnabled.value = false;
+      showDisableModal.value = false;
+      toast.success("2FA désactivé avec succès");
+    }
+  } catch (e: unknown) {
+    const err = e as { data?: { message?: string } };
+    disableError.value = err.data?.message || "Mot de passe incorrect. Impossible de désactiver la 2FA.";
+  } finally {
+    toggling2FA.value = false;
+  }
+};
+
+const copyBackupCodes = () => {
+  if (backupCodes.value.length === 0) return;
+  const text = backupCodes.value.join("\n");
+  navigator.clipboard.writeText(text);
+  toast.success("Codes de secours copiés dans le presse-papiers !");
 };
 
 const updateNotifications = async () => {

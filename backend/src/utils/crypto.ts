@@ -1,8 +1,15 @@
 import crypto from 'crypto'
 
 const ALGORITHM = 'aes-256-gcm'
-const ENCRYPTION_KEY =
-  process.env.BACKEND_ENCRYPTION_KEY || crypto.randomBytes(32).toString('hex')
+
+const RAW_KEY = process.env.BACKEND_ENCRYPTION_KEY
+
+if (process.env.NODE_ENV === 'production' && !RAW_KEY) {
+  throw new Error('BACKEND_ENCRYPTION_KEY est requis en environnement de production')
+}
+
+// Stable 32-byte hex fallback for development/testing so that restarting the server doesn't break decryption
+const ENCRYPTION_KEY = RAW_KEY || 'd3b07384d113edec49eaa6238ad5ff00b71902800b45ca73390d2e1071b7642a'
 
 export function generateToken(length: number = 32): string {
   return crypto.randomBytes(length).toString('hex')

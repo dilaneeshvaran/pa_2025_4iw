@@ -9,6 +9,7 @@ import {
   requestPasswordResetSchema,
   resetPasswordSchema,
   refreshTokenSchema,
+  verify2faSchema,
 } from './auth.schema'
 
 const authService = new AuthService()
@@ -194,6 +195,24 @@ export async function validateSession(
     return reply.status(401).send({
       success: false,
       message: 'Session invalide',
+    })
+  }
+}
+
+export async function verify2fa(request: FastifyRequest, reply: FastifyReply) {
+  try {
+    const data = verify2faSchema.parse(request.body)
+    const result = await authService.verify2fa(data.mfaToken, data.code)
+
+    return reply.send({
+      success: true,
+      message: 'Connexion 2FA réussie',
+      data: result,
+    })
+  } catch (error: any) {
+    return reply.status(401).send({
+      success: false,
+      message: sanitizeErrorMessage(error, 'Erreur lors de la vérification 2FA'),
     })
   }
 }
