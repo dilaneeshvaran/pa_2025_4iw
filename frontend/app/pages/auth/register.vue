@@ -228,6 +228,13 @@
         </div>
       </form>
     </div>
+
+    <!-- redirection idicator -->
+    <UiRedirectingOverlay
+      :show="showRedirecting"
+      title="Inscription réussie !"
+      message="Nous vous redirigeons vers la page de connexion..."
+    />
   </div>
 </template>
 
@@ -283,6 +290,7 @@ const loading = ref(false);
 const agreeTerms = ref(false);
 const errorMessage = ref("");
 const successMessage = ref("");
+const showRedirecting = ref(false);
 
 const handleRegister = async () => {
   loading.value = true;
@@ -330,6 +338,9 @@ const handleRegister = async () => {
 
     successMessage.value =
       "Inscription réussie ! Un email de vérification a été envoyé à votre adresse email.";
+
+    // Show redirection popup
+    showRedirecting.value = true;
 
     // redirect to login with original redirect url after 3 seconds
     const redirectParam = route.query.redirect
