@@ -72,6 +72,26 @@ export default defineNuxtRouteMiddleware((to, _from) => {
     return navigateTo("/auth/verify-email-notice");
   }
 
+  // Redirect unpaid practitioners to the pay page
+  if (
+    isUserAuthenticated &&
+    userRole === "PRACTITIONER" &&
+    authStore.user?.isUnpaid &&
+    to.path !== "/practitioner/pay"
+  ) {
+    return navigateTo("/practitioner/pay");
+  }
+
+  // Prevent paid practitioners from accessing pay page
+  if (
+    isUserAuthenticated &&
+    userRole === "PRACTITIONER" &&
+    !authStore.user?.isUnpaid &&
+    to.path === "/practitioner/pay"
+  ) {
+    return navigateTo("/practitioner/dashboard");
+  }
+
   if (isUserAuthenticated && to.path === "/") {
     if (!isEmailVerified) {
       return navigateTo("/auth/verify-email-notice");

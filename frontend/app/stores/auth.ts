@@ -17,6 +17,7 @@ interface User {
   emailVerified: boolean;
   firstName?: string | null;
   lastName?: string | null;
+  isUnpaid?: boolean;
 }
 
 // decode jwt to get expiration time

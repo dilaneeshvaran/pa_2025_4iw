@@ -20,6 +20,28 @@ import { normalizeEmail } from '../../utils/normalize-email'
 import { CreateUserData, AuthResponse, AuthTokens } from './auth.types'
 
 export class AuthService {
+  private async isPractitionerUnpaid(userId: string): Promise<boolean> {
+    const practitioner = await prisma.practitioner.findUnique({
+      where: { userId },
+      select: {
+        licenseVerifiedAt: true,
+        savedPaymentMethods: {
+          where: { isVerified: true },
+          select: { id: true },
+        },
+      },
+    })
+
+    if (!practitioner || !practitioner.licenseVerifiedAt) {
+      return false
+    }
+
+    const billingDate = new Date(practitioner.licenseVerifiedAt)
+    billingDate.setMonth(billingDate.getMonth() + 1)
+
+    return new Date() > billingDate && practitioner.savedPaymentMethods.length === 0
+  }
+
   async signup(data: CreateUserData): Promise<AuthResponse> {
     const normalizedEmail = normalizeEmail(data.email)
 
@@ -191,6 +213,7 @@ export class AuthService {
     }
 
     const tokens = await this.generateTokens(user.id, user.email, user.role)
+    const isUnpaid = user.role === UserRole.PRACTITIONER && (await this.isPractitionerUnpaid(user.id))
 
     return {
       user: {
@@ -201,6 +224,7 @@ export class AuthService {
         emailVerified: !!user.emailVerified,
         firstName,
         lastName,
+        isUnpaid,
       },
       tokens,
     }
@@ -310,6 +334,7 @@ export class AuthService {
     }
 
     const tokens = await this.generateTokens(user.id, user.email, user.role)
+    const isUnpaid = user.role === UserRole.PRACTITIONER && (await this.isPractitionerUnpaid(user.id))
 
     return {
       user: {
@@ -320,6 +345,7 @@ export class AuthService {
         emailVerified: !!user.emailVerified,
         firstName,
         lastName,
+        isUnpaid,
       },
       tokens,
     }

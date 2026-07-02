@@ -233,30 +233,40 @@ export class PaymentsController {
     }
   }
 
-  async getSavedPaymentMethods(request: FastifyRequest, reply: FastifyReply) {
-    try {
-      const user = request.user as { id: string; role: string }
-
+  private async getProfileIdAndRole(user: { id: string; role: string }) {
+    if (user.role === 'PATIENT') {
       const patient = await prisma.patient.findUnique({
         where: { userId: user.id },
         select: { id: true },
       })
+      if (!patient) throw new Error('Profil patient non trouvé')
+      return { profileId: patient.id, role: 'PATIENT' }
+    } else if (user.role === 'PRACTITIONER') {
+      const practitioner = await prisma.practitioner.findUnique({
+        where: { userId: user.id },
+        select: { id: true },
+      })
+      if (!practitioner) throw new Error('Profil praticien non trouvé')
+      return { profileId: practitioner.id, role: 'PRACTITIONER' }
+    } else {
+      throw new Error('Rôle non autorisé pour gérer les moyens de paiement')
+    }
+  }
 
-      if (!patient) {
-        return reply.status(404).send({
-          success: false,
-          message: 'Profil patient non trouvé',
-        })
-      }
+  async getSavedPaymentMethods(request: FastifyRequest, reply: FastifyReply) {
+    try {
+      const user = request.user as { id: string; role: string }
+      const { profileId, role } = await this.getProfileIdAndRole(user)
 
-      const methods = await paymentsService.getSavedPaymentMethods(patient.id)
+      const methods = await paymentsService.getSavedPaymentMethods(profileId, role)
 
       return reply.send({ success: true, data: methods })
     } catch (error) {
       request.log.error(error)
-      return reply.status(500).send({
+      const message = sanitizeErrorMessage(error, 'Erreur lors de la récupération des moyens de paiement')
+      return reply.status(400).send({
         success: false,
-        message: 'Erreur lors de la récupération des moyens de paiement',
+        message,
       })
     }
   }
@@ -265,20 +275,9 @@ export class PaymentsController {
     try {
       const user = request.user as { id: string; role: string }
       const body = request.body as any
+      const { profileId, role } = await this.getProfileIdAndRole(user)
 
-      const patient = await prisma.patient.findUnique({
-        where: { userId: user.id },
-        select: { id: true },
-      })
-
-      if (!patient) {
-        return reply.status(404).send({
-          success: false,
-          message: 'Profil patient non trouvé',
-        })
-      }
-
-      const method = await paymentsService.addPaymentMethod(patient.id, body)
+      const method = await paymentsService.addPaymentMethod(profileId, body, role)
 
       return reply.status(201).send({
         success: true,
@@ -297,23 +296,13 @@ export class PaymentsController {
       const user = request.user as { id: string; role: string }
       const { methodId } = request.params as { methodId: string }
       const body = request.body as { verificationCode: string }
-
-      const patient = await prisma.patient.findUnique({
-        where: { userId: user.id },
-        select: { id: true },
-      })
-
-      if (!patient) {
-        return reply.status(404).send({
-          success: false,
-          message: 'Profil patient non trouvé',
-        })
-      }
+      const { profileId, role } = await this.getProfileIdAndRole(user)
 
       const method = await paymentsService.verifyPaymentMethod(
         methodId,
-        patient.id,
+        profileId,
         body.verificationCode,
+        role,
       )
 
       return reply.send({
@@ -332,20 +321,9 @@ export class PaymentsController {
     try {
       const user = request.user as { id: string; role: string }
       const { methodId } = request.params as { methodId: string }
+      const { profileId, role } = await this.getProfileIdAndRole(user)
 
-      const patient = await prisma.patient.findUnique({
-        where: { userId: user.id },
-        select: { id: true },
-      })
-
-      if (!patient) {
-        return reply.status(404).send({
-          success: false,
-          message: 'Profil patient non trouvé',
-        })
-      }
-
-      await paymentsService.deletePaymentMethod(methodId, patient.id)
+      await paymentsService.deletePaymentMethod(methodId, profileId, role)
 
       return reply.send({
         success: true,
@@ -362,20 +340,9 @@ export class PaymentsController {
     try {
       const user = request.user as { id: string; role: string }
       const { methodId } = request.params as { methodId: string }
+      const { profileId, role } = await this.getProfileIdAndRole(user)
 
-      const patient = await prisma.patient.findUnique({
-        where: { userId: user.id },
-        select: { id: true },
-      })
-
-      if (!patient) {
-        return reply.status(404).send({
-          success: false,
-          message: 'Profil patient non trouvé',
-        })
-      }
-
-      await paymentsService.setDefaultPaymentMethod(methodId, patient.id)
+      await paymentsService.setDefaultPaymentMethod(methodId, profileId, role)
 
       return reply.send({
         success: true,

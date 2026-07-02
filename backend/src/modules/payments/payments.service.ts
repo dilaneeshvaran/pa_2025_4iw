@@ -606,10 +606,12 @@ export class PaymentsService {
   }
 
   async getSavedPaymentMethods(
-    patientId: string,
+    profileId: string,
+    role: string = 'PATIENT',
   ): Promise<SavedPaymentMethodResult[]> {
+    const where = role === 'PATIENT' ? { patientId: profileId } : { practitionerId: profileId }
     const methods = await prisma.savedPaymentMethod.findMany({
-      where: { patientId },
+      where,
       orderBy: [{ isDefault: 'desc' }, { createdAt: 'desc' }],
     })
 
@@ -630,13 +632,15 @@ export class PaymentsService {
   }
 
   async addPaymentMethod(
-    patientId: string,
+    profileId: string,
     data: AddPaymentMethodData,
+    role: string = 'PATIENT',
   ): Promise<SavedPaymentMethodResult> {
+    const whereReset = role === 'PATIENT' ? { patientId: profileId, isDefault: true } : { practitionerId: profileId, isDefault: true }
     // if setting as default, unset other default
     if (data.isDefault) {
       await prisma.savedPaymentMethod.updateMany({
-        where: { patientId, isDefault: true },
+        where: whereReset,
         data: { isDefault: false },
       })
     }
@@ -659,34 +663,46 @@ export class PaymentsService {
 
     // check duplicates
     if (data.type === 'MOBILE_MONEY') {
+      const whereDup = role === 'PATIENT' ? {
+        patientId: profileId,
+        type: 'MOBILE_MONEY' as const,
+        mobileOperator: data.mobileOperator,
+        mobileNumber: data.mobileNumber,
+      } : {
+        practitionerId: profileId,
+        type: 'MOBILE_MONEY' as const,
+        mobileOperator: data.mobileOperator,
+        mobileNumber: data.mobileNumber,
+      }
       const existing = await prisma.savedPaymentMethod.findFirst({
-        where: {
-          patientId,
-          type: 'MOBILE_MONEY',
-          mobileOperator: data.mobileOperator,
-          mobileNumber: data.mobileNumber,
-        },
+        where: whereDup,
       })
       if (existing) {
         throw new Error('Ce moyen de paiement mobile est déjà enregistré')
       }
     }
 
+    const createData: any = {
+      type: data.type as PaymentMethod,
+      label: label!,
+      isDefault: data.isDefault || false,
+      cardLast4: data.cardLast4 || null,
+      cardBrand: data.cardBrand || null,
+      cardExpMonth: data.cardExpMonth || null,
+      cardExpYear: data.cardExpYear || null,
+      mobileOperator: data.mobileOperator || null,
+      mobileNumber: data.mobileNumber || null,
+      // todo : in prod send otp to phone or verify card via gateway
+      isVerified: false,
+    }
+    if (role === 'PATIENT') {
+      createData.patientId = profileId
+    } else {
+      createData.practitionerId = profileId
+    }
+
     const method = await prisma.savedPaymentMethod.create({
-      data: {
-        patientId,
-        type: data.type as PaymentMethod,
-        label: label!,
-        isDefault: data.isDefault || false,
-        cardLast4: data.cardLast4 || null,
-        cardBrand: data.cardBrand || null,
-        cardExpMonth: data.cardExpMonth || null,
-        cardExpYear: data.cardExpYear || null,
-        mobileOperator: data.mobileOperator || null,
-        mobileNumber: data.mobileNumber || null,
-        // todo : in prod send otp to phone or verify card via gateway
-        isVerified: false,
-      },
+      data: createData,
     })
 
     return {
@@ -709,8 +725,9 @@ export class PaymentsService {
 
   async verifyPaymentMethod(
     methodId: string,
-    patientId: string,
+    profileId: string,
     _verificationCode: string,
+    role: string = 'PATIENT',
   ): Promise<SavedPaymentMethodResult> {
     const method = await prisma.savedPaymentMethod.findUnique({
       where: { id: methodId },
@@ -720,7 +737,8 @@ export class PaymentsService {
       throw new Error('Moyen de paiement non trouvé')
     }
 
-    if (method.patientId !== patientId) {
+    const isOwner = role === 'PATIENT' ? method.patientId === profileId : method.practitionerId === profileId
+    if (!isOwner) {
       throw new Error("Vous n'avez pas accès à ce moyen de paiement")
     }
 
@@ -758,7 +776,8 @@ export class PaymentsService {
 
   async deletePaymentMethod(
     methodId: string,
-    patientId: string,
+    profileId: string,
+    role: string = 'PATIENT',
   ): Promise<void> {
     const method = await prisma.savedPaymentMethod.findUnique({
       where: { id: methodId },
@@ -768,7 +787,8 @@ export class PaymentsService {
       throw new Error('Moyen de paiement non trouvé')
     }
 
-    if (method.patientId !== patientId) {
+    const isOwner = role === 'PATIENT' ? method.patientId === profileId : method.practitionerId === profileId
+    if (!isOwner) {
       throw new Error("Vous n'avez pas accès à ce moyen de paiement")
     }
 
@@ -777,7 +797,8 @@ export class PaymentsService {
 
   async setDefaultPaymentMethod(
     methodId: string,
-    patientId: string,
+    profileId: string,
+    role: string = 'PATIENT',
   ): Promise<void> {
     const method = await prisma.savedPaymentMethod.findUnique({
       where: { id: methodId },
@@ -787,14 +808,17 @@ export class PaymentsService {
       throw new Error('Moyen de paiement non trouvé')
     }
 
-    if (method.patientId !== patientId) {
+    const isOwner = role === 'PATIENT' ? method.patientId === profileId : method.practitionerId === profileId
+    if (!isOwner) {
       throw new Error("Vous n'avez pas accès à ce moyen de paiement")
     }
+
+    const whereReset = role === 'PATIENT' ? { patientId: profileId, isDefault: true } : { practitionerId: profileId, isDefault: true }
 
     // unset other defaults and set this one
     await prisma.$transaction([
       prisma.savedPaymentMethod.updateMany({
-        where: { patientId, isDefault: true },
+        where: whereReset,
         data: { isDefault: false },
       }),
       prisma.savedPaymentMethod.update({
