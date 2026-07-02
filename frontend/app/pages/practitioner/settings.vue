@@ -355,7 +355,7 @@
             </div>
             <div class="text-right">
               <p class="mb-1 text-2xl font-bold text-orange-700">
-                12 000 XOF <span class="text-sm font-normal">/ mois</span>
+                {{ getPlanPriceFormatted(subscription.plan) }} <span class="text-sm font-normal">/ mois</span>
               </p>
             </div>
           </div>
@@ -632,6 +632,7 @@ import {
   CheckCircle,
 } from "lucide-vue-next";
 import { useToast } from "vue-toastification";
+import { getPlanPriceFormatted } from "~/utils/subscription";
 
 definePageMeta({
   layout: "practitioner",

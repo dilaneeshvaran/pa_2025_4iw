@@ -53,9 +53,9 @@
         @change="resetAndFetch"
       >
         <option value="">Tous les plans</option>
-        <option value="FREE">Free</option>
-        <option value="PREMIUM">Premium</option>
-        <option value="PRO">Pro</option>
+        <option value="FREE">Free (0 XOF / mois)</option>
+        <option value="PREMIUM">Premium (12 000 XOF / mois)</option>
+        <option value="PRO">Pro (24 000 XOF / mois)</option>
       </select>
       <button
         class="rounded-lg bg-gray-100 px-4 py-2 text-sm text-gray-700 transition-colors hover:bg-gray-200"
@@ -196,9 +196,9 @@
               v-model="editForm.plan"
               class="w-full rounded-lg border border-gray-300 px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-orange-500"
             >
-              <option value="FREE">Free</option>
-              <option value="PREMIUM">Premium</option>
-              <option value="PRO">Pro</option>
+              <option value="FREE">Free (0 XOF / mois)</option>
+              <option value="PREMIUM">Premium (12 000 XOF / mois)</option>
+              <option value="PRO">Pro (24 000 XOF / mois)</option>
             </select>
           </div>
 
