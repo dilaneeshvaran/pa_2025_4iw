@@ -137,8 +137,12 @@
                 <!-- Content -->
                 <div class="min-w-0 flex-1">
                   <div class="flex items-center justify-between">
-                    <p class="truncate text-sm font-semibold text-gray-900">
-                      {{ getConversationName(conv) }}
+                    <p class="flex items-center gap-1 truncate text-sm font-semibold text-gray-900">
+                      <span>{{ getConversationName(conv) }}</span>
+                      <Lock
+                        v-if="conv.isClosedForPatient"
+                        class="h-3 w-3 flex-shrink-0 text-red-500"
+                      />
                     </p>
                     <span class="ml-2 flex-shrink-0 text-xs text-gray-400">
                       {{ formatRelativeTime(conv.lastMessageAt) }}
@@ -196,6 +200,19 @@
                       conv.emailMuted
                         ? "Activer les notifications email"
                         : "Désactiver les notifications email"
+                    }}
+                  </button>
+                  <button
+                    v-if="conv.type === 'PATIENT_PRACTITIONER'"
+                    class="flex w-full items-center gap-2 px-3 py-2 text-left text-sm text-gray-700 hover:bg-gray-50"
+                    @click.stop="toggleConversationClosed(conv.id)"
+                  >
+                    <Lock v-if="!conv.isClosedForPatient" class="h-4 w-4" />
+                    <Unlock v-else class="h-4 w-4" />
+                    {{
+                      !conv.isClosedForPatient
+                        ? "Fermer pour le patient"
+                        : "Rouvrir pour le patient"
                     }}
                   </button>
                   <button
@@ -278,9 +295,18 @@
                 </span>
               </p>
             </div>
-            <div class="flex items-center gap-1">
-              <Lock class="h-3.5 w-3.5 text-green-500" />
-              <span class="text-xs text-green-600">Chiffré</span>
+            <div class="flex items-center gap-2">
+              <div
+                v-if="activeConversation?.isClosedForPatient"
+                class="flex items-center gap-1 rounded-full border border-red-200 bg-red-50 px-2 py-0.5 text-[10px] font-medium text-red-600"
+              >
+                <Lock class="h-3 w-3" />
+                <span>Fermé pour le patient</span>
+              </div>
+              <div class="flex items-center gap-1">
+                <Lock class="h-3.5 w-3.5 text-green-500" />
+                <span class="text-xs text-green-600">Chiffré</span>
+              </div>
             </div>
           </div>
 
@@ -737,6 +763,7 @@ import {
   Search,
   PenSquare,
   Lock,
+  Unlock,
   X,
   ArrowLeft,
   Check,
@@ -781,6 +808,7 @@ interface ConversationSummary {
   lastMessageAt: string | null;
   unreadCount: number;
   emailMuted: boolean;
+  isClosedForPatient?: boolean;
 }
 
 interface MessageAttachment {
@@ -833,6 +861,7 @@ interface ConversationDetail {
   } | null;
   messages: ConversationMessage[];
   emailMuted: boolean;
+  isClosedForPatient?: boolean;
 }
 
 interface ContactInfo {
@@ -1358,6 +1387,31 @@ async function toggleEmailMute(convId: string) {
     }
   } catch (error) {
     console.error("Error toggling email mute:", error);
+  }
+}
+
+async function toggleConversationClosed(convId: string) {
+  openMenuId.value = null;
+  try {
+    const response = await useAuthenticatedFetch<{
+      success: boolean;
+      data: { isClosedForPatient: boolean };
+    }>(`/messages/conversations/${convId}/toggle-closed`, { method: "PATCH" });
+    if (response.success) {
+      const conv = conversations.value.find((c) => c.id === convId);
+      if (conv) conv.isClosedForPatient = response.data.isClosedForPatient;
+      if (activeConversation.value?.id === convId) {
+        activeConversation.value.isClosedForPatient = response.data.isClosedForPatient;
+      }
+      toast.success(
+        response.data.isClosedForPatient
+          ? "Conversation fermée pour le patient"
+          : "Conversation rouverte pour le patient",
+      );
+    }
+  } catch (error) {
+    console.error("Error toggling conversation closed:", error);
+    toast.error("Erreur lors de la modification de l'état de la conversation");
   }
 }
 

@@ -9,6 +9,7 @@ export interface ConversationSummary {
   lastMessagePreview: string | null
   lastMessageAt: string | null
   unreadCount: number
+  isClosedForPatient?: boolean
 }
 
 export interface ConversationSummaryForPractitioner {
@@ -29,6 +30,7 @@ export interface ConversationSummaryForPractitioner {
   lastMessageAt: string | null
   unreadCount: number
   emailMuted: boolean
+  isClosedForPatient?: boolean
 }
 
 export interface MessageAttachment {
@@ -81,4 +83,5 @@ export interface ConversationDetail {
   } | null
   messages: MessageResponse[]
   emailMuted: boolean
+  isClosedForPatient?: boolean
 }
