@@ -1,12 +1,16 @@
 import { UserRole, UserStatus } from '@prisma/client'
+import { verifySync } from 'otplib'
 import prisma from '../../config/database'
+import { redis } from '../../config/redis'
 import { hashPassword, comparePassword } from '../../utils/bcrypt'
 import {
   generateAccessToken,
   generateRefreshToken,
   verifyRefreshToken,
+  generateMfaToken,
+  verifyMfaToken,
 } from '../../utils/jwt'
-import { generateToken } from '../../utils/crypto'
+import { generateToken, decrypt } from '../../utils/crypto'
 import {
   sendVerificationEmail,
   sendPasswordResetEmail,
@@ -146,6 +150,133 @@ export class AuthService {
       },
     })
 
+    let firstName: string | null = null
+    let lastName: string | null = null
+
+    if (user.role === UserRole.PATIENT) {
+      const patient = await prisma.patient.findUnique({
+        where: { userId: user.id },
+        select: { firstName: true, lastName: true },
+      })
+      if (patient) {
+        firstName = patient.firstName
+        lastName = patient.lastName
+      }
+    } else if (user.role === UserRole.PRACTITIONER) {
+      const practitioner = await prisma.practitioner.findUnique({
+        where: { userId: user.id },
+        select: { firstName: true, lastName: true },
+      })
+      if (practitioner) {
+        firstName = practitioner.firstName
+        lastName = practitioner.lastName
+      }
+    } else if (user.role === UserRole.STAFF) {
+      const staff = await prisma.staff.findUnique({
+        where: { userId: user.id },
+        select: { firstName: true, lastName: true },
+      })
+      if (staff) {
+        firstName = staff.firstName
+        lastName = staff.lastName
+      }
+    }
+
+    if (user.twoFactorEnabled) {
+      const mfaToken = generateMfaToken(user.id)
+      return {
+        requires2FA: true,
+        mfaToken,
+      }
+    }
+
+    const tokens = await this.generateTokens(user.id, user.email, user.role)
+
+    return {
+      user: {
+        id: user.id,
+        email: user.email,
+        role: user.role,
+        status: user.status,
+        emailVerified: !!user.emailVerified,
+        firstName,
+        lastName,
+      },
+      tokens,
+    }
+  }
+
+  async verify2fa(mfaToken: string, code: string): Promise<AuthResponse> {
+    let payload
+    try {
+      payload = verifyMfaToken(mfaToken)
+    } catch (err) {
+      throw new Error('Token MFA invalide ou expiré')
+    }
+
+    const user = await prisma.user.findUnique({
+      where: { id: payload.userId },
+    })
+
+    if (!user) {
+      throw new Error('Utilisateur non trouvé')
+    }
+
+    if (!user.twoFactorEnabled) {
+      throw new Error('2FA non activé pour cet utilisateur')
+    }
+
+    // Determine if we're dealing with a backup code or a TOTP code
+    const isBackupCode = code.length !== 6
+
+    if (isBackupCode) {
+      // Find a matching backup code hash
+      let matchedIndex = -1
+      for (let i = 0; i < user.backupCodes.length; i++) {
+        const isMatch = await comparePassword(code, user.backupCodes[i])
+        if (isMatch) {
+          matchedIndex = i
+          break
+        }
+      }
+
+      if (matchedIndex === -1) {
+        throw new Error('Code de secours incorrect')
+      }
+
+      // Remove the consumed backup code
+      const updatedBackupCodes = [...user.backupCodes]
+      updatedBackupCodes.splice(matchedIndex, 1)
+
+      await prisma.user.update({
+        where: { id: user.id },
+        data: { backupCodes: updatedBackupCodes },
+      })
+    } else {
+      // TOTP verification
+      if (!user.twoFactorSecret) {
+        throw new Error('Secret 2FA non configuré')
+      }
+
+      const decryptedSecret = decrypt(user.twoFactorSecret)
+      const isValid = verifySync({
+        token: code,
+        secret: decryptedSecret,
+      }).valid
+
+      if (!isValid) {
+        throw new Error('Code 2FA incorrect')
+      }
+
+      // Replay prevention: check if this code was already verified recently for this user
+      const replayKey = `mfa:replay:${user.id}:${code}`
+      const isNew = await redis.set(replayKey, '1', 'EX', 60, 'NX')
+      if (!isNew) {
+        throw new Error('Ce code a déjà été utilisé')
+      }
+    }
+
+    // Successful authentication
     let firstName: string | null = null
     let lastName: string | null = null
 

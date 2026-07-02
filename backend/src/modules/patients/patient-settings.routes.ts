@@ -119,25 +119,65 @@ export async function patientSettingsRoutes(fastify: FastifyInstance) {
     },
   )
 
-  // toggle 2fa
-  app.patch(
-    '/2fa',
+  // 2fa settings management
+  app.post(
+    '/2fa/setup',
     { preHandler: [authenticate] },
     async (request: FastifyRequest, reply: FastifyReply) => {
       try {
         const user = request.user as { id: string }
-        const body = request.body as { enabled: boolean }
+        const result = await patientSettingsService.setup2FA(user.id)
+        return reply.status(200).send({ success: true, data: result })
+      } catch (error: any) {
+        request.log.error(error)
+        return reply
+          .status(400)
+          .send({ success: false, message: sanitizeErrorMessage(error, 'Une erreur est survenue') })
+      }
+    },
+  )
 
-        if (typeof body.enabled !== 'boolean') {
+  app.post(
+    '/2fa/verify',
+    { preHandler: [authenticate] },
+    async (request: FastifyRequest, reply: FastifyReply) => {
+      try {
+        const user = request.user as { id: string }
+        const body = request.body as { code: string }
+
+        if (!body.code) {
           return reply.status(400).send({
             success: false,
-            message: 'Valeur booléenne requise pour enabled',
+            message: 'Code de vérification requis',
           })
         }
 
-        const result = await patientSettingsService.toggle2FA(
+        const result = await patientSettingsService.verifyAndEnable2FA(
           user.id,
-          body.enabled,
+          body.code,
+        )
+        return reply.status(200).send({ success: true, data: result })
+      } catch (error: any) {
+        request.log.error(error)
+        return reply
+          .status(400)
+          .send({ success: false, message: sanitizeErrorMessage(error, 'Une erreur est survenue') })
+      }
+    },
+  )
+
+  app.post(
+    '/2fa/disable',
+    { preHandler: [authenticate] },
+    async (request: FastifyRequest, reply: FastifyReply) => {
+      try {
+        const user = request.user as { id: string }
+        const body = request.body as { code?: string; password?: string }
+
+        const result = await patientSettingsService.disable2FA(
+          user.id,
+          body.code,
+          body.password,
         )
         return reply.status(200).send({ success: true, data: result })
       } catch (error: any) {

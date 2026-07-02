@@ -7,7 +7,7 @@ export interface AuthTokens {
 }
 
 export interface AuthResponse {
-  user: {
+  user?: {
     id: string
     email: string
     role: UserRole
@@ -16,7 +16,9 @@ export interface AuthResponse {
     firstName?: string | null
     lastName?: string | null
   }
-  tokens: AuthTokens
+  tokens?: AuthTokens
+  requires2FA?: boolean
+  mfaToken?: string
 }
 
 export interface CreateUserData {
