@@ -176,6 +176,52 @@ class StaffController {
       return reply.status(400).send({ success: false, message: sanitizeErrorMessage(error, 'Une erreur est survenue') })
     }
   }
+
+  async getPractitionerBlockedSlots(
+    request: FastifyRequest,
+    reply: FastifyReply,
+  ) {
+    try {
+      const userId = request.user!.id
+      const { id } = request.params as { id: string }
+      const { startDate, endDate } = request.query as {
+        startDate?: string
+        endDate?: string
+      }
+      const data = await staffService.getPractitionerBlockedSlots(
+        userId,
+        id,
+        startDate,
+        endDate,
+      )
+      return reply.send({ success: true, data })
+    } catch (error: any) {
+      return reply.status(400).send({ success: false, message: sanitizeErrorMessage(error, 'Une erreur est survenue') })
+    }
+  }
+
+  async getPractitionerAbsences(
+    request: FastifyRequest,
+    reply: FastifyReply,
+  ) {
+    try {
+      const userId = request.user!.id
+      const { id } = request.params as { id: string }
+      const { startDate, endDate } = request.query as {
+        startDate?: string
+        endDate?: string
+      }
+      const data = await staffService.getPractitionerAbsences(
+        userId,
+        id,
+        startDate,
+        endDate,
+      )
+      return reply.send({ success: true, data })
+    } catch (error: any) {
+      return reply.status(400).send({ success: false, message: sanitizeErrorMessage(error, 'Une erreur est survenue') })
+    }
+  }
 }
 
 export const staffController = new StaffController()

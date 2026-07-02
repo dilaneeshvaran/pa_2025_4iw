@@ -91,81 +91,115 @@
     <!-- day -->
     <template v-else-if="calendarView === 'day'">
       <div
-        v-if="filteredAppointments.length === 0"
+        v-if="dayEvents.length === 0 && !currentDayAbsence"
         class="rounded-xl border border-gray-200 bg-white py-12 text-center shadow-sm"
       >
         <CalendarX2 class="mx-auto mb-3 h-12 w-12 text-gray-300" />
         <p class="text-gray-500">Aucun rendez-vous pour cette journée</p>
       </div>
-      <div v-else class="space-y-2">
-        <div
-          v-for="apt in filteredAppointments"
-          :key="apt.id"
-          :class="[
-            'flex items-center gap-4 rounded-lg border p-4 transition-colors hover:bg-gray-50',
-            apt.status === 'COMPLETED'
-              ? 'border-green-200 bg-green-50/50'
-              : apt.status === 'NO_SHOW'
-                ? 'border-red-200 bg-red-50/50'
-                : apt.status === 'CANCELLED'
-                  ? 'border-gray-200 bg-gray-50/50 opacity-60'
-                  : 'border-gray-200',
-          ]"
-        >
-          <div class="text-center">
-            <p class="text-lg font-bold text-green-600">{{ apt.startTime }}</p>
-            <p class="text-xs text-gray-400">{{ apt.endTime }}</p>
-          </div>
-          <div class="h-10 w-px bg-gray-200"></div>
-          <div class="min-w-0 flex-1">
-            <p class="font-medium text-gray-900">
-              {{ apt.patient?.firstName }} {{ apt.patient?.lastName }}
-            </p>
-            <p class="text-sm text-gray-500">
-              {{ apt.patient?.phone || "-" }}
+      <div v-else class="space-y-3">
+        <!-- absence banner -->
+        <div v-if="currentDayAbsence" class="flex items-center gap-3 rounded-xl border border-red-200 bg-red-50/50 p-4 text-red-800 shadow-sm">
+          <Ban class="h-5 w-5 text-red-600 shrink-0" />
+          <div>
+            <p class="font-semibold text-red-900">Absent / Indisponible</p>
+            <p class="text-sm text-red-700">
+              {{ currentDayAbsence.reason || "Aucun motif spécifié" }} (Du {{ formatShortDate(currentDayAbsence.startDate) }} au {{ formatShortDate(currentDayAbsence.endDate) }})
             </p>
           </div>
-          <span
+        </div>
+
+        <template v-for="event in dayEvents" :key="event.id">
+          <!-- appointment card -->
+          <div
+            v-if="event.isAppointment"
             :class="[
-              'rounded-full px-2 py-0.5 text-xs font-medium',
-              statusClass(apt.status),
+              'flex items-center gap-4 rounded-lg border p-4 transition-colors hover:bg-gray-50 bg-white',
+              event.status === 'COMPLETED'
+                ? 'border-green-200 bg-green-50/50'
+                : event.status === 'NO_SHOW'
+                  ? 'border-red-200 bg-red-50/50'
+                  : event.status === 'CANCELLED'
+                    ? 'border-gray-200 bg-gray-50/50 opacity-60'
+                    : 'border-gray-200',
             ]"
           >
-            {{ statusLabel(apt.status) }}
-          </span>
-          <template
-            v-if="
-              apt.status !== 'CANCELLED' &&
-              apt.status !== 'COMPLETED' &&
-              apt.status !== 'NO_SHOW'
-            "
+            <div class="text-center">
+              <p class="text-lg font-bold text-green-600">{{ event.startTime }}</p>
+              <p class="text-xs text-gray-400">{{ event.endTime }}</p>
+            </div>
+            <div class="h-10 w-px bg-gray-200"></div>
+            <div class="min-w-0 flex-1">
+              <p class="font-medium text-gray-900">
+                {{ event.patient?.firstName }} {{ event.patient?.lastName }}
+              </p>
+              <p class="text-sm text-gray-500">
+                {{ event.patient?.phone || "-" }}
+              </p>
+            </div>
+            <span
+              :class="[
+                'rounded-full px-2 py-0.5 text-xs font-medium',
+                statusClass(event.status),
+              ]"
+            >
+              {{ statusLabel(event.status) }}
+            </span>
+            <template
+              v-if="
+                event.status !== 'CANCELLED' &&
+                event.status !== 'COMPLETED' &&
+                event.status !== 'NO_SHOW'
+              "
+            >
+              <button
+                @click="openModifyModal(event)"
+                class="rounded-lg p-2 text-gray-400 transition-colors hover:bg-orange-50 hover:text-orange-500"
+                title="Modifier"
+              >
+                <Pencil class="h-4 w-4" />
+              </button>
+              <button
+                @click="openCancelModal(event)"
+                class="rounded-lg p-2 text-gray-400 transition-colors hover:bg-red-50 hover:text-red-500"
+                title="Annuler"
+              >
+                <XCircle class="h-4 w-4" />
+              </button>
+            </template>
+          </div>
+
+          <!-- blocked slot card -->
+          <div
+            v-else-if="event.isBlockedSlot"
+            class="flex items-center gap-4 rounded-lg border border-dashed border-gray-300 bg-gray-50 p-4 transition-colors hover:bg-gray-100/70"
           >
-            <button
-              @click="openModifyModal(apt)"
-              class="rounded-lg p-2 text-gray-400 transition-colors hover:bg-orange-50 hover:text-orange-500"
-              title="Modifier"
-            >
-              <Pencil class="h-4 w-4" />
-            </button>
-            <button
-              @click="openCancelModal(apt)"
-              class="rounded-lg p-2 text-gray-400 transition-colors hover:bg-red-50 hover:text-red-500"
-              title="Annuler"
-            >
-              <XCircle class="h-4 w-4" />
-            </button>
-          </template>
-        </div>
+            <div class="text-center">
+              <p class="text-lg font-bold text-green-600">{{ event.startTime }}</p>
+              <p class="text-xs text-gray-400">{{ event.endTime }}</p>
+            </div>
+            <div class="h-10 w-px bg-gray-200"></div>
+            <div class="min-w-0 flex-1">
+              <p class="font-semibold text-gray-700 flex items-center gap-1.5">
+                <Ban class="h-4 w-4 text-gray-400" />
+                Créneau bloqué
+              </p>
+              <p class="text-sm text-gray-500 italic">
+                {{ event.reason || "Aucun motif spécifié" }}
+              </p>
+            </div>
+          </div>
+        </template>
       </div>
     </template>
 
     <!-- week -->
     <template v-else-if="calendarView === 'week'">
       <div class="grid grid-cols-7 gap-2">
-        <div v-for="day in weekDays" :key="day.dateStr" class="min-h-[200px]">
+        <div v-for="day in weekDays" :key="day.dateStr" class="min-h-[200px] rounded-lg border border-gray-100 bg-white p-1.5 shadow-sm">
           <div
             :class="[
-              'mb-2 rounded-t-lg px-2 py-1.5 text-center text-xs font-semibold',
+              'mb-2 rounded-lg px-2 py-1.5 text-center text-xs font-semibold',
               day.isToday
                 ? 'bg-green-600 text-white'
                 : 'bg-gray-100 text-gray-700',
@@ -174,12 +208,36 @@
             <div>{{ day.dayName }}</div>
             <div class="text-lg">{{ day.dayNum }}</div>
           </div>
-          <div class="space-y-1">
+          <div class="space-y-1.5">
+            <!-- Absence indicator -->
+            <div
+              v-if="getAbsenceForDate(day.dateStr)"
+              class="rounded bg-red-50 border border-red-100 p-1.5 text-center text-[10px] font-semibold text-red-800 shadow-sm"
+              :title="`Absent: ${getAbsenceForDate(day.dateStr).reason || 'Aucun motif'}`"
+            >
+              <span class="block truncate">Absent</span>
+              <span class="block truncate text-[9px] font-normal text-red-600">
+                {{ getAbsenceForDate(day.dateStr).reason || "Indisponible" }}
+              </span>
+            </div>
+
+            <!-- Blocked slots -->
+            <div
+              v-for="slot in getBlockedSlotsForDate(day.dateStr)"
+              :key="slot.id"
+              class="rounded bg-gray-50 border border-dashed border-gray-200 px-2 py-1 text-[10px] text-gray-700"
+              :title="`Créneau bloqué: ${slot.startTime} - ${slot.endTime} ${slot.reason ? '(' + slot.reason + ')' : ''}`"
+            >
+              <span class="font-medium text-gray-500">{{ slot.startTime }} - {{ slot.endTime }}</span>
+              <span class="block truncate font-semibold text-gray-600">🚫 Bloqué</span>
+            </div>
+
+            <!-- Appointments -->
             <div
               v-for="apt in getAppointmentsForDate(day.dateStr)"
               :key="apt.id"
               :class="[
-                'cursor-pointer rounded px-2 py-1 text-xs',
+                'cursor-pointer rounded px-2 py-1 text-xs transition-opacity hover:opacity-80',
                 apt.status === 'CANCELLED'
                   ? 'bg-gray-100 text-gray-400 line-through'
                   : 'bg-green-100 text-green-800',
@@ -229,22 +287,21 @@
           </p>
           <div class="space-y-0.5">
             <div
-              v-for="apt in getAppointmentsForDate(day.dateStr).slice(0, 3)"
-              :key="apt.id"
+              v-for="event in getMonthDayEvents(day.dateStr).slice(0, 3)"
+              :key="event.id"
               :class="[
-                'truncate rounded px-1 py-0.5 text-[10px]',
-                apt.status === 'CANCELLED'
-                  ? 'bg-gray-100 text-gray-400'
-                  : 'bg-green-100 text-green-700',
+                'cursor-pointer truncate rounded px-1 py-0.5 text-[10px] font-medium transition-opacity hover:opacity-80',
+                event.class
               ]"
+              @click="event.type === 'appointment' ? openModifyModal(event.appointment) : null"
             >
-              {{ apt.startTime }} {{ apt.patient?.lastName }}
+              {{ event.label }}
             </div>
             <p
-              v-if="getAppointmentsForDate(day.dateStr).length > 3"
-              class="text-[10px] text-gray-400"
+              v-if="getMonthDayEvents(day.dateStr).length > 3"
+              class="text-[10px] text-gray-400 font-semibold pl-1"
             >
-              +{{ getAppointmentsForDate(day.dateStr).length - 3 }}
+              +{{ getMonthDayEvents(day.dateStr).length - 3 }}
             </p>
           </div>
         </div>
@@ -570,6 +627,8 @@ const authStore = useAuthStore();
 const practitionerId = route.params.id as string;
 const practitionerName = ref("Agenda du praticien");
 const appointments = ref<any[]>([]);
+const absences = ref<any[]>([]);
+const blockedSlots = ref<any[]>([]);
 const loading = ref(true);
 
 type CalendarViewType = "day" | "week" | "month";
@@ -797,20 +856,130 @@ async function fetchAppointments() {
   loading.value = true;
   try {
     const { startDate, endDate } = dateRange.value;
-    const response = await useAuthenticatedFetch<{
-      success: boolean;
-      data: any[];
-    }>(
-      `/staff/practitioners/${practitionerId}/appointments?startDate=${startDate}&endDate=${endDate}`,
-    );
-    if (response.success) {
-      appointments.value = response.data;
+    const [aptsRes, absencesRes, blockedRes] = await Promise.all([
+      useAuthenticatedFetch<{ success: boolean; data: any[] }>(
+        `/staff/practitioners/${practitionerId}/appointments?startDate=${startDate}&endDate=${endDate}`,
+      ),
+      useAuthenticatedFetch<{ success: boolean; data: any[] }>(
+        `/staff/practitioners/${practitionerId}/absences?startDate=${startDate}&endDate=${endDate}`,
+      ),
+      useAuthenticatedFetch<{ success: boolean; data: any[] }>(
+        `/staff/practitioners/${practitionerId}/blocked-slots?startDate=${startDate}&endDate=${endDate}`,
+      ),
+    ]);
+    if (aptsRes.success) {
+      appointments.value = aptsRes.data;
+    }
+    if (absencesRes.success) {
+      absences.value = absencesRes.data;
+    }
+    if (blockedRes.success) {
+      blockedSlots.value = blockedRes.data;
     }
   } catch (error) {
-    console.error("Error fetching appointments:", error);
+    console.error("Error fetching agenda data:", error);
   } finally {
     loading.value = false;
   }
+}
+
+// Helpers for unavailable periods rendering on calendar views
+const currentDayAbsence = computed(() => {
+  const dateStr = toDateStr(currentDate.value);
+  return getAbsenceForDate(dateStr);
+});
+
+function getAbsenceForDate(dateStr: string) {
+  const d = new Date(dateStr);
+  d.setHours(0, 0, 0, 0);
+  return absences.value.find((abs) => {
+    const start = new Date(abs.startDate);
+    start.setHours(0, 0, 0, 0);
+    const end = new Date(abs.endDate);
+    end.setHours(23, 59, 59, 999);
+    return d >= start && d <= end;
+  });
+}
+
+function getBlockedSlotsForDate(dateStr: string): any[] {
+  return blockedSlots.value.filter(
+    (s) => toDateStr(new Date(s.date)) === dateStr,
+  );
+}
+
+const dayEvents = computed(() => {
+  const dateStr = toDateStr(currentDate.value);
+  const list: any[] = [];
+
+  appointments.value.forEach((apt) => {
+    if (toDateStr(new Date(apt.appointmentDate)) === dateStr) {
+      list.push({ ...apt, isAppointment: true });
+    }
+  });
+
+  blockedSlots.value.forEach((slot) => {
+    if (toDateStr(new Date(slot.date)) === dateStr) {
+      list.push({ ...slot, isBlockedSlot: true });
+    }
+  });
+
+  return list.sort((a, b) => a.startTime.localeCompare(b.startTime));
+});
+
+function getMonthDayEvents(dateStr: string): any[] {
+  const list: any[] = [];
+  
+  const absence = getAbsenceForDate(dateStr);
+  if (absence) {
+    list.push({
+      id: absence.id,
+      type: "absence",
+      label: `Absent: ${absence.reason || "Indisponible"}`,
+      class: "bg-red-50 text-red-700 border border-red-100",
+    });
+  }
+  
+  const slots = getBlockedSlotsForDate(dateStr);
+  slots.forEach(slot => {
+    list.push({
+      id: slot.id,
+      type: "blocked",
+      label: `🚫 ${slot.startTime} Bloqué`,
+      class: "bg-gray-50 text-gray-600 border border-dashed border-gray-200",
+    });
+  });
+  
+  const apts = getAppointmentsForDate(dateStr);
+  apts.forEach(apt => {
+    list.push({
+      id: apt.id,
+      type: "appointment",
+      startTime: apt.startTime,
+      label: `${apt.startTime} ${apt.patient?.lastName || ""}`,
+      class: apt.status === "CANCELLED" ? "bg-gray-100 text-gray-400 line-through" : "bg-green-100 text-green-700",
+      appointment: apt,
+    });
+  });
+  
+  list.sort((a, b) => {
+    if (a.type === "absence" && b.type !== "absence") return -1;
+    if (b.type === "absence" && a.type !== "absence") return 1;
+    if (a.type === "absence" && b.type === "absence") return 0;
+    
+    const timeA = a.startTime || a.appointment?.startTime || "00:00";
+    const timeB = b.startTime || b.appointment?.startTime || "00:00";
+    return timeA.localeCompare(timeB);
+  });
+  
+  return list;
+}
+
+function formatShortDate(dateStr: string): string {
+  return new Date(dateStr).toLocaleDateString("fr-FR", {
+    day: "numeric",
+    month: "short",
+    year: "numeric",
+  });
 }
 
 async function fetchPractitionerInfo() {

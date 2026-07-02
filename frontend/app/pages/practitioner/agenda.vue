@@ -144,123 +144,164 @@
 
       <!-- day -->
       <template v-else-if="calendarView === 'day'">
-        <UiCard v-if="filteredAppointments.length === 0">
-          <div class="py-10 text-center">
-            <CalendarX2 class="mx-auto mb-3 h-12 w-12 text-gray-300" />
-            <p class="text-gray-500">Aucun rendez-vous pour cette journée</p>
+        <div v-if="dayEvents.length === 0 && !currentDayAbsence" class="py-10 text-center rounded-lg border border-dashed border-gray-200 bg-white">
+          <CalendarX2 class="mx-auto mb-3 h-12 w-12 text-gray-300" />
+          <p class="text-gray-500">Aucun rendez-vous pour cette journée</p>
+        </div>
+        <div v-else class="space-y-3">
+          <!-- absence banner -->
+          <div v-if="currentDayAbsence" class="flex items-center gap-3 rounded-xl border border-red-200 bg-red-50/50 p-4 text-red-800 shadow-sm">
+            <Ban class="h-5 w-5 text-red-600 shrink-0" />
+            <div>
+              <p class="font-semibold text-red-900">Absent / Indisponible</p>
+              <p class="text-sm text-red-700">
+                {{ currentDayAbsence.reason || "Aucun motif spécifié" }} (Du {{ formatShortDate(currentDayAbsence.startDate) }} au {{ formatShortDate(currentDayAbsence.endDate) }})
+              </p>
+            </div>
           </div>
-        </UiCard>
-        <div v-else class="space-y-2">
-          <div
-            v-for="apt in filteredAppointments"
-            :key="apt.id"
-            :class="[
-              'flex items-center gap-4 rounded-lg border p-4 transition-colors hover:bg-gray-50',
-              apt.status === 'COMPLETED'
-                ? 'border-green-200 bg-green-50/50'
-                : apt.status === 'NO_SHOW'
-                  ? 'border-red-200 bg-red-50/50'
-                  : 'border-gray-200',
-            ]"
-          >
-            <div class="text-center">
-              <p class="text-lg font-bold text-orange-600">{{ apt.startTime }}</p>
-              <p class="text-xs text-gray-400">{{ apt.endTime }}</p>
-            </div>
-            <div class="h-10 w-px bg-gray-200"></div>
-            <div class="min-w-0 flex-1">
-              <p class="font-medium text-gray-900">
-                {{ apt.patient.firstName }} {{ apt.patient.lastName }}
-              </p>
-              <p v-if="apt.reason" class="text-sm text-gray-500">
-                {{ apt.reason }}
-              </p>
-            </div>
-            <UiBadge
-              :variant="apt.type === 'TELECONSULTATION' ? 'success' : 'default'"
+          
+          <!-- merged chronological events -->
+          <template v-for="event in dayEvents" :key="event.id">
+            <!-- appointment card -->
+            <div
+              v-if="event.isAppointment"
+              :class="[
+                'flex items-center gap-4 rounded-lg border p-4 transition-colors hover:bg-gray-50 bg-white',
+                event.status === 'COMPLETED'
+                  ? 'border-green-200 bg-green-50/50'
+                  : event.status === 'NO_SHOW'
+                    ? 'border-red-200 bg-red-50/50'
+                    : 'border-gray-200',
+              ]"
             >
-              {{ apt.type === "TELECONSULTATION" ? "Télé" : "Cabinet" }}
-            </UiBadge>
-            <UiBadge :variant="getStatusVariant(apt.status)">
-              {{ getStatusLabel(apt.status) }}
-            </UiBadge>
-            <UiButton
-              v-if="apt.status === 'COMPLETED' && apt.type === 'CABINET'"
-              size="sm"
-              variant="outline"
-              class="ml-2 h-7 px-2 py-0 text-xs"
-              @click.stop="openInvoiceModal(apt)"
+              <div class="text-center">
+                <p class="text-lg font-bold text-orange-600">{{ event.startTime }}</p>
+                <p class="text-xs text-gray-400">{{ event.endTime }}</p>
+              </div>
+              <div class="h-10 w-px bg-gray-200"></div>
+              <div class="min-w-0 flex-1">
+                <p class="font-medium text-gray-900">
+                  {{ event.patient.firstName }} {{ event.patient.lastName }}
+                </p>
+                <p v-if="event.reason" class="text-sm text-gray-500">
+                  {{ event.reason }}
+                </p>
+              </div>
+              <UiBadge
+                :variant="event.type === 'TELECONSULTATION' ? 'success' : 'default'"
+              >
+                {{ event.type === "TELECONSULTATION" ? "Télé" : "Cabinet" }}
+              </UiBadge>
+              <UiBadge :variant="getStatusVariant(event.status)">
+                {{ getStatusLabel(event.status) }}
+              </UiBadge>
+              <UiButton
+                v-if="event.status === 'COMPLETED' && event.type === 'CABINET'"
+                size="sm"
+                variant="outline"
+                class="ml-2 h-7 px-2 py-0 text-xs"
+                @click.stop="openInvoiceModal(event)"
+              >
+                Facturer
+              </UiButton>
+              <!-- before appointment time: modifier / annuler -->
+              <template v-if="isBeforeAppointmentTime(event)">
+                <UiButton
+                  size="sm"
+                  variant="outline"
+                  class="ml-1 h-7 px-2 py-0 text-xs"
+                  @click.stop="openAgendaModifyModal(event)"
+                >
+                  Modifier
+                </UiButton>
+                <UiButton
+                  size="sm"
+                  variant="danger"
+                  class="ml-1 h-7 px-2 py-0 text-xs"
+                  @click.stop="openAgendaCancelModal(event)"
+                >
+                  Annuler
+                </UiButton>
+              </template>
+              <!-- at or after appointment time: presenté / no show (cabinet) -->
+              <template
+                v-if="
+                  isAtOrAfterAppointmentTime(event) &&
+                  event.type !== 'TELECONSULTATION' &&
+                  event.status !== 'COMPLETED' &&
+                  event.status !== 'NO_SHOW' &&
+                  event.status !== 'CANCELLED'
+                "
+              >
+                <UiButton
+                  size="sm"
+                  class="ml-1 h-7 bg-green-600 px-2 py-0 text-xs hover:bg-green-700"
+                  @click.stop="agendaMarkAttended(event)"
+                >
+                  Présentée
+                </UiButton>
+                <UiButton
+                  size="sm"
+                  variant="danger"
+                  class="ml-1 h-7 px-2 py-0 text-xs"
+                  @click.stop="agendaMarkNoShow(event)"
+                >
+                  No Show
+                </UiButton>
+              </template>
+              <span
+                v-if="
+                  isAtOrAfterAppointmentTime(event) &&
+                  event.type === 'TELECONSULTATION' &&
+                  event.status !== 'COMPLETED' &&
+                  event.status !== 'NO_SHOW' &&
+                  event.status !== 'CANCELLED'
+                "
+                class="ml-1 text-xs italic text-gray-400"
+              >
+                Absence détectée automatiquement
+              </span>
+            </div>
+
+            <!-- blocked slot card -->
+            <div
+              v-else-if="event.isBlockedSlot"
+              class="flex items-center gap-4 rounded-lg border border-dashed border-gray-300 bg-gray-50 p-4 transition-colors hover:bg-gray-100/70"
             >
-              Facturer
-            </UiButton>
-            <!-- before appointment time: modifier / annuler -->
-            <template v-if="isBeforeAppointmentTime(apt)">
+              <div class="text-center">
+                <p class="text-lg font-bold text-gray-600">{{ event.startTime }}</p>
+                <p class="text-xs text-gray-400">{{ event.endTime }}</p>
+              </div>
+              <div class="h-10 w-px bg-gray-200"></div>
+              <div class="min-w-0 flex-1">
+                <p class="font-semibold text-gray-700 flex items-center gap-1.5">
+                  <Ban class="h-4 w-4 text-gray-400" />
+                  Créneau bloqué
+                </p>
+                <p class="text-sm text-gray-500 italic">
+                  {{ event.reason || "Aucun motif spécifié" }}
+                </p>
+              </div>
               <UiButton
                 size="sm"
                 variant="outline"
-                class="ml-1 h-7 px-2 py-0 text-xs"
-                @click.stop="openAgendaModifyModal(apt)"
+                class="border-red-200 text-red-600 hover:bg-red-50 h-7 px-2 py-0 text-xs"
+                @click.stop="removeBlockedSlot(event.id)"
               >
-                Modifier
+                Débloquer
               </UiButton>
-              <UiButton
-                size="sm"
-                variant="danger"
-                class="ml-1 h-7 px-2 py-0 text-xs"
-                @click.stop="openAgendaCancelModal(apt)"
-              >
-                Annuler
-              </UiButton>
-            </template>
-            <!-- at or after appointment time: presenté / no show (cabinet) -->
-            <template
-              v-if="
-                isAtOrAfterAppointmentTime(apt) &&
-                apt.type !== 'TELECONSULTATION' &&
-                apt.status !== 'COMPLETED' &&
-                apt.status !== 'NO_SHOW' &&
-                apt.status !== 'CANCELLED'
-              "
-            >
-              <UiButton
-                size="sm"
-                class="ml-1 h-7 bg-green-600 px-2 py-0 text-xs hover:bg-green-700"
-                @click.stop="agendaMarkAttended(apt)"
-              >
-                Présentée
-              </UiButton>
-              <UiButton
-                size="sm"
-                variant="danger"
-                class="ml-1 h-7 px-2 py-0 text-xs"
-                @click.stop="agendaMarkNoShow(apt)"
-              >
-                No Show
-              </UiButton>
-            </template>
-            <span
-              v-if="
-                isAtOrAfterAppointmentTime(apt) &&
-                apt.type === 'TELECONSULTATION' &&
-                apt.status !== 'COMPLETED' &&
-                apt.status !== 'NO_SHOW' &&
-                apt.status !== 'CANCELLED'
-              "
-              class="ml-1 text-xs italic text-gray-400"
-            >
-              Absence détectée automatiquement
-            </span>
-          </div>
+            </div>
+          </template>
         </div>
       </template>
 
       <!-- week -->
       <template v-else-if="calendarView === 'week'">
         <div class="grid grid-cols-7 gap-2">
-          <div v-for="day in weekDays" :key="day.dateStr" class="min-h-[200px]">
+          <div v-for="day in weekDays" :key="day.dateStr" class="min-h-[200px] rounded-lg border border-gray-100 bg-white p-1.5 shadow-sm">
             <div
               :class="[
-                'mb-2 rounded-t-lg px-2 py-1.5 text-center text-xs font-semibold',
+                'mb-2 rounded-lg px-2 py-1.5 text-center text-xs font-semibold',
                 day.isToday
                   ? 'bg-orange-500 text-white'
                   : 'bg-gray-100 text-gray-700',
@@ -269,7 +310,31 @@
               <div>{{ day.dayName }}</div>
               <div class="text-lg">{{ day.dayNum }}</div>
             </div>
-            <div class="space-y-1">
+            <div class="space-y-1.5">
+              <!-- Absence indicator -->
+              <div
+                v-if="getAbsenceForDate(day.dateStr)"
+                class="rounded bg-red-50 border border-red-100 p-1.5 text-center text-[10px] font-semibold text-red-800 shadow-sm"
+                :title="`Absent: ${getAbsenceForDate(day.dateStr).reason || 'Aucun motif'}`"
+              >
+                <span class="block truncate">Absent</span>
+                <span class="block truncate text-[9px] font-normal text-red-600">
+                  {{ getAbsenceForDate(day.dateStr).reason || "Indisponible" }}
+                </span>
+              </div>
+
+              <!-- Blocked slots -->
+              <div
+                v-for="slot in getBlockedSlotsForDate(day.dateStr)"
+                :key="slot.id"
+                class="rounded bg-gray-50 border border-dashed border-gray-200 px-2 py-1 text-[10px] text-gray-700"
+                :title="`Créneau bloqué: ${slot.startTime} - ${slot.endTime} ${slot.reason ? '(' + slot.reason + ')' : ''}`"
+              >
+                <span class="font-medium text-gray-500">{{ slot.startTime }} - {{ slot.endTime }}</span>
+                <span class="block truncate font-semibold text-gray-600">🚫 Bloqué</span>
+              </div>
+
+              <!-- Appointments -->
               <div
                 v-for="apt in getAppointmentsForDate(day.dateStr)"
                 :key="apt.id"
@@ -324,23 +389,21 @@
             </p>
             <div class="space-y-0.5">
               <div
-                v-for="apt in getAppointmentsForDate(day.dateStr).slice(0, 3)"
-                :key="apt.id"
+                v-for="event in getMonthDayEvents(day.dateStr).slice(0, 3)"
+                :key="event.id"
                 :class="[
-                  'cursor-pointer truncate rounded px-1 py-0.5 text-[10px] transition-opacity hover:opacity-80',
-                  apt.type === 'TELECONSULTATION'
-                    ? 'bg-green-100 text-green-700'
-                    : 'bg-orange-100 text-orange-700',
+                  'cursor-pointer truncate rounded px-1 py-0.5 text-[10px] font-medium transition-opacity hover:opacity-80',
+                  event.class
                 ]"
-                @click="openAppointmentDetailsModal(apt)"
+                @click="event.type === 'appointment' ? openAppointmentDetailsModal(event.appointment) : null"
               >
-                {{ apt.startTime }} {{ apt.patient.lastName }}
+                {{ event.label }}
               </div>
               <p
-                v-if="getAppointmentsForDate(day.dateStr).length > 3"
-                class="text-[10px] text-gray-400"
+                v-if="getMonthDayEvents(day.dateStr).length > 3"
+                class="text-[10px] text-gray-400 font-semibold pl-1"
               >
-                +{{ getAppointmentsForDate(day.dateStr).length - 3 }}
+                +{{ getMonthDayEvents(day.dateStr).length - 3 }}
               </p>
             </div>
           </div>
@@ -2153,13 +2216,14 @@ async function fetchAvailabilities() {
   }
 }
 
-async function fetchAbsences() {
+async function fetchAbsences(withRange = false) {
   loadingAbsences.value = true;
   try {
+    const rangeParams = withRange ? `&startDate=${dateRange.value.startDate}&endDate=${dateRange.value.endDate}` : "";
     const response = await useAuthenticatedFetch<{
       success: boolean;
       data: AbsenceInfo[];
-    }>(`/practitioner/agenda/absences?cabinetId=${cabinetQueryParam.value}`);
+    }>(`/practitioner/agenda/absences?cabinetId=${cabinetQueryParam.value}${rangeParams}`);
     if (response.success) {
       absences.value = response.data;
     }
@@ -2170,13 +2234,14 @@ async function fetchAbsences() {
   }
 }
 
-async function fetchBlockedSlots() {
+async function fetchBlockedSlots(withRange = false) {
   loadingBlockedSlots.value = true;
   try {
+    const rangeParams = withRange ? `&startDate=${dateRange.value.startDate}&endDate=${dateRange.value.endDate}` : "";
     const response = await useAuthenticatedFetch<{
       success: boolean;
       data: BlockedSlotInfo[];
-    }>(`/practitioner/agenda/blocked-slots?cabinetId=${cabinetQueryParam.value}`);
+    }>(`/practitioner/agenda/blocked-slots?cabinetId=${cabinetQueryParam.value}${rangeParams}`);
     if (response.success) {
       blockedSlots.value = response.data;
     }
@@ -2185,6 +2250,97 @@ async function fetchBlockedSlots() {
   } finally {
     loadingBlockedSlots.value = false;
   }
+}
+
+// Helpers for unavailable periods rendering on calendar views
+const currentDayAbsence = computed(() => {
+  const dateStr = toDateStr(currentDate.value);
+  return getAbsenceForDate(dateStr);
+});
+
+function getAbsenceForDate(dateStr: string) {
+  const d = new Date(dateStr);
+  d.setHours(0, 0, 0, 0);
+  return absences.value.find((abs) => {
+    const start = new Date(abs.startDate);
+    start.setHours(0, 0, 0, 0);
+    const end = new Date(abs.endDate);
+    end.setHours(23, 59, 59, 999);
+    return d >= start && d <= end;
+  });
+}
+
+function getBlockedSlotsForDate(dateStr: string): BlockedSlotInfo[] {
+  return blockedSlots.value.filter(
+    (s) => toDateStr(new Date(s.date)) === dateStr,
+  );
+}
+
+const dayEvents = computed(() => {
+  const dateStr = toDateStr(currentDate.value);
+  const list: any[] = [];
+
+  appointments.value.forEach((apt) => {
+    if (toDateStr(new Date(apt.appointmentDate)) === dateStr) {
+      list.push({ ...apt, isAppointment: true });
+    }
+  });
+
+  blockedSlots.value.forEach((slot) => {
+    if (toDateStr(new Date(slot.date)) === dateStr) {
+      list.push({ ...slot, isBlockedSlot: true });
+    }
+  });
+
+  return list.sort((a, b) => a.startTime.localeCompare(b.startTime));
+});
+
+function getMonthDayEvents(dateStr: string): any[] {
+  const list: any[] = [];
+  
+  const absence = getAbsenceForDate(dateStr);
+  if (absence) {
+    list.push({
+      id: absence.id,
+      type: "absence",
+      label: `Absent: ${absence.reason || "Indisponible"}`,
+      class: "bg-red-50 text-red-700 border border-red-100",
+    });
+  }
+  
+  const slots = getBlockedSlotsForDate(dateStr);
+  slots.forEach(slot => {
+    list.push({
+      id: slot.id,
+      type: "blocked",
+      label: `🚫 ${slot.startTime} Bloqué`,
+      class: "bg-gray-50 text-gray-600 border border-dashed border-gray-200",
+    });
+  });
+  
+  const apts = getAppointmentsForDate(dateStr);
+  apts.forEach(apt => {
+    list.push({
+      id: apt.id,
+      type: "appointment",
+      startTime: apt.startTime,
+      label: `${apt.startTime} ${apt.patient.lastName}`,
+      class: apt.type === "TELECONSULTATION" ? "bg-green-50 text-green-700" : "bg-orange-50 text-orange-700",
+      appointment: apt,
+    });
+  });
+  
+  list.sort((a, b) => {
+    if (a.type === "absence" && b.type !== "absence") return -1;
+    if (b.type === "absence" && a.type !== "absence") return 1;
+    if (a.type === "absence" && b.type === "absence") return 0;
+    
+    const timeA = a.startTime || a.appointment?.startTime || "00:00";
+    const timeB = b.startTime || b.appointment?.startTime || "00:00";
+    return timeA.localeCompare(timeB);
+  });
+  
+  return list;
 }
 
 async function fetchSettings() {
@@ -2526,6 +2682,10 @@ async function saveSettings() {
 watch([currentDate, calendarView, selectedCabinetId], () => {
   fetchAppointments();
   fetchDaySummary();
+  if (activeTab.value === "calendar") {
+    fetchAbsences(true);
+    fetchBlockedSlots(true);
+  }
 });
 
 const isInvoiceModalOpen = ref(false);
@@ -2549,6 +2709,9 @@ watch(activeTab, (tab) => {
   } else if (tab === "settings") {
     fetchAvailabilities();
     fetchSettings();
+  } else if (tab === "calendar") {
+    fetchAbsences(true);
+    fetchBlockedSlots(true);
   }
 });
 
@@ -2571,7 +2734,11 @@ async function fetchCabinets() {
 
 async function handleCabinetChange() {
   if (activeTab.value === "calendar") {
-    await fetchAvailabilities();
+    await Promise.all([
+      fetchAvailabilities(),
+      fetchAbsences(true),
+      fetchBlockedSlots(true),
+    ]);
   } else if (activeTab.value === "absences") {
     await Promise.all([fetchAbsences(), fetchBlockedSlots()]);
   } else if (activeTab.value === "settings") {
@@ -2587,6 +2754,8 @@ onMounted(async () => {
     await fetchCabinets();
     fetchAppointments();
     fetchDaySummary();
+    fetchAbsences(true);
+    fetchBlockedSlots(true);
   } else {
     loadingAppointments.value = false;
   }
