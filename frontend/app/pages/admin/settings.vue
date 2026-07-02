@@ -1,107 +1,318 @@
 <template>
-  <div>
-    <h1 class="mb-2 text-2xl font-bold text-gray-900">Paramètres</h1>
-    <p class="mb-6 text-gray-600">
-      Configuration générale de la plateforme.
-    </p>
-
-    <div v-if="loading" class="py-12 text-center text-gray-500">
-      Chargement...
+  <div class="mx-auto max-w-4xl space-y-6">
+    <div>
+      <h1 class="mb-2 text-2xl font-bold text-gray-900">Paramètres</h1>
+      <p class="text-gray-600">
+        Gerez vos informations de connexion et la sécurité de votre compte administrateur.
+      </p>
     </div>
 
-    <div v-else-if="fetchError" class="rounded-lg bg-red-50 p-4 text-red-800">
-      {{ fetchError }}
+    <div v-if="loading" class="animate-pulse space-y-6">
+      <div class="h-64 rounded-2xl bg-gray-200"></div>
+      <div class="h-64 rounded-2xl bg-gray-200"></div>
     </div>
 
-    <form v-else class="space-y-6" @submit.prevent="save">
-      <section
-        v-for="group in groups"
-        :key="group.name"
-        class="rounded-xl border border-gray-200 bg-white p-5"
-      >
-        <h2 class="mb-4 text-lg font-semibold text-gray-900">
-          {{ group.name }}
-        </h2>
-        <div class="space-y-5">
-          <div
-            v-for="s in group.items"
-            :key="s.key"
-            class="flex flex-col gap-1 md:flex-row md:items-center md:justify-between"
-          >
-            <div class="md:max-w-md">
-              <p class="text-sm font-medium text-gray-800">{{ s.label }}</p>
-              <p v-if="s.description" class="text-xs text-gray-500">
-                {{ s.description }}
-              </p>
-            </div>
-
-            <!-- number -->
-            <input
-              v-if="s.type === 'number'"
-              v-model.number="form[s.key]"
-              type="number"
-              :min="s.min"
-              :max="s.max"
-              class="w-full rounded-lg border border-gray-300 px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-orange-500 md:w-40"
-            />
-
-            <!-- boolean -->
-            <button
-              v-else-if="s.type === 'boolean'"
-              type="button"
-              class="toggle-switch relative inline-flex h-6 w-11 shrink-0 cursor-pointer items-center rounded-full border-2 border-transparent transition-colors duration-200 ease-in-out focus:outline-none focus:ring-2 focus:ring-orange-500 focus:ring-offset-2"
-              :class="form[s.key] ? 'bg-orange-500' : 'bg-gray-300'"
-              @click="form[s.key] = !form[s.key]"
-            >
-              <span
-                class="pointer-events-none inline-block h-4 w-4 transform rounded-full bg-white shadow ring-0 transition duration-200 ease-in-out"
-                :class="form[s.key] ? 'translate-x-5' : 'translate-x-0'"
+    <div v-else class="space-y-6">
+      <!-- email settings -->
+      <UiCard class="p-6">
+        <h3 class="mb-4 flex items-center gap-2 text-lg font-semibold text-gray-900">
+          <Mail class="h-5 w-5 text-gray-500" /> Adresse email
+        </h3>
+        <form class="space-y-4" @submit.prevent="saveEmail">
+          <div>
+            <label class="mb-1 block text-sm font-medium text-gray-700">Email actuel</label>
+            <p class="text-sm text-gray-600 font-medium">{{ currentEmail }}</p>
+          </div>
+          <div class="grid gap-4 sm:grid-cols-2">
+            <div>
+              <label class="mb-1 block text-sm font-medium text-gray-700">Nouvel email</label>
+              <UiInput
+                v-model="emailForm.newEmail"
+                type="email"
+                placeholder="nouveau@email.com"
+                required
               />
-            </button>
+            </div>
+            <div>
+              <label class="mb-1 block text-sm font-medium text-gray-700">Mot de passe (confirmation)</label>
+              <UiInput
+                v-model="emailForm.password"
+                type="password"
+                placeholder="Votre mot de passe"
+                required
+              />
+            </div>
+          </div>
+          <div class="flex justify-end">
+            <UiButton type="submit" :disabled="savingEmail" class="bg-orange-600 hover:bg-orange-700 text-white">
+              {{ savingEmail ? "Envoi..." : "Modifier l'email" }}
+            </UiButton>
+          </div>
+        </form>
+      </UiCard>
 
-            <!-- stringList -->
-            <input
-              v-else-if="s.type === 'stringList'"
-              v-model="listText[s.key]"
-              type="text"
-              placeholder="Séparés par des virgules"
-              class="w-full rounded-lg border border-gray-300 px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-orange-500 md:w-80"
+      <!-- password settings -->
+      <UiCard class="p-6">
+        <h3 class="mb-4 flex items-center gap-2 text-lg font-semibold text-gray-900">
+          <Lock class="h-5 w-5 text-gray-500" /> Mot de passe
+        </h3>
+        <form class="space-y-4" @submit.prevent="savePassword">
+          <div class="grid gap-4 sm:grid-cols-3">
+            <div>
+              <label class="mb-1 block text-sm font-medium text-gray-700">Mot de passe actuel</label>
+              <UiInput
+                v-model="passwordForm.currentPassword"
+                type="password"
+                placeholder="Mot de passe actuel"
+                required
+              />
+            </div>
+            <div>
+              <label class="mb-1 block text-sm font-medium text-gray-700">Nouveau mot de passe</label>
+              <UiInput
+                v-model="passwordForm.newPassword"
+                type="password"
+                placeholder="Nouveau mot de passe"
+                required
+              />
+            </div>
+            <div>
+              <label class="mb-1 block text-sm font-medium text-gray-700">Confirmer le mot de passe</label>
+              <UiInput
+                v-model="passwordForm.confirmPassword"
+                type="password"
+                placeholder="Confirmer le mot de passe"
+                required
+              />
+            </div>
+          </div>
+          <div class="flex justify-end">
+            <UiButton type="submit" :disabled="savingPassword" class="bg-orange-600 hover:bg-orange-700 text-white">
+              {{ savingPassword ? "Modification..." : "Modifier le mot de passe" }}
+            </UiButton>
+          </div>
+        </form>
+      </UiCard>
+
+      <!-- two factor authentication -->
+      <UiCard class="p-6">
+        <div class="flex items-center justify-between">
+          <div>
+            <h3 class="flex items-center gap-2 text-lg font-semibold text-gray-900">
+              <Shield class="h-5 w-5 text-gray-500" /> Authentification à deux facteurs (2FA)
+            </h3>
+            <p class="mt-1 text-sm text-gray-500">
+              Ajoutez une couche de sécurité supplémentaire à votre compte administrateur.
+            </p>
+          </div>
+          <button
+            :class="[
+              'relative inline-flex h-6 w-11 shrink-0 cursor-pointer rounded-full border-2 border-transparent transition-colors duration-200 ease-in-out focus:outline-none focus:ring-2 focus:ring-orange-500 focus:ring-offset-2 toggle-switch',
+              twoFactorEnabled ? 'bg-orange-500' : 'bg-gray-200',
+            ]"
+            :disabled="toggling2FA"
+            @click="toggleTwoFactor"
+            type="button"
+          >
+            <span
+              :class="[
+                'pointer-events-none inline-block h-5 w-5 transform rounded-full bg-white shadow ring-0 transition duration-200 ease-in-out',
+                twoFactorEnabled ? 'translate-x-5' : 'translate-x-0',
+              ]"
             />
+          </button>
+        </div>
+      </UiCard>
+    </div>
+
+    <!-- 2FA SETUP MODAL -->
+    <div
+      v-if="showSetupModal"
+      class="fixed inset-0 z-50 flex items-center justify-center p-4 bg-gray-900/60 backdrop-blur-sm"
+      role="dialog"
+      aria-modal="true"
+    >
+      <div class="w-full max-w-md rounded-2xl bg-white p-6 shadow-xl border border-gray-100">
+        <!-- Setup Phase -->
+        <div v-if="!showBackupCodes">
+          <div class="flex items-center justify-between mb-4">
+            <h3 class="text-xl font-bold text-gray-900 flex items-center gap-2">
+              <Shield class="w-6 h-6 text-orange-600" />
+              Activer le 2FA
+            </h3>
+            <button
+              @click="showSetupModal = false"
+              class="text-gray-400 hover:text-gray-600 transition"
+              aria-label="Fermer"
+            >
+              &times;
+            </button>
+          </div>
+
+          <p class="text-sm text-gray-600 mb-4">
+            Scannez le code QR ci-dessous avec votre application d'authentification (Google Authenticator, Duo, etc.) puis saisissez le code de vérification à 6 chiffres.
+          </p>
+
+          <div v-if="qrCodeUrl" class="flex justify-center bg-gray-50 border border-gray-100 rounded-xl p-4 mb-4">
+            <img :src="qrCodeUrl" alt="QR Code d'activation 2FA" class="max-w-[200px]" />
+          </div>
+
+          <div class="mb-4">
+            <label class="block text-xs font-semibold text-gray-500 uppercase tracking-wider mb-1">Clé secrète (si le QR code ne fonctionne pas)</label>
+            <div class="flex items-center justify-between bg-gray-50 border border-gray-100 rounded-xl p-3 font-mono text-xs text-gray-800">
+              <span class="select-all">{{ secretKey }}</span>
+              <button
+                @click="copySecretKey"
+                class="text-orange-600 hover:text-orange-700 font-semibold flex items-center gap-1"
+                type="button"
+              >
+                Copier
+              </button>
+            </div>
+          </div>
+
+          <div class="mb-6">
+            <label class="block text-sm font-medium text-gray-700 mb-1">Code de vérification</label>
+            <UiInput
+              v-model="verificationCode"
+              type="text"
+              placeholder="000000"
+              maxlength="6"
+              class="text-center text-lg font-bold tracking-widest"
+              required
+            />
+            <p v-if="codeError" class="text-red-500 text-xs mt-1.5 flex items-center gap-1">
+              {{ codeError }}
+            </p>
+          </div>
+
+          <div class="flex justify-end gap-3">
+            <button
+              @click="showSetupModal = false"
+              class="px-4 py-2 text-sm font-semibold text-gray-700 bg-gray-100 hover:bg-gray-200 rounded-xl transition focus:ring-2 focus:ring-gray-400"
+            >
+              Annuler
+            </button>
+            <button
+              @click="verify2FA"
+              :disabled="toggling2FA || verificationCode.length < 6"
+              class="px-5 py-2 text-sm font-semibold text-white bg-orange-600 hover:bg-orange-700 rounded-xl transition focus:ring-2 focus:ring-orange-500 disabled:opacity-50 disabled:cursor-not-allowed"
+            >
+              <span v-if="toggling2FA">Vérification...</span>
+              <span v-else>Activer</span>
+            </button>
           </div>
         </div>
-      </section>
 
-      <div class="flex items-center justify-end gap-3">
-        <button
-          type="button"
-          class="rounded-lg border border-gray-300 px-4 py-2 text-sm font-medium text-gray-700 hover:bg-gray-50"
-          :disabled="saving"
-          @click="loadSettings"
-        >
-          Réinitialiser
-        </button>
-        <button
-          type="submit"
-          :disabled="saving"
-          class="rounded-lg bg-orange-600 px-5 py-2 text-sm font-medium text-white hover:bg-orange-700 disabled:opacity-50"
-        >
-          {{ saving ? "Enregistrement..." : "Enregistrer" }}
-        </button>
+        <!-- Backup Codes Phase -->
+        <div v-else>
+          <div class="flex items-center justify-between mb-4">
+            <h3 class="text-xl font-bold text-gray-900 flex items-center gap-2">
+              <Shield class="w-6 h-6 text-green-600" />
+              Codes de secours générés
+            </h3>
+          </div>
+          <p class="text-sm text-gray-600 mb-4">
+            Voici vos codes de secours. Conservez-les précieusement dans un endroit sûr (comme un gestionnaire de mots de passe). Ils vous permettront d'accéder à votre compte si vous n'avez plus accès à votre application d'authentification.
+          </p>
+
+          <div class="bg-red-50 border border-red-200 rounded-xl p-3 mb-4 text-xs text-red-800">
+            <strong>ATTENTION :</strong> Ces codes de secours ne seront affichés qu'une seule fois. Chacun d'eux ne peut être utilisé qu'une seule fois.
+          </div>
+
+          <div class="grid grid-cols-2 gap-2 p-3 bg-gray-50 border border-gray-100 rounded-xl font-mono text-center text-sm text-gray-800">
+            <div v-for="code in backupCodes" :key="code" class="p-1 rounded bg-white border border-gray-200 select-all font-bold">
+              {{ code }}
+            </div>
+          </div>
+
+          <div class="mt-6 flex flex-col sm:flex-row gap-2">
+            <button
+              @click="copyBackupCodes"
+              class="flex-1 px-4 py-2 text-sm font-semibold text-gray-700 bg-gray-100 hover:bg-gray-200 rounded-xl transition focus:ring-2 focus:ring-gray-400 flex items-center justify-center gap-1.5"
+              type="button"
+            >
+              Copier les codes
+            </button>
+            <button
+              @click="showSetupModal = false"
+              class="flex-1 px-4 py-2 text-sm font-semibold text-white bg-green-600 hover:bg-green-700 rounded-xl transition focus:ring-2 focus:ring-green-500"
+            >
+              J'ai sauvegardé mes codes
+            </button>
+          </div>
+        </div>
       </div>
-    </form>
+    </div>
 
-    <!-- toast -->
+    <!-- 2FA DISABLE MODAL -->
     <div
-      v-if="toastMessage"
-      class="fixed bottom-6 right-6 z-50 rounded-lg px-6 py-3 text-white shadow-lg"
-      :class="toastType === 'error' ? 'bg-red-600' : 'bg-green-600'"
+      v-if="showDisableModal"
+      class="fixed inset-0 z-50 flex items-center justify-center p-4 bg-gray-900/60 backdrop-blur-sm"
+      role="dialog"
+      aria-modal="true"
     >
-      {{ toastMessage }}
+      <div class="w-full max-w-md rounded-2xl bg-white p-6 shadow-xl border border-gray-100">
+        <div class="flex items-center justify-between mb-4">
+          <h3 class="text-xl font-bold text-gray-900 flex items-center gap-2">
+            <Shield class="w-6 h-6 text-red-600" />
+            Désactiver le 2FA
+          </h3>
+          <button
+            @click="showDisableModal = false"
+            class="text-gray-400 hover:text-gray-600 transition"
+            aria-label="Fermer"
+          >
+            &times;
+          </button>
+        </div>
+
+        <p class="text-sm text-gray-600 mb-4">
+          Pour désactiver l'authentification à deux facteurs, veuillez saisir votre mot de passe pour confirmer votre identité.
+        </p>
+
+        <div class="mb-6">
+          <label class="block text-sm font-medium text-gray-700 mb-1">Mot de passe</label>
+          <UiInput
+            v-model="disablePassword"
+            type="password"
+            placeholder="Votre mot de passe de confirmation"
+            required
+          />
+          <p v-if="disableError" class="text-red-500 text-xs mt-1.5 flex items-center gap-1">
+            {{ disableError }}
+          </p>
+        </div>
+
+        <div class="flex justify-end gap-3">
+          <button
+            @click="showDisableModal = false"
+            class="px-4 py-2 text-sm font-semibold text-gray-700 bg-gray-100 hover:bg-gray-200 rounded-xl transition focus:ring-2 focus:ring-gray-400"
+          >
+            Annuler
+          </button>
+          <button
+            @click="confirmDisable2FA"
+            :disabled="toggling2FA || !disablePassword"
+            class="px-5 py-2 text-sm font-semibold text-white bg-red-600 hover:bg-red-700 rounded-xl transition focus:ring-2 focus:ring-red-500 disabled:opacity-50 disabled:cursor-not-allowed"
+          >
+            <span v-if="toggling2FA">Désactivation...</span>
+            <span v-else>Désactiver</span>
+          </button>
+        </div>
+      </div>
     </div>
   </div>
 </template>
 
 <script setup lang="ts">
+import { ref, onMounted } from "vue";
+import {
+  Mail,
+  Lock,
+  Shield,
+} from "lucide-vue-next";
+import { useToast } from "vue-toastification";
 import { useAuthenticatedFetch } from "~/composables/useAuthenticatedFetch";
 
 definePageMeta({
@@ -109,102 +320,220 @@ definePageMeta({
   middleware: "admin-only",
 });
 
-type SettingType = "number" | "boolean" | "stringList";
-
-interface SettingDto {
-  key: string;
-  label: string;
-  description?: string;
-  group: string;
-  type: SettingType;
-  value: number | boolean | string[];
-  min?: number;
-  max?: number;
-}
-
-const settings = ref<SettingDto[]>([]);
-const form = reactive<Record<string, number | boolean | string[]>>({});
-const listText = reactive<Record<string, string>>({});
+const toast = useToast();
 
 const loading = ref(true);
-const saving = ref(false);
-const fetchError = ref("");
+const currentEmail = ref("");
 
-const toastMessage = ref("");
-const toastType = ref<"success" | "error">("success");
-
-const groups = computed(() => {
-  const map = new Map<string, SettingDto[]>();
-  for (const s of settings.value) {
-    if (!map.has(s.group)) map.set(s.group, []);
-    map.get(s.group)!.push(s);
-  }
-  return Array.from(map.entries()).map(([name, items]) => ({ name, items }));
+// Email forms
+const emailForm = ref({
+  newEmail: "",
+  password: "",
 });
+const savingEmail = ref(false);
 
-function showToast(msg: string, type: "success" | "error" = "success") {
-  toastMessage.value = msg;
-  toastType.value = type;
-  setTimeout(() => {
-    toastMessage.value = "";
-  }, 3000);
-}
+// Password forms
+const passwordForm = ref({
+  currentPassword: "",
+  newPassword: "",
+  confirmPassword: "",
+});
+const savingPassword = ref(false);
 
-async function loadSettings() {
+// 2FA state refs
+const twoFactorEnabled = ref(false);
+const showSetupModal = ref(false);
+const showDisableModal = ref(false);
+const qrCodeUrl = ref("");
+const secretKey = ref("");
+const verificationCode = ref("");
+const disablePassword = ref("");
+const backupCodes = ref<string[]>([]);
+const showBackupCodes = ref(false);
+const codeError = ref("");
+const disableError = ref("");
+const toggling2FA = ref(false);
+
+const loadSettings = async () => {
   loading.value = true;
-  fetchError.value = "";
   try {
-    const response = await useAuthenticatedFetch<{
+    const profRes = await useAuthenticatedFetch<{
       success: boolean;
-      data: SettingDto[];
-    }>("/admin/settings");
-    settings.value = response.data;
-    for (const s of response.data) {
-      if (s.type === "stringList") {
-        listText[s.key] = (s.value as string[]).join(", ");
-      } else {
-        form[s.key] = s.value;
-      }
+      data: { email: string; twoFactorEnabled: boolean };
+    }>("/settings/profile");
+
+    if (profRes.success) {
+      currentEmail.value = profRes.data.email;
+      twoFactorEnabled.value = profRes.data.twoFactorEnabled;
     }
   } catch (error: unknown) {
-    const err = error as { data?: { message?: string } };
-    fetchError.value =
-      err?.data?.message || "Erreur lors du chargement des paramètres";
+    console.error("Error fetching settings:", error);
+    toast.error("Erreur lors du chargement des informations de compte");
   } finally {
     loading.value = false;
   }
-}
+};
 
-async function save() {
-  saving.value = true;
+const saveEmail = async () => {
+  if (!emailForm.value.newEmail || !emailForm.value.password) return;
+  savingEmail.value = true;
   try {
-    const payload = settings.value.map((s) => {
-      if (s.type === "stringList") {
-        const list = (listText[s.key] || "")
-          .split(",")
-          .map((v) => v.trim())
-          .filter((v) => v.length > 0);
-        return { key: s.key, value: list };
-      }
-      return { key: s.key, value: form[s.key] };
+    const res = await useAuthenticatedFetch<{
+      success: boolean;
+      message?: string;
+    }>("/settings/email", {
+      method: "PATCH",
+      body: emailForm.value,
     });
-
-    await useAuthenticatedFetch("/admin/settings", {
-      method: "PUT",
-      body: { settings: payload },
-    });
-    showToast("Paramètres enregistrés");
-    await loadSettings();
-  } catch (error: unknown) {
-    const err = error as { data?: { message?: string } };
-    showToast(
-      err?.data?.message || "Erreur lors de l'enregistrement",
-      "error",
-    );
+    if (res.success) {
+      toast.success("Adresse email mise à jour avec succès");
+      currentEmail.value = emailForm.value.newEmail;
+      emailForm.value = { newEmail: "", password: "" };
+    }
+  } catch (err: unknown) {
+    const apiError = err as { data?: { message?: string } };
+    toast.error(apiError.data?.message || "Erreur lors de la mise à jour de l'email");
   } finally {
-    saving.value = false;
+    savingEmail.value = false;
   }
-}
+};
 
-onMounted(loadSettings);
+const savePassword = async () => {
+  if (!passwordForm.value.currentPassword || !passwordForm.value.newPassword) return;
+  if (passwordForm.value.newPassword !== passwordForm.value.confirmPassword) {
+    toast.error("Les nouveaux mots de passe ne correspondent pas");
+    return;
+  }
+  savingPassword.value = true;
+  try {
+    const res = await useAuthenticatedFetch<{
+      success: boolean;
+      message?: string;
+    }>("/settings/password", {
+      method: "PATCH",
+      body: {
+        currentPassword: passwordForm.value.currentPassword,
+        newPassword: passwordForm.value.newPassword,
+      },
+    });
+    if (res.success) {
+      toast.success("Mot de passe mis à jour");
+      passwordForm.value = { currentPassword: "", newPassword: "", confirmPassword: "" };
+    }
+  } catch (err: unknown) {
+    const apiError = err as { data?: { message?: string } };
+    toast.error(apiError.data?.message || "Erreur lors de la modification du mot de passe");
+  } finally {
+    savingPassword.value = false;
+  }
+};
+
+const toggleTwoFactor = async () => {
+  if (!twoFactorEnabled.value) {
+    await start2FASetup();
+  } else {
+    disablePassword.value = "";
+    disableError.value = "";
+    showDisableModal.value = true;
+  }
+};
+
+const start2FASetup = async () => {
+  toggling2FA.value = true;
+  codeError.value = "";
+  verificationCode.value = "";
+  try {
+    const res = await useAuthenticatedFetch<{
+      success: boolean;
+      data: { secret: string; qrCodeUrl: string };
+    }>("/settings/2fa/setup", {
+      method: "POST",
+    });
+    if (res.success && res.data) {
+      secretKey.value = res.data.secret;
+      qrCodeUrl.value = res.data.qrCodeUrl;
+      showSetupModal.value = true;
+      showBackupCodes.value = false;
+    }
+  } catch (e: unknown) {
+    const err = e as { data?: { message?: string } };
+    toast.error(err.data?.message || "Erreur lors de la configuration du 2FA");
+  } finally {
+    toggling2FA.value = false;
+  }
+};
+
+const verify2FA = async () => {
+  if (!verificationCode.value || verificationCode.value.length < 6) {
+    codeError.value = "Veuillez entrer un code de 6 chiffres";
+    return;
+  }
+  codeError.value = "";
+  toggling2FA.value = true;
+  try {
+    const res = await useAuthenticatedFetch<{
+      success: boolean;
+      data: { twoFactorEnabled: boolean; backupCodes: string[]; message: string };
+    }>("/settings/2fa/verify", {
+      method: "POST",
+      body: { code: verificationCode.value },
+    });
+    if (res.success && res.data) {
+      twoFactorEnabled.value = res.data.twoFactorEnabled;
+      backupCodes.value = res.data.backupCodes;
+      showBackupCodes.value = true;
+      toast.success("Authentification à deux facteurs activée !");
+    }
+  } catch (e: unknown) {
+    const err = e as { data?: { message?: string } };
+    codeError.value = err.data?.message || "Code incorrect. Veuillez réessayer.";
+  } finally {
+    toggling2FA.value = false;
+  }
+};
+
+const confirmDisable2FA = async () => {
+  if (!disablePassword.value) {
+    disableError.value = "Le mot de passe est requis";
+    return;
+  }
+  disableError.value = "";
+  toggling2FA.value = true;
+  try {
+    const res = await useAuthenticatedFetch<{
+      success: boolean;
+      data: { twoFactorEnabled: boolean; message: string };
+    }>("/settings/2fa/disable", {
+      method: "POST",
+      body: { password: disablePassword.value },
+    });
+    if (res.success) {
+      twoFactorEnabled.value = false;
+      showDisableModal.value = false;
+      toast.success("2FA désactivé avec succès");
+    }
+  } catch (e: unknown) {
+    const err = e as { data?: { message?: string } };
+    disableError.value = err.data?.message || "Mot de passe incorrect. Impossible de désactiver la 2FA.";
+  } finally {
+    toggling2FA.value = false;
+  }
+};
+
+const copySecretKey = () => {
+  if (!secretKey.value) return;
+  navigator.clipboard.writeText(secretKey.value);
+  toast.success("Clé secrète copiée !");
+};
+
+const copyBackupCodes = () => {
+  if (backupCodes.value.length === 0) return;
+  const text = backupCodes.value.join("\n");
+  navigator.clipboard.writeText(text);
+  toast.success("Codes de secours copiés dans le presse-papiers !");
+};
+
+onMounted(() => {
+  loadSettings();
+});
 </script>
