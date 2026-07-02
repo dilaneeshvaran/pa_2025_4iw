@@ -51,7 +51,7 @@
 </template>
 
 <script setup lang="ts">
-import { watch } from "vue";
+import { watch, onBeforeUnmount } from "vue";
 
 interface Props {
   show: boolean;
@@ -67,14 +67,22 @@ const props = withDefaults(defineProps<Props>(), {
 watch(
   () => props.show,
   (newShow) => {
-    if (newShow) {
-      document.body.classList.add("overflow-hidden");
-    } else {
-      document.body.classList.remove("overflow-hidden");
+    if (typeof document !== "undefined") {
+      if (newShow) {
+        document.body.classList.add("overflow-hidden");
+      } else {
+        document.body.classList.remove("overflow-hidden");
+      }
     }
   },
   { immediate: true }
 );
+
+onBeforeUnmount(() => {
+  if (typeof document !== "undefined") {
+    document.body.classList.remove("overflow-hidden");
+  }
+});
 </script>
 
 <style scoped>

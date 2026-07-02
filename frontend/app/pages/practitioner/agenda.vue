@@ -546,45 +546,51 @@
               <span class="text-xs text-gray-500">Actif</span>
             </label>
             <template v-if="isDayActive(day.value)">
-              <select
-                :value="getDaySchedule(day.value)?.startTime || '09:00'"
-                @change="
-                  updateDayTime(
-                    day.value,
-                    'startTime',
-                    ($event.target as HTMLSelectElement).value,
-                  )
-                "
-                class="rounded-lg border border-gray-300 px-2 py-1 text-sm focus:border-orange-500 focus:outline-none focus:ring-1 focus:ring-orange-500"
-              >
-                <option
-                  v-for="slot in getStartTimeOptions(day.value)"
-                  :key="slot"
-                  :value="slot"
+              <div class="relative">
+                <select
+                  :value="getDaySchedule(day.value)?.startTime || '09:00'"
+                  @change="
+                    updateDayTime(
+                      day.value,
+                      'startTime',
+                      ($event.target as HTMLSelectElement).value,
+                    )
+                  "
+                  class="appearance-none bg-none rounded-lg border border-gray-300 pl-2.5 pr-8 py-1 text-sm focus:border-orange-500 focus:outline-none focus:ring-1 focus:ring-orange-500 cursor-pointer bg-white"
                 >
-                  {{ slot }}
-                </option>
-              </select>
+                  <option
+                    v-for="slot in getStartTimeOptions(day.value)"
+                    :key="slot"
+                    :value="slot"
+                  >
+                    {{ slot }}
+                  </option>
+                </select>
+                <ChevronDown class="pointer-events-none absolute right-2 top-1/2 h-4 w-4 -translate-y-1/2 text-gray-400" />
+              </div>
               <span class="text-gray-400">–</span>
-              <select
-                :value="getDaySchedule(day.value)?.endTime || '17:00'"
-                @change="
-                  updateDayTime(
-                    day.value,
-                    'endTime',
-                    ($event.target as HTMLSelectElement).value,
-                  )
-                "
-                class="rounded-lg border border-gray-300 px-2 py-1 text-sm focus:border-orange-500 focus:outline-none focus:ring-1 focus:ring-orange-500"
-              >
-                <option
-                  v-for="slot in getEndTimeOptions(day.value)"
-                  :key="slot"
-                  :value="slot"
+              <div class="relative">
+                <select
+                  :value="getDaySchedule(day.value)?.endTime || '17:00'"
+                  @change="
+                    updateDayTime(
+                      day.value,
+                      'endTime',
+                      ($event.target as HTMLSelectElement).value,
+                    )
+                  "
+                  class="appearance-none bg-none rounded-lg border border-gray-300 pl-2.5 pr-8 py-1 text-sm focus:border-orange-500 focus:outline-none focus:ring-1 focus:ring-orange-500 cursor-pointer bg-white"
                 >
-                  {{ slot }}
-                </option>
-              </select>
+                  <option
+                    v-for="slot in getEndTimeOptions(day.value)"
+                    :key="slot"
+                    :value="slot"
+                  >
+                    {{ slot }}
+                  </option>
+                </select>
+                <ChevronDown class="pointer-events-none absolute right-2 top-1/2 h-4 w-4 -translate-y-1/2 text-gray-400" />
+              </div>
             </template>
             <span v-else class="text-sm text-gray-400">Repos</span>
           </div>
