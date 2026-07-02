@@ -255,6 +255,7 @@ definePageMeta({
 });
 
 const toast = useToast();
+const route = useRoute();
 const loading = ref(true);
 const actionLoading = ref<string | null>(null);
 const currentTab = ref<"active" | "invitations">("active");
@@ -403,6 +404,9 @@ const leaveCabinet = async (id: string) => {
 };
 
 onMounted(() => {
+  if (route.query.tab === 'invitations') {
+    currentTab.value = 'invitations';
+  }
   fetchData();
 });
 </script>
