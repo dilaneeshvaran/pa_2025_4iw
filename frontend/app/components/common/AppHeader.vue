@@ -58,7 +58,12 @@ import { getDashboardPath } from "~/utils/authNavigation";
 
 const router = useRouter();
 const authStore = useAuthStore();
-const dashboardPath = computed(() => getDashboardPath(authStore.currentRole));
+const dashboardPath = computed(() => {
+  if (authStore.user && !authStore.user.emailVerified) {
+    return "/auth/verify-email-notice";
+  }
+  return getDashboardPath(authStore.currentRole);
+});
 const brandTarget = computed(() =>
   authStore.isAuthenticated ? dashboardPath.value : "/",
 );

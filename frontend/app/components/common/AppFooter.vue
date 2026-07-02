@@ -128,7 +128,13 @@ import { useAuthStore } from '~/stores/auth'
 import { getDashboardPath } from '~/utils/authNavigation'
 
 const authStore = useAuthStore()
-const brandTarget = computed(() =>
-  authStore.isAuthenticated ? getDashboardPath(authStore.currentRole) : '/',
-)
+const brandTarget = computed(() => {
+  if (authStore.isAuthenticated) {
+    if (authStore.user && !authStore.user.emailVerified) {
+      return "/auth/verify-email-notice";
+    }
+    return getDashboardPath(authStore.currentRole);
+  }
+  return '/';
+})
 </script>

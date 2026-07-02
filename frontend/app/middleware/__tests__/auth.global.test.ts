@@ -93,4 +93,72 @@ describe("auth.global middleware", () => {
       query: { redirect: "/practitioner/agenda" },
     });
   });
+
+  it("should redirect authenticated but unverified email users to the verify-email-notice page when visiting a protected route", () => {
+    mockAuthStore.isAuthenticated = true;
+    mockAuthStore.user = { emailVerified: false, role: "PATIENT" } as any;
+    mockAuthStore.currentRole = "PATIENT";
+
+    const to = {
+      path: "/patient/dashboard",
+      fullPath: "/patient/dashboard",
+      name: "patient-dashboard",
+      params: {},
+      matched: [],
+    } as any;
+
+    authGlobal(to, {} as any);
+    expect(navigateToMock).toHaveBeenCalledWith("/auth/verify-email-notice");
+  });
+
+  it("should allow authenticated but unverified email users to access public routes", () => {
+    mockAuthStore.isAuthenticated = true;
+    mockAuthStore.user = { emailVerified: false, role: "PATIENT" } as any;
+    mockAuthStore.currentRole = "PATIENT";
+
+    const to = {
+      path: "/legal",
+      fullPath: "/legal",
+      name: "legal",
+      params: {},
+      matched: [],
+    } as any;
+
+    authGlobal(to, {} as any);
+    expect(navigateToMock).not.toHaveBeenCalled();
+  });
+
+  it("should not redirect authenticated but unverified users when they visit the verification notice page itself", () => {
+    mockAuthStore.isAuthenticated = true;
+    mockAuthStore.user = { emailVerified: false, role: "PATIENT" } as any;
+    mockAuthStore.currentRole = "PATIENT";
+
+    const to = {
+      path: "/auth/verify-email-notice",
+      fullPath: "/auth/verify-email-notice",
+      name: "auth-verify-email-notice",
+      params: {},
+      matched: [],
+    } as any;
+
+    authGlobal(to, {} as any);
+    expect(navigateToMock).not.toHaveBeenCalled();
+  });
+
+  it("should redirect authenticated but unverified email users to verify-email-notice when visiting the landing page (/) ", () => {
+    mockAuthStore.isAuthenticated = true;
+    mockAuthStore.user = { emailVerified: false, role: "PATIENT" } as any;
+    mockAuthStore.currentRole = "PATIENT";
+
+    const to = {
+      path: "/",
+      fullPath: "/",
+      name: "index",
+      params: {},
+      matched: [],
+    } as any;
+
+    authGlobal(to, {} as any);
+    expect(navigateToMock).toHaveBeenCalledWith("/auth/verify-email-notice");
+  });
 });
