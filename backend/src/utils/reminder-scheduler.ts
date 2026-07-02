@@ -2,18 +2,22 @@ import { Queue, Worker } from 'bullmq'
 import { redis } from '../config/redis'
 import prisma from '../config/database'
 import { sendAppointmentReminderEmail } from './email'
-import { AppointmentType } from '@prisma/client'
 
 const QUEUE_NAME = 'appointment-reminders'
 
-// create the reminder queue
-export const reminderQueue = new Queue(QUEUE_NAME, {
-  connection: redis as any,
-  defaultJobOptions: {
-    removeOnComplete: true,
-    removeOnFail: 100, // keep last 100 failed jobs for debugging
-  },
-})
+let _reminderQueue: Queue | undefined
+function getReminderQueue(): Queue {
+  if (!_reminderQueue) {
+    _reminderQueue = new Queue(QUEUE_NAME, {
+      connection: redis as any,
+      defaultJobOptions: {
+        removeOnComplete: true,
+        removeOnFail: 100, // keep last 100 failed jobs for debugging
+      },
+    })
+  }
+  return _reminderQueue
+}
 
 // job types
 interface ReminderJobData {
@@ -27,6 +31,7 @@ export async function scheduleAppointmentReminders(
   appointmentDate: Date,
   startTime: string,
 ): Promise<void> {
+  const reminderQueue = getReminderQueue()
   //  appointment datetime in utc.
   // appointmentDate is stored as utc midnight
   // startTime is "HH:MM" in the local timezone (africa/abidjan = UTC+0 = UTC).
@@ -69,11 +74,10 @@ export async function scheduleAppointmentReminders(
   }
 }
 
-// todo: call this from appointments service when appointment is cancelled
-// cancel scheduled reminders (when appointment is cancelled)
 export async function cancelAppointmentReminders(
   appointmentId: string,
 ): Promise<void> {
+  const reminderQueue = getReminderQueue()
   try {
     const job24h = await reminderQueue.getJob(`${appointmentId}-24h`)
     const job1h = await reminderQueue.getJob(`${appointmentId}-1h`)
