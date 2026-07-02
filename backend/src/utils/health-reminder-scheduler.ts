@@ -25,25 +25,37 @@ interface HealthReminderJobData {
   scheduledFor: string
 }
 
-export const healthReminderQueue = new Queue<
+let healthReminderQueueInstance: Queue<
   HealthReminderJobData,
   void,
   typeof JOB_NAME
->(
-  QUEUE_NAME,
-  {
-    connection: bullMqRedisConnection,
-    defaultJobOptions: {
-      attempts: 3,
-      backoff: {
-        type: 'exponential',
-        delay: 60_000,
+> | null = null
+
+export function getHealthReminderQueue(): Queue<
+  HealthReminderJobData,
+  void,
+  typeof JOB_NAME
+> {
+  if (!healthReminderQueueInstance) {
+    healthReminderQueueInstance = new Queue<
+      HealthReminderJobData,
+      void,
+      typeof JOB_NAME
+    >(QUEUE_NAME, {
+      connection: bullMqRedisConnection,
+      defaultJobOptions: {
+        attempts: 3,
+        backoff: {
+          type: 'exponential',
+          delay: 60_000,
+        },
+        removeOnComplete: true,
+        removeOnFail: 100,
       },
-      removeOnComplete: true,
-      removeOnFail: 100,
-    },
-  },
-)
+    })
+  }
+  return healthReminderQueueInstance
+}
 
 export async function scheduleHealthReminderOccurrences(
   reminderId: string,
@@ -63,7 +75,7 @@ export async function scheduleHealthReminderOccurrences(
   )
 
   for (const occurrence of occurrences) {
-    await healthReminderQueue.add(
+    await getHealthReminderQueue().add(
       JOB_NAME,
       {
         reminderId,
@@ -120,9 +132,9 @@ export function startHealthReminderWorker(): Worker<
       }
 
       const schedule = toScheduleDefinition(reminder)
-      const matchingOccurrence = computeHealthReminderOccurrences(schedule).some(
-        (occurrence) => occurrence.getTime() === scheduledFor.getTime(),
-      )
+      const matchingOccurrence = computeHealthReminderOccurrences(
+        schedule,
+      ).some((occurrence) => occurrence.getTime() === scheduledFor.getTime())
 
       if (!matchingOccurrence) {
         return
