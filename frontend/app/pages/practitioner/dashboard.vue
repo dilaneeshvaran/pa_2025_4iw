@@ -532,6 +532,7 @@ const profileAlertDismissed = ref(false);
 const profileInfo = ref({
   isProfilePublic: false,
   tarifsAreDefined: false,
+  paymentMethodsAreDefined: false,
 });
 
 const showProfileAlert = computed(() => {
@@ -543,12 +544,18 @@ const profileAlertTitle = computed(() => {
   if (!profileInfo.value.tarifsAreDefined) {
     return "Configurez vos tarifs pour rendre votre profil public";
   }
+  if (!profileInfo.value.paymentMethodsAreDefined) {
+    return "Configurez vos moyens de paiement pour rendre votre profil public";
+  }
   return "Votre profil n'est pas encore public";
 });
 
 const profileAlertMessage = computed(() => {
   if (!profileInfo.value.tarifsAreDefined) {
     return "Définissez vos tarifs de consultation pour permettre aux patients de vous trouver et de prendre rendez-vous en ligne.";
+  }
+  if (!profileInfo.value.paymentMethodsAreDefined) {
+    return "Sélectionnez au moins un moyen de paiement accepté en cabinet pour permettre aux patients de prendre rendez-vous.";
   }
   return "Rendez votre profil visible pour que les patients puissent vous trouver et prendre rendez-vous en ligne.";
 });
@@ -557,12 +564,18 @@ const profileAlertLink = computed(() => {
   if (!profileInfo.value.tarifsAreDefined) {
     return "/practitioner/billing";
   }
+  if (!profileInfo.value.paymentMethodsAreDefined) {
+    return "/practitioner/billing";
+  }
   return "/practitioner/settings";
 });
 
 const profileAlertAction = computed(() => {
   if (!profileInfo.value.tarifsAreDefined) {
     return "Configurer mes tarifs";
+  }
+  if (!profileInfo.value.paymentMethodsAreDefined) {
+    return "Configurer mes moyens de paiement";
   }
   return "Rendre mon profil public";
 });
@@ -625,6 +638,7 @@ const kpiCards = computed(() => [
 interface ProfileData {
   isProfilePublic: boolean;
   baseConsultationFee: number | null;
+  acceptedPaymentMethods?: string[];
 }
 
 const fetchDashboard = async () => {
@@ -649,6 +663,9 @@ const fetchDashboard = async () => {
         profileResponse.data.isProfilePublic || false;
       profileInfo.value.tarifsAreDefined =
         !!profileResponse.data.baseConsultationFee;
+      profileInfo.value.paymentMethodsAreDefined =
+        !!profileResponse.data.acceptedPaymentMethods &&
+        profileResponse.data.acceptedPaymentMethods.length > 0;
     }
   } catch (error) {
     console.error("Error fetching dashboard:", error);
