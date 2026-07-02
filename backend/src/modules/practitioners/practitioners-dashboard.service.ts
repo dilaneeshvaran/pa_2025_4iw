@@ -429,6 +429,18 @@ export class PractitionerDashboardService {
       include: { qualifications: true },
     })
     if (!p) throw new Error('Not found')
+
+    let isUnpaid = false
+    if (p.licenseVerifiedAt) {
+      const billingDate = new Date(p.licenseVerifiedAt)
+      billingDate.setMonth(billingDate.getMonth() + 1)
+      const hasVerifiedPaymentMethod = await prisma.savedPaymentMethod.findFirst({
+        where: { practitionerId, isVerified: true },
+        select: { id: true },
+      })
+      isUnpaid = new Date() > billingDate && !hasVerifiedPaymentMethod
+    }
+
     return {
       id: p.id,
       userId: p.userId,
@@ -454,6 +466,8 @@ export class PractitionerDashboardService {
       emergencyFee: p.emergencyFee ? Number(p.emergencyFee) : null,
       acceptedPaymentMethods: p.acceptedPaymentMethods,
       qualifications: p.qualifications,
+      isUnpaid,
+      licenseVerifiedAt: p.licenseVerifiedAt,
     }
   }
 

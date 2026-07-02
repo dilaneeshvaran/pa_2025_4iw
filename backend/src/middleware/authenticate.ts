@@ -45,6 +45,32 @@ export async function authenticateAttachmentRequest(
   return authenticate(request, reply)
 }
 
+async function checkUnpaidPractitioner(userId: string): Promise<boolean> {
+  const practitioner = await prisma.practitioner.findUnique({
+    where: { userId },
+    select: {
+      licenseVerifiedAt: true,
+      savedPaymentMethods: {
+        where: { isVerified: true },
+        select: { id: true },
+      },
+    },
+  })
+
+  if (!practitioner || !practitioner.licenseVerifiedAt) {
+    return false
+  }
+
+  // Billed after 1 month starting the date of registration approval by admin (licenseVerifiedAt)
+  const billingDate = new Date(practitioner.licenseVerifiedAt)
+  billingDate.setMonth(billingDate.getMonth() + 1)
+
+  const isPastBillingDate = new Date() > billingDate
+  const hasVerifiedPaymentMethod = practitioner.savedPaymentMethods.length > 0
+
+  return isPastBillingDate && !hasVerifiedPaymentMethod
+}
+
 export async function authenticate(
   request: FastifyRequest,
   reply: FastifyReply,
@@ -107,6 +133,33 @@ export async function authenticate(
         success: false,
         message: 'Compte utilisateur inactif',
       })
+    }
+
+    // check if practitioner is unpaid
+    if (user.role === 'PRACTITIONER') {
+      const isUnpaid = await checkUnpaidPractitioner(user.id)
+      if (isUnpaid) {
+        const allowedPaths = [
+          '/api/payments/methods',
+          '/api/practitioner/dashboard/profile',
+          '/api/practitioner/dashboard/subscription',
+          '/api/auth/logout',
+          '/api/auth/refresh-token',
+          '/api/auth/verify-2fa',
+        ]
+        const urlPath = (request.raw.url || '').split('?')[0]
+        const isAllowed = allowedPaths.some(path => urlPath.startsWith(path)) ||
+                          /\/api\/payments\/methods\/[^/]+$/.test(urlPath) ||
+                          /\/api\/payments\/methods\/[^/]+\/(verify|default)$/.test(urlPath)
+
+        if (!isAllowed) {
+          return reply.status(402).send({
+            success: false,
+            code: 'SUBSCRIPTION_UNPAID',
+            message: 'Votre abonnement a expiré. Veuillez ajouter un moyen de paiement pour réactiver votre compte.',
+          })
+        }
+      }
     }
 
     // attach user to request

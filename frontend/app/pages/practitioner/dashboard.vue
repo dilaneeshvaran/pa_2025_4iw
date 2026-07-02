@@ -5,6 +5,34 @@
       <p class="mt-1 text-sm text-gray-500">Bienvenue sur votre espace praticien</p>
     </div>
 
+    <!-- subscription billing warning notice -->
+    <div
+      v-if="showBillingNotice"
+      class="mb-6 rounded-2xl border border-amber-200 bg-amber-50 p-5 shadow-sm"
+    >
+      <div class="flex items-start gap-3">
+        <CreditCard class="mt-0.5 h-5 w-5 flex-shrink-0 text-amber-600" :stroke-width="1.75" />
+        <div class="flex-1">
+          <h3 class="font-display text-sm font-semibold text-gray-900">
+            Moyen de paiement requis pour votre abonnement
+          </h3>
+          <p class="mt-1 text-sm text-gray-600">
+            Vous n'avez pas encore configuré de moyen de paiement actif pour le règlement de votre abonnement. 
+            Celui-ci sera facturé automatiquement 1 mois après la date de validation de votre inscription par l'administration 
+            (vous bénéficiez d'une période d'essai gratuite d'un mois à compter du {{ formattedTrialStartDate }}). 
+            Veuillez enregistrer une carte bancaire ou un compte Mobile Money pour éviter toute suspension de votre compte le {{ formattedBillingDate }}.
+          </p>
+          <NuxtLink
+            to="/practitioner/pay"
+            class="mt-2 inline-flex items-center text-sm font-semibold text-[#D96F00] hover:text-[#B85E00]"
+          >
+            Gérer mes moyens de paiement
+            <ArrowRight class="ml-1 h-4 w-4" :stroke-width="1.75" />
+          </NuxtLink>
+        </div>
+      </div>
+    </div>
+
     <!-- profile visibility alert -->
     <div
       v-if="showProfileAlert"
@@ -639,11 +667,35 @@ interface ProfileData {
   isProfilePublic: boolean;
   baseConsultationFee: number | null;
   acceptedPaymentMethods?: string[];
+  licenseVerifiedAt: string | null;
 }
+
+const licenseVerifiedAt = ref<string | null>(null);
+const showBillingNotice = ref(false);
+
+const formattedTrialStartDate = computed(() => {
+  if (!licenseVerifiedAt.value) return "validation";
+  return new Date(licenseVerifiedAt.value).toLocaleDateString("fr-FR", {
+    day: "numeric",
+    month: "long",
+    year: "numeric",
+  });
+});
+
+const formattedBillingDate = computed(() => {
+  if (!licenseVerifiedAt.value) return "dans 1 mois";
+  const d = new Date(licenseVerifiedAt.value);
+  d.setMonth(d.getMonth() + 1);
+  return d.toLocaleDateString("fr-FR", {
+    day: "numeric",
+    month: "long",
+    year: "numeric",
+  });
+});
 
 const fetchDashboard = async () => {
   try {
-    const [dashboardResponse, profileResponse] = await Promise.all([
+    const [dashboardResponse, profileResponse, methodsResponse] = await Promise.all([
       useAuthenticatedFetch<{
         success: boolean;
         data: DashboardData;
@@ -652,6 +704,10 @@ const fetchDashboard = async () => {
         success: boolean;
         data: ProfileData;
       }>("/practitioner/dashboard/profile"),
+      useAuthenticatedFetch<{
+        success: boolean;
+        data: any[];
+      }>("/payments/methods"),
     ]);
 
     if (dashboardResponse.success) {
@@ -666,6 +722,13 @@ const fetchDashboard = async () => {
       profileInfo.value.paymentMethodsAreDefined =
         !!profileResponse.data.acceptedPaymentMethods &&
         profileResponse.data.acceptedPaymentMethods.length > 0;
+      
+      licenseVerifiedAt.value = profileResponse.data.licenseVerifiedAt;
+    }
+
+    if (methodsResponse.success && methodsResponse.data) {
+      const hasVerifiedMethod = methodsResponse.data.some((m: any) => m.isVerified);
+      showBillingNotice.value = !hasVerifiedMethod && !!licenseVerifiedAt.value;
     }
   } catch (error) {
     console.error("Error fetching dashboard:", error);

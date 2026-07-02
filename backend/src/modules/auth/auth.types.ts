@@ -15,6 +15,7 @@ export interface AuthResponse {
     emailVerified: boolean
     firstName?: string | null
     lastName?: string | null
+    isUnpaid?: boolean
   }
   tokens?: AuthTokens
   requires2FA?: boolean
