@@ -97,6 +97,13 @@
     line-height: 1.4;
   }
 
+  /* Ensure @tailwindcss/forms arrow is never overlapped by text.
+     The plugin injects a background-image arrow requiring ~2rem of right padding.
+     Using px-N utilities can override that reserved space, so we enforce it here. */
+  select {
+    padding-right: 2.25rem !important;
+  }
+
   button {
     min-height: 44px;
     min-width: 44px;
