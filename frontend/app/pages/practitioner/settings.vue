@@ -358,10 +358,11 @@
                 </td>
                 <td class="px-4 py-3 text-right">
                   <UiButton
+                    v-if="inv.invoice"
                     variant="outline"
                     size="sm"
                     class="h-7 text-xs"
-                    @click="downloadInvoice(inv.id)"
+                    @click="downloadInvoice(inv.invoice.id, inv.invoiceNumber)"
                     >PDF</UiButton
                   >
                 </td>
@@ -927,25 +928,24 @@ const cancelSubscription = async () => {
   }
 };
 
-const downloadInvoice = async (invoiceId: string) => {
+const downloadInvoice = async (invoiceId: string, invoiceNumber?: string) => {
   try {
-    const response = await useAuthenticatedFetch<
-      Blob | { success: boolean; message?: string }
-    >(`/payments/practitioner/invoices/${invoiceId}/download`);
+    const response = await useAuthenticatedFetch<Blob>(
+      `/payments/practitioner/invoices/${invoiceId}/download`,
+      {
+        responseType: "blob",
+      }
+    );
 
-    // check if response is json (success false or message) or blob directly
-    if (response instanceof Blob) {
-      const url = window.URL.createObjectURL(response);
-      const link = document.createElement("a");
-      link.href = url;
-      link.download = `facture-${invoiceId}.pdf`;
-      document.body.appendChild(link);
-      link.click();
-      document.body.removeChild(link);
-      window.URL.revokeObjectURL(url);
-    } else if (response && response.success === false) {
-      toast.error(response.message || "Erreur");
-    }
+    const blob = new Blob([response as any], { type: "application/pdf" });
+    const url = window.URL.createObjectURL(blob);
+    const link = document.createElement("a");
+    link.href = url;
+    link.download = `facture-${invoiceNumber || invoiceId}.pdf`;
+    document.body.appendChild(link);
+    link.click();
+    document.body.removeChild(link);
+    window.URL.revokeObjectURL(url);
   } catch (error: unknown) {
     console.error(error);
     toast.error("Erreur lors du téléchargement");

@@ -3,6 +3,18 @@ FROM node:22-alpine AS base
 
 WORKDIR /app
 
+# Install chromium and fonts for Puppeteer
+RUN apk add --no-cache \
+    chromium \
+    nss \
+    freetype \
+    harfbuzz \
+    ca-certificates \
+    ttf-freefont
+
+ENV PUPPETEER_SKIP_CHROMIUM_DOWNLOAD=true
+ENV PUPPETEER_EXECUTABLE_PATH=/usr/bin/chromium-browser
+
 RUN mkdir -p /app/backend/uploads \
  && addgroup -g 1001 appgroup \
  && adduser -D -u 1001 -G appgroup medicote \
