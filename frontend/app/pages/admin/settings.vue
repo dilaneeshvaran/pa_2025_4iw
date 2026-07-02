@@ -49,13 +49,13 @@
             <button
               v-else-if="s.type === 'boolean'"
               type="button"
-              class="relative inline-flex h-6 w-11 items-center rounded-full transition-colors"
+              class="toggle-switch relative inline-flex h-6 w-11 shrink-0 cursor-pointer items-center rounded-full border-2 border-transparent transition-colors duration-200 ease-in-out focus:outline-none focus:ring-2 focus:ring-orange-500 focus:ring-offset-2"
               :class="form[s.key] ? 'bg-orange-500' : 'bg-gray-300'"
               @click="form[s.key] = !form[s.key]"
             >
               <span
-                class="inline-block h-4 w-4 transform rounded-full bg-white transition-transform"
-                :class="form[s.key] ? 'translate-x-6' : 'translate-x-1'"
+                class="pointer-events-none inline-block h-4 w-4 transform rounded-full bg-white shadow ring-0 transition duration-200 ease-in-out"
+                :class="form[s.key] ? 'translate-x-5' : 'translate-x-0'"
               />
             </button>
 
