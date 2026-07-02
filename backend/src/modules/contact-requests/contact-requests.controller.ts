@@ -303,9 +303,10 @@ export class ContactRequestsController {
   async approveRequest(request: FastifyRequest, reply: FastifyReply) {
     try {
       const { id } = request.params as { id: string }
+      const { plan } = (request.body as { plan?: string }) || {}
       const userId = (request as any).user?.id
 
-      const result = await contactRequestsService.approveRequest(id, userId)
+      const result = await contactRequestsService.approveRequest(id, userId, plan)
 
       return reply.status(200).send({
         success: true,

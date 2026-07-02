@@ -117,7 +117,7 @@ export class ContactRequestsService {
     return contactRequest
   }
 
-  async approveRequest(id: string, processedBy: string) {
+  async approveRequest(id: string, processedBy: string, plan?: string) {
     const request = await prisma.contactRequest.findUnique({
       where: { id },
     })
@@ -128,6 +128,17 @@ export class ContactRequestsService {
 
     if (request.status !== 'PENDING' && request.status !== 'CONTACTED') {
       throw new Error('Cette demande a déjà été traitée')
+    }
+
+    if (request.requestType === 'PRACTITIONER') {
+      if (!plan) {
+        throw new Error("Le plan d'abonnement est requis pour les praticiens")
+      }
+      const upperPlan = plan.toUpperCase()
+      const validPlans = ['FREE', 'PREMIUM', 'PRO']
+      if (!validPlans.includes(upperPlan)) {
+        throw new Error("Le plan d'abonnement sélectionné est invalide")
+      }
     }
 
     const normalizedRequestEmail = normalizeEmail(request.email)
@@ -158,7 +169,7 @@ export class ContactRequestsService {
         },
       })
 
-      await prisma.practitioner.create({
+      const practitioner = await prisma.practitioner.create({
         data: {
           userId: user.id,
           firstName: request.firstName,
@@ -171,6 +182,15 @@ export class ContactRequestsService {
           address: request.clinicAddress || '',
           city: '',
           baseConsultationFee: 0,
+        },
+      })
+
+      // Create subscription
+      await prisma.subscription.create({
+        data: {
+          practitionerId: practitioner.id,
+          plan: plan!.toUpperCase(),
+          status: 'ACTIVE',
         },
       })
 
