@@ -95,6 +95,13 @@
         </div>
       </form>
     </div>
+
+    <!-- redirection indicator -->
+    <UiRedirectingOverlay
+      :show="showRedirecting"
+      title="Connexion réussie !"
+      message="Nous vous redirigeons vers votre espace personnel..."
+    />
   </div>
 </template>
 
@@ -122,6 +129,7 @@ const formData = ref({
 const loading = ref(false);
 const errorMessage = ref("");
 const successMessage = ref("");
+const showRedirecting = ref(false);
 
 // check for success message from email verification
 onMounted(() => {
@@ -149,12 +157,19 @@ const handleLogin = async () => {
       return;
     }
 
+    // Show redirection popup
+    showRedirecting.value = true;
+
     // redirect to the appropriate dashboard based on user role
     let redirectTo = route.query.redirect as string;
     if (!redirectTo) {
       redirectTo = getDashboardPath(response.data.user.role);
     }
-    await router.push(redirectTo);
+    
+    // Smooth micro-interaction transition delay
+    setTimeout(async () => {
+      await router.push(redirectTo);
+    }, 1200);
   } catch (error: unknown) {
     console.error("Login error:", error);
     const err = error as { data?: { message?: string }; message?: string };
@@ -163,7 +178,10 @@ const handleLogin = async () => {
       err?.message ||
       "Une erreur est survenue lors de la connexion. Veuillez réessayer.";
   } finally {
-    loading.value = false;
+    // Only disable loading state if not redirecting, to prevent double submission
+    if (!showRedirecting.value) {
+      loading.value = false;
+    }
   }
 };
 </script>
