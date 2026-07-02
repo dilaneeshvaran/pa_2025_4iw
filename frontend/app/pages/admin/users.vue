@@ -1,9 +1,20 @@
 <template>
   <div>
-    <h1 class="mb-2 text-2xl font-bold text-gray-900">Gestion utilisateurs</h1>
-    <p class="mb-6 text-gray-600">
-      Consultez, suspendez ou supprimez les comptes de la plateforme.
-    </p>
+    <div class="mb-6 flex flex-col justify-between gap-4 sm:flex-row sm:items-center">
+      <div>
+        <h1 class="text-2xl font-bold text-gray-900">Gestion utilisateurs</h1>
+        <p class="mt-1 text-sm text-gray-500">
+          Consultez, suspendez ou supprimez les comptes de la plateforme.
+        </p>
+      </div>
+      <button
+        class="inline-flex items-center gap-2 rounded-lg bg-[#D96F00] px-4 py-2 text-sm font-medium text-white transition-colors hover:bg-[#BF6200] focus:outline-none focus:ring-2 focus:ring-[#D96F00]"
+        @click="showCreateAdminModal = true"
+      >
+        <UserPlus class="h-4 w-4" />
+        Créer admin
+      </button>
+    </div>
 
     <!-- stat cards -->
     <div class="mb-6 grid grid-cols-2 gap-4 md:grid-cols-4">
@@ -231,6 +242,13 @@
       </div>
     </div>
 
+    <!-- Create admin modal -->
+    <CreateAdminModal
+      :is-open="showCreateAdminModal"
+      @close="showCreateAdminModal = false"
+      @success="handleAdminCreated"
+    />
+
     <!-- toast -->
     <div
       v-if="toastMessage"
@@ -245,6 +263,8 @@
 <script setup lang="ts">
 import { useAuthenticatedFetch } from "~/composables/useAuthenticatedFetch";
 import { useAuthStore } from "~/stores/auth";
+import { UserPlus } from "lucide-vue-next";
+import CreateAdminModal from "~/components/shared/CreateAdminModal.vue";
 
 definePageMeta({
   layout: "admin",
@@ -298,6 +318,13 @@ const fetchError = ref("");
 const processingId = ref<string | null>(null);
 
 const showDeleteModal = ref(false);
+const showCreateAdminModal = ref(false);
+
+function handleAdminCreated() {
+  showToast("Administrateur créé avec succès");
+  fetchUsers();
+  fetchStats();
+}
 const deleteTarget = ref<AdminUser | null>(null);
 
 const toastMessage = ref("");

@@ -1,6 +1,7 @@
 import { FastifyRequest, FastifyReply } from 'fastify'
 import { UserRole, UserStatus } from '@prisma/client'
 import { adminUsersService } from './admin-users.service'
+import { createAdminSchema } from './admin-users.schema'
 
 const VALID_ROLES: UserRole[] = [
   'PATIENT',
@@ -165,6 +166,39 @@ export class AdminUsersController {
       return reply.status(500).send({
         success: false,
         message: 'Erreur lors de la suppression',
+      })
+    }
+  }
+
+  async createAdmin(request: FastifyRequest, reply: FastifyReply) {
+    try {
+      const { email, password } = createAdminSchema.parse(request.body)
+
+      const data = await adminUsersService.createAdmin({ email, password })
+
+      return reply.status(201).send({
+        success: true,
+        message: 'Administrateur créé avec succès',
+        data,
+      })
+    } catch (error: any) {
+      if (error.name === 'ZodError') {
+        const firstError = error.errors?.[0]?.message || 'Données invalides'
+        return reply.status(400).send({
+          success: false,
+          message: firstError,
+        })
+      }
+      if (error.message === 'Un utilisateur avec cet email existe déjà') {
+        return reply.status(400).send({
+          success: false,
+          message: error.message,
+        })
+      }
+      request.log.error(error)
+      return reply.status(500).send({
+        success: false,
+        message: "Erreur lors de la création de l'administrateur",
       })
     }
   }

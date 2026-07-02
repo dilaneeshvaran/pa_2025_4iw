@@ -6,6 +6,13 @@ import { adminUsersController } from './admin-users.controller'
 export async function adminUsersRoutes(fastify: FastifyInstance) {
   const adminOnly = { preHandler: [authenticate, authorize(['ADMIN'])] }
 
+  // create a new platform administrator account
+  fastify.post(
+    '/',
+    adminOnly,
+    adminUsersController.createAdmin.bind(adminUsersController),
+  )
+
   // list users (search / role / status / pagination)
   fastify.get(
     '/',

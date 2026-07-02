@@ -257,32 +257,6 @@
         </div>
       </UiCard>
     </div>
-
-    <!-- quick actions -->
-    <div class="mt-6">
-      <UiCard>
-        <div class="mb-4 flex items-center gap-2">
-          <Zap class="h-4 w-4 text-[#D96F00]" :stroke-width="1.75" />
-          <h3 class="font-display text-base font-semibold text-gray-900">
-            Actions rapides
-          </h3>
-        </div>
-        <div class="flex flex-wrap gap-3">
-          <UiButton variant="primary" :disabled="true">
-            <UserPlus class="mr-2 h-4 w-4" :stroke-width="1.75" />
-            Créer admin
-          </UiButton>
-          <UiButton variant="outline" :disabled="true">
-            <Send class="mr-2 h-4 w-4" :stroke-width="1.75" />
-            Message groupé
-          </UiButton>
-          <UiButton variant="outline" :disabled="true">
-            <BadgeCheck class="mr-2 h-4 w-4" :stroke-width="1.75" />
-            Valider pros
-          </UiButton>
-        </div>
-      </UiCard>
-    </div>
   </div>
 </template>
 
@@ -291,13 +265,8 @@ import {
   Users,
   Stethoscope,
   Calendar,
-  CreditCard,
-  AlertTriangle,
-  UserPlus,
-  Send,
-  BadgeCheck,
-  Zap,
   TrendingUp,
+  AlertTriangle,
 } from "lucide-vue-next";
 import { useAuthStore } from "~/stores/auth";
 
@@ -307,6 +276,7 @@ definePageMeta({
 });
 
 const authStore = useAuthStore();
+
 
 interface MonthlyCount {
   month: string;

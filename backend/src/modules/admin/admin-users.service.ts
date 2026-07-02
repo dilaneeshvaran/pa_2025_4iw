@@ -1,5 +1,7 @@
 import prisma from '../../config/database'
 import { Prisma, UserRole, UserStatus } from '@prisma/client'
+import { hashPassword } from '../../utils/bcrypt'
+import { normalizeEmail } from '../../utils/normalize-email'
 
 interface UserFilters {
   search?: string
@@ -210,6 +212,36 @@ export class AdminUsersService {
         email: `deleted+${user.id}@medicote.deleted`,
       },
     })
+  }
+
+  async createAdmin(data: { email: string; password?: string }) {
+    const normalizedEmail = normalizeEmail(data.email)
+
+    const existingUser = await prisma.user.findFirst({
+      where: { email: { equals: normalizedEmail, mode: 'insensitive' } },
+    })
+
+    if (existingUser) {
+      throw new Error('Un utilisateur avec cet email existe déjà')
+    }
+
+    if (!data.password) {
+      throw new Error('Le mot de passe est obligatoire')
+    }
+
+    const hashedPassword = await hashPassword(data.password)
+
+    const user = await prisma.user.create({
+      data: {
+        email: normalizedEmail,
+        password: hashedPassword,
+        role: 'ADMIN',
+        status: 'ACTIVE',
+        emailVerified: new Date(),
+      },
+    })
+
+    return this.getUserById(user.id)
   }
 }
 
