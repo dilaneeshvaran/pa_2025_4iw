@@ -18,6 +18,11 @@ jest.mock('../../../config/database', () => ({
   },
 }))
 
+jest.mock('../../../utils/reminder-scheduler', () => ({
+  cancelAppointmentReminders: jest.fn().mockResolvedValue(undefined),
+  scheduleAppointmentReminders: jest.fn().mockResolvedValue(undefined),
+}))
+
 import prisma from '../../../config/database'
 const mockPrisma = prisma as jest.Mocked<typeof prisma>
 
