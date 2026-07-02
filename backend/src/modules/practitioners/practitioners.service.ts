@@ -517,8 +517,8 @@ export class PractitionersService {
       },
     })
 
-    // fetch active cabinet membership (nonpaused, nonqiuit, verified cabinet)
-    const activeCabinetMembership = await prisma.cabinetPractitioner.findFirst({
+    // fetch ALL active cabinet memberships so we can match each availability's cabinet
+    const activeCabinetMemberships = await prisma.cabinetPractitioner.findMany({
       where: {
         practitionerId,
         leftAt: null,
@@ -526,14 +526,24 @@ export class PractitionersService {
         cabinet: { isVerified: true },
       },
       include: {
-        cabinet: { select: { openHours: true } },
+        cabinet: { select: { id: true, openHours: true } },
       },
     })
 
-    const cabinetOpenHours = activeCabinetMembership?.cabinet?.openHours as
-      | Record<string, { open?: string; close?: string; closed?: boolean }>
-      | null
-      | undefined
+    // build a lookup map: cabinetId → openHours
+    const cabinetOpenHoursMap = new Map<
+      string,
+      Record<string, { open?: string; close?: string; closed?: boolean }> | null
+    >()
+    for (const membership of activeCabinetMemberships) {
+      cabinetOpenHoursMap.set(
+        membership.cabinet.id,
+        (membership.cabinet.openHours as Record<
+          string,
+          { open?: string; close?: string; closed?: boolean }
+        > | null) ?? null,
+      )
+    }
 
     // earliest bookable time = clientLocalTime + minBookingNotice
     const earliestBookable = new Date(
@@ -554,7 +564,6 @@ export class PractitionersService {
         return dateStr >= absentStart && dateStr <= absentEnd
       })
 
-
       if (!isAbsent) {
         const dayAvailabilities = availabilities.filter(
           (a) => a.dayOfWeek === dayOfWeek,
@@ -568,6 +577,23 @@ export class PractitionersService {
         const slots: string[] = []
 
         for (const availability of dayAvailabilities) {
+          // check if this availability's cabinet is closed today
+          // availabilities with cabinetId=null are personal/independent and have no cabinet restriction
+          if (availability.cabinetId !== null) {
+            const cabinetHours = cabinetOpenHoursMap.get(availability.cabinetId)
+            if (cabinetHours !== undefined && cabinetHours !== null) {
+              try {
+                const dayHours = cabinetHours[dayOfWeek]
+                if (dayHours && typeof dayHours === 'object' && dayHours.closed === true) {
+                  // this cabinet is closed on this day of week — skip its availabilities
+                  continue
+                }
+              } catch {
+                // malformed openHours — treat as no restriction
+              }
+            }
+          }
+
           // use practitioner's consultationDuration, with availability breakBetween gap
           const timeSlots = this.generateTimeSlots(
             availability.startTime,
@@ -613,23 +639,10 @@ export class PractitionersService {
           slots.push(...availableSlots)
         }
 
-        // if practitioner has an active cabinet, only show slots on days the cabinet is open
-        let finalSlots = slots
-        if (cabinetOpenHours) {
-          try {
-            const dayHours = cabinetOpenHours[dayOfWeek]
-            if (dayHours && typeof dayHours === 'object' && dayHours.closed === true) {
-              finalSlots = []
-            }
-          } catch {
-            // openHours jso is malformed - treat as no restriction
-          }
-        }
-
-        if (finalSlots.length > 0) {
+        if (slots.length > 0) {
           result.push({
             date: dateStr,
-            slots: finalSlots.sort(),
+            slots: slots.sort(),
           })
         }
       }
@@ -681,8 +694,8 @@ export class PractitionersService {
       },
     })
 
-    // fetch active cabinet membership for open hours filtering
-    const activeCabinetMembership = await prisma.cabinetPractitioner.findFirst({
+    // fetch ALL active cabinet memberships so each availability can be checked against its own cabinet
+    const activeCabinetMemberships = await prisma.cabinetPractitioner.findMany({
       where: {
         practitionerId,
         leftAt: null,
@@ -690,21 +703,23 @@ export class PractitionersService {
         cabinet: { isVerified: true },
       },
       include: {
-        cabinet: { select: { openHours: true } },
+        cabinet: { select: { id: true, openHours: true } },
       },
     })
 
-    const cabinetOpenHours = activeCabinetMembership?.cabinet?.openHours as
-      | Record<string, { open?: string; close?: string; closed?: boolean }>
-      | null
-      | undefined
-
-    // if cabinet is closed on this day, no slots available
-    if (cabinetOpenHours) {
-      const dayHours = cabinetOpenHours[dayOfWeek]
-      if (dayHours?.closed) {
-        return []
-      }
+    // build a lookup map: cabinetId → openHours
+    const cabinetOpenHoursMap = new Map<
+      string,
+      Record<string, { open?: string; close?: string; closed?: boolean }> | null
+    >()
+    for (const membership of activeCabinetMemberships) {
+      cabinetOpenHoursMap.set(
+        membership.cabinet.id,
+        (membership.cabinet.openHours as Record<
+          string,
+          { open?: string; close?: string; closed?: boolean }
+        > | null) ?? null,
+      )
     }
 
     const practitioner = await prisma.practitioner.findUnique({
@@ -721,6 +736,22 @@ export class PractitionersService {
     const slots: string[] = []
 
     for (const availability of availabilities) {
+      // check if this availability's cabinet is closed on this day of week
+      // availabilities with cabinetId=null are personal/independent slots — no cabinet restriction
+      if (availability.cabinetId !== null) {
+        const cabinetHours = cabinetOpenHoursMap.get(availability.cabinetId)
+        if (cabinetHours !== undefined && cabinetHours !== null) {
+          try {
+            const dayHours = cabinetHours[dayOfWeek]
+            if (dayHours?.closed) {
+              continue
+            }
+          } catch {
+            // malformed openHours — treat as no restriction
+          }
+        }
+      }
+
       const timeSlots = this.generateTimeSlots(
         availability.startTime,
         availability.endTime,
