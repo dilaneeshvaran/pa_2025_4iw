@@ -118,7 +118,7 @@ const documentTarget = (
     return withQuery("/patient/documents", { documentId });
   }
 
-  return role === "ADMIN" ? "/admin/audit-logs" : getDashboardPath(role);
+  return getDashboardPath(role);
 };
 
 const paymentTarget = (role: NotificationUserRole) => {
