@@ -42,6 +42,11 @@ export default defineNuxtRouteMiddleware((to, _from) => {
 
 
 
+  // init auth state from localstorage if not already done
+  if (import.meta.client && !authStore.isAuthenticated) {
+    authStore.initAuth();
+  }
+
   // check authentication status
   const isUserAuthenticated = import.meta.server
     ? isAuthenticatedCookieValue(authenticatedCookie.value)
@@ -55,6 +60,16 @@ export default defineNuxtRouteMiddleware((to, _from) => {
 
   if (import.meta.server && isUserAuthenticated) {
     authStore.initServerAuth(userRole);
+  }
+
+  // redirect unverified users trying to access protected routes
+  if (
+    isUserAuthenticated &&
+    !isEmailVerified &&
+    !isPublicRoute &&
+    to.path !== "/auth/verify-email-notice"
+  ) {
+    return navigateTo("/auth/verify-email-notice");
   }
 
   if (isUserAuthenticated && to.path === "/") {
