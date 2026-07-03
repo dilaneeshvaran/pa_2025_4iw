@@ -79,7 +79,11 @@ services:
         delay: 5s
 
   umami:
-    image: ghcr.io/umami-software/umami:postgresql-v2.15.1
+    # Custom-built image (see .github/workflows/ci-cd.yml), not the official
+    # ghcr.io/umami-software/umami one: Umami's basePath is a Next.js
+    # build-time value, so serving it under /umami (rather than its own
+    # subdomain) requires an image built with BASE_PATH=/umami baked in.
+    image: ${UMAMI_IMAGE:-ghcr.io/dilaneeshvaran/pa_2025_4iw-umami:latest}
     # Use the image's default entrypoint; pass config via env (umami DB password
     # and APP_SECRET come from the root .env). The previous custom entrypoint
     # called a non-existent /entrypoint.sh and exited 127.
@@ -190,8 +194,7 @@ services:
   nginx:
     image: ${NGINX_IMAGE:-ghcr.io/dilaneeshvaran/pa_2025_4iw-nginx:latest}
     # TLS is terminated by the host nginx + certbot, which forwards to this
-    # service on 8080. The swarm nginx does HTTP routing by path (/, /api) for
-    # medicote.me, and by Host header (analytics.medicote.me) for umami.
+    # service on 8080. The swarm nginx only does HTTP routing (/, /api, /umami).
     ports:
       - "8080:80"
     depends_on:
