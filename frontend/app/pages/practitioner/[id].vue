@@ -482,14 +482,23 @@
                 </div>
               </div>
             </div>
+            <ClientOnly v-if="practitioner.latitude && practitioner.longitude">
+              <PractitionersMap :practitioners="[practitioner]" />
+              <template #fallback>
+                <div class="flex h-96 items-center justify-center rounded-lg bg-gray-100">
+                  <p class="text-gray-400">Chargement de la carte...</p>
+                </div>
+              </template>
+            </ClientOnly>
             <div
+              v-else
               class="flex h-96 items-center justify-center rounded-lg bg-gray-200"
             >
               <div class="text-center text-gray-600">
                 <IconMapPin class="mx-auto mb-2 h-12 w-12" />
                 <p>{{ practitioner.city }}</p>
                 <p class="mt-2 text-sm">
-                  Carte interactive disponible prochainement
+                  Localisation non disponible pour ce praticien
                 </p>
               </div>
             </div>
@@ -537,6 +546,7 @@ import Card from "~/components/ui/Card.vue";
 import Button from "~/components/ui/Button.vue";
 import Badge from "~/components/ui/Badge.vue";
 import BookingModal from "~/components/BookingModal.vue";
+import PractitionersMap from "~/components/PractitionersMap.vue";
 
 interface PractitionerDetail {
   id: string;
