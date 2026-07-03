@@ -58,7 +58,7 @@ export default defineNuxtConfig({
       include: ["leaflet"],
     },
     ssr: {
-      noExternal: ["leaflet"],
+      noExternal: ["leaflet", "vue-toastification"],
     },
   },
 

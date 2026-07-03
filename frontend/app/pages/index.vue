@@ -292,12 +292,15 @@ import Button from "~/components/ui/Button.vue";
 import { getDashboardPath } from "~/utils/authNavigation";
 
 const authStore = useAuthStore();
+const { trackEvent } = useAnalytics();
 const specialty = ref("");
 const location = ref("");
 
 const dashboardPath = computed(() => getDashboardPath(authStore.currentRole));
 
 const handleSearch = () => {
+  trackEvent("search_submitted");
+
   const query: Record<string, string> = {};
 
   if (specialty.value) {
