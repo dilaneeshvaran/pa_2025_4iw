@@ -11,6 +11,18 @@ jest.mock('bullmq', () => {
   }
 })
 
+// reminder-scheduler imports these for the worker/prisma lookups it doesn't
+// exercise here; mock them so importing the module doesn't require a real
+// DATABASE_URL/Redis connection (matches the pattern used by other suites).
+jest.mock('../../config/database', () => ({
+  __esModule: true,
+  default: {},
+}))
+
+jest.mock('../../config/redis', () => ({
+  redis: {},
+}))
+
 describe('reminder-scheduler', () => {
   beforeEach(() => {
     jest.clearAllMocks()
@@ -32,7 +44,7 @@ describe('reminder-scheduler', () => {
     // The current time is July 2nd, 2026 at 09:30:00.
     // The 1h reminder should be scheduled at 10:00:00.
     // The delay from 09:30:00 to 10:00:00 is 30 minutes = 30 * 60 * 1000 = 1,800,000 ms.
-    
+
     // The 24h reminder should be scheduled at July 1st, 2026 at 11:00:00, which is in the past.
     // So only the 1h reminder should be added to the queue.
 
@@ -46,7 +58,7 @@ describe('reminder-scheduler', () => {
       expect.objectContaining({
         delay: 30 * 60 * 1000,
         jobId: 'apt-123-1h',
-      })
+      }),
     )
 
     jest.useRealTimers()

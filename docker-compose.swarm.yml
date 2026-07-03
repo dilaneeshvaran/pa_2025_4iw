@@ -190,7 +190,8 @@ services:
   nginx:
     image: ${NGINX_IMAGE:-ghcr.io/dilaneeshvaran/pa_2025_4iw-nginx:latest}
     # TLS is terminated by the host nginx + certbot, which forwards to this
-    # service on 8080. The swarm nginx only does HTTP routing (/, /api, /umami).
+    # service on 8080. The swarm nginx does HTTP routing by path (/, /api) for
+    # medicote.me, and by Host header (analytics.medicote.me) for umami.
     ports:
       - "8080:80"
     depends_on:
@@ -222,7 +223,7 @@ volumes:
     driver: local
   backend-uploads:
     driver: local
-    
+
 secrets:
   postgres_password:
     external: true
