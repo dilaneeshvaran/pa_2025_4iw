@@ -81,28 +81,70 @@
 
 <script setup lang="ts">
 import { useAuthStore } from '~/stores/auth'
-import { shouldShowConsentBannerForLayout } from '~/utils/consentVisibility'
+import {
+  PUBLIC_CONSENT_STORAGE_KEY,
+  shouldShowConsentBannerForLayout,
+  shouldShowPublicConsentBanner,
+} from '~/utils/consentVisibility'
 
 const authStore = useAuthStore()
 const route = useRoute()
-const { initAnalytics, trackEvent } = useAnalytics()
+const { initAnalytics, trackEvent, trackPageView } = useAnalytics()
 const { grantAnalyticsConsent, revokeAnalyticsConsent } = useConsent()
 
 const visible = ref(false)
 const submitting = ref(false)
 const analyticsAccepted = ref(false)
 const liveMessage = ref('')
+const isPublicConsent = ref(false)
 
 const CONSENT_KEY = computed(() => {
   return authStore.user?.id ? `medicote_consent_given_${authStore.user.id}` : 'medicote_consent_given'
 })
 const ESSENTIAL_CONSENT_TYPES = ['data_processing', 'terms_of_service', 'privacy_policy'] as const
 
-const checkConsent = () => {
-  if (!authStore.isAuthenticated || !authStore.accessToken) {
-    visible.value = false
+const applyAnalyticsChoice = () => {
+  if (analyticsAccepted.value) {
+    grantAnalyticsConsent()
+    initAnalytics()
+    trackPageView(route.fullPath)
+  } else {
+    revokeAnalyticsConsent()
+  }
+}
+
+const checkPublicConsent = () => {
+  if (!import.meta.client) {
     return
   }
+
+  if (!shouldShowPublicConsentBanner(route.path, route.meta.layout)) {
+    visible.value = false
+    isPublicConsent.value = false
+    return
+  }
+
+  if (localStorage.getItem(PUBLIC_CONSENT_STORAGE_KEY) === 'true') {
+    visible.value = false
+    isPublicConsent.value = false
+    return
+  }
+
+  isPublicConsent.value = true
+  visible.value = true
+}
+
+const checkConsent = () => {
+  if (!import.meta.client) {
+    return
+  }
+
+  if (!authStore.isAuthenticated || !authStore.accessToken) {
+    checkPublicConsent()
+    return
+  }
+
+  isPublicConsent.value = false
 
   if (!shouldShowConsentBannerForLayout(route.meta.layout)) {
     visible.value = false
@@ -174,12 +216,19 @@ const saveConsents = async (types: string[], accepted: boolean) => {
 const handleAccept = async () => {
   submitting.value = true
   try {
+    if (isPublicConsent.value) {
+      applyAnalyticsChoice()
+      localStorage.setItem(PUBLIC_CONSENT_STORAGE_KEY, 'true')
+      liveMessage.value = 'Préférences enregistrées.'
+      visible.value = false
+      return
+    }
+
     await saveConsents([...ESSENTIAL_CONSENT_TYPES], true)
 
     if (analyticsAccepted.value) {
       await saveConsents(['analytics'], true).catch(() => {})
-      grantAnalyticsConsent()
-      initAnalytics()
+      applyAnalyticsChoice()
       trackEvent('registration_completed')
     } else {
       revokeAnalyticsConsent()
@@ -197,6 +246,14 @@ const handleAccept = async () => {
 }
 
 const handleDecline = () => {
+  if (isPublicConsent.value) {
+    revokeAnalyticsConsent()
+    localStorage.setItem(PUBLIC_CONSENT_STORAGE_KEY, 'true')
+    liveMessage.value = 'Préférences enregistrées.'
+    visible.value = false
+    return
+  }
+
   const config = useRuntimeConfig()
   for (const consentType of ESSENTIAL_CONSENT_TYPES) {
     $fetch('/settings/consents', {
@@ -221,12 +278,8 @@ const handleDecline = () => {
 
 watch(
   () => authStore.isAuthenticated,
-  (isAuth) => {
-    if (isAuth) {
-      checkConsent()
-    } else {
-      visible.value = false
-    }
+  () => {
+    checkConsent()
   },
   { immediate: true },
 )

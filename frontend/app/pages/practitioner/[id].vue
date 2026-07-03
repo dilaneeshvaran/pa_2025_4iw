@@ -522,7 +522,7 @@
 
 <script setup lang="ts">
 import { ref, onMounted, computed, watch } from "vue";
-import { useToast } from "vue-toastification";
+
 import { useRoute, navigateTo } from "#app";
 import { useAuthStore } from "~/stores/auth";
 import { formatDateLong as formatDate } from "~/utils/date";
@@ -619,6 +619,8 @@ interface ApiResponse<T> {
 const route = useRoute();
 const config = useRuntimeConfig();
 const authStore = useAuthStore();
+const toast = useAppToast();
+const { trackEvent } = useAnalytics();
 
 const practitionerId = computed(() => route.params.id as string);
 
@@ -766,7 +768,6 @@ const selectTimeSlot = (date: string, time: string) => {
   }
 
   if (authStore.user?.role !== "PATIENT") {
-    const toast = useToast();
     toast.error("Seuls les patients peuvent réserver des rendez-vous.");
     return;
   }
@@ -779,7 +780,6 @@ const selectTimeSlot = (date: string, time: string) => {
 
 const openBookingModalFromAvailability = () => {
   if (authStore.isAuthenticated && authStore.user?.role !== "PATIENT") {
-    const toast = useToast();
     toast.error("Seuls les patients peuvent réserver des rendez-vous.");
     return;
   }
@@ -876,6 +876,10 @@ onMounted(async () => {
   }
 
   await fetchPractitioner();
+
+  if (practitioner.value) {
+    trackEvent("practitioner_viewed");
+  }
 
   if (activeTab.value === "availability") {
     await fetchAvailableSlots();

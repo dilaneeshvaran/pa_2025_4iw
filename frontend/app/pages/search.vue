@@ -606,6 +606,7 @@ import Badge from "~/components/ui/Badge.vue";
 
 const config = useRuntimeConfig();
 const route = useRoute();
+const { trackEvent } = useAnalytics();
 
 interface Specialty {
   id: string;
@@ -679,6 +680,22 @@ const pagination = reactive({
   limit: 20,
   totalPages: 0,
 });
+
+const hasSearchCriteria = () => {
+  return Boolean(
+    filters.search.trim() ||
+      filters.city.trim() ||
+      filters.specialtyId ||
+      filters.cabinetId ||
+      geoFilters.active,
+  );
+};
+
+const trackSearchSubmitted = () => {
+  if (hasSearchCriteria()) {
+    trackEvent("search_submitted");
+  }
+};
 
 const activeFiltersCount = computed(() => {
   let count = 0;
@@ -789,7 +806,7 @@ const onMapLocate = (lat: number, lng: number, radius: number) => {
   geoFilters.longitude = lng;
   geoFilters.radiusKm = radius;
   filters.page = 1;
-  searchPractitioners();
+  void searchPractitioners().then(() => trackSearchSubmitted());
 };
 
 const loadSpecialties = async () => {
@@ -861,6 +878,7 @@ onMounted(async () => {
   await Promise.all([loadSpecialties(), loadCabinets()]);
   applyFiltersFromQuery();
   await searchPractitioners();
+  trackSearchSubmitted();
 });
 
 watch(
@@ -868,6 +886,7 @@ watch(
   async () => {
     applyFiltersFromQuery();
     await searchPractitioners();
+    trackSearchSubmitted();
   }
 );
 
