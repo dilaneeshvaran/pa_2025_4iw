@@ -6,19 +6,20 @@ export const updateCabinetInfoSchema = z.object({
   city: z.string().optional(),
   phone: z
     .string()
+    .nullable()
     .optional()
+    // normalize null/whitespace-only values so a stale or untouched phone
+    // field never blocks unrelated updates; omitted keys stay untouched
+    .transform((val) => (val === undefined ? undefined : (val ?? '').trim()))
     .refine(
-      (val) => !val || /^\+?[0-9\s\-()]+$/.test(val),
+      (val) => val === undefined || !val || /^\+?[0-9\s\-()]+$/.test(val),
       'Le numéro de téléphone contient des caractères non autorisés',
     )
-    .refine(
-      (val) => {
-        if (!val) return true
-        const digits = val.replace(/\D/g, '')
-        return digits.length >= 10 && digits.length <= 15
-      },
-      'Le numéro de téléphone doit contenir entre 10 et 15 chiffres',
-    ),
+    .refine((val) => {
+      if (val === undefined || !val) return true
+      const digits = val.replace(/\D/g, '')
+      return digits.length >= 10 && digits.length <= 15
+    }, 'Le numéro de téléphone doit contenir entre 10 et 15 chiffres'),
   openHours: z
     .record(
       z.string(),
@@ -45,7 +46,10 @@ export const createStaffSchema = z.object({
   lastName: z.string().min(1),
   phone: z
     .string()
-    .regex(/^\+?[0-9\s\-()]+$/, 'Le numéro de téléphone contient des caractères non autorisés')
+    .regex(
+      /^\+?[0-9\s\-()]+$/,
+      'Le numéro de téléphone contient des caractères non autorisés',
+    )
     .refine((val) => {
       const digits = val.replace(/\D/g, '')
       return digits.length >= 10 && digits.length <= 15
