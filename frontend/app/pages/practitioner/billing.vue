@@ -6,14 +6,14 @@
     </div>
 
     <div class="mb-6 border-b border-gray-200">
-      <nav class="-mb-px flex space-x-8" aria-label="Tabs">
+      <nav class="scrollbar-hide -mb-px flex space-x-8 overflow-x-auto" aria-label="Tabs">
         <button
           @click="activeTab = 'received'"
           :class="[
             activeTab === 'received'
               ? 'border-orange-500 text-orange-600'
               : 'border-transparent text-gray-500 hover:border-gray-300 hover:text-gray-700',
-            'whitespace-nowrap border-b-2 px-1 pb-4 text-sm font-medium transition-colors duration-200',
+            'shrink-0 whitespace-nowrap border-b-2 px-1 pb-4 text-sm font-medium transition-colors duration-200',
           ]"
         >
           Paiements reçus / Factures
@@ -24,7 +24,7 @@
             activeTab === 'config'
               ? 'border-orange-500 text-orange-600'
               : 'border-transparent text-gray-500 hover:border-gray-300 hover:text-gray-700',
-            'whitespace-nowrap border-b-2 px-1 pb-4 text-sm font-medium transition-colors duration-200',
+            'shrink-0 whitespace-nowrap border-b-2 px-1 pb-4 text-sm font-medium transition-colors duration-200',
           ]"
         >
           Configuration

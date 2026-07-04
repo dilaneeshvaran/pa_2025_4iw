@@ -297,7 +297,8 @@
 
       <!-- week -->
       <template v-else-if="calendarView === 'week'">
-        <div class="grid grid-cols-7 gap-2">
+        <div class="scrollbar-hide -mx-1 overflow-x-auto px-1 pb-1">
+        <div class="grid min-w-[760px] grid-cols-7 gap-2">
           <div v-for="day in weekDays" :key="day.dateStr" class="min-h-[200px] rounded-lg border border-gray-100 bg-white p-1.5 shadow-sm">
             <div
               :class="[
@@ -353,12 +354,14 @@
             </div>
           </div>
         </div>
+        </div>
       </template>
 
       <!-- month -->
       <template v-else-if="calendarView === 'month'">
+        <div class="scrollbar-hide -mx-1 overflow-x-auto px-1 pb-1">
         <div
-          class="grid grid-cols-7 gap-px overflow-hidden rounded-lg border bg-gray-200"
+          class="grid min-w-[760px] grid-cols-7 gap-px overflow-hidden rounded-lg border bg-gray-200"
         >
           <div
             v-for="dayName in ['Lun', 'Mar', 'Mer', 'Jeu', 'Ven', 'Sam', 'Dim']"
@@ -407,6 +410,7 @@
               </p>
             </div>
           </div>
+        </div>
         </div>
       </template>
     </template>
