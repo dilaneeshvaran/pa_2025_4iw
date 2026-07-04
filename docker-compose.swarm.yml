@@ -212,6 +212,29 @@ services:
       restart_policy:
         condition: on-failure
 
+  portainer:
+    # Web UI to manage the Swarm stack (services, logs, redeploys). Portainer CE
+    # has no sub-path support, so unlike umami it can't sit behind nginx under
+    # /portainer -- it serves its own HTTPS on 9443 (self-signed cert by default).
+    # Restrict 9443 to your admin IP at the host firewall (ufw/security group).
+    image: ${PORTAINER_IMAGE:-portainer/portainer-ce:lts}
+    command: -H unix:///var/run/docker.sock
+    ports:
+      - "9443:9443"
+    volumes:
+      # Talk to the local Docker daemon; must run on a manager to see the Swarm.
+      - /var/run/docker.sock:/var/run/docker.sock
+      - portainer-data:/data
+    networks:
+      - pgnetwork
+    deploy:
+      replicas: 1
+      placement:
+        constraints:
+          - node.role == manager
+      restart_policy:
+        condition: on-failure
+
 networks:
   pgnetwork:
     driver: overlay
@@ -225,6 +248,8 @@ volumes:
   umami-db-data:
     driver: local
   backend-uploads:
+    driver: local
+  portainer-data:
     driver: local
 
 secrets:
