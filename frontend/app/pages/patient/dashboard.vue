@@ -129,7 +129,7 @@
         <h3 class="mb-4 font-display text-base font-semibold text-gray-900">
           Actions rapides
         </h3>
-        <div class="grid grid-cols-2 gap-3">
+        <div class="grid grid-cols-1 gap-3 sm:grid-cols-2">
           <button
             v-for="(action, i) in quickActions"
             :key="i"

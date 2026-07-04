@@ -391,7 +391,7 @@
               </div>
               <span class="text-xs text-gray-500">Volume micro</span>
             </div>
-            <div class="grid grid-cols-2 gap-3">
+            <div class="grid grid-cols-1 gap-3 sm:grid-cols-2">
               <div
                 class="flex items-center gap-2 rounded-lg border p-3"
                 :class="

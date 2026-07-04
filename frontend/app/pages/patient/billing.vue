@@ -77,7 +77,7 @@
           :key="payment.id"
           class="rounded-lg border bg-white p-4 transition-shadow hover:shadow-md"
         >
-          <div class="flex items-start justify-between">
+          <div class="flex flex-col gap-3 sm:flex-row sm:items-start sm:justify-between">
             <div class="flex-1">
               <div class="flex items-center gap-2">
                 <span class="font-medium text-gray-900">
@@ -131,7 +131,7 @@
                 >
               </div>
             </div>
-            <div class="flex flex-col items-end gap-2">
+            <div class="flex flex-col items-start gap-2 sm:items-end">
               <span class="text-lg font-bold text-gray-900">
                 {{ payment.amount.toLocaleString() }}
                 <span class="text-sm font-normal text-gray-500">FCFA</span>
