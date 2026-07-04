@@ -142,6 +142,16 @@
 /* warm scrollbar */
 ::-webkit-scrollbar {
   width: 5px;
+  height: 5px;
+}
+
+/* hide scrollbar while keeping scroll (used on horizontal tab strips) */
+.scrollbar-hide {
+  -ms-overflow-style: none;
+  scrollbar-width: none;
+}
+.scrollbar-hide::-webkit-scrollbar {
+  display: none;
 }
 
 ::-webkit-scrollbar-track {

@@ -8,12 +8,12 @@
     </div>
 
     <div class="border-b border-gray-200">
-      <nav class="-mb-px flex space-x-6 overflow-x-auto" aria-label="Tabs">
+      <nav class="scrollbar-hide -mb-px flex space-x-6 overflow-x-auto" aria-label="Tabs">
         <button
           v-for="tab in tabs"
           :key="tab.key"
           :class="[
-            'whitespace-nowrap border-b-2 px-1 py-3 text-sm font-medium transition-colors',
+            'shrink-0 whitespace-nowrap border-b-2 px-1 py-3 text-sm font-medium transition-colors',
             activeTab === tab.key
               ? 'border-orange-600 text-orange-600'
               : 'border-transparent text-gray-500 hover:border-gray-300 hover:text-gray-700',
@@ -532,12 +532,12 @@
       </div>
 
       <!-- document sub tabs for type filter -->
-      <div class="mb-4 flex gap-2 overflow-x-auto">
+      <div class="scrollbar-hide mb-4 flex gap-2 overflow-x-auto">
         <button
           v-for="st in docSubTabs"
           :key="st.key"
           :class="[
-            'rounded-full px-3 py-1.5 text-sm font-medium transition-colors',
+            'shrink-0 whitespace-nowrap rounded-full px-3 py-1.5 text-sm font-medium transition-colors',
             docActiveSubTab === st.key
               ? 'bg-orange-500 text-white'
               : 'bg-gray-100 text-gray-600 hover:bg-gray-200',
