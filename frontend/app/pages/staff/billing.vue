@@ -6,9 +6,9 @@
     </div>
 
     <div class="mb-6 border-b border-gray-200">
-      <nav class="-mb-px flex space-x-8" aria-label="Tabs">
+      <nav class="scrollbar-hide -mb-px flex space-x-8 overflow-x-auto" aria-label="Tabs">
         <button
-          class="whitespace-nowrap border-b-2 border-orange-500 px-1 pb-4 text-sm font-medium text-orange-600 transition-colors duration-200"
+          class="shrink-0 whitespace-nowrap border-b-2 border-orange-500 px-1 pb-4 text-sm font-medium text-orange-600 transition-colors duration-200"
         >
           Paiements reçus / Factures
         </button>
