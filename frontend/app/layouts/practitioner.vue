@@ -1,18 +1,39 @@
 <template>
   <div class="flex min-h-screen bg-gray-50">
+    <!-- mobile backdrop -->
+    <div
+      v-if="sidebarOpen"
+      class="fixed inset-0 z-40 bg-black/40 backdrop-blur-sm lg:hidden"
+      aria-hidden="true"
+      @click="sidebarOpen = false"
+    />
+
     <!-- sidebar -->
     <aside
-      class="fixed left-0 top-0 z-40 h-full w-64 border-r border-black/[0.08] bg-white"
+      :class="[
+        'fixed left-0 top-0 z-50 h-full w-64 border-r border-black/[0.08] bg-white transition-transform duration-200 ease-out lg:z-40 lg:translate-x-0',
+        sidebarOpen ? 'translate-x-0' : '-translate-x-full',
+      ]"
     >
       <div class="flex h-full flex-col">
         <!-- logo -->
-        <NuxtLink
-          to="/practitioner/dashboard"
-          class="flex items-center gap-3 border-b border-gray-100 px-5 py-4 transition-colors hover:bg-gray-50"
-          aria-label="Aller au tableau de bord praticien"
-        >
-          <span class="font-display text-lg font-bold tracking-tight"><span class="text-orange-500">Medi</span><span class="text-green-600">côte</span></span>
-        </NuxtLink>
+        <div class="flex items-center border-b border-gray-100">
+          <NuxtLink
+            to="/practitioner/dashboard"
+            class="flex flex-1 items-center gap-3 px-5 py-4 transition-colors hover:bg-gray-50"
+            aria-label="Aller au tableau de bord praticien"
+          >
+            <span class="font-display text-lg font-bold tracking-tight"><span class="text-orange-500">Medi</span><span class="text-green-600">côte</span></span>
+          </NuxtLink>
+          <button
+            type="button"
+            class="mr-2 flex h-9 w-9 items-center justify-center rounded-md text-gray-500 transition-colors hover:bg-gray-100 hover:text-gray-900 lg:hidden"
+            aria-label="Fermer le menu"
+            @click="sidebarOpen = false"
+          >
+            <X class="h-5 w-5" :stroke-width="1.75" />
+          </button>
+        </div>
 
         <!-- navigation -->
         <nav class="flex-1 overflow-y-auto px-3 py-4">
@@ -75,13 +96,22 @@
     </aside>
 
     <!-- main content -->
-    <div class="ml-64 flex-1">
+    <div class="min-w-0 flex-1 overflow-x-hidden lg:ml-64">
       <header
-        class="sticky top-0 z-30 flex justify-end border-b border-black/[0.08] bg-gray-50/95 px-6 py-3 backdrop-blur"
+        class="sticky top-0 z-30 flex items-center justify-between gap-3 border-b border-black/[0.08] bg-gray-50/95 px-4 py-3 backdrop-blur sm:px-6"
       >
-        <CommonNotificationBell />
+        <button
+          type="button"
+          class="flex h-9 w-9 items-center justify-center rounded-md text-gray-600 transition-colors hover:bg-gray-100 hover:text-gray-900 lg:hidden"
+          aria-label="Ouvrir le menu"
+          :aria-expanded="sidebarOpen"
+          @click="sidebarOpen = true"
+        >
+          <Menu class="h-5 w-5" :stroke-width="1.75" />
+        </button>
+        <CommonNotificationBell class="ml-auto" />
       </header>
-      <main class="p-6">
+      <main class="p-4 sm:p-6">
         <slot />
       </main>
     </div>
@@ -104,6 +134,8 @@ import {
   Building,
   LogOut,
   UserPlus,
+  Menu,
+  X,
 } from "lucide-vue-next";
 import { useAuthStore } from "~/stores/auth";
 import { useMessagingStore } from "~/stores/messaging";
@@ -111,6 +143,13 @@ import { useMessagingStore } from "~/stores/messaging";
 const router = useRouter();
 const authStore = useAuthStore();
 const messagingStore = useMessagingStore();
+
+// mobile drawer state — closed by default, opens above lg via CSS
+const sidebarOpen = ref(false);
+
+const onKeydown = (e: KeyboardEvent) => {
+  if (e.key === "Escape") sidebarOpen.value = false;
+};
 
 // ws connection + unread badge
 const onNewMessage = (message: any) => {
@@ -128,6 +167,7 @@ const onNewMessage = (message: any) => {
 };
 
 onMounted(() => {
+  window.addEventListener("keydown", onKeydown);
   if (authStore.isAuthenticated) {
     messagingStore.connect();
     messagingStore.fetchUnreadCount();
@@ -136,6 +176,7 @@ onMounted(() => {
 });
 
 onUnmounted(() => {
+  window.removeEventListener("keydown", onKeydown);
   messagingStore.off("new_message", onNewMessage);
   messagingStore.disconnect();
 });
@@ -168,6 +209,15 @@ const menuItems = [
 ];
 
 const route = useRoute();
+
+// close the drawer whenever navigation happens (mobile)
+watch(
+  () => route.path,
+  () => {
+    sidebarOpen.value = false;
+  },
+);
+
 const isActive = (path: string) => {
   if (path === "/practitioner/dashboard") {
     return route.path === path;

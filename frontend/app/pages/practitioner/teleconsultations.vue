@@ -429,8 +429,8 @@
         </p>
       </div>
 
-      <div v-else>
-        <table class="w-full">
+      <div v-else class="overflow-x-auto">
+        <table class="w-full min-w-[720px]">
           <thead>
             <tr class="border-b text-left text-sm text-gray-500">
               <th class="pb-3 font-medium">Patient</th>
@@ -593,7 +593,8 @@
               <p class="text-gray-500">Aucun résultat trouvé</p>
             </div>
 
-            <table v-else class="w-full">
+            <div v-else class="overflow-x-auto">
+            <table class="w-full min-w-[720px]">
               <thead>
                 <tr class="border-b text-left text-sm text-gray-500">
                   <th class="py-3 font-medium">Patient</th>
@@ -649,6 +650,7 @@
                 </tr>
               </tbody>
             </table>
+            </div>
           </div>
 
           <div
@@ -717,7 +719,7 @@
               </div>
               <span class="text-xs text-gray-500">Volume micro</span>
             </div>
-            <div class="grid grid-cols-2 gap-3">
+            <div class="grid grid-cols-1 gap-3 sm:grid-cols-2">
               <div
                 class="flex items-center gap-2 rounded-lg border p-3"
                 :class="
