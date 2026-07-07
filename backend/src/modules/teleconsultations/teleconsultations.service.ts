@@ -5,6 +5,7 @@ import {
   AuditAction,
 } from '@prisma/client'
 import { randomUUID } from 'crypto'
+import { AccessToken } from 'livekit-server-sdk'
 import {
   sendNoShowEmail,
   sendAutoNoShowPractitionerNotification,
@@ -1132,6 +1133,52 @@ export class TeleconsultationsService {
       limit,
       totalPages: Math.ceil(total / limit),
     }
+  }
+
+
+  async generateLiveKitToken(sessionId: string, userId: string) {
+    const session = await prisma.teleconsultationSession.findUnique({
+      where: { id: sessionId },
+      include: {
+        patient: { include: { user: { select: { id: true } } } },
+        practitioner: { include: { user: { select: { id: true } } } },
+      },
+    })
+
+    if (!session) throw new Error('Session non trouvée')
+
+    const isPatientOwner = session.patient?.user?.id === userId
+    const isPractitionerOwner = session.practitioner?.user?.id === userId
+    if (!isPatientOwner && !isPractitionerOwner) {
+      throw new Error('Non autorisé')
+    }
+
+    const apiKey = process.env.LIVEKIT_API_KEY
+    const apiSecret = process.env.LIVEKIT_API_SECRET
+    if (!apiKey || !apiSecret) {
+      throw new Error('LiveKit non configuré sur le serveur')
+    }
+
+    const roomName = `teleconsult-${sessionId}`
+
+    const at = new AccessToken(apiKey, apiSecret, {
+      identity: userId,
+    })
+
+    at.addGrant({
+      roomJoin: true,
+      room: roomName,
+      canPublish: true,
+      canPublishData: true,
+      canSubscribe: true,
+    })
+
+    const token = await at.toJwt()
+
+    const livekitUrl =
+      process.env.LIVEKIT_WS_URL || 'ws://localhost:7880'
+
+    return { token, livekitUrl }
   }
 }
 

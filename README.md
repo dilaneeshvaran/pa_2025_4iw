@@ -15,7 +15,10 @@ Ask for the .env files for backend and frontend from your project lead.
 docker compose up -d
 ```
 
+This starts PostgreSQL, Redis, frontend, backend, Umami and **LiveKit** (SFU for teleconsultation video).
+
 The frontend will run on `http://localhost:3000` and the backend on `http://localhost:3001`.
+LiveKit signaling is on ws://localhost:7880 (used internally by the teleconsult room).
 
 ### 2. Run Database Migrations
 

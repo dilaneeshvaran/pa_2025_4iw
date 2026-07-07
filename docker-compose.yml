@@ -131,6 +131,17 @@ services:
     networks:
       - pgnetwork
 
+  livekit:
+    image: livekit/livekit-server:latest
+    container_name: livekit
+    ports:
+      - "7880:7880"
+      - "7881:7881"
+      - "50000-60000:50000-60000/udp"
+    command: --dev --bind 0.0.0.0
+    networks:
+      - pgnetwork
+
 networks:
   pgnetwork:
     driver: bridge

@@ -68,6 +68,12 @@ export async function teleconsultationsRoutes(fastify: FastifyInstance) {
     teleconsultationsController.endSession.bind(teleconsultationsController),
   )
 
+  fastify.post(
+    '/:id/token',
+    { preHandler: [authenticate] },
+    teleconsultationsController.getJoinToken.bind(teleconsultationsController),
+  )
+
   fastify.patch(
     '/:id/connection-quality',
     { preHandler: [authenticate] },
