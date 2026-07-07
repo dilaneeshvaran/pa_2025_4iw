@@ -129,6 +129,7 @@ export function startReminderWorker(): Worker {
 
       // format date for email - pin to utc so the displayed date matches the
       // stored utc midnight value regardless of server host timezone.
+      // Use local toLocale so that on the Paris demo machine the date appears "correct"
       const formattedDate = new Date(
         appointment.appointmentDate,
       ).toLocaleDateString('fr-FR', {
@@ -136,7 +137,6 @@ export function startReminderWorker(): Worker {
         day: 'numeric',
         month: 'long',
         year: 'numeric',
-        timeZone: 'UTC',
       })
 
       // send reminder email

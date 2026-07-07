@@ -952,7 +952,7 @@ const slotsGroupedByWeek = computed(() => {
       weekDays.push({
         date: ds,
         dayShort: d
-          .toLocaleDateString("fr-FR", { weekday: "short", timeZone: "UTC" })
+          .toLocaleDateString("fr-FR", { weekday: "short" })
           .slice(0, 3),
         dayNumber: d.getUTCDate(),
         hasSlots: !!found && found.slots.length > 0,
@@ -985,13 +985,11 @@ const weekLabel = computed(() => {
   const fStr = f.toLocaleDateString("fr-FR", {
     day: "numeric",
     month: "short",
-    timeZone: "UTC",
   });
   const lStr = l.toLocaleDateString("fr-FR", {
     day: "numeric",
     month: "short",
     year: "numeric",
-    timeZone: "UTC",
   });
   return `${fStr} – ${lStr}`;
 });
@@ -1009,11 +1007,9 @@ const navigateToDateWeek = (dateStr: string) => {
 
 const filteredAvailableSlots = computed(() => {
   const now = new Date();
-  // Use UTC components for the "today" string to match how appointment dates are stored
-  const todayStr = `${now.getUTCFullYear()}-${String(now.getUTCMonth() + 1).padStart(2, "0")}-${String(now.getUTCDate()).padStart(2, "0")}`;
-  // For "is this slot still in the future today", we compare the slot numbers
-  // against local time because the displayed slot numbers are what the user sees.
-  // (This is a pragmatic choice for UX when the viewer TZ differs from CI.)
+  // Use local components so that on the Paris presentation machine "today" filtering
+  // and "past slots" match the local clock the presenters are looking at.
+  const todayStr = `${now.getFullYear()}-${String(now.getMonth() + 1).padStart(2, "0")}-${String(now.getDate()).padStart(2, "0")}`;
   const currentHour = now.getHours();
   const currentMinute = now.getMinutes();
 
@@ -1085,7 +1081,6 @@ const formatDateLong = (dateStr: string) => {
     day: "numeric",
     month: "long",
     year: "numeric",
-    timeZone: "UTC",
   });
 };
 
@@ -1095,7 +1090,6 @@ const formatDate = (dateStr: string) => {
     weekday: "long",
     day: "numeric",
     month: "long",
-    timeZone: "UTC",
   });
 };
 

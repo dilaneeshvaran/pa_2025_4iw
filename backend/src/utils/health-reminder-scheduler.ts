@@ -199,7 +199,6 @@ export function startHealthReminderWorker(): Worker<
               day: 'numeric',
               month: 'long',
               year: 'numeric',
-              timeZone: 'UTC',
             }),
             scheduledTime: scheduledFor.toISOString().slice(11, 16),
           })

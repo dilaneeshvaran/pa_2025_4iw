@@ -5,7 +5,6 @@ export const formatDate = (dateStr: string): string => {
     day: "numeric",
     month: "long",
     year: "numeric",
-    timeZone: "UTC",
   });
 };
 
@@ -17,7 +16,6 @@ export const formatDateLong = (dateStr: string): string => {
     day: "numeric",
     month: "long",
     year: "numeric",
-    timeZone: "UTC",
   });
 };
 
@@ -28,7 +26,6 @@ export const formatShortDate = (dateStr: string): string => {
     day: "numeric",
     month: "short",
     year: "numeric",
-    timeZone: "UTC",
   });
 };
 
@@ -41,7 +38,6 @@ export const formatDateWithTime = (dateStr: string): string => {
     year: "numeric",
     hour: "2-digit",
     minute: "2-digit",
-    timeZone: "UTC",
   });
 };
 
@@ -63,7 +59,6 @@ export const formatConsentDate = (dateStr: string): string => {
     year: "numeric",
     hour: "2-digit",
     minute: "2-digit",
-    timeZone: "UTC",
   });
 };
 

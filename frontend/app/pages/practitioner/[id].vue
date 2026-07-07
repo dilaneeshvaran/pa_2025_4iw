@@ -791,7 +791,8 @@ const openBookingModalFromAvailability = () => {
 // filter slots to exclude past dates and times
 const filteredAvailableSlots = computed(() => {
   const now = new Date();
-  const todayStr = `${now.getUTCFullYear()}-${String(now.getUTCMonth() + 1).padStart(2, "0")}-${String(now.getUTCDate()).padStart(2, "0")}`;
+  // Local for Paris demo so today slot filtering matches the clock on screen
+  const todayStr = `${now.getFullYear()}-${String(now.getMonth() + 1).padStart(2, "0")}-${String(now.getDate()).padStart(2, "0")}`;
   const currentHour = now.getHours();
   const currentMinute = now.getMinutes();
 

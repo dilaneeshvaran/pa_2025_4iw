@@ -461,6 +461,7 @@ const postCallData = ref({
 });
 
 let room: Room | null = null;
+let isConnectingLiveKit = false;
 let durationInterval: ReturnType<typeof setInterval> | null = null;
 let qualityInterval: ReturnType<typeof setInterval> | null = null;
 let reannounceTimer: ReturnType<typeof setTimeout> | null = null;
@@ -581,6 +582,16 @@ const reannounceJoin = () => {
 
 // livekit connection (replaces previous simple peer  )
 const connectToLiveKit = async () => {
+  if (isConnectingLiveKit) {
+    console.log("Already connecting to LiveKit, skipping duplicate call");
+    return;
+  }
+  if (room && room.state !== "disconnected") {
+    console.log("Room already connected or connecting, skipping");
+    return;
+  }
+
+  isConnectingLiveKit = true;
   try {
     // request short  lived livekit token from backend (auth + ownership already verified)
     const tokenRes = await useAuthenticatedFetch(
@@ -631,6 +642,8 @@ const connectToLiveKit = async () => {
     joinError.value = "Impossible de se connecter au service de visioconférence";
     callStatus.value = "waiting";
     scheduleReannounce(2000);
+  } finally {
+    isConnectingLiveKit = false;
   }
 };
 

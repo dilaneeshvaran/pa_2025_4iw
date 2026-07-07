@@ -1484,7 +1484,8 @@ const openModifyModal = async (apt: Appointment) => {
     if (response.success && response.data) {
       // filter out past time slots for today
       const now = new Date();
-      const todayStr = `${now.getUTCFullYear()}-${String(now.getUTCMonth() + 1).padStart(2, "0")}-${String(now.getUTCDate()).padStart(2, "0")}`;
+      // local for Paris demo
+      const todayStr = `${now.getFullYear()}-${String(now.getMonth() + 1).padStart(2, "0")}-${String(now.getDate()).padStart(2, "0")}`;
       modifyAvailableSlots.value = response.data
         .filter((day) => day.date >= todayStr)
         .map((day) => {
