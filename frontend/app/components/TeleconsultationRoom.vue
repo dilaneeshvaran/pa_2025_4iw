@@ -117,6 +117,13 @@
               >
                 L'autre participant rejoindra bientôt la consultation
               </p>
+              <button
+                v-if="callStatus === 'waiting'"
+                class="mt-3 rounded-lg bg-orange-500 px-3 py-1 text-xs font-medium text-white transition hover:bg-orange-600"
+                @click="reannounceJoin"
+              >
+                Relancer la connexion
+              </button>
             </template>
           </div>
         </div>
@@ -503,6 +510,7 @@ const initMedia = async () => {
     localStream.value = stream;
     if (localVideoRef.value) {
       localVideoRef.value.srcObject = stream;
+      localVideoRef.value.play?.().catch(() => {});
     }
   } catch (err) {
     console.error("Failed to access media devices:", err);
@@ -532,6 +540,14 @@ const retryJoin = async () => {
   const joined = await joinSession();
   if (!joined) return;
 
+  // avoid duplicate listeners
+  off("webrtc_offer", handleOffer);
+  off("webrtc_answer", handleAnswer);
+  off("webrtc_ice_candidate", handleIceCandidate);
+  off("teleconsult_joined", handleRemoteJoined);
+  off("teleconsult_left", handleRemoteLeft);
+  off("teleconsult_chat", handleChatMessage);
+
   on("webrtc_offer", handleOffer);
   on("webrtc_answer", handleAnswer);
   on("webrtc_ice_candidate", handleIceCandidate);
@@ -548,17 +564,43 @@ const retryJoin = async () => {
   }
 };
 
+const reannounceJoin = () => {
+  // manual recovery for stuck waiting after tab/rejoin
+  if (peer) {
+    try { peer.destroy(); } catch {}
+    peer = null;
+    remoteStream.value = null;
+  }
+  callStatus.value = "waiting";
+  if (targetUserId.value) {
+    send({
+      type: "teleconsult_joined",
+      targetUserId: targetUserId.value,
+      sessionId: props.session.id,
+    });
+    // also rejoin the session to refresh timestamps
+    joinSession().catch(() => {});
+  }
+};
+
 const createPeer = (initiator: boolean) => {
-  if (!localStream.value) return;
+  if (!localStream.value) {
+    console.warn("Creating peer without local stream (media may be one-way)");
+  }
 
   peer = new SimplePeer({
     initiator,
-    stream: localStream.value,
+    stream: localStream.value || undefined,
     trickle: true,
     config: {
       iceServers: [
         { urls: "stun:stun.l.google.com:19302" },
         { urls: "stun:stun1.l.google.com:19302" },
+        { urls: "stun:stun2.l.google.com:19302" },
+        { urls: "stun:stun3.l.google.com:19302" },
+        { urls: "stun:stun4.l.google.com:19302" },
+        { urls: "stun:stun.services.mozilla.com:3478" },
+        { urls: "stun:global.stun.twilio.com:3478" },
       ],
     },
   });
@@ -598,11 +640,19 @@ const createPeer = (initiator: boolean) => {
     remoteStream.value = stream;
     if (remoteVideoRef.value) {
       remoteVideoRef.value.srcObject = stream;
+      // force play (some browsers block autoplay for remote streams)
+      remoteVideoRef.value.play?.().catch(() => {
+        // ignore; user may need to interact
+      });
     }
     callStatus.value = "connected";
     callStartTime.value = new Date();
     startDurationTimer();
     startQualityMonitor();
+  });
+
+  peer.on("connect", () => {
+    if (callStatus.value === "waiting") callStatus.value = "connecting";
   });
 
   peer.on("close", () => {
@@ -612,6 +662,7 @@ const createPeer = (initiator: boolean) => {
 
   peer.on("error", (err: Error) => {
     console.error("Peer error:", err);
+    peer = null;
   });
 };
 
@@ -623,7 +674,9 @@ const handleOffer = (data: {
 }) => {
   if (data.sessionId !== props.session.id) return;
   callStatus.value = "connecting";
-  createPeer(false);
+  if (!peer) {
+    createPeer(false);
+  }
   peer?.signal(data.signal);
 };
 
@@ -633,6 +686,10 @@ const handleAnswer = (data: {
   sessionId: string;
 }) => {
   if (data.sessionId !== props.session.id) return;
+  if (!peer) {
+    // late answer, create as non-initiator
+    createPeer(false);
+  }
   peer?.signal(data.signal);
 };
 
@@ -642,16 +699,43 @@ const handleIceCandidate = (data: {
   sessionId: string;
 }) => {
   if (data.sessionId !== props.session.id) return;
-  peer?.signal(data.candidate);
+  if (peer) {
+    peer.signal(data.candidate);
+  }
 };
 
 const handleRemoteJoined = (data: { userId: string; sessionId: string }) => {
   if (data.sessionId !== props.session.id) return;
-  if (peer) return; // already have peer connection
 
-  // whoever receives the join notification first becomes the initiator
-  callStatus.value = "connecting";
-  createPeer(true);
+  const otherId = data.userId;
+  const myId = authStore.user?.id || "";
+
+  const isWaiting = callStatus.value === "waiting" || !peer;
+  const shouldReset = isWaiting;
+
+  // reset only when recovering from waiting/left (prevents destroying a working call on spurious joined)
+  if (shouldReset && peer) {
+    try {
+      peer.destroy();
+    } catch {}
+    peer = null;
+    remoteStream.value = null;
+  }
+
+  if (shouldReset) {
+    callStatus.value = "connecting";
+
+    const iAmInitiator = !otherId || myId < otherId;
+    createPeer(iAmInitiator);
+  }
+
+  if (shouldReset && otherId) {
+    send({
+      type: "teleconsult_joined",
+      targetUserId: otherId,
+      sessionId: props.session.id,
+    });
+  }
 };
 
 const handleRemoteLeft = (data: { userId: string; sessionId: string }) => {
@@ -893,7 +977,7 @@ const startQualityMonitor = () => {
         `/teleconsultations/${props.session.id}/connection-quality`,
         {
           method: "PATCH",
-          body: { quality: connectionQuality.value.toUpperCase() },
+          body: { quality: connectionQuality.value },
         },
       );
     } catch {
@@ -931,6 +1015,25 @@ onMounted(async () => {
       sessionId: props.session.id,
     });
   }
+
+  setTimeout(() => {
+    if (targetUserId.value && !peer) {
+      send({
+        type: "teleconsult_joined",
+        targetUserId: targetUserId.value,
+        sessionId: props.session.id,
+      });
+    }
+  }, 800);
+  setTimeout(() => {
+    if (targetUserId.value && !peer) {
+      send({
+        type: "teleconsult_joined",
+        targetUserId: targetUserId.value,
+        sessionId: props.session.id,
+      });
+    }
+  }, 2500);
 });
 
 onUnmounted(() => {
