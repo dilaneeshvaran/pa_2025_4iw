@@ -323,6 +323,25 @@ export class TeleconsultationsController {
     }
   }
 
+  async getJoinToken(request: FastifyRequest, reply: FastifyReply) {
+    try {
+      const user = request.user as { id: string }
+      const { id } = request.params as { id: string }
+
+      const { token, livekitUrl } = await teleconsultationsService.generateLiveKitToken(id, user.id)
+
+      return reply.status(200).send({ success: true, data: { token, livekitUrl } })
+    } catch (error) {
+      request.log.error(error)
+      const message = sanitizeErrorMessage(error, 'Erreur serveur')
+      let statusCode = 400
+      if (message === 'Non autorisé') statusCode = 403
+      if (message === 'Session non trouvée') statusCode = 404
+      if (message.includes('LiveKit')) statusCode = 500
+      return reply.status(statusCode).send({ success: false, message })
+    }
+  }
+
   async getPatientTeleconsultations(
     request: FastifyRequest,
     reply: FastifyReply,

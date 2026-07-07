@@ -69,13 +69,13 @@
         <!-- remote video (full) -->
         <div class="flex h-full items-center justify-center bg-gray-900">
           <video
-            v-show="remoteStream"
+            v-show="hasRemoteVideo || remoteStream"
             ref="remoteVideoRef"
             autoplay
             playsinline
             class="h-full w-full object-contain"
           />
-          <div v-if="!remoteStream" class="text-center">
+          <div v-if="!(hasRemoteVideo || remoteStream)" class="text-center">
             <div
               v-if="joinError"
               class="mx-auto max-w-sm rounded-lg bg-red-900/50 p-6"
@@ -380,7 +380,15 @@ import {
   Wifi,
   CheckCircle,
 } from "lucide-vue-next";
-import SimplePeer from "simple-peer";
+import {
+  Room,
+  RoomEvent,
+  Track,
+  LocalTrackPublication,
+  RemoteTrackPublication,
+  ParticipantEvent,
+  ConnectionQuality as LkConnectionQuality,
+} from "livekit-client";
 import { useMessagingStore } from "~/stores/messaging";
 import { useAuthenticatedFetch } from "~/composables/useAuthenticatedFetch";
 import { useAuthStore } from "~/stores/auth";
@@ -427,6 +435,7 @@ const chatContainerRef = ref<HTMLDivElement | null>(null);
 
 const localStream = ref<MediaStream | null>(null);
 const remoteStream = ref<MediaStream | null>(null);
+const hasRemoteVideo = ref(false);
 const callStatus = ref<"waiting" | "connecting" | "connected">("waiting");
 const audioMuted = ref(false);
 const videoMuted = ref(false);
@@ -451,8 +460,7 @@ const postCallData = ref({
   endTime: "",
 });
 
-let peer: SimplePeer.Instance | null = null;
-let screenStream: MediaStream | null = null;
+let room: Room | null = null;
 let durationInterval: ReturnType<typeof setInterval> | null = null;
 let qualityInterval: ReturnType<typeof setInterval> | null = null;
 let reannounceTimer: ReturnType<typeof setTimeout> | null = null;
@@ -501,23 +509,6 @@ const targetUserId = computed(() => {
   return null;
 });
 
-// init media and ws
-const initMedia = async () => {
-  try {
-    const stream = await navigator.mediaDevices.getUserMedia({
-      video: { width: { ideal: 640 }, height: { ideal: 480 }, facingMode: "user" },
-      audio: { echoCancellation: true, noiseSuppression: true, autoGainControl: true },
-    });
-    localStream.value = stream;
-    if (localVideoRef.value) {
-      localVideoRef.value.srcObject = stream;
-      localVideoRef.value.play?.().catch(() => {});
-    }
-  } catch (err) {
-    console.error("Failed to access media devices:", err);
-  }
-};
-
 const joinError = ref<string | null>(null);
 
 const joinSession = async (): Promise<boolean> => {
@@ -541,17 +532,11 @@ const retryJoin = async () => {
   const joined = await joinSession();
   if (!joined) return;
 
-  // avoid duplicate listeners
-  off("webrtc_offer", handleOffer);
-  off("webrtc_answer", handleAnswer);
-  off("webrtc_ice_candidate", handleIceCandidate);
+  // clean listeners (chat + room events stay relevant)
   off("teleconsult_joined", handleRemoteJoined);
   off("teleconsult_left", handleRemoteLeft);
   off("teleconsult_chat", handleChatMessage);
 
-  on("webrtc_offer", handleOffer);
-  on("webrtc_answer", handleAnswer);
-  on("webrtc_ice_candidate", handleIceCandidate);
   on("teleconsult_joined", handleRemoteJoined);
   on("teleconsult_left", handleRemoteLeft);
   on("teleconsult_chat", handleChatMessage);
@@ -563,6 +548,9 @@ const retryJoin = async () => {
       sessionId: props.session.id,
     });
   }
+
+  // re establish livekit connection
+  await connectToLiveKit();
 };
 
 const reannounceJoin = () => {
@@ -573,9 +561,10 @@ const reannounceJoin = () => {
   }
   stopDurationTimer();
   stopQualityMonitor();
-  if (peer) {
-    try { peer.destroy(); } catch {}
-    peer = null;
+  if (room) {
+    try { room.disconnect(); } catch {}
+    room = null;
+    hasRemoteVideo.value = false;
     remoteStream.value = null;
   }
   callStatus.value = "waiting";
@@ -585,214 +574,196 @@ const reannounceJoin = () => {
       targetUserId: targetUserId.value,
       sessionId: props.session.id,
     });
-    // also rejoin the session to refresh timestamps
     joinSession().catch(() => {});
+    connectToLiveKit().catch(() => {});
   }
 };
 
-const createPeer = (initiator: boolean) => {
-  if (!localStream.value) {
-    console.warn("Creating peer without local stream (media may be one-way)");
-  }
+// livekit connection (replaces previous simple peer  )
+const connectToLiveKit = async () => {
+  try {
+    // request short  lived livekit token from backend (auth + ownership already verified)
+    const tokenRes = await useAuthenticatedFetch(
+      `/teleconsultations/${props.session.id}/token`,
+      { method: "POST" },
+    );
+    const { token, livekitUrl } = tokenRes.data as { token: string; livekitUrl: string };
 
-  peer = new SimplePeer({
-    initiator,
-    stream: localStream.value || undefined,
-    trickle: true,
-    config: {
-      iceServers: [
-        { urls: "stun:stun.l.google.com:19302" },
-        { urls: "stun:stun1.l.google.com:19302" },
-        { urls: "stun:stun2.l.google.com:19302" },
-        { urls: "stun:stun3.l.google.com:19302" },
-        { urls: "stun:stun4.l.google.com:19302" },
-        { urls: "stun:stun.services.mozilla.com:3478" },
-        { urls: "stun:global.stun.twilio.com:3478" },
-      ],
-    },
-  });
-
-  const pc = (peer as any)._pc as RTCPeerConnection | undefined;
-  if (pc) {
-    pc.onconnectionstatechange = () => {
-      const state = pc.connectionState;
-      if (state === 'failed' || state === 'disconnected') {
-        console.warn('WebRTC connection state:', state);
-        scheduleReannounce(1000);
-      }
-    };
-  }
-
-  peer.on("signal", (data: SimplePeer.SignalData) => {
-    if (!targetUserId.value) {
-      console.error("Cannot send signal: targetUserId not available");
-      return;
+    if (room) {
+      try { room.disconnect(); } catch {}
+      room = null;
     }
 
-    if (data.type === "offer") {
-      send({
-        type: "webrtc_offer",
-        targetUserId: targetUserId.value,
-        sessionId: props.session.id,
-        signal: data,
-      });
-    } else if (data.type === "answer") {
-      send({
-        type: "webrtc_answer",
-        targetUserId: targetUserId.value,
-        sessionId: props.session.id,
-        signal: data,
-      });
-    } else {
-      // ice candidate
-      send({
-        type: "webrtc_ice_candidate",
-        targetUserId: targetUserId.value,
-        sessionId: props.session.id,
-        candidate: data,
-      });
-    }
-  });
+    room = new Room({
+      adaptiveStream: true,
+      dynacast: true,
+      // stopLocalTrackOnUnpublish helps with camera release
+      stopLocalTrackOnUnpublish: true,
+    });
 
-  peer.on("stream", (stream: MediaStream) => {
-    remoteStream.value = stream;
-    if (remoteVideoRef.value) {
-      remoteVideoRef.value.srcObject = stream;
-      const vid = remoteVideoRef.value;
-      const tryPlay = () => vid.play?.().catch(() => {});
-      tryPlay();
-      vid.addEventListener('stalled', tryPlay, { once: true });
-      vid.addEventListener('waiting', tryPlay, { once: true });
-      vid.addEventListener('canplay', tryPlay, { once: true });
-      vid.addEventListener('error', (e) => console.warn('remote video error', e), { once: true });
-    }
-    callStatus.value = "connected";
-    callStartTime.value = new Date();
-    startDurationTimer();
-    startQualityMonitor();
-  });
+    setupRoomListeners();
 
-  peer.on("connect", () => {
+    await room.connect(livekitUrl, token);
+
+    // publish camera + mic (this triggers getUserMedia inside LiveKit)
+    await room.localParticipant.enableCameraAndMicrophone({
+      video: {
+        width: { ideal: 640 },
+        height: { ideal: 480 },
+        facingMode: "user",
+      },
+      audio: {
+        echoCancellation: true,
+        noiseSuppression: true,
+        autoGainControl: true,
+      },
+    });
+
     if (callStatus.value === "waiting") callStatus.value = "connecting";
-  });
 
-  peer.on("close", () => {
-    stopDurationTimer();
-    stopQualityMonitor();
+    // attach local video for pip as soon as camera track exists
+    attachLocalVideo();
+
+    // start quality reporting (we still report to backend for session)
+    startQualityMonitor();
+  } catch (err) {
+    console.error("Failed to connect to LiveKit room:", err);
+    joinError.value = "Impossible de se connecter au service de visioconférence";
     callStatus.value = "waiting";
-    remoteStream.value = null;
-    scheduleReannounce();
-  });
+    scheduleReannounce(2000);
+  }
+};
 
-  peer.on("error", (err: Error) => {
-    console.error("Peer error:", err);
-    const wasConnected = callStatus.value === "connected";
-    peer = null;
-    if (wasConnected || callStatus.value === "connecting") {
+function setupRoomListeners() {
+  if (!room) return;
+
+  room
+    .on(RoomEvent.TrackSubscribed, (track, pub, participant) => {
+      if (track.kind === Track.Kind.Video && !participant.isLocal) {
+        hasRemoteVideo.value = true;
+        remoteStream.value = (track as any).mediaStream || null;
+        if (remoteVideoRef.value) {
+          // attach will set srcObject and play
+          track.attach(remoteVideoRef.value);
+        }
+        callStatus.value = "connected";
+        if (!callStartTime.value) {
+          callStartTime.value = new Date();
+          startDurationTimer();
+        }
+      }
+    })
+    .on(RoomEvent.TrackUnsubscribed, (track, pub, participant) => {
+      if (track.kind === Track.Kind.Video && !participant.isLocal) {
+        if (remoteVideoRef.value) {
+          track.detach(remoteVideoRef.value);
+        }
+        hasRemoteVideo.value = false;
+        remoteStream.value = null;
+        // if no more remote video, go back to waiting
+        callStatus.value = "waiting";
+      }
+    })
+    .on(RoomEvent.LocalTrackPublished, (publication: LocalTrackPublication) => {
+      if (publication.source === Track.Source.Camera) {
+        attachLocalVideo();
+      }
+      if (publication.source === Track.Source.ScreenShare) {
+        isScreenSharing.value = true;
+      }
+    })
+    .on(RoomEvent.LocalTrackUnpublished, (publication: LocalTrackPublication) => {
+      if (publication.source === Track.Source.ScreenShare) {
+        isScreenSharing.value = false;
+      }
+      if (publication.source === Track.Source.Camera && localVideoRef.value) {
+        // will be reattached on next publish
+      }
+    })
+    .on(RoomEvent.ParticipantConnected, (participant) => {
+      // remote joined - livekit will deliver their tracks shortly
+      if (!participant.isLocal && callStatus.value === "waiting") {
+        callStatus.value = "connecting";
+      }
+    })
+    .on(RoomEvent.ParticipantDisconnected, (participant) => {
+      if (!participant.isLocal) {
+        hasRemoteVideo.value = false;
+        remoteStream.value = null;
+        if (remoteVideoRef.value) {
+          remoteVideoRef.value.srcObject = null;
+        }
+        callStatus.value = "waiting";
+      }
+    })
+    .on(RoomEvent.ConnectionQualityChanged, (quality: LkConnectionQuality, participant) => {
+      if (participant.isLocal) return;
+      if (quality === "excellent" || quality === "good") {
+        connectionQuality.value = "good";
+      } else if (quality === "poor") {
+        connectionQuality.value = "poor";
+      } else {
+        connectionQuality.value = "medium";
+      }
+    })
+    .on(RoomEvent.Disconnected, () => {
       stopDurationTimer();
       stopQualityMonitor();
-      callStatus.value = "waiting";
+      hasRemoteVideo.value = false;
       remoteStream.value = null;
+      callStatus.value = "waiting";
       scheduleReannounce(1500);
+    });
+}
+
+function attachLocalVideo() {
+  if (!room || !localVideoRef.value) return;
+  const pubs = Array.from(room.localParticipant.videoTrackPublications.values());
+  // prefer camera over screen share for the pip
+  const camPub = pubs.find((p) => p.source === Track.Source.Camera) || pubs[0];
+  if (camPub?.track && localVideoRef.value) {
+    // detach previous if any to avoid duplicate
+    try { camPub.track.detach(localVideoRef.value); } catch {}
+    camPub.track.attach(localVideoRef.value);
+    // feed localStream so template v-show condition works for pip
+    try {
+      localStream.value = new MediaStream([camPub.track.mediaStreamTrack]);
+    } catch {
+      // ignore
     }
-  });
-};
+  }
+}
 
 const scheduleReannounce = (delay = 2000) => {
   if (reannounceTimer) clearTimeout(reannounceTimer);
   reannounceTimer = setTimeout(() => {
     reannounceTimer = null;
-    if (!peer && targetUserId.value && !showPostCallSummary.value) {
-      send({
-        type: "teleconsult_joined",
-        targetUserId: targetUserId.value,
-        sessionId: props.session.id,
-      });
+    if (!room && targetUserId.value && !showPostCallSummary.value) {
+      // try to rejoin the session state + reconnect livekit
       joinSession().catch(() => {});
+      connectToLiveKit().catch(() => {});
     }
   }, delay);
 };
 
-// webrtc signaling handlers
-const handleOffer = (data: {
-  signal: SimplePeer.SignalData;
-  fromUserId: string;
-  sessionId: string;
-}) => {
-  if (data.sessionId !== props.session.id) return;
-  callStatus.value = "connecting";
-  if (!peer) {
-    createPeer(false);
-  }
-  peer?.signal(data.signal);
-};
-
-const handleAnswer = (data: {
-  signal: SimplePeer.SignalData;
-  fromUserId: string;
-  sessionId: string;
-}) => {
-  if (data.sessionId !== props.session.id) return;
-  if (!peer) {
-    // late answer, create as non-initiator
-    createPeer(false);
-  }
-  peer?.signal(data.signal);
-};
-
-const handleIceCandidate = (data: {
-  candidate: SimplePeer.SignalData;
-  fromUserId: string;
-  sessionId: string;
-}) => {
-  if (data.sessionId !== props.session.id) return;
-  if (peer) {
-    peer.signal(data.candidate);
-  }
-};
-
 const handleRemoteJoined = (data: { userId: string; sessionId: string }) => {
   if (data.sessionId !== props.session.id) return;
-
-  const otherId = data.userId;
-  const myId = authStore.user?.id || "";
-
-  const isWaiting = callStatus.value === "waiting" || !peer;
-  const shouldReset = isWaiting;
-
-  // reset only when recovering from waiting/left (prevents destroying a working call on spurious joined)
-  if (shouldReset && peer) {
-    try {
-      peer.destroy();
-    } catch {}
-    peer = null;
-    remoteStream.value = null;
-  }
-
-  if (shouldReset) {
+  if ((callStatus.value === "waiting" || !room) && !showPostCallSummary.value) {
     callStatus.value = "connecting";
-
-    const iAmInitiator = !otherId || myId < otherId;
-    createPeer(iAmInitiator);
-  }
-
-  if (shouldReset && otherId) {
-    send({
-      type: "teleconsult_joined",
-      targetUserId: otherId,
-      sessionId: props.session.id,
-    });
+    connectToLiveKit().catch(() => {});
   }
 };
 
 const handleRemoteLeft = (data: { userId: string; sessionId: string }) => {
   if (data.sessionId !== props.session.id) return;
-  stopDurationTimer();
-  stopQualityMonitor();
-  peer?.destroy();
-  peer = null;
-  remoteStream.value = null;
-  callStatus.value = "waiting";
+  if (room) {
+  } else {
+    stopDurationTimer();
+    stopQualityMonitor();
+    hasRemoteVideo.value = false;
+    remoteStream.value = null;
+    callStatus.value = "waiting";
+  }
 };
 
 const handleChatMessage = (data: {
@@ -818,18 +789,26 @@ const handleChatMessage = (data: {
   });
 };
 
-const toggleAudio = () => {
+const toggleAudio = async () => {
   audioMuted.value = !audioMuted.value;
-  localStream.value?.getAudioTracks().forEach((t) => {
-    t.enabled = !audioMuted.value;
-  });
+  if (room?.localParticipant) {
+    await room.localParticipant.setMicrophoneEnabled(!audioMuted.value);
+  } else if (localStream.value) {
+    localStream.value.getAudioTracks().forEach((t) => {
+      t.enabled = !audioMuted.value;
+    });
+  }
 };
 
-const toggleVideo = () => {
+const toggleVideo = async () => {
   videoMuted.value = !videoMuted.value;
-  localStream.value?.getVideoTracks().forEach((t) => {
-    t.enabled = !videoMuted.value;
-  });
+  if (room?.localParticipant) {
+    await room.localParticipant.setCameraEnabled(!videoMuted.value);
+  } else if (localStream.value) {
+    localStream.value.getVideoTracks().forEach((t) => {
+      t.enabled = !videoMuted.value;
+    });
+  }
 };
 
 const toggleChat = () => {
@@ -873,20 +852,11 @@ const toggleScreenShare = async () => {
 };
 
 const startScreenShare = async () => {
+  if (!room) return;
   try {
-    screenStream = await navigator.mediaDevices.getDisplayMedia({
-      video: true,
+    await room.localParticipant.setScreenShareEnabled(true, {
+      video: { width: 1280, height: 720 },
     });
-    const videoTrack = screenStream.getVideoTracks()[0];
-    if (peer && localStream.value && videoTrack) {
-      const pc = (peer as unknown as { _pc: RTCPeerConnection })._pc;
-      const sender = pc
-        ?.getSenders?.()
-        ?.find((s: RTCRtpSender) => s.track?.kind === "video");
-      if (sender) {
-        await sender.replaceTrack(videoTrack);
-      }
-    }
     isScreenSharing.value = true;
     if (targetUserId.value) {
       send({
@@ -895,35 +865,19 @@ const startScreenShare = async () => {
         sessionId: props.session.id,
       });
     }
-
-    if (videoTrack) {
-      videoTrack.onended = () => {
-        stopScreenShare();
-      };
-    }
   } catch {
-    // user cancelled or error
+    // user cancelled or permission error
   }
 };
 
-const stopScreenShare = () => {
-  if (screenStream) {
-    screenStream.getTracks().forEach((t) => t.stop());
-    screenStream = null;
+const stopScreenShare = async () => {
+  if (!room) {
+    isScreenSharing.value = false;
+    return;
   }
-  // restore camera track
-  if (peer && localStream.value) {
-    const videoTrack = localStream.value.getVideoTracks()[0];
-    if (videoTrack) {
-      const pc = (peer as unknown as { _pc: RTCPeerConnection })._pc;
-      const sender = pc
-        ?.getSenders?.()
-        ?.find((s: RTCRtpSender) => s.track?.kind === "video");
-      if (sender) {
-        sender.replaceTrack(videoTrack);
-      }
-    }
-  }
+  try {
+    await room.localParticipant.setScreenShareEnabled(false);
+  } catch {}
   isScreenSharing.value = false;
   if (targetUserId.value) {
     send({
@@ -932,6 +886,7 @@ const stopScreenShare = () => {
       sessionId: props.session.id,
     });
   }
+  nextTick(attachLocalVideo);
 };
 
 const endCall = async () => {
@@ -951,12 +906,14 @@ const endCall = async () => {
 
   stopDurationTimer();
   stopQualityMonitor();
-  peer?.destroy();
-  peer = null;
+  if (room) {
+    try { room.disconnect(); } catch {}
+    room = null;
+  }
 
-  // clean up streams
-  localStream.value?.getTracks().forEach((t) => t.stop());
-  localStream.value = null;
+  if (localVideoRef.value) localVideoRef.value.srcObject = null;
+  localStream.value = null; // legacy
+  hasRemoteVideo.value = false;
   remoteStream.value = null;
 
   // show summary post call
@@ -1006,27 +963,20 @@ const stopDurationTimer = () => {
   }
 };
 
-// connection quality monitoring
+// connection quality monitoring (uses LiveKit events primarily, this is fallback + backend report)
 const startQualityMonitor = () => {
   qualityInterval = setInterval(async () => {
-    if (!peer) return;
+    if (!room) return;
     try {
-      const pc = (peer as unknown as { _pc: RTCPeerConnection | undefined })
-        ._pc;
-      if (!pc) return;
-      const stats = await pc.getStats();
-      // eslint-disable-next-line @typescript-eslint/no-explicit-any
-      stats.forEach((report: Record<string, any>) => {
-        if (report.type === "candidate-pair" && report.state === "succeeded") {
-          const rtt = report.currentRoundTripTime;
-          if (rtt !== undefined) {
-            if (rtt < 0.1) connectionQuality.value = "good";
-            else if (rtt < 0.3) connectionQuality.value = "medium";
-            else connectionQuality.value = "poor";
-          }
-        }
-      });
-      // report quality to backend
+      const remotes = Array.from(room.remoteParticipants.values());
+      if (remotes.length > 0) {
+        const q = remotes[0].connectionQuality;
+        if (q === "excellent" || q === "good") connectionQuality.value = "good";
+        else if (q === "poor") connectionQuality.value = "poor";
+        else connectionQuality.value = "medium";
+      }
+
+      // report to backend (non blocking)
       await useAuthenticatedFetch(
         `/teleconsultations/${props.session.id}/connection-quality`,
         {
@@ -1037,7 +987,7 @@ const startQualityMonitor = () => {
     } catch {
       // ignore stats errors
     }
-  }, 5000);
+  }, 8000);
 };
 
 const stopQualityMonitor = () => {
@@ -1048,16 +998,11 @@ const stopQualityMonitor = () => {
 };
 
 onMounted(async () => {
-  await initMedia();
-
   messagingStore.connect();
 
   const joined = await joinSession();
   if (!joined) return;
 
-  on("webrtc_offer", handleOffer);
-  on("webrtc_answer", handleAnswer);
-  on("webrtc_ice_candidate", handleIceCandidate);
   on("teleconsult_joined", handleRemoteJoined);
   on("teleconsult_left", handleRemoteLeft);
   on("teleconsult_chat", handleChatMessage);
@@ -1071,30 +1016,20 @@ onMounted(async () => {
   }
 
   setTimeout(() => {
-    if (targetUserId.value && !peer) {
-      send({
-        type: "teleconsult_joined",
-        targetUserId: targetUserId.value,
-        sessionId: props.session.id,
-      });
+    if (targetUserId.value && !room) {
+      connectToLiveKit().catch(() => {});
     }
-  }, 800);
+  }, 300);
+
   setTimeout(() => {
-    if (targetUserId.value && !peer) {
-      send({
-        type: "teleconsult_joined",
-        targetUserId: targetUserId.value,
-        sessionId: props.session.id,
-      });
+    if (targetUserId.value && !room) {
+      connectToLiveKit().catch(() => {});
     }
-  }, 2500);
+  }, 1500);
 });
 
 onUnmounted(() => {
   // clean up
-  off("webrtc_offer", handleOffer);
-  off("webrtc_answer", handleAnswer);
-  off("webrtc_ice_candidate", handleIceCandidate);
   off("teleconsult_joined", handleRemoteJoined);
   off("teleconsult_left", handleRemoteLeft);
   off("teleconsult_chat", handleChatMessage);
@@ -1114,10 +1049,12 @@ onUnmounted(() => {
 
   stopDurationTimer();
   stopQualityMonitor();
-  peer?.destroy();
-  peer = null;
-  localStream.value?.getTracks().forEach((t) => t.stop());
-  screenStream?.getTracks().forEach((t) => t.stop());
+  if (room) {
+    try { room.disconnect(); } catch {}
+    room = null;
+  }
+  if (localVideoRef.value) localVideoRef.value.srcObject = null;
+  if (remoteVideoRef.value) remoteVideoRef.value.srcObject = null;
 });
 </script>
 
