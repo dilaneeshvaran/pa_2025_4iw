@@ -41,9 +41,23 @@
               type="text"
               required
               autocomplete="given-name"
-              class="mt-1 block w-full rounded-md border border-gray-300 px-3 py-2 placeholder-gray-400 shadow-sm focus:border-orange-500 focus:outline-none focus:ring-2 focus:ring-orange-500"
+              :class="[
+                'mt-1 block w-full rounded-md border px-3 py-2 placeholder-gray-400 shadow-sm focus:outline-none focus:ring-2 focus:ring-offset-0',
+                fieldErrors.firstName
+                  ? 'border-red-300 text-red-900 placeholder-red-300 focus:border-red-500 focus:ring-red-500'
+                  : 'border-gray-300 focus:border-orange-500 focus:ring-orange-500'
+              ]"
               placeholder="Jean"
+              :aria-invalid="!!fieldErrors.firstName"
+              aria-describedby="firstName-error"
             />
+            <p
+              v-if="fieldErrors.firstName"
+              id="firstName-error"
+              class="mt-1 text-xs text-red-600"
+            >
+              {{ fieldErrors.firstName }}
+            </p>
           </div>
 
           <div>
@@ -59,9 +73,23 @@
               type="text"
               required
               autocomplete="family-name"
-              class="mt-1 block w-full rounded-md border border-gray-300 px-3 py-2 placeholder-gray-400 shadow-sm focus:border-orange-500 focus:outline-none focus:ring-2 focus:ring-orange-500"
+              :class="[
+                'mt-1 block w-full rounded-md border px-3 py-2 placeholder-gray-400 shadow-sm focus:outline-none focus:ring-2 focus:ring-offset-0',
+                fieldErrors.lastName
+                  ? 'border-red-300 text-red-900 placeholder-red-300 focus:border-red-500 focus:ring-red-500'
+                  : 'border-gray-300 focus:border-orange-500 focus:ring-orange-500'
+              ]"
               placeholder="Dupont"
+              :aria-invalid="!!fieldErrors.lastName"
+              aria-describedby="lastName-error"
             />
+            <p
+              v-if="fieldErrors.lastName"
+              id="lastName-error"
+              class="mt-1 text-xs text-red-600"
+            >
+              {{ fieldErrors.lastName }}
+            </p>
           </div>
 
           <div class="md:col-span-2">
@@ -74,9 +102,23 @@
               type="email"
               required
               autocomplete="email"
-              class="mt-1 block w-full rounded-md border border-gray-300 px-3 py-2 placeholder-gray-400 shadow-sm focus:border-orange-500 focus:outline-none focus:ring-2 focus:ring-orange-500"
+              :class="[
+                'mt-1 block w-full rounded-md border px-3 py-2 placeholder-gray-400 shadow-sm focus:outline-none focus:ring-2 focus:ring-offset-0',
+                fieldErrors.email
+                  ? 'border-red-300 text-red-900 placeholder-red-300 focus:border-red-500 focus:ring-red-500'
+                  : 'border-gray-300 focus:border-orange-500 focus:ring-orange-500'
+              ]"
               placeholder="votre@email.com"
+              :aria-invalid="!!fieldErrors.email"
+              aria-describedby="email-error"
             />
+            <p
+              v-if="fieldErrors.email"
+              id="email-error"
+              class="mt-1 text-xs text-red-600"
+            >
+              {{ fieldErrors.email }}
+            </p>
           </div>
 
           <div class="md:col-span-2">
@@ -89,9 +131,23 @@
               type="tel"
               required
               autocomplete="tel"
-              class="mt-1 block w-full rounded-md border border-gray-300 px-3 py-2 placeholder-gray-400 shadow-sm focus:border-orange-500 focus:outline-none focus:ring-2 focus:ring-orange-500"
+              :class="[
+                'mt-1 block w-full rounded-md border px-3 py-2 placeholder-gray-400 shadow-sm focus:outline-none focus:ring-2 focus:ring-offset-0',
+                fieldErrors.phone
+                  ? 'border-red-300 text-red-900 placeholder-red-300 focus:border-red-500 focus:ring-red-500'
+                  : 'border-gray-300 focus:border-orange-500 focus:ring-orange-500'
+              ]"
               placeholder="+225 01 02 03 04 05"
+              :aria-invalid="!!fieldErrors.phone"
+              aria-describedby="phone-error"
             />
+            <p
+              v-if="fieldErrors.phone"
+              id="phone-error"
+              class="mt-1 text-xs text-red-600"
+            >
+              {{ fieldErrors.phone }}
+            </p>
           </div>
 
           <div>
@@ -108,8 +164,22 @@
               required
               :min="minDate"
               :max="maxDate"
-              class="mt-1 block w-full rounded-md border border-gray-300 px-3 py-2 placeholder-gray-400 shadow-sm focus:border-orange-500 focus:outline-none focus:ring-2 focus:ring-orange-500"
+              :class="[
+                'mt-1 block w-full rounded-md border px-3 py-2 placeholder-gray-400 shadow-sm focus:outline-none focus:ring-2 focus:ring-offset-0',
+                fieldErrors.dateOfBirth
+                  ? 'border-red-300 text-red-900 placeholder-red-300 focus:border-red-500 focus:ring-red-500'
+                  : 'border-gray-300 focus:border-orange-500 focus:ring-orange-500'
+              ]"
+              :aria-invalid="!!fieldErrors.dateOfBirth"
+              aria-describedby="dateOfBirth-error"
             />
+            <p
+              v-if="fieldErrors.dateOfBirth"
+              id="dateOfBirth-error"
+              class="mt-1 text-xs text-red-600"
+            >
+              {{ fieldErrors.dateOfBirth }}
+            </p>
           </div>
 
           <div>
@@ -120,7 +190,14 @@
               id="gender"
               v-model="formData.gender"
               required
-              class="mt-1 block w-full rounded-md border border-gray-300 px-3 py-2 shadow-sm focus:border-orange-500 focus:outline-none focus:ring-2 focus:ring-orange-500"
+              :class="[
+                'mt-1 block w-full rounded-md border px-3 py-2 shadow-sm focus:outline-none focus:ring-2 focus:ring-offset-0',
+                fieldErrors.gender
+                  ? 'border-red-300 text-red-900 focus:border-red-500 focus:ring-red-500'
+                  : 'border-gray-300 focus:border-orange-500 focus:ring-orange-500'
+              ]"
+              :aria-invalid="!!fieldErrors.gender"
+              aria-describedby="gender-error"
             >
               <option value="" disabled>Sélectionnez</option>
               <option value="MALE">Homme</option>
@@ -128,6 +205,13 @@
               <option value="OTHER">Autre</option>
               <option value="PREFER_NOT_TO_SAY">Préfère ne pas dire</option>
             </select>
+            <p
+              v-if="fieldErrors.gender"
+              id="gender-error"
+              class="mt-1 text-xs text-red-600"
+            >
+              {{ fieldErrors.gender }}
+            </p>
           </div>
 
           <div class="md:col-span-2">
@@ -143,9 +227,23 @@
               type="password"
               required
               autocomplete="new-password"
-              class="mt-1 block w-full rounded-md border border-gray-300 px-3 py-2 placeholder-gray-400 shadow-sm focus:border-orange-500 focus:outline-none focus:ring-2 focus:ring-orange-500"
+              :class="[
+                'mt-1 block w-full rounded-md border px-3 py-2 placeholder-gray-400 shadow-sm focus:outline-none focus:ring-2 focus:ring-offset-0',
+                fieldErrors.password
+                  ? 'border-red-300 text-red-900 placeholder-red-300 focus:border-red-500 focus:ring-red-500'
+                  : 'border-gray-300 focus:border-orange-500 focus:ring-orange-500'
+              ]"
               placeholder="••••••••"
+              :aria-invalid="!!fieldErrors.password"
+              aria-describedby="password-error"
             />
+            <p
+              v-if="fieldErrors.password"
+              id="password-error"
+              class="mt-1 text-xs text-red-600 font-medium"
+            >
+              {{ fieldErrors.password }}
+            </p>
             <p class="mt-1 text-xs text-gray-500">
               Le mot de passe doit contenir au moins 8 caractères, une
               majuscule, une minuscule, un chiffre et un caractère spécial.
@@ -165,9 +263,23 @@
               type="password"
               required
               autocomplete="new-password"
-              class="mt-1 block w-full rounded-md border border-gray-300 px-3 py-2 placeholder-gray-400 shadow-sm focus:border-orange-500 focus:outline-none focus:ring-2 focus:ring-orange-500"
+              :class="[
+                'mt-1 block w-full rounded-md border px-3 py-2 placeholder-gray-400 shadow-sm focus:outline-none focus:ring-2 focus:ring-offset-0',
+                fieldErrors.confirmPassword
+                  ? 'border-red-300 text-red-900 placeholder-red-300 focus:border-red-500 focus:ring-red-500'
+                  : 'border-gray-300 focus:border-orange-500 focus:ring-orange-500'
+              ]"
               placeholder="••••••••"
+              :aria-invalid="!!fieldErrors.confirmPassword"
+              aria-describedby="confirmPassword-error"
             />
+            <p
+              v-if="fieldErrors.confirmPassword"
+              id="confirmPassword-error"
+              class="mt-1 text-xs text-red-600"
+            >
+              {{ fieldErrors.confirmPassword }}
+            </p>
           </div>
 
           <div class="md:col-span-2 flex items-start mt-2">
@@ -291,33 +403,52 @@ const agreeTerms = ref(false);
 const errorMessage = ref("");
 const successMessage = ref("");
 const showRedirecting = ref(false);
+const fieldErrors = ref<Record<string, string>>({});
 
 const handleRegister = async () => {
   loading.value = true;
   errorMessage.value = "";
   successMessage.value = "";
+  fieldErrors.value = {};
+
+  let hasErrors = false;
 
   // validate password confirmation
   if (formData.value.password !== formData.value.confirmPassword) {
-    errorMessage.value = "Les mots de passe ne correspondent pas.";
-    loading.value = false;
-    return;
+    fieldErrors.value.confirmPassword = "Les mots de passe ne correspondent pas.";
+    hasErrors = true;
   }
 
-  if (!isValidBirthDate(formData.value.dateOfBirth)) {
-    errorMessage.value = "La date de naissance doit être dans le passé.";
-    loading.value = false;
-    return;
+  if (!formData.value.dateOfBirth) {
+    fieldErrors.value.dateOfBirth = "La date de naissance est requise.";
+    hasErrors = true;
+  } else if (!isValidBirthDate(formData.value.dateOfBirth)) {
+    fieldErrors.value.dateOfBirth = "La date de naissance doit être dans le passé.";
+    hasErrors = true;
   }
 
-  if (!isValidPhone(formData.value.phone)) {
-    errorMessage.value = "Le numéro de téléphone contient des caractères non autorisés ou sa longueur est incorrecte (8-15 chiffres requis).";
-    loading.value = false;
-    return;
+  if (!formData.value.phone) {
+    fieldErrors.value.phone = "Le numéro de téléphone est requis.";
+    hasErrors = true;
+  } else if (!isValidPhone(formData.value.phone)) {
+    fieldErrors.value.phone = "Le numéro de téléphone contient des caractères non autorisés ou sa longueur est incorrecte (8-15 chiffres requis).";
+    hasErrors = true;
+  }
+
+  if (formData.value.gender === "") {
+    fieldErrors.value.gender = "Veuillez sélectionner un genre.";
+    hasErrors = true;
   }
 
   if (!agreeTerms.value) {
     errorMessage.value = "Veuillez accepter les conditions générales d'utilisation et la politique de confidentialité.";
+    hasErrors = true;
+  }
+
+  if (hasErrors) {
+    if (!errorMessage.value) {
+      errorMessage.value = "Veuillez corriger les erreurs de validation ci-dessous.";
+    }
     loading.value = false;
     return;
   }
@@ -326,14 +457,9 @@ const handleRegister = async () => {
     // prepare data for API
     const { confirmPassword, ...registerData } = formData.value;
 
-    if (registerData.gender === "") {
-      errorMessage.value = "Veuillez sélectionner un genre.";
-      return;
-    }
-
     await auth.signup({
       ...registerData,
-      gender: registerData.gender,
+      gender: registerData.gender as Gender,
     });
 
     successMessage.value =
@@ -351,11 +477,35 @@ const handleRegister = async () => {
     }, 3000);
   } catch (error: unknown) {
     console.error("Registration error:", error);
-    const err = error as { data?: { message?: string }; message?: string };
-    errorMessage.value =
-      err?.data?.message ||
-      err?.message ||
-      "Une erreur est survenue lors de l'inscription. Veuillez réessayer.";
+    const err = error as {
+      data?: {
+        message?: string;
+        errors?: Array<{
+          instancePath?: string;
+          message?: string;
+          keyword?: string;
+          params?: any;
+        }>;
+      };
+      message?: string;
+    };
+
+    if (err?.data?.errors && Array.isArray(err.data.errors)) {
+      err.data.errors.forEach((validationError) => {
+        // instancePath is like "/email" -> strip the slash to get "email"
+        const path = validationError.instancePath?.replace(/^\//, "") || "";
+        if (path) {
+          fieldErrors.value[path] = validationError.message || "Valeur invalide";
+        }
+      });
+      errorMessage.value = "Veuillez corriger les erreurs de validation ci-dessous.";
+    } else {
+      const msg = err?.data?.message || err?.message || "Une erreur est survenue lors de l'inscription. Veuillez réessayer.";
+      errorMessage.value = msg;
+      if (msg.includes("email existe déjà")) {
+        fieldErrors.value.email = "Un utilisateur avec cet email existe déjà.";
+      }
+    }
   } finally {
     loading.value = false;
   }
