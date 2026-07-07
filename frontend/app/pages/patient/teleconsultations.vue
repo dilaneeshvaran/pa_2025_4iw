@@ -447,16 +447,18 @@
     </Teleport>
 
     <Teleport to="body">
-      <div
-        v-if="showTeleconsultationRoom"
-        class="fixed inset-0 z-50 flex flex-col bg-gray-900"
-      >
-        <TeleconsultationRoom
-          :appointment-id="activeRoomAppointmentId!"
-          :session="activeSession!"
-          @close="closeTeleconsultationRoom"
-        />
-      </div>
+      <ClientOnly>
+        <div
+          v-if="showTeleconsultationRoom"
+          class="fixed inset-0 z-50 flex flex-col bg-gray-900"
+        >
+          <TeleconsultationRoom
+            :appointment-id="activeRoomAppointmentId!"
+            :session="activeSession!"
+            @close="closeTeleconsultationRoom"
+          />
+        </div>
+      </ClientOnly>
     </Teleport>
   </div>
 </template>
