@@ -770,18 +770,20 @@
       </div>
     </Teleport>
 
-    <!-- room -->
+    <!-- room (client only to avoid hydration mismatches with wrtc/media) -->
     <Teleport to="body">
-      <div
-        v-if="showTeleconsultationRoom"
-        class="fixed inset-0 z-50 flex flex-col bg-gray-900"
-      >
-        <TeleconsultationRoom
-          :appointment-id="activeAppointmentId!"
-          :session="activeSessionData!"
-          @close="closeTeleconsultationRoom"
-        />
-      </div>
+      <ClientOnly>
+        <div
+          v-if="showTeleconsultationRoom"
+          class="fixed inset-0 z-50 flex flex-col bg-gray-900"
+        >
+          <TeleconsultationRoom
+            :appointment-id="activeAppointmentId!"
+            :session="activeSessionData!"
+            @close="closeTeleconsultationRoom"
+          />
+        </div>
+      </ClientOnly>
     </Teleport>
 
     <!-- tele cancel modal -->

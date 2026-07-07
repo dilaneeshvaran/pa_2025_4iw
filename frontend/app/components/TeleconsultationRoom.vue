@@ -455,6 +455,7 @@ let peer: SimplePeer.Instance | null = null;
 let screenStream: MediaStream | null = null;
 let durationInterval: ReturnType<typeof setInterval> | null = null;
 let qualityInterval: ReturnType<typeof setInterval> | null = null;
+let reannounceTimer: ReturnType<typeof setTimeout> | null = null;
 
 const connectionQualityColor = computed(() => {
   switch (connectionQuality.value) {
@@ -504,8 +505,8 @@ const targetUserId = computed(() => {
 const initMedia = async () => {
   try {
     const stream = await navigator.mediaDevices.getUserMedia({
-      video: { width: 1280, height: 720, facingMode: "user" },
-      audio: { echoCancellation: true, noiseSuppression: true },
+      video: { width: { ideal: 640 }, height: { ideal: 480 }, facingMode: "user" },
+      audio: { echoCancellation: true, noiseSuppression: true, autoGainControl: true },
     });
     localStream.value = stream;
     if (localVideoRef.value) {
@@ -566,6 +567,12 @@ const retryJoin = async () => {
 
 const reannounceJoin = () => {
   // manual recovery for stuck waiting after tab/rejoin
+  if (reannounceTimer) {
+    clearTimeout(reannounceTimer);
+    reannounceTimer = null;
+  }
+  stopDurationTimer();
+  stopQualityMonitor();
   if (peer) {
     try { peer.destroy(); } catch {}
     peer = null;
@@ -605,6 +612,17 @@ const createPeer = (initiator: boolean) => {
     },
   });
 
+  const pc = (peer as any)._pc as RTCPeerConnection | undefined;
+  if (pc) {
+    pc.onconnectionstatechange = () => {
+      const state = pc.connectionState;
+      if (state === 'failed' || state === 'disconnected') {
+        console.warn('WebRTC connection state:', state);
+        scheduleReannounce(1000);
+      }
+    };
+  }
+
   peer.on("signal", (data: SimplePeer.SignalData) => {
     if (!targetUserId.value) {
       console.error("Cannot send signal: targetUserId not available");
@@ -640,10 +658,13 @@ const createPeer = (initiator: boolean) => {
     remoteStream.value = stream;
     if (remoteVideoRef.value) {
       remoteVideoRef.value.srcObject = stream;
-      // force play (some browsers block autoplay for remote streams)
-      remoteVideoRef.value.play?.().catch(() => {
-        // ignore; user may need to interact
-      });
+      const vid = remoteVideoRef.value;
+      const tryPlay = () => vid.play?.().catch(() => {});
+      tryPlay();
+      vid.addEventListener('stalled', tryPlay, { once: true });
+      vid.addEventListener('waiting', tryPlay, { once: true });
+      vid.addEventListener('canplay', tryPlay, { once: true });
+      vid.addEventListener('error', (e) => console.warn('remote video error', e), { once: true });
     }
     callStatus.value = "connected";
     callStartTime.value = new Date();
@@ -656,14 +677,40 @@ const createPeer = (initiator: boolean) => {
   });
 
   peer.on("close", () => {
+    stopDurationTimer();
+    stopQualityMonitor();
     callStatus.value = "waiting";
     remoteStream.value = null;
+    scheduleReannounce();
   });
 
   peer.on("error", (err: Error) => {
     console.error("Peer error:", err);
+    const wasConnected = callStatus.value === "connected";
     peer = null;
+    if (wasConnected || callStatus.value === "connecting") {
+      stopDurationTimer();
+      stopQualityMonitor();
+      callStatus.value = "waiting";
+      remoteStream.value = null;
+      scheduleReannounce(1500);
+    }
   });
+};
+
+const scheduleReannounce = (delay = 2000) => {
+  if (reannounceTimer) clearTimeout(reannounceTimer);
+  reannounceTimer = setTimeout(() => {
+    reannounceTimer = null;
+    if (!peer && targetUserId.value && !showPostCallSummary.value) {
+      send({
+        type: "teleconsult_joined",
+        targetUserId: targetUserId.value,
+        sessionId: props.session.id,
+      });
+      joinSession().catch(() => {});
+    }
+  }, delay);
 };
 
 // webrtc signaling handlers
@@ -740,6 +787,8 @@ const handleRemoteJoined = (data: { userId: string; sessionId: string }) => {
 
 const handleRemoteLeft = (data: { userId: string; sessionId: string }) => {
   if (data.sessionId !== props.session.id) return;
+  stopDurationTimer();
+  stopQualityMonitor();
   peer?.destroy();
   peer = null;
   remoteStream.value = null;
@@ -895,6 +944,11 @@ const endCall = async () => {
     console.error("Error ending session:", e);
   }
 
+  if (reannounceTimer) {
+    clearTimeout(reannounceTimer);
+    reannounceTimer = null;
+  }
+
   stopDurationTimer();
   stopQualityMonitor();
   peer?.destroy();
@@ -1044,6 +1098,11 @@ onUnmounted(() => {
   off("teleconsult_joined", handleRemoteJoined);
   off("teleconsult_left", handleRemoteLeft);
   off("teleconsult_chat", handleChatMessage);
+
+  if (reannounceTimer) {
+    clearTimeout(reannounceTimer);
+    reannounceTimer = null;
+  }
 
   if (targetUserId.value) {
     send({
