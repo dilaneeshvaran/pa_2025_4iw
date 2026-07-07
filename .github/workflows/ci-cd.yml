@@ -64,18 +64,8 @@ jobs:
             context: infrastructure/nginx
             dockerfile: infrastructure/nginx/Dockerfile
             target: ""
-          # Built from Umami's own source (not the prebuilt ghcr.io image):
-          # BASE_PATH is a Next.js build-time value, so reverse-proxying Umami
-          # under /umami (rather than its own subdomain) requires baking it in
-          # ourselves. DATABASE_TYPE matches the "postgresql-v2.15.1" prebuilt
-          # tag this replaces. Bump the #v2.15.1 ref to upgrade Umami.
-          - service: umami
-            context: https://github.com/umami-software/umami.git#v2.15.1
-            dockerfile: Dockerfile
-            target: ""
     steps:
       - uses: actions/checkout@v4
-        if: matrix.service != 'umami'
 
       - name: Set up Docker Buildx
         uses: docker/setup-buildx-action@v3
@@ -107,9 +97,6 @@ jobs:
           labels: ${{ steps.meta.outputs.labels }}
           build-args: |
             NUXT_PUBLIC_API_BASE=/api
-            NUXT_PUBLIC_UMAMI_URL=/umami
-            DATABASE_TYPE=postgresql
-            BASE_PATH=/umami
           cache-from: type=gha,scope=${{ matrix.service }}
           cache-to: type=gha,mode=max,scope=${{ matrix.service }}
 
