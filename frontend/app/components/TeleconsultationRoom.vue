@@ -77,23 +77,47 @@
           />
           <div v-if="!remoteStream" class="text-center">
             <div
-              class="mx-auto mb-4 flex h-24 w-24 items-center justify-center rounded-full bg-gray-800"
+              v-if="joinError"
+              class="mx-auto max-w-sm rounded-lg bg-red-900/50 p-6"
             >
-              <User class="h-12 w-12 text-gray-500" />
+              <div
+                class="mx-auto mb-4 flex h-16 w-16 items-center justify-center rounded-full bg-red-800"
+              >
+                <PhoneOff class="h-8 w-8 text-red-300" />
+              </div>
+              <p class="text-lg font-medium text-red-300">
+                Impossible de rejoindre
+              </p>
+              <p class="mt-2 text-sm text-red-400">
+                {{ joinError }}
+              </p>
+              <button
+                class="mt-4 rounded-lg bg-orange-500 px-4 py-2 text-sm font-medium text-white transition-colors hover:bg-orange-600"
+                @click="retryJoin"
+              >
+                Réessayer
+              </button>
             </div>
-            <p class="text-lg font-medium text-gray-400">
-              {{
-                callStatus === "waiting"
-                  ? "En attente de l'autre participant..."
-                  : "Connexion en cours..."
-              }}
-            </p>
-            <p
-              v-if="callStatus === 'waiting'"
-              class="mt-2 text-sm text-gray-500"
-            >
-              L'autre participant rejoindra bientôt la consultation
-            </p>
+            <template v-else>
+              <div
+                class="mx-auto mb-4 flex h-24 w-24 items-center justify-center rounded-full bg-gray-800"
+              >
+                <User class="h-12 w-12 text-gray-500" />
+              </div>
+              <p class="text-lg font-medium text-gray-400">
+                {{
+                  callStatus === "waiting"
+                    ? "En attente de l'autre participant..."
+                    : "Connexion en cours..."
+                }}
+              </p>
+              <p
+                v-if="callStatus === 'waiting'"
+                class="mt-2 text-sm text-gray-500"
+              >
+                L'autre participant rejoindra bientôt la consultation
+              </p>
+            </template>
           </div>
         </div>
 
@@ -485,13 +509,42 @@ const initMedia = async () => {
   }
 };
 
-const joinSession = async () => {
+const joinError = ref<string | null>(null);
+
+const joinSession = async (): Promise<boolean> => {
   try {
     await useAuthenticatedFetch(`/teleconsultations/${props.session.id}/join`, {
       method: "POST",
     });
-  } catch (e) {
+    joinError.value = null;
+    return true;
+  } catch (e: unknown) {
+    const message =
+      e instanceof Error ? e.message : "Impossible de rejoindre la session";
     console.error("Failed to join session:", e);
+    joinError.value = message;
+    return false;
+  }
+};
+
+const retryJoin = async () => {
+  joinError.value = null;
+  const joined = await joinSession();
+  if (!joined) return;
+
+  on("webrtc_offer", handleOffer);
+  on("webrtc_answer", handleAnswer);
+  on("webrtc_ice_candidate", handleIceCandidate);
+  on("teleconsult_joined", handleRemoteJoined);
+  on("teleconsult_left", handleRemoteLeft);
+  on("teleconsult_chat", handleChatMessage);
+
+  if (targetUserId.value) {
+    send({
+      type: "teleconsult_joined",
+      targetUserId: targetUserId.value,
+      sessionId: props.session.id,
+    });
   }
 };
 
@@ -861,7 +914,9 @@ onMounted(async () => {
 
   messagingStore.connect();
 
-  //register handler
+  const joined = await joinSession();
+  if (!joined) return;
+
   on("webrtc_offer", handleOffer);
   on("webrtc_answer", handleAnswer);
   on("webrtc_ice_candidate", handleIceCandidate);
@@ -869,9 +924,6 @@ onMounted(async () => {
   on("teleconsult_left", handleRemoteLeft);
   on("teleconsult_chat", handleChatMessage);
 
-  await joinSession();
-
-  // notify others we joined
   if (targetUserId.value) {
     send({
       type: "teleconsult_joined",

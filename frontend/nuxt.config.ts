@@ -31,6 +31,13 @@ export default defineNuxtConfig({
   css: ["~/assets/css/main.css"],
 
   vite: {
+    // simple-peer > readable-stream uses process.nextTick internally.
+    // Vite shims `process` in dev mode but strips it in production builds,
+    // causing "process.nextTick is not a function" at runtime. Provide a
+    // browser-safe microtask-based polyfill for the production bundle.
+    define: {
+      'process.nextTick': '((cb, ...args) => Promise.resolve().then(() => cb(...args)))',
+    },
     server: {
       hmr:
         process.env.NUXT_HMR_HOST || hmrClientPort
