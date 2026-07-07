@@ -197,9 +197,11 @@ export class AppointmentsService {
 
   async getNextAppointment(
     patientId: string,
+    timezoneOffset?: string,
   ): Promise<PatientAppointment | null> {
     const now = new Date()
-    const utcToday = new Date()
+    const clientLocalTime = getClientLocalTime(now, timezoneOffset)
+    const utcToday = new Date(clientLocalTime)
     utcToday.setUTCHours(0, 0, 0, 0)
     const queryDate = new Date(utcToday)
     queryDate.setDate(queryDate.getDate() - 1)
@@ -242,7 +244,7 @@ export class AppointmentsService {
 
     // find first appointment that is in the future
     const nextAppointment = appointments.find((apt) =>
-      isAppointmentFuture(apt.appointmentDate, apt.startTime, now)
+      isAppointmentFuture(apt.appointmentDate, apt.startTime, clientLocalTime)
     )
 
     if (!nextAppointment) {
