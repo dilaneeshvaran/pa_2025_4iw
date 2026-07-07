@@ -6,6 +6,7 @@ import type {
   PatientsListResponse,
 } from './patients.types'
 import type { PatientsListQuery } from './patients.schema'
+import { isAppointmentFuture } from '../../utils/appointment-time'
 
 export class PatientsService {
   async getPatientsList(
@@ -102,7 +103,7 @@ export class PatientsService {
       const nextAppointment =
         allAppointments.find(
           (a) =>
-            new Date(a.appointmentDate) >= now &&
+            isAppointmentFuture(a.appointmentDate, a.startTime, now) &&
             (a.status === AppointmentStatus.PENDING ||
               a.status === AppointmentStatus.CONFIRMED),
         ) || null
@@ -276,7 +277,7 @@ export class PatientsService {
     const nextAppointment =
       allAppointments.find(
         (a) =>
-          new Date(a.appointmentDate) >= now &&
+          isAppointmentFuture(a.appointmentDate, a.startTime, now) &&
           (a.status === AppointmentStatus.PENDING ||
             a.status === AppointmentStatus.CONFIRMED),
       ) || null

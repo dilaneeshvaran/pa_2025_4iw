@@ -620,7 +620,7 @@ const canJoinNextTeleconsultation = computed(() => {
   const now = Date.now();
   const aptDate = new Date(apt.appointmentDate);
   const parts = apt.startTime.split(":").map(Number);
-  const appointmentLocal = new Date(
+  const appointmentMs = Date.UTC(
     aptDate.getUTCFullYear(),
     aptDate.getUTCMonth(),
     aptDate.getUTCDate(),
@@ -628,8 +628,8 @@ const canJoinNextTeleconsultation = computed(() => {
     parts[1] || 0,
     0,
     0
-  ).getTime();
-  const diffMinutes = (appointmentLocal - now) / (1000 * 60);
+  );
+  const diffMinutes = (appointmentMs - now) / (1000 * 60);
   return diffMinutes <= 15 && diffMinutes >= -60;
 });
 

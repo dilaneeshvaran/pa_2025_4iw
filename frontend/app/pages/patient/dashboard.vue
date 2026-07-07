@@ -468,11 +468,19 @@ const canModifyNext = computed(() => {
   const apt = nextAppointment.value;
   if (apt.status === "CANCELLED" || apt.status === "COMPLETED") return false;
   const cancellationNotice = apt.practitioner.cancellationNotice || 24;
-  const now = new Date();
+  const now = Date.now();
   const aptDate = new Date(apt.appointmentDate);
   const parts = apt.startTime.split(":").map(Number);
-  aptDate.setHours(parts[0] || 0, parts[1] || 0, 0, 0);
-  const diffHours = (aptDate.getTime() - now.getTime()) / (1000 * 60 * 60);
+  const aptMs = Date.UTC(
+    aptDate.getUTCFullYear(),
+    aptDate.getUTCMonth(),
+    aptDate.getUTCDate(),
+    parts[0] || 0,
+    parts[1] || 0,
+    0,
+    0
+  );
+  const diffHours = (aptMs - now) / (1000 * 60 * 60);
   return diffHours >= cancellationNotice;
 });
 
@@ -483,7 +491,7 @@ const canCancelNext = computed(() => {
   const now = Date.now();
   const aptDate = new Date(apt.appointmentDate);
   const parts = apt.startTime.split(":").map(Number);
-  const appointmentLocal = new Date(
+  const appointmentMs = Date.UTC(
     aptDate.getUTCFullYear(),
     aptDate.getUTCMonth(),
     aptDate.getUTCDate(),
@@ -491,8 +499,8 @@ const canCancelNext = computed(() => {
     parts[1] || 0,
     0,
     0
-  ).getTime();
-  return appointmentLocal > now;
+  );
+  return appointmentMs > now;
 });
 
 const canJoinNext = computed(() => {
@@ -503,7 +511,7 @@ const canJoinNext = computed(() => {
   const now = Date.now();
   const aptDate = new Date(apt.appointmentDate);
   const parts = apt.startTime.split(":").map(Number);
-  const appointmentLocal = new Date(
+  const appointmentMs = Date.UTC(
     aptDate.getUTCFullYear(),
     aptDate.getUTCMonth(),
     aptDate.getUTCDate(),
@@ -511,8 +519,8 @@ const canJoinNext = computed(() => {
     parts[1] || 0,
     0,
     0
-  ).getTime();
-  const diffMinutes = (appointmentLocal - now) / (1000 * 60);
+  );
+  const diffMinutes = (appointmentMs - now) / (1000 * 60);
   return diffMinutes <= 15 && diffMinutes >= -60;
 });
 

@@ -19,19 +19,7 @@ import {
   scheduleAppointmentReminders,
   cancelAppointmentReminders,
 } from '../../utils/reminder-scheduler'
-
-function combineDateAndTime(date: Date, timeStr: string): Date {
-  const [hours, minutes] = timeStr.split(':').map(Number)
-  const appointmentTime = new Date(date)
-  if (process.env.TZ === 'UTC') {
-    appointmentTime.setUTCHours(hours, minutes, 0, 0)
-  } else {
-    const [year, month, day] = date.toISOString().slice(0, 10).split('-').map(Number)
-    appointmentTime.setFullYear(year, month - 1, day)
-    appointmentTime.setHours(hours, minutes, 0, 0)
-  }
-  return appointmentTime
-}
+import { combineDateAndTime, isAppointmentFuture } from '../../utils/appointment-time'
 
 export class AppointmentsService {
   async getPatientAppointments(
@@ -130,15 +118,9 @@ export class AppointmentsService {
     let adjustedTotal = total
 
     if (status === 'upcoming') {
-      filteredAppointments = appointments.filter((apt) => {
-        const aptDate = new Date(apt.appointmentDate)
-        aptDate.setUTCHours(0, 0, 0, 0)
-        if (aptDate.getTime() === today.getTime()) {
-          const appointmentTime = combineDateAndTime(aptDate, apt.startTime)
-          return appointmentTime > now
-        }
-        return true
-      })
+      filteredAppointments = appointments.filter((apt) =>
+        isAppointmentFuture(apt.appointmentDate, apt.startTime, now)
+      )
       // adjust total count by the number of filtered-out items
       const removedCount = appointments.length - filteredAppointments.length
       adjustedTotal = Math.max(0, total - removedCount)
@@ -194,9 +176,6 @@ export class AppointmentsService {
     patientId: string,
   ): Promise<PatientAppointment | null> {
     const now = new Date()
-    const today = new Date()
-    today.setUTCHours(0, 0, 0, 0)
-
     const utcToday = new Date()
     utcToday.setUTCHours(0, 0, 0, 0)
     const queryDate = new Date(utcToday)
@@ -239,21 +218,9 @@ export class AppointmentsService {
     })
 
     // find first appointment that is in the future
-    const nextAppointment = appointments.find((apt) => {
-      const aptDate = new Date(apt.appointmentDate)
-      const localAptDate = new Date(aptDate)
-      localAptDate.setUTCHours(0, 0, 0, 0)
-
-      if (localAptDate < today) {
-        return false
-      }
- 
-      if (localAptDate.getTime() === today.getTime()) {
-        const appointmentTime = combineDateAndTime(aptDate, apt.startTime)
-        return appointmentTime > now
-      }
-      return true // future date
-    })
+    const nextAppointment = appointments.find((apt) =>
+      isAppointmentFuture(apt.appointmentDate, apt.startTime, now)
+    )
 
     if (!nextAppointment) {
       return null
