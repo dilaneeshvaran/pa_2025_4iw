@@ -518,9 +518,9 @@ const joinSession = async (): Promise<boolean> => {
     });
     joinError.value = null;
     return true;
-  } catch (e: unknown) {
+  } catch (e: any) {
     const message =
-      e instanceof Error ? e.message : "Impossible de rejoindre la session";
+      e?.data?.message || e?.message || "Impossible de rejoindre la session";
     console.error("Failed to join session:", e);
     joinError.value = message;
     return false;
