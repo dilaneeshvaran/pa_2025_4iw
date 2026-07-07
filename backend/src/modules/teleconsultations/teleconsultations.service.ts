@@ -10,6 +10,7 @@ import {
   sendAutoNoShowPractitionerNotification,
   sendPractitionerAbsentNotification,
 } from '../../utils/email'
+import { combineDateAndTime } from '../../utils/appointment-time'
 
 export class TeleconsultationsService {
   private formatSessionItem(session: any) {
@@ -757,15 +758,11 @@ export class TeleconsultationsService {
       const aptDate = new Date(
         session.appointment?.appointmentDate || session.scheduledAt,
       )
-      const endTimeParts = (session.appointment?.endTime || '')
-        .split(':')
-        .map(Number)
-      const endH = endTimeParts[0] || 0
-      const endM = endTimeParts[1] || 0
-      aptDate.setHours(endH, endM, 0, 0)
+      const endTime = session.appointment?.endTime || '00:00'
+      const aptEnd = combineDateAndTime(aptDate, endTime)
 
       // only process if appointment end time has passed
-      if (now <= aptDate) continue
+      if (now <= aptEnd) continue
 
       const patientJoined = !!session.patientJoinedAt
       const practitionerJoined = !!session.practitionerJoinedAt
@@ -945,15 +942,11 @@ export class TeleconsultationsService {
       const aptDate = new Date(
         session.appointment?.appointmentDate || session.scheduledAt,
       )
-      const endTimeParts = (session.appointment?.endTime || '')
-        .split(':')
-        .map(Number)
-      const endH = endTimeParts[0] || 0
-      const endM = endTimeParts[1] || 0
-      aptDate.setHours(endH, endM, 0, 0)
+      const endTime = session.appointment?.endTime || '00:00'
+      const aptEnd = combineDateAndTime(aptDate, endTime)
 
       // if past the appointment end time, finalize
-      if (now > aptDate) {
+      if (now > aptEnd) {
         // if patient never joined but practitioner did and ended session > patient noshow
         if (!session.patientJoinedAt && session.practitionerJoinedAt) {
           await prisma.teleconsultationSession.update({
@@ -1040,8 +1033,8 @@ export class TeleconsultationsService {
     page = 1,
   ) {
     const now = new Date()
-    const today = new Date()
-    today.setHours(0, 0, 0, 0)
+    const today = new Date(now)
+    today.setUTCHours(0, 0, 0, 0)
 
     const where: any = {
       patientId,
@@ -1098,14 +1091,12 @@ export class TeleconsultationsService {
       status === 'upcoming'
         ? allAppointments.filter((apt) => {
             const aptDate = new Date(apt.appointmentDate)
-            const todayStr = `${today.getFullYear()}-${String(today.getMonth() + 1).padStart(2, '0')}-${String(today.getDate()).padStart(2, '0')}`
-            const aptStr = `${aptDate.getFullYear()}-${String(aptDate.getMonth() + 1).padStart(2, '0')}-${String(aptDate.getDate()).padStart(2, '0')}`
+            const todayStr = `${today.getUTCFullYear()}-${String(today.getUTCMonth() + 1).padStart(2, '0')}-${String(today.getUTCDate()).padStart(2, '0')}`
+            const aptStr = `${aptDate.getUTCFullYear()}-${String(aptDate.getUTCMonth() + 1).padStart(2, '0')}-${String(aptDate.getUTCDate()).padStart(2, '0')}`
 
             if (aptStr === todayStr) {
               // for todays appointments, use endTime + 30 min grace period
-              const [eh, em] = apt.endTime.split(':').map(Number)
-              const appointmentEnd = new Date(aptDate)
-              appointmentEnd.setHours(eh, em, 0, 0)
+              const appointmentEnd = combineDateAndTime(aptDate, apt.endTime)
               // keep if still within the rejoin window (endTime + 30 min)
               return now.getTime() <= appointmentEnd.getTime() + 30 * 60 * 1000
             }

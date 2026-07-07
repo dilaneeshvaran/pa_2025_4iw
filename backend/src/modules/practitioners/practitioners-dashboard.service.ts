@@ -3,16 +3,17 @@ import { AppointmentStatus, AppointmentType } from '@prisma/client'
 import type { DashboardData } from './practitioners-dashboard.types'
 import { UpdateBillingConfigInput } from './practitioners-dashboard.schema'
 import { decrypt } from '../../utils/crypto'
+import { combineDateAndTime, isAppointmentFuture } from '../../utils/appointment-time'
 
 export class PractitionerDashboardService {
   //get all dashboard data in one go for efficiency
   async getDashboardData(practitionerId: string): Promise<DashboardData> {
     const now = new Date()
-    const today = new Date()
-    today.setHours(0, 0, 0, 0)
+    const today = new Date(now)
+    today.setUTCHours(0, 0, 0, 0)
 
     const tomorrow = new Date(today)
-    tomorrow.setDate(tomorrow.getDate() + 1)
+    tomorrow.setUTCDate(tomorrow.getUTCDate() + 1)
 
     // start of current month
     const monthStart = new Date(now.getFullYear(), now.getMonth(), 1)
@@ -33,7 +34,7 @@ export class PractitionerDashboardService {
       monthlyRevenue,
       noShowCount,
       newPatientsCount,
-      nextAppointment,
+      nextCandidates,
       todayAppointments,
       waitingTeleconsultations,
       recentMessages,
@@ -79,8 +80,8 @@ export class PractitionerDashboardService {
       // new patients this month (first appointment with this practitioner)
       this.getNewPatientsCount(practitionerId, monthStart, monthEnd),
 
-      // next upcoming appointment
-      prisma.appointment.findFirst({
+      // next upcoming appointment (fetch candidates then filter time-of-day)
+      prisma.appointment.findMany({
         where: {
           practitionerId,
           appointmentDate: { gte: today },
@@ -89,6 +90,7 @@ export class PractitionerDashboardService {
           },
         },
         orderBy: [{ appointmentDate: 'asc' }, { startTime: 'asc' }],
+        take: 5,
         include: {
           patient: {
             select: {
@@ -156,6 +158,9 @@ export class PractitionerDashboardService {
       totalRelevant > 0
         ? Math.round(((totalRelevant - noShowCount) / totalRelevant) * 100)
         : 100
+
+    const nextAppointment =
+      nextCandidates.find((apt) => isAppointmentFuture(apt.appointmentDate, apt.startTime, now)) || null
 
     return {
       consultationsThisMonth: monthlyAppointments,
@@ -330,11 +335,9 @@ export class PractitionerDashboardService {
 
     const toMarkIds: string[] = []
     for (const apt of overdueAppointments) {
-      const aptDate = new Date(apt.appointmentDate)
-      const [hours, minutes] = apt.startTime.split(':').map(Number)
-      aptDate.setHours(hours, minutes, 0, 0)
+      const aptTime = combineDateAndTime(apt.appointmentDate, apt.startTime)
       // if 3 hours have elapsed since the appointment start time
-      if (now.getTime() - aptDate.getTime() >= 3 * 60 * 60 * 1000) {
+      if (now.getTime() - aptTime.getTime() >= 3 * 60 * 60 * 1000) {
         toMarkIds.push(apt.id)
       }
     }
