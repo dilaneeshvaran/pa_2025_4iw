@@ -25,8 +25,13 @@ export class PractitionerDashboardController {
         })
       }
 
+      const timezoneOffset = request.headers['x-timezone-offset'] as
+        | string
+        | undefined
+
       const data = await practitionerDashboardService.getDashboardData(
         practitioner.id,
+        timezoneOffset,
       )
 
       return reply.status(200).send({

@@ -4,16 +4,24 @@ import type { DashboardData } from './practitioners-dashboard.types'
 import { UpdateBillingConfigInput } from './practitioners-dashboard.schema'
 import { decrypt } from '../../utils/crypto'
 import { combineDateAndTime, isAppointmentFuture } from '../../utils/appointment-time'
+import { getClientLocalTime } from '../../utils/timezone'
 
 export class PractitionerDashboardService {
   //get all dashboard data in one go for efficiency
-  async getDashboardData(practitionerId: string): Promise<DashboardData> {
+  async getDashboardData(
+    practitionerId: string,
+    timezoneOffset?: string,
+  ): Promise<DashboardData> {
     const now = new Date()
-    const today = new Date(now)
+    const clientLocalTime = getClientLocalTime(now, timezoneOffset)
+    const today = new Date(clientLocalTime)
     today.setUTCHours(0, 0, 0, 0)
 
     const tomorrow = new Date(today)
     tomorrow.setUTCDate(tomorrow.getUTCDate() + 1)
+
+    const queryDate = new Date(today)
+    queryDate.setDate(queryDate.getDate() - 1)
 
     // start of current month
     const monthStart = new Date(now.getFullYear(), now.getMonth(), 1)
@@ -84,13 +92,13 @@ export class PractitionerDashboardService {
       prisma.appointment.findMany({
         where: {
           practitionerId,
-          appointmentDate: { gte: today },
+          appointmentDate: { gte: queryDate },
           status: {
             in: [AppointmentStatus.PENDING, AppointmentStatus.CONFIRMED],
           },
         },
         orderBy: [{ appointmentDate: 'asc' }, { startTime: 'asc' }],
-        take: 5,
+        take: 20,
         include: {
           patient: {
             select: {
@@ -160,7 +168,9 @@ export class PractitionerDashboardService {
         : 100
 
     const nextAppointment =
-      nextCandidates.find((apt) => isAppointmentFuture(apt.appointmentDate, apt.startTime, now)) || null
+      nextCandidates.find((apt) =>
+        isAppointmentFuture(apt.appointmentDate, apt.startTime, clientLocalTime),
+      ) || null
 
     return {
       consultationsThisMonth: monthlyAppointments,
