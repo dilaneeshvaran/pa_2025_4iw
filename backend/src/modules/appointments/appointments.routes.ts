@@ -228,8 +228,11 @@ export async function appointmentsRoutes(fastify: FastifyInstance) {
           })
         }
 
+        const timezoneOffset = request.headers['x-timezone-offset'] as string | undefined
+
         const appointment = await appointmentsService.getNextAppointment(
           patient.id,
+          timezoneOffset,
         )
 
         return reply.status(200).send({
