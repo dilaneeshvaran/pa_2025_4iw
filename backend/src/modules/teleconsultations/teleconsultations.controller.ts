@@ -24,8 +24,11 @@ export class TeleconsultationsController {
       // auto cleanup expired sessions and mark no-shows
       await teleconsultationsService.cleanupExpiredSessions()
 
+      const timezoneOffset = request.headers['x-timezone-offset'] as string | undefined
+
       const sessions = await teleconsultationsService.getTodaySessions(
         practitioner.id,
+        timezoneOffset,
       )
       return reply.status(200).send({ success: true, data: sessions })
     } catch (error) {
@@ -49,8 +52,11 @@ export class TeleconsultationsController {
           .status(404)
           .send({ success: false, message: 'Praticien non trouvé' })
 
+      const timezoneOffset = request.headers['x-timezone-offset'] as string | undefined
+
       const patients = await teleconsultationsService.getWaitingPatients(
         practitioner.id,
+        timezoneOffset,
       )
       return reply.status(200).send({ success: true, data: patients })
     } catch (error) {

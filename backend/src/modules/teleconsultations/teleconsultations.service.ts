@@ -360,8 +360,10 @@ export class TeleconsultationsService {
   }
 
   //  todays teleconsultation for practitioner
-  async getTodaySessions(practitionerId: string) {
-    const today = new Date()
+  async getTodaySessions(practitionerId: string, timezoneOffset?: string) {
+    const now = new Date()
+    const clientLocalTime = getClientLocalTime(now, timezoneOffset)
+    const today = new Date(clientLocalTime)
     today.setUTCHours(0, 0, 0, 0)
     const tomorrow = new Date(today.getTime())
     tomorrow.setUTCDate(tomorrow.getUTCDate() + 1)
@@ -398,8 +400,10 @@ export class TeleconsultationsService {
   }
 
   //  waiting patients for  practitioner today
-  async getWaitingPatients(practitionerId: string) {
-    const today = new Date()
+  async getWaitingPatients(practitionerId: string, timezoneOffset?: string) {
+    const now = new Date()
+    const clientLocalTime = getClientLocalTime(now, timezoneOffset)
+    const today = new Date(clientLocalTime)
     today.setUTCHours(0, 0, 0, 0)
     const tomorrow = new Date(today.getTime())
     tomorrow.setUTCDate(tomorrow.getUTCDate() + 1)
