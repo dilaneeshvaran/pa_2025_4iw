@@ -50,7 +50,7 @@ export class TeleconsultationsService {
 
     const scheduledAt = new Date(appointment.appointmentDate)
     const [h, m] = appointment.startTime.split(':').map(Number)
-    scheduledAt.setHours(h, m, 0, 0)
+    scheduledAt.setUTCHours(h, m, 0, 0)
 
     return prisma.teleconsultationSession.create({
       data: {
@@ -147,7 +147,7 @@ export class TeleconsultationsService {
       throw new Error('Non autorisé')
     }
 
-    // check time : 15 min before to 30 min after scheduled end
+    // check time: allow joining up to 24 hours before/after to handle client-server timezone shifts and scheduling delays
     const now = new Date()
     const scheduledAt = new Date(session.scheduledAt)
     const appointmentRecord = await prisma.appointment.findUnique({
@@ -156,9 +156,9 @@ export class TeleconsultationsService {
     })
     const appointmentDuration = appointmentRecord?.duration || 30
 
-    const earlyJoinLimit = new Date(scheduledAt.getTime() - 15 * 60 * 1000)
+    const earlyJoinLimit = new Date(scheduledAt.getTime() - 24 * 60 * 60 * 1000)
     const lateJoinLimit = new Date(
-      scheduledAt.getTime() + (appointmentDuration + 30) * 60 * 1000,
+      scheduledAt.getTime() + (appointmentDuration + 24 * 60) * 60 * 1000,
     )
 
     if (now < earlyJoinLimit) {
