@@ -124,11 +124,7 @@ export class TeleconsultationsService {
     })
   }
 
-  async joinSession(
-    sessionId: string,
-    userId: string,
-    role: 'patient' | 'practitioner',
-  ) {
+  async joinSession(sessionId: string, userId: string) {
     const session = await prisma.teleconsultationSession.findUnique({
       where: { id: sessionId },
       include: {
@@ -139,13 +135,15 @@ export class TeleconsultationsService {
 
     if (!session) throw new Error('Session non trouvée')
 
-    // verify authorization
-    if (role === 'patient' && session.patient.user.id !== userId) {
+    // verify authorization by ownership (do not rely on caller's role label)
+    const isPatientOwner = session.patient?.user?.id === userId
+    const isPractitionerOwner = session.practitioner?.user?.id === userId
+    if (!isPatientOwner && !isPractitionerOwner) {
       throw new Error('Non autorisé')
     }
-    if (role === 'practitioner' && session.practitioner.user.id !== userId) {
-      throw new Error('Non autorisé')
-    }
+    const determinedRole: 'patient' | 'practitioner' = isPatientOwner
+      ? 'patient'
+      : 'practitioner'
 
     // check time: allow joining up to 24 hours before/after to handle client-server timezone shifts and scheduling delays
     const now = new Date()
@@ -170,7 +168,7 @@ export class TeleconsultationsService {
 
     const updateData: any = {}
 
-    if (role === 'patient') {
+    if (determinedRole === 'patient') {
       updateData.patientJoinedAt = now
     } else {
       updateData.practitionerJoinedAt = now
@@ -201,8 +199,8 @@ export class TeleconsultationsService {
 
     // check if both are now in the session
     const bothJoined =
-      (role === 'patient' && session.practitionerJoinedAt) ||
-      (role === 'practitioner' && session.patientJoinedAt) ||
+      (determinedRole === 'patient' && session.practitionerJoinedAt) ||
+      (determinedRole === 'practitioner' && session.patientJoinedAt) ||
       (updated.patientJoinedAt && updated.practitionerJoinedAt)
 
     if (bothJoined && updated.status !== 'IN_PROGRESS') {
@@ -230,7 +228,7 @@ export class TeleconsultationsService {
         action: 'READ' as AuditAction,
         resource: 'TeleconsultationSession',
         resourceId: sessionId,
-        metadata: { event: 'joined', role },
+        metadata: { event: 'joined', role: determinedRole },
       },
     })
 
@@ -240,9 +238,19 @@ export class TeleconsultationsService {
   async endSession(sessionId: string, userId: string) {
     const session = await prisma.teleconsultationSession.findUnique({
       where: { id: sessionId },
+      include: {
+        patient: { include: { user: { select: { id: true } } } },
+        practitioner: { include: { user: { select: { id: true } } } },
+      },
     })
 
     if (!session) throw new Error('Session non trouvée')
+
+    const isPatientOwner = session.patient?.user?.id === userId
+    const isPractitionerOwner = session.practitioner?.user?.id === userId
+    if (!isPatientOwner && !isPractitionerOwner) {
+      throw new Error('Non autorisé')
+    }
 
     const now = new Date()
     const duration = session.startedAt
