@@ -11,6 +11,7 @@ import {
   sendPractitionerAbsentNotification,
 } from '../../utils/email'
 import { combineDateAndTime } from '../../utils/appointment-time'
+import { getClientLocalTime } from '../../utils/timezone'
 
 export class TeleconsultationsService {
   private formatSessionItem(session: any) {
@@ -1031,9 +1032,11 @@ export class TeleconsultationsService {
     status: 'upcoming' | 'past' = 'upcoming',
     limit = 10,
     page = 1,
+    timezoneOffset?: string,
   ) {
     const now = new Date()
-    const today = new Date(now)
+    const clientLocalTime = getClientLocalTime(now, timezoneOffset)
+    const today = new Date(clientLocalTime)
     today.setUTCHours(0, 0, 0, 0)
 
     const where: any = {
@@ -1048,6 +1051,10 @@ export class TeleconsultationsService {
       where.OR = [
         { status: { in: ['COMPLETED', 'NO_SHOW', 'CANCELLED'] } },
         { appointmentDate: { lt: today } },
+        {
+          appointmentDate: today,
+          status: { in: ['PENDING', 'CONFIRMED'] },
+        },
       ]
     }
 
@@ -1098,11 +1105,23 @@ export class TeleconsultationsService {
               // for todays appointments, use endTime + 30 min grace period
               const appointmentEnd = combineDateAndTime(aptDate, apt.endTime)
               // keep if still within the rejoin window (endTime + 30 min)
-              return now.getTime() <= appointmentEnd.getTime() + 30 * 60 * 1000
+              return clientLocalTime.getTime() <= appointmentEnd.getTime() + 30 * 60 * 1000
             }
             return true // future dates always included
           })
-        : allAppointments
+        : allAppointments.filter((apt) => {
+            if (apt.status === 'PENDING' || apt.status === 'CONFIRMED') {
+              const aptDate = new Date(apt.appointmentDate)
+              const todayStr = `${today.getUTCFullYear()}-${String(today.getUTCMonth() + 1).padStart(2, '0')}-${String(today.getUTCDate()).padStart(2, '0')}`
+              const aptStr = `${aptDate.getUTCFullYear()}-${String(aptDate.getUTCMonth() + 1).padStart(2, '0')}-${String(aptDate.getUTCDate()).padStart(2, '0')}`
+              if (aptStr === todayStr) {
+                const appointmentEnd = combineDateAndTime(aptDate, apt.endTime)
+                return clientLocalTime.getTime() > appointmentEnd.getTime() + 30 * 60 * 1000
+              }
+              return false
+            }
+            return true
+          })
 
     const total = filtered.length
     const skip = (page - 1) * limit

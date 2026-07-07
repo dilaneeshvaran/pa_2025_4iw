@@ -339,6 +339,8 @@ export class TeleconsultationsController {
           .status(404)
           .send({ success: false, message: 'Patient non trouvé' })
 
+      const timezoneOffset = request.headers['x-timezone-offset'] as string | undefined
+
       //upcoming and past appointments
       const [upcomingResult, pastResult] = await Promise.all([
         teleconsultationsService.getPatientTeleconsultations(
@@ -346,12 +348,14 @@ export class TeleconsultationsController {
           'upcoming',
           10,
           1,
+          timezoneOffset,
         ),
         teleconsultationsService.getPatientTeleconsultations(
           patient.id,
           'past',
           10,
           1,
+          timezoneOffset,
         ),
       ])
 

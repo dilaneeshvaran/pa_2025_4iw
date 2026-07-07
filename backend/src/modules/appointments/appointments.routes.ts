@@ -178,12 +178,15 @@ export async function appointmentsRoutes(fastify: FastifyInstance) {
         const page = query.page ? parseInt(query.page, 10) : 1
         const sort = (query.sort as 'asc' | 'desc') || undefined
 
+        const timezoneOffset = request.headers['x-timezone-offset'] as string | undefined
+
         const result = await appointmentsService.getPatientAppointments(
           patient.id,
           status,
           limit,
           page,
           sort,
+          timezoneOffset,
         )
 
         return reply.status(200).send({
