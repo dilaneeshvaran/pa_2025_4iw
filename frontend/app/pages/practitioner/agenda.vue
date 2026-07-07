@@ -2797,22 +2797,34 @@ function isBeforeAppointmentTime(apt: AgendaAppointment): boolean {
     apt.status === "NO_SHOW"
   )
     return false;
-  const now = new Date();
+  const now = Date.now();
+  const aptDate = new Date(apt.appointmentDate);
   const timeParts = apt.startTime.split(":").map(Number);
-  const h = timeParts[0] ?? 0;
-  const m = timeParts[1] ?? 0;
-  const aptTime = new Date(apt.appointmentDate);
-  aptTime.setHours(h, m, 0, 0);
+  const aptTime = new Date(
+    aptDate.getUTCFullYear(),
+    aptDate.getUTCMonth(),
+    aptDate.getUTCDate(),
+    timeParts[0] ?? 0,
+    timeParts[1] ?? 0,
+    0,
+    0
+  ).getTime();
   return now < aptTime;
 }
 
 function isAtOrAfterAppointmentTime(apt: AgendaAppointment): boolean {
-  const now = new Date();
+  const now = Date.now();
+  const aptDate = new Date(apt.appointmentDate);
   const timeParts = apt.startTime.split(":").map(Number);
-  const h = timeParts[0] ?? 0;
-  const m = timeParts[1] ?? 0;
-  const aptTime = new Date(apt.appointmentDate);
-  aptTime.setHours(h, m, 0, 0);
+  const aptTime = new Date(
+    aptDate.getUTCFullYear(),
+    aptDate.getUTCMonth(),
+    aptDate.getUTCDate(),
+    timeParts[0] ?? 0,
+    timeParts[1] ?? 0,
+    0,
+    0
+  ).getTime();
   return now >= aptTime;
 }
 

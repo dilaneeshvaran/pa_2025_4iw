@@ -1067,10 +1067,19 @@ const fetchTodaySessions = async () => {
 
         // for COMPLETED sessions, check if the rejoin window is still open
         if (s.status === "COMPLETED") {
+          // Use the appointment's actual date + end time for the rejoin window
           const endParts = s.endTime.split(":").map(Number);
-          const endDate = new Date();
-          endDate.setHours(endParts[0] || 0, endParts[1] || 0, 0, 0);
-          const lateJoinMs = endDate.getTime() + 30 * 60 * 1000;
+          const endDate = new Date(s.scheduledAt);  // scheduledAt carries the proper day + was built from UTC time
+          const aptMs = new Date(
+            endDate.getUTCFullYear(),
+            endDate.getUTCMonth(),
+            endDate.getUTCDate(),
+            endParts[0] || 0,
+            endParts[1] || 0,
+            0,
+            0
+          ).getTime();
+          const lateJoinMs = aptMs + 30 * 60 * 1000;
           return now <= lateJoinMs;
         }
 

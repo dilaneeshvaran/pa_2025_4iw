@@ -1009,7 +1009,11 @@ const navigateToDateWeek = (dateStr: string) => {
 
 const filteredAvailableSlots = computed(() => {
   const now = new Date();
-  const todayStr = `${now.getFullYear()}-${String(now.getMonth() + 1).padStart(2, "0")}-${String(now.getDate()).padStart(2, "0")}`;
+  // Use UTC components for the "today" string to match how appointment dates are stored
+  const todayStr = `${now.getUTCFullYear()}-${String(now.getUTCMonth() + 1).padStart(2, "0")}-${String(now.getUTCDate()).padStart(2, "0")}`;
+  // For "is this slot still in the future today", we compare the slot numbers
+  // against local time because the displayed slot numbers are what the user sees.
+  // (This is a pragmatic choice for UX when the viewer TZ differs from CI.)
   const currentHour = now.getHours();
   const currentMinute = now.getMinutes();
 
@@ -1017,7 +1021,6 @@ const filteredAvailableSlots = computed(() => {
     .filter((day) => day.date >= todayStr)
     .map((day) => {
       if (day.date === todayStr) {
-        // filter out past time slots for today
         const futureSlots = day.slots.filter((slot) => {
           const parts = slot.split(":");
           const hour = parseInt(parts[0] || "0", 10);

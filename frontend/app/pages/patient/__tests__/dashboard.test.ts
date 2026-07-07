@@ -34,7 +34,7 @@ function canModifyNext(apt: Appointment | null): boolean {
   const now = Date.now()
   const aptDate = new Date(apt.appointmentDate)
   const parts = apt.startTime.split(':').map(Number)
-  const aptMs = Date.UTC(
+  const aptMs = new Date(
     aptDate.getUTCFullYear(),
     aptDate.getUTCMonth(),
     aptDate.getUTCDate(),
@@ -42,7 +42,7 @@ function canModifyNext(apt: Appointment | null): boolean {
     parts[1] ?? 0,
     0,
     0
-  )
+  ).getTime()
   const diffHours = (aptMs - now) / (1000 * 60 * 60)
   return diffHours >= cancellationNotice
 }
@@ -53,7 +53,7 @@ function canCancelNext(apt: Appointment | null): boolean {
   const now = Date.now()
   const aptDate = new Date(apt.appointmentDate)
   const parts = apt.startTime.split(':').map(Number)
-  const aptMs = Date.UTC(
+  const aptMs = new Date(
     aptDate.getUTCFullYear(),
     aptDate.getUTCMonth(),
     aptDate.getUTCDate(),
@@ -61,7 +61,7 @@ function canCancelNext(apt: Appointment | null): boolean {
     parts[1] ?? 0,
     0,
     0
-  )
+  ).getTime()
   return aptMs > now
 }
 
@@ -72,7 +72,7 @@ function canJoinNext(apt: Appointment | null): boolean {
   const now = Date.now()
   const aptDate = new Date(apt.appointmentDate)
   const parts = apt.startTime.split(':').map(Number)
-  const aptMs = Date.UTC(
+  const aptMs = new Date(
     aptDate.getUTCFullYear(),
     aptDate.getUTCMonth(),
     aptDate.getUTCDate(),
@@ -80,7 +80,7 @@ function canJoinNext(apt: Appointment | null): boolean {
     parts[1] ?? 0,
     0,
     0
-  )
+  ).getTime()
   const diffMinutes = (aptMs - now) / (1000 * 60)
   return diffMinutes <= 15 && diffMinutes >= -60
 }
@@ -120,43 +120,43 @@ const buildAppointment = (overrides: Partial<Appointment> = {}): Appointment => 
   ...overrides,
 })
 
-// crée une date iso relative à maintenant dans le fuseau horaire local
+// crée une date string (YYYY-MM-DD) et time pour que le constructeur local new Date(y,m,d,h) produise
+// un instant dont le diff avec le fake now correspond aux "heures" voulues (pour tester les labels numériques)
 function futureDate(hours: number): string {
-  // Return ISO midnight UTC string so getUTC* in can* logic extracts the correct calendar day
-  const base = new Date('2026-07-03T12:00:00.000Z')
-  base.setUTCHours(base.getUTCHours() + hours, 0, 0, 0)
-  const yyyy = base.getUTCFullYear()
-  const mm = String(base.getUTCMonth() + 1).padStart(2, '0')
-  const dd = String(base.getUTCDate()).padStart(2, '0')
+  const base = new Date('2026-07-03T12:00:00')
+  base.setHours(base.getHours() + hours, 0, 0, 0)
+  const yyyy = base.getFullYear()
+  const mm = String(base.getMonth() + 1).padStart(2, '0')
+  const dd = String(base.getDate()).padStart(2, '0')
   return `${yyyy}-${mm}-${dd}`
 }
 
 function futureTime(hours: number): string {
-  const base = new Date('2026-07-03T12:00:00.000Z')
-  base.setUTCHours(base.getUTCHours() + hours, 0, 0, 0)
-  return `${String(base.getUTCHours()).padStart(2, '0')}:00`
+  const base = new Date('2026-07-03T12:00:00')
+  base.setHours(base.getHours() + hours, 0, 0, 0)
+  return `${String(base.getHours()).padStart(2, '0')}:00`
 }
 
 function pastDate(hours: number): string {
-  const base = new Date('2026-07-03T12:00:00.000Z')
-  base.setUTCHours(base.getUTCHours() - hours, 0, 0, 0)
-  const yyyy = base.getUTCFullYear()
-  const mm = String(base.getUTCMonth() + 1).padStart(2, '0')
-  const dd = String(base.getUTCDate()).padStart(2, '0')
+  const base = new Date('2026-07-03T12:00:00')
+  base.setHours(base.getHours() - hours, 0, 0, 0)
+  const yyyy = base.getFullYear()
+  const mm = String(base.getMonth() + 1).padStart(2, '0')
+  const dd = String(base.getDate()).padStart(2, '0')
   return `${yyyy}-${mm}-${dd}`
 }
 
 function pastTime(hours: number): string {
-  const base = new Date('2026-07-03T12:00:00.000Z')
-  base.setUTCHours(base.getUTCHours() - hours, 0, 0, 0)
-  return `${String(base.getUTCHours()).padStart(2, '0')}:00`
+  const base = new Date('2026-07-03T12:00:00')
+  base.setHours(base.getHours() - hours, 0, 0, 0)
+  return `${String(base.getHours()).padStart(2, '0')}:00`
 }
 
 // ── Tests ────────────────────────────────────────────────────────────────────
 
 beforeEach(() => {
   vi.useFakeTimers()
-  vi.setSystemTime(new Date('2026-07-03T12:00:00.000Z'))
+  vi.setSystemTime(new Date('2026-07-03T12:00:00'))
 })
 
 afterEach(() => {
@@ -327,9 +327,9 @@ describe('patient dashboard - canJoinNext', () => {
       status: 'CONFIRMED',
       appointmentDate: futureDate(0),
       startTime: (() => {
-        const d = new Date('2026-07-03T12:00:00.000Z')
-        d.setUTCMinutes(d.getUTCMinutes() + 10)
-        return `${String(d.getUTCHours()).padStart(2, '0')}:${String(d.getUTCMinutes()).padStart(2, '0')}`
+        const d = new Date('2026-07-03T12:00:00')
+        d.setMinutes(d.getMinutes() + 10)
+        return `${String(d.getHours()).padStart(2, '0')}:${String(d.getMinutes()).padStart(2, '0')}`
       })(),
     })
     expect(canJoinNext(apt)).toBe(true)
@@ -341,9 +341,9 @@ describe('patient dashboard - canJoinNext', () => {
       status: 'CONFIRMED',
       appointmentDate: pastDate(0),
       startTime: (() => {
-        const d = new Date('2026-07-03T12:00:00.000Z')
-        d.setUTCMinutes(d.getUTCMinutes() - 30)
-        return `${String(d.getUTCHours()).padStart(2, '0')}:${String(d.getUTCMinutes()).padStart(2, '0')}`
+        const d = new Date('2026-07-03T12:00:00')
+        d.setMinutes(d.getMinutes() - 30)
+        return `${String(d.getHours()).padStart(2, '0')}:${String(d.getMinutes()).padStart(2, '0')}`
       })(),
     })
     expect(canJoinNext(apt)).toBe(true)

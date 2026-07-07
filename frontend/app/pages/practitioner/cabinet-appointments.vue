@@ -1068,22 +1068,34 @@ const isBeforeAppointmentTime = (apt: CabinetAppointment) => {
     apt.status === "NO_SHOW"
   )
     return false;
-  const now = new Date();
+  const now = Date.now();
+  const aptDate = new Date(apt.appointmentDate);
   const parts = apt.startTime.split(":").map(Number);
-  const h = parts[0] ?? 0;
-  const m = parts[1] ?? 0;
-  const aptTime = new Date(apt.appointmentDate);
-  aptTime.setHours(h, m, 0, 0);
+  const aptTime = new Date(
+    aptDate.getUTCFullYear(),
+    aptDate.getUTCMonth(),
+    aptDate.getUTCDate(),
+    parts[0] ?? 0,
+    parts[1] ?? 0,
+    0,
+    0
+  ).getTime();
   return now < aptTime;
 };
 
 const isAtOrAfterAppointmentTime = (apt: CabinetAppointment) => {
-  const now = new Date();
+  const now = Date.now();
+  const aptDate = new Date(apt.appointmentDate);
   const parts = apt.startTime.split(":").map(Number);
-  const h = parts[0] ?? 0;
-  const m = parts[1] ?? 0;
-  const aptTime = new Date(apt.appointmentDate);
-  aptTime.setHours(h, m, 0, 0);
+  const aptTime = new Date(
+    aptDate.getUTCFullYear(),
+    aptDate.getUTCMonth(),
+    aptDate.getUTCDate(),
+    parts[0] ?? 0,
+    parts[1] ?? 0,
+    0,
+    0
+  ).getTime();
   return now >= aptTime;
 };
 
