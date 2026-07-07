@@ -28,10 +28,12 @@ export class AppointmentsService {
     limit = 10,
     page = 1,
     sort?: 'asc' | 'desc',
+    timezoneOffset?: string,
   ): Promise<PatientAppointmentsResult> {
-    const today = new Date()
-    today.setUTCHours(0, 0, 0, 0)
     const now = new Date()
+    const clientLocalTime = getClientLocalTime(now, timezoneOffset)
+    const today = new Date(clientLocalTime)
+    today.setUTCHours(0, 0, 0, 0)
     const skip = (page - 1) * limit
 
     const where: any = {
@@ -50,6 +52,12 @@ export class AppointmentsService {
         {
           status: {
             in: ['COMPLETED', 'NO_SHOW'] as AppointmentStatus[],
+          },
+        },
+        {
+          appointmentDate: today,
+          status: {
+            in: ['PENDING', 'CONFIRMED'] as AppointmentStatus[],
           },
         },
       ]
@@ -119,9 +127,24 @@ export class AppointmentsService {
 
     if (status === 'upcoming') {
       filteredAppointments = appointments.filter((apt) =>
-        isAppointmentFuture(apt.appointmentDate, apt.startTime, now)
+        isAppointmentFuture(apt.appointmentDate, apt.startTime, clientLocalTime)
       )
       // adjust total count by the number of filtered-out items
+      const removedCount = appointments.length - filteredAppointments.length
+      adjustedTotal = Math.max(0, total - removedCount)
+    } else if (status === 'past') {
+      filteredAppointments = appointments.filter((apt) => {
+        if (apt.status === 'PENDING' || apt.status === 'CONFIRMED') {
+          const aptDate = new Date(apt.appointmentDate)
+          const todayStr = `${today.getUTCFullYear()}-${String(today.getUTCMonth() + 1).padStart(2, '0')}-${String(today.getUTCDate()).padStart(2, '0')}`
+          const aptStr = `${aptDate.getUTCFullYear()}-${String(aptDate.getUTCMonth() + 1).padStart(2, '0')}-${String(aptDate.getUTCDate()).padStart(2, '0')}`
+          if (aptStr === todayStr) {
+            return !isAppointmentFuture(apt.appointmentDate, apt.startTime, clientLocalTime)
+          }
+          return false
+        }
+        return true
+      })
       const removedCount = appointments.length - filteredAppointments.length
       adjustedTotal = Math.max(0, total - removedCount)
     }
