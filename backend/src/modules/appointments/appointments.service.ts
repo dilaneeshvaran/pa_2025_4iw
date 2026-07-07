@@ -830,7 +830,7 @@ export class AppointmentsService {
           patientFirstName: appointment.patient.firstName,
           patientLastName: appointment.patient.lastName,
           appointmentDate:
-            appointment.appointmentDate.toLocaleDateString('fr-FR'),
+            appointment.appointmentDate.toLocaleDateString('fr-FR', { timeZone: 'UTC' }),
           appointmentTime: appointment.startTime,
           reason: reason,
         })
@@ -966,7 +966,7 @@ export class AppointmentsService {
       }
     }
     // send email notification to practitien when patient modifies appointment
-    const oldDate = appointment.appointmentDate.toLocaleDateString('fr-FR')
+    const oldDate = appointment.appointmentDate.toLocaleDateString('fr-FR', { timeZone: 'UTC' })
     const oldTime = appointment.startTime
 
     if (data.appointmentDate || data.startTime) {
@@ -983,7 +983,7 @@ export class AppointmentsService {
             patientLastName: appointment.patient.lastName,
             oldDate,
             oldTime,
-            newDate: newDate.toLocaleDateString('fr-FR'),
+            newDate: newDate.toLocaleDateString('fr-FR', { timeZone: 'UTC' }),
             newTime: newStartTime,
           })
         } catch (emailError) {
@@ -1145,11 +1145,11 @@ export class AppointmentsService {
     })
 
     const formattedCancelledDate = cancelledDate.toLocaleDateString('fr-FR', {
+      timeZone: 'UTC',
       weekday: 'long',
       day: 'numeric',
       month: 'long',
       year: 'numeric',
-      timeZone: 'UTC',
     })
 
     for (const apt of candidates) {

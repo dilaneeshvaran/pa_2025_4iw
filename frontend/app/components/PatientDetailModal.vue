@@ -390,6 +390,7 @@ const formatShortDate = (dateStr: string): string => {
     day: "numeric",
     month: "long",
     year: "numeric",
+    timeZone: "UTC",
   });
 };
 
@@ -398,6 +399,7 @@ const formatMonthYear = (dateStr: string): string => {
   return date.toLocaleDateString("fr-FR", {
     month: "long",
     year: "numeric",
+    timeZone: "UTC",
   });
 };
 </script>

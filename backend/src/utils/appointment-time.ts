@@ -39,3 +39,15 @@ export function filterFutureAppointments<T extends { appointmentDate: Date | str
 ): T[] {
   return appointments.filter((apt) => isAppointmentFuture(apt.appointmentDate, apt.startTime, now))
 }
+
+export function getUTCStartOfDay(d: Date | string): Date {
+  const res = new Date(d)
+  res.setUTCHours(0, 0, 0, 0)
+  return res
+}
+
+export function getUTCEndOfDay(d: Date | string): Date {
+  const res = new Date(d)
+  res.setUTCHours(23, 59, 59, 999)
+  return res
+}
