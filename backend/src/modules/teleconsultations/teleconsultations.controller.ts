@@ -165,19 +165,16 @@ export class TeleconsultationsController {
       const user = request.user as { id: string; role: string }
       const { id } = request.params as { id: string }
 
-      const role = user.role === 'PRACTITIONER' ? 'practitioner' : 'patient'
-
-      const session = await teleconsultationsService.joinSession(
-        id,
-        user.id,
-        role,
-      )
+      const session = await teleconsultationsService.joinSession(id, user.id)
 
       return reply.status(200).send({ success: true, data: session })
     } catch (error) {
       request.log.error(error)
       const message = sanitizeErrorMessage(error, 'Erreur serveur')
-      return reply.status(400).send({ success: false, message })
+      let statusCode = 400
+      if (message === 'Non autorisé') statusCode = 403
+      if (message === 'Session non trouvée') statusCode = 404
+      return reply.status(statusCode).send({ success: false, message })
     }
   }
 
@@ -192,7 +189,10 @@ export class TeleconsultationsController {
     } catch (error) {
       request.log.error(error)
       const message = sanitizeErrorMessage(error, 'Erreur serveur')
-      return reply.status(400).send({ success: false, message })
+      let statusCode = 400
+      if (message === 'Non autorisé') statusCode = 403
+      if (message === 'Session non trouvée') statusCode = 404
+      return reply.status(statusCode).send({ success: false, message })
     }
   }
 
@@ -206,7 +206,10 @@ export class TeleconsultationsController {
     } catch (error) {
       request.log.error(error)
       const message = sanitizeErrorMessage(error, 'Erreur serveur')
-      return reply.status(400).send({ success: false, message })
+      let statusCode = 400
+      if (message === 'Non autorisé') statusCode = 403
+      if (message === 'Session non trouvée') statusCode = 404
+      return reply.status(statusCode).send({ success: false, message })
     }
   }
 
@@ -232,7 +235,32 @@ export class TeleconsultationsController {
 
   async getSessionByAppointment(request: FastifyRequest, reply: FastifyReply) {
     try {
+      const user = request.user as { id: string }
       const { appointmentId } = request.params as { appointmentId: string }
+
+      // fetch appointment to verify ownership before creating session
+      const appointment = await prisma.appointment.findUnique({
+        where: { id: appointmentId },
+        select: {
+          patient: { select: { userId: true } },
+          practitioner: { select: { userId: true } },
+        },
+      })
+
+      if (!appointment) {
+        return reply
+          .status(404)
+          .send({ success: false, message: 'Rendez-vous non trouvé' })
+      }
+
+      const isAppointmentOwner =
+        appointment.patient?.userId === user.id ||
+        appointment.practitioner?.userId === user.id
+      if (!isAppointmentOwner) {
+        return reply
+          .status(403)
+          .send({ success: false, message: 'Non autorisé' })
+      }
 
       let session =
         await teleconsultationsService.getSessionByAppointment(appointmentId)
@@ -250,6 +278,12 @@ export class TeleconsultationsController {
             .status(404)
             .send({ success: false, message: 'Session non trouvée' })
         }
+      }
+
+      if (!session) {
+        return reply
+          .status(404)
+          .send({ success: false, message: 'Session non trouvée' })
       }
 
       return reply.status(200).send({ success: true, data: session })
