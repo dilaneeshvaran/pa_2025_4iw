@@ -4,6 +4,7 @@ export default defineEventHandler((event) => {
   const config = useRuntimeConfig()
   const umamiUrl = config.public?.umamiUrl || ''
   const apiBase = config.public?.apiBase || ''
+  const livekitUrl = config.public?.livekitUrl || ''
 
   // Derive the origin (scheme://host:port) from a full URL; '' if invalid/empty.
   const toOrigin = (value: string): string => {
@@ -19,6 +20,9 @@ export default defineEventHandler((event) => {
   // The browser must be allowed to reach the backend API. In dev this resolves
   // to http://localhost:3001; in prod to whatever NUXT_PUBLIC_API_BASE points at.
   const apiOrigin = toOrigin(apiBase as string)
+  // LiveKit makes both an HTTPS validation fetch and a WSS connection to its host.
+  // wss: already covers the WebSocket, but the HTTPS fetch needs the explicit origin.
+  const livekitOrigin = toOrigin((livekitUrl as string).replace(/^wss?:\/\//, 'https://'))
 
   const csp = [
     "default-src 'self'",
@@ -30,8 +34,12 @@ export default defineEventHandler((event) => {
     "font-src 'self' https://fonts.gstatic.com data:",
     // img-src: self, data:, blob:, openstreetmap tile subdomains
     "img-src 'self' data: blob: https://*.openstreetmap.org https://tile.openstreetmap.org",
-    // connect-src: self, websocket protocols, backend API origin, stripe API, google accounts, and optional umami
-    "connect-src 'self' ws: wss: https://api.stripe.com https://accounts.google.com" + (apiOrigin ? ` ${apiOrigin}` : '') + (umamiOrigin ? ` ${umamiOrigin}` : ''),
+    // connect-src: self, websocket protocols, backend API origin, stripe API, google accounts,
+    //              LiveKit signaling host (HTTPS validation + WSS), and optional umami
+    "connect-src 'self' ws: wss: https://api.stripe.com https://accounts.google.com"
+      + (apiOrigin ? ` ${apiOrigin}` : '')
+      + (livekitOrigin ? ` ${livekitOrigin}` : '')
+      + (umamiOrigin ? ` ${umamiOrigin}` : ''),
     // frame-src: self, blob urls for in-app PDF previews, stripe checkout, google accounts
     "frame-src 'self' blob: https://js.stripe.com https://accounts.google.com",
     // frame-ancestors: self (protect against clickjacking)

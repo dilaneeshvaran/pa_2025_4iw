@@ -144,6 +144,29 @@ services:
           cpus: "0.10"
           memory: 128M
 
+  livekit:
+    image: livekit/livekit-server:v1.8.3
+    command:
+      - --config
+      - /etc/livekit/livekit.yaml
+    configs:
+      - source: livekit_config
+        target: /etc/livekit/livekit.yaml
+    ports:
+      - "7880:7880"
+      - "7881:7881"
+      - "50000-50100:50000-50100/udp"
+    networks:
+      - pgnetwork
+    deploy:
+      replicas: 1
+      placement:
+        constraints:
+          - node.role == manager
+      restart_policy:
+        condition: on-failure
+        delay: 5s
+
   frontend:
     image: ${FRONTEND_IMAGE}
     environment:
@@ -151,9 +174,11 @@ services:
       NUXT_PUBLIC_UMAMI_URL: ${PUBLIC_UMAMI_URL:-}
       NUXT_PUBLIC_UMAMI_WEBSITE_ID: ${UMAMI_WEBSITE_ID:-}
       NUXT_PUBLIC_UMAMI_ENABLED: ${UMAMI_ENABLED:-true}
+      NUXT_PUBLIC_LIVEKIT_URL: ${LIVEKIT_WS_URL:-}
     depends_on:
       - backend
       - umami
+      - livekit
     networks:
       - pgnetwork
     deploy:
@@ -219,6 +244,10 @@ networks:
   pgnetwork:
     driver: overlay
     attachable: true
+
+configs:
+  livekit_config:
+    external: true
 
 volumes:
   postgres-data:
