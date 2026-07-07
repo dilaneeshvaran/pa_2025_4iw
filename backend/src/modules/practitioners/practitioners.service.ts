@@ -833,7 +833,7 @@ export class PractitionersService {
     return slots
   }
 
-  // helper get day of week
+  // helper get day of week (UTC to match stored dates)
   private getDayOfWeek(date: Date): DayOfWeek {
     const days: DayOfWeek[] = [
       'SUNDAY',
@@ -844,14 +844,15 @@ export class PractitionersService {
       'FRIDAY',
       'SATURDAY',
     ]
-    return days[date.getDay()]
+    return days[date.getUTCDay()]
   }
 
-  // format date as local YYYY-MM-DD (timezone safe, no UTC shit)
+  // Format the logical calendar date (YYYY-MM-DD) for a UTC-midnight appointmentDate.
+  // Must use UTC getters; getFullYear etc would shift in non-UTC server TZ.
   private formatDateLocal(date: Date): string {
-    const year = date.getFullYear()
-    const month = String(date.getMonth() + 1).padStart(2, '0')
-    const day = String(date.getDate()).padStart(2, '0')
+    const year = date.getUTCFullYear()
+    const month = String(date.getUTCMonth() + 1).padStart(2, '0')
+    const day = String(date.getUTCDate()).padStart(2, '0')
     return `${year}-${month}-${day}`
   }
 

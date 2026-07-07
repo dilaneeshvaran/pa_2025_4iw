@@ -11,6 +11,7 @@ import {
   sendNoShowEmail,
   sendAppointmentBookedByPractitionerEmail,
 } from '../../utils/email'
+import { getUTCStartOfDay, getUTCEndOfDay } from '../../utils/appointment-time'
 import type {
   AvailabilitySlot,
   AbsenceInfo,
@@ -182,9 +183,9 @@ export class AvailabilitiesService {
     data: CreateAbsenceInput,
   ): Promise<{ absence: AbsenceInfo; cancelledAppointmentsCount: number }> {
     const startDate = new Date(data.startDate)
-    startDate.setHours(0, 0, 0, 0)
+    startDate.setUTCHours(0, 0, 0, 0)
     const endDate = new Date(data.endDate)
-    endDate.setHours(23, 59, 59, 999)
+    endDate.setUTCHours(23, 59, 59, 999)
 
     if (endDate < startDate) {
       throw new Error('La date de fin doit être après la date de début')
@@ -397,7 +398,7 @@ export class AvailabilitiesService {
       where.date = { gte: startDate, lte: endDate }
     } else {
       const today = new Date()
-      today.setHours(0, 0, 0, 0)
+      today.setUTCHours(0, 0, 0, 0)
       where.date = { gte: today }
     }
 
@@ -423,7 +424,7 @@ export class AvailabilitiesService {
     cancelledAppointmentsCount: number
   }> {
     const date = new Date(data.date)
-    date.setHours(0, 0, 0, 0)
+    date.setUTCHours(0, 0, 0, 0)
 
     const targetCabinetId = data.cabinetId ?? null
 
@@ -636,10 +637,8 @@ export class AvailabilitiesService {
     endDate: string,
     cabinetId?: string | null,
   ): Promise<AgendaAppointment[]> {
-    const start = new Date(startDate)
-    start.setHours(0, 0, 0, 0)
-    const end = new Date(endDate)
-    end.setHours(23, 59, 59, 999)
+    const start = getUTCStartOfDay(startDate)
+    const end = getUTCEndOfDay(endDate)
 
     const where: any = {
       practitionerId,
@@ -687,10 +686,9 @@ export class AvailabilitiesService {
     date: string,
     cabinetId?: string | null,
   ): Promise<DaySummary> {
-    const d = new Date(date)
-    d.setHours(0, 0, 0, 0)
+    const d = getUTCStartOfDay(date)
     const next = new Date(d)
-    next.setDate(next.getDate() + 1)
+    next.setUTCDate(next.getUTCDate() + 1)
 
     const where: any = {
       practitionerId,
@@ -745,11 +743,11 @@ export class AvailabilitiesService {
     if (!patient) throw new Error('Patient non trouvé')
 
     const appointmentDate = new Date(data.appointmentDate)
-    appointmentDate.setHours(0, 0, 0, 0)
+    appointmentDate.setUTCHours(0, 0, 0, 0)
 
     // prevent booking in the past
     const today = new Date()
-    today.setHours(0, 0, 0, 0)
+    today.setUTCHours(0, 0, 0, 0)
     if (appointmentDate < today) {
       throw new Error('La date du rendez-vous ne peut pas être dans le passé')
     }
@@ -1343,20 +1341,20 @@ export class AvailabilitiesService {
   ) {
     const now = new Date()
     const todayStart = new Date(now)
-    todayStart.setHours(0, 0, 0, 0)
+    todayStart.setUTCHours(0, 0, 0, 0)
     const todayEnd = new Date(now)
-    todayEnd.setHours(23, 59, 59, 999)
+    todayEnd.setUTCHours(23, 59, 59, 999)
 
     const weekStart = new Date(now)
     const dayOfWeek = now.getDay() === 0 ? 7 : now.getDay() // mon=1
     weekStart.setDate(now.getDate() - dayOfWeek + 1) // monday
-    weekStart.setHours(0, 0, 0, 0)
+    weekStart.setUTCHours(0, 0, 0, 0)
 
     // determine past date range based on period
     let pastStart: Date
     if (period === 'month') {
       pastStart = new Date(now.getFullYear(), now.getMonth(), 1)
-      pastStart.setHours(0, 0, 0, 0)
+      pastStart.setUTCHours(0, 0, 0, 0)
     } else {
       // week: monday of current week
       pastStart = new Date(weekStart)
@@ -1498,7 +1496,7 @@ export class AvailabilitiesService {
   ) {
     const now = new Date()
     const todayStart = new Date(now)
-    todayStart.setHours(0, 0, 0, 0)
+    todayStart.setUTCHours(0, 0, 0, 0)
 
     const where: any = {
       practitionerId,
@@ -1515,12 +1513,12 @@ export class AvailabilitiesService {
       where.appointmentDate = where.appointmentDate ?? {}
       if (dateFrom) {
         const from = new Date(dateFrom)
-        from.setHours(0, 0, 0, 0)
+        from.setUTCHours(0, 0, 0, 0)
         where.appointmentDate.gte = from
       }
       if (dateTo) {
         const to = new Date(dateTo)
-        to.setHours(23, 59, 59, 999)
+        to.setUTCHours(23, 59, 59, 999)
         where.appointmentDate.lte = to
         delete where.appointmentDate.lt
       }

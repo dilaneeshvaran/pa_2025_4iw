@@ -528,13 +528,27 @@ const paginatedUpcoming = computed(() => {
   const sorted = [...upcomingTeleconsultations.value].sort((a, b) => {
     const dateA = new Date(a.appointmentDate);
     const partsA = a.startTime.split(":").map(Number);
-    dateA.setHours(partsA[0] || 0, partsA[1] || 0, 0, 0);
+    const msA = Date.UTC(
+      dateA.getUTCFullYear(),
+      dateA.getUTCMonth(),
+      dateA.getUTCDate(),
+      partsA[0] || 0,
+      partsA[1] || 0,
+      0,
+      0
+    );
     const dateB = new Date(b.appointmentDate);
     const partsB = b.startTime.split(":").map(Number);
-    dateB.setHours(partsB[0] || 0, partsB[1] || 0, 0, 0);
-    return upcomingSortOrder.value === "asc"
-      ? dateA.getTime() - dateB.getTime()
-      : dateB.getTime() - dateA.getTime();
+    const msB = Date.UTC(
+      dateB.getUTCFullYear(),
+      dateB.getUTCMonth(),
+      dateB.getUTCDate(),
+      partsB[0] || 0,
+      partsB[1] || 0,
+      0,
+      0
+    );
+    return upcomingSortOrder.value === "asc" ? msA - msB : msB - msA;
   });
   const start = (upcomingPage.value - 1) * ITEMS_PER_PAGE;
   return sorted.slice(start, start + ITEMS_PER_PAGE);

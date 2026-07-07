@@ -110,8 +110,8 @@ export async function availabilitiesRoutes(fastify: FastifyInstance) {
 
     const start = startDate ? new Date(startDate) : undefined
     const end = endDate ? new Date(endDate) : undefined
-    if (start) start.setHours(0, 0, 0, 0)
-    if (end) end.setHours(23, 59, 59, 999)
+    if (start) start.setUTCHours(0, 0, 0, 0)
+    if (end) end.setUTCHours(23, 59, 59, 999)
 
     const data = await availabilitiesService.getAbsences(
       practitionerId,
@@ -221,8 +221,8 @@ export async function availabilitiesRoutes(fastify: FastifyInstance) {
 
     const start = startDate ? new Date(startDate) : undefined
     const end = endDate ? new Date(endDate) : undefined
-    if (start) start.setHours(0, 0, 0, 0)
-    if (end) end.setHours(23, 59, 59, 999)
+    if (start) start.setUTCHours(0, 0, 0, 0)
+    if (end) end.setUTCHours(23, 59, 59, 999)
 
     const data = await availabilitiesService.getBlockedSlots(
       practitionerId,

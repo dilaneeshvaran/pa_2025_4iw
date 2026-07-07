@@ -940,21 +940,21 @@ const slotsGroupedByWeek = computed(() => {
     }[] = [];
     for (let i = 0; i < 7; i++) {
       const d = new Date(current);
-      d.setDate(d.getDate() + i);
+      d.setUTCDate(d.getUTCDate() + i);
 
-      // format date string in local timezone to match toLocaleDateString()
-      const year = d.getFullYear();
-      const month = String(d.getMonth() + 1).padStart(2, "0");
-      const day = String(d.getDate()).padStart(2, "0");
+      // Use UTC components to build the date key (matches how backend stores appointmentDate as UTC midnight)
+      const year = d.getUTCFullYear();
+      const month = String(d.getUTCMonth() + 1).padStart(2, "0");
+      const day = String(d.getUTCDate()).padStart(2, "0");
       const ds = `${year}-${month}-${day}`;
 
       const found = slotMap.get(ds);
       weekDays.push({
         date: ds,
         dayShort: d
-          .toLocaleDateString("fr-FR", { weekday: "short" })
+          .toLocaleDateString("fr-FR", { weekday: "short", timeZone: "UTC" })
           .slice(0, 3),
-        dayNumber: d.getDate(),
+        dayNumber: d.getUTCDate(),
         hasSlots: !!found && found.slots.length > 0,
         slotCount: found?.slots.length || 0,
       });
@@ -980,16 +980,18 @@ const weekLabel = computed(() => {
   const first = days[0];
   const last = days[days.length - 1];
   if (!first || !last) return "";
-  const f = new Date(first.date + "T00:00:00");
-  const l = new Date(last.date + "T00:00:00");
+  const f = new Date(first.date + "T00:00:00.000Z");
+  const l = new Date(last.date + "T00:00:00.000Z");
   const fStr = f.toLocaleDateString("fr-FR", {
     day: "numeric",
     month: "short",
+    timeZone: "UTC",
   });
   const lStr = l.toLocaleDateString("fr-FR", {
     day: "numeric",
     month: "short",
     year: "numeric",
+    timeZone: "UTC",
   });
   return `${fStr} – ${lStr}`;
 });
@@ -1080,6 +1082,7 @@ const formatDateLong = (dateStr: string) => {
     day: "numeric",
     month: "long",
     year: "numeric",
+    timeZone: "UTC",
   });
 };
 
@@ -1089,6 +1092,7 @@ const formatDate = (dateStr: string) => {
     weekday: "long",
     day: "numeric",
     month: "long",
+    timeZone: "UTC",
   });
 };
 

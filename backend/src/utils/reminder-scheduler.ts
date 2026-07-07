@@ -2,6 +2,7 @@ import { Queue, Worker } from 'bullmq'
 import { redis } from '../config/redis'
 import prisma from '../config/database'
 import { sendAppointmentReminderEmail } from './email'
+import { combineDateAndTime } from './appointment-time'
 
 const QUEUE_NAME = 'appointment-reminders'
 
@@ -32,19 +33,9 @@ export async function scheduleAppointmentReminders(
   startTime: string,
 ): Promise<void> {
   const reminderQueue = getReminderQueue()
-  //  appointment datetime in utc.
-  // appointmentDate is stored as utc midnight
-  // startTime is "HH:MM" in the local timezone (africa/abidjan = UTC+0 = UTC).
-  // using setUTCHours avoids server timezone drift when the host is not in UTC+0.
-  const [hours, minutes] = startTime.split(':').map(Number)
-  const appointmentDateTime = new Date(appointmentDate)
-  if (process.env.TZ === 'UTC') {
-    appointmentDateTime.setUTCHours(hours, minutes, 0, 0)
-  } else {
-    const [year, month, day] = appointmentDate.toISOString().slice(0, 10).split('-').map(Number)
-    appointmentDateTime.setFullYear(year, month - 1, day)
-    appointmentDateTime.setHours(hours, minutes, 0, 0)
-  }
+  // appointmentDate is UTC midnight + startTime (HH:mm) represents wall time in UTC+0 (Cote d'Ivoire).
+  // Always combine using UTC to avoid any server TZ drift.
+  const appointmentDateTime = combineDateAndTime(appointmentDate, startTime)
 
   const now = new Date()
 
