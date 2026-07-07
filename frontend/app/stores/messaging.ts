@@ -42,10 +42,10 @@ export const useMessagingStore = defineStore("messaging", () => {
     if (apiBase.startsWith("/")) {
       const proto = window.location.protocol === "https:" ? "wss:" : "ws:";
       const host = window.location.host;
-      const wsBase = apiBase.replace(/\/api$/, "");
+      const wsBase = apiBase.replace(/\/api\/?$/, "");
       wsUrl = `${proto}//${host}${wsBase}/api/ws/messages?token=${encodeURIComponent(token)}`;
     } else {
-      const wsBase = apiBase.replace(/^http/, "ws").replace(/\/api$/, "");
+      const wsBase = apiBase.replace(/^http/, "ws").replace(/\/api\/?$/, "");
       wsUrl = `${wsBase}/api/ws/messages?token=${encodeURIComponent(token)}`;
     }
 
