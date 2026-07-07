@@ -82,6 +82,8 @@ export class TeleconsultationsController {
           .status(404)
           .send({ success: false, message: 'Praticien non trouvé' })
 
+      await teleconsultationsService.cleanupExpiredSessions()
+
       const result = await teleconsultationsService.getPastSessions(
         practitioner.id,
         (query.period as 'week' | 'month') || 'week',

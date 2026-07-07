@@ -1098,7 +1098,7 @@ const fetchPastSessions = async () => {
     const res = await useAuthenticatedFetch<{
       success: boolean;
       data: SessionItem[];
-    }>(`/teleconsultations/practitioner/past?period=${pastPeriod.value}`);
+    }>(`/teleconsultations/practitioner/past?period=${pastPeriod.value}&limit=100`);
     if (res.success) {
       pastSessions.value = res.data;
       noShowCount.value = res.data.filter(

@@ -360,9 +360,9 @@ export class TeleconsultationsService {
   //  todays teleconsultation for practitioner
   async getTodaySessions(practitionerId: string) {
     const today = new Date()
-    today.setHours(0, 0, 0, 0)
-    const tomorrow = new Date(today)
-    tomorrow.setDate(tomorrow.getDate() + 1)
+    today.setUTCHours(0, 0, 0, 0)
+    const tomorrow = new Date(today.getTime())
+    tomorrow.setUTCDate(tomorrow.getUTCDate() + 1)
 
     const sessions = await prisma.teleconsultationSession.findMany({
       where: {
@@ -398,9 +398,9 @@ export class TeleconsultationsService {
   //  waiting patients for  practitioner today
   async getWaitingPatients(practitionerId: string) {
     const today = new Date()
-    today.setHours(0, 0, 0, 0)
-    const tomorrow = new Date(today)
-    tomorrow.setDate(tomorrow.getDate() + 1)
+    today.setUTCHours(0, 0, 0, 0)
+    const tomorrow = new Date(today.getTime())
+    tomorrow.setUTCDate(tomorrow.getUTCDate() + 1)
 
     const sessions = await prisma.teleconsultationSession.findMany({
       where: {
@@ -443,17 +443,21 @@ export class TeleconsultationsService {
     status?: string,
   ) {
     const now = new Date()
-    const startDate = new Date()
+    const startDate = new Date(now.getTime())
 
     if (period === 'week') {
-      startDate.setDate(now.getDate() - 7)
+      startDate.setUTCDate(startDate.getUTCDate() - 7)
     } else {
-      startDate.setMonth(now.getMonth() - 1)
+      startDate.setUTCMonth(startDate.getUTCMonth() - 1)
     }
+    startDate.setUTCHours(0, 0, 0, 0)
+
+    const endOfToday = new Date(now.getTime())
+    endOfToday.setUTCHours(23, 59, 59, 999)
 
     const where: any = {
       practitionerId,
-      scheduledAt: { gte: startDate, lte: now },
+      scheduledAt: { gte: startDate, lte: endOfToday },
       status: {
         in: [
           'COMPLETED',
