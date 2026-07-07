@@ -1,3 +1,8 @@
+import {
+  getAppointmentTimestamp,
+  PLATFORM_TIMEZONE,
+} from "@medicote/shared/utils/appointment-time";
+
 // day + long month + year = 1 janvier 2025
 export const formatDate = (dateStr: string): string => {
   if (!dateStr) return "";
@@ -123,4 +128,39 @@ export const formatNotificationTime = (dateStr: string): string => {
   if (diffDays === 1) return "Hier";
   if (diffDays < 7) return `Il y a ${diffDays} jours`;
   return formatDate(dateStr);
+};
+
+const formatClock = (timestamp: number): string =>
+  new Date(timestamp).toLocaleTimeString("fr-FR", {
+    hour: "2-digit",
+    minute: "2-digit",
+    timeZone: PLATFORM_TIMEZONE,
+  });
+
+const formatLocalClock = (timestamp: number): string =>
+  new Date(timestamp).toLocaleTimeString("fr-FR", {
+    hour: "2-digit",
+    minute: "2-digit",
+  });
+
+/** Appointment wall-clock range in platform time (GMT), with local hint when different. */
+export const formatAppointmentTimeRange = (
+  appointmentDate: string,
+  startTime: string,
+  endTime: string,
+): string => {
+  const startMs = getAppointmentTimestamp(appointmentDate, startTime);
+  const endMs = getAppointmentTimestamp(appointmentDate, endTime);
+  const platformRange = `${startTime} – ${endTime} (GMT)`;
+
+  const localStart = formatLocalClock(startMs);
+  const localEnd = formatLocalClock(endMs);
+  const platformStart = formatClock(startMs);
+  const platformEnd = formatClock(endMs);
+
+  if (localStart === platformStart && localEnd === platformEnd) {
+    return platformRange;
+  }
+
+  return `${localStart} – ${localEnd} (chez vous) · ${platformRange}`;
 };

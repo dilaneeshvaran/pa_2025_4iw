@@ -1,5 +1,8 @@
 import prisma from '../../config/database'
-import { getClientLocalTime } from '../../utils/timezone'
+import {
+  combineDateAndTime,
+  getUTCStartOfDay,
+} from '../../utils/appointment-time'
 import { AppointmentStatus, DayOfWeek } from '@prisma/client'
 import type {
   PractitionerSearchFilters,
@@ -426,7 +429,6 @@ export class PractitionersService {
     startDate?: Date,
     endDate?: Date,
     days = 7,
-    timezoneOffset?: string,
   ): Promise<AvailableSlot[]> {
     // fetch practitioner settings for slot generation rules
     const practitioner = await prisma.practitioner.findUnique({
@@ -450,18 +452,17 @@ export class PractitionersService {
     const maxBookingAdvance = practitioner?.maxBookingAdvance ?? 60 // days
 
     const now = new Date()
-    const clientLocalTime = getClientLocalTime(now, timezoneOffset)
-    const start = startDate || new Date(clientLocalTime)
+    const start = startDate || getUTCStartOfDay(now)
     start.setUTCHours(0, 0, 0, 0)
 
-    // cap end date to maxBookingAdvance days from now
-    const maxEnd = new Date(clientLocalTime)
-    maxEnd.setDate(maxEnd.getDate() + maxBookingAdvance)
-    maxEnd.setHours(23, 59, 59, 999)
+    // cap end date to maxBookingAdvance days from now (platform calendar)
+    const maxEnd = getUTCStartOfDay(now)
+    maxEnd.setUTCDate(maxEnd.getUTCDate() + maxBookingAdvance)
+    maxEnd.setUTCHours(23, 59, 59, 999)
 
     let end = endDate || new Date(start)
     if (!endDate) {
-      end.setDate(end.getDate() + days)
+      end.setUTCDate(end.getUTCDate() + days)
     }
     // enforce maxBookingAdvance
     if (end > maxEnd) {
@@ -545,9 +546,8 @@ export class PractitionersService {
       )
     }
 
-    // earliest bookable time = clientLocalTime + minBookingNotice
     const earliestBookable = new Date(
-      clientLocalTime.getTime() + minBookingNotice * 60 * 1000,
+      now.getTime() + minBookingNotice * 60 * 1000,
     )
 
     const result: AvailableSlot[] = []
@@ -629,9 +629,8 @@ export class PractitionersService {
             if (isBlocked) return false
 
             // check minBookingNotice: slot must be after earliest bookable time
-            const slotDateTime = new Date(currentDate)
-            slotDateTime.setUTCHours(slotH, slotM, 0, 0)
-            if (slotDateTime < earliestBookable) return false
+            const slotDateTime = combineDateAndTime(currentDate, slot)
+            if (slotDateTime.getTime() < earliestBookable.getTime()) return false
 
             return true
           })
@@ -647,7 +646,7 @@ export class PractitionersService {
         }
       }
 
-      currentDate.setDate(currentDate.getDate() + 1)
+      currentDate.setUTCDate(currentDate.getUTCDate() + 1)
     }
 
     return result
@@ -763,10 +762,8 @@ export class PractitionersService {
       const availableSlots = timeSlots.filter((slot) => {
         if (bookedSlots.includes(slot)) return false
 
-        const [slotH, slotM] = slot.split(':').map(Number)
-        const slotDateTime = new Date(date)
-        slotDateTime.setHours(slotH, slotM, 0, 0)
-        if (slotDateTime < earliestBookable) return false
+        const slotDateTime = combineDateAndTime(date, slot)
+        if (slotDateTime.getTime() < earliestBookable.getTime()) return false
 
         return true
       })

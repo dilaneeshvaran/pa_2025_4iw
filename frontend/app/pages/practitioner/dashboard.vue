@@ -494,6 +494,7 @@ import CreateInvoiceModal from "~/components/practitioner/CreateInvoiceModal.vue
 import { useAuthStore } from "~/stores/auth";
 import { formatDateLong as formatDate, formatRelativeTime } from "~/utils/date";
 import { getStatusVariant, getStatusLabel } from "~/utils/status";
+import { canJoinTeleconsultation } from "@medicote/shared/utils/appointment-time";
 
 definePageMeta({
   layout: "practitioner",
@@ -617,20 +618,11 @@ const canJoinNextTeleconsultation = computed(() => {
   const apt = dashboard.value.nextAppointment;
   if (apt.type !== "TELECONSULTATION") return false;
   if (apt.status === "CANCELLED" || apt.status === "NO_SHOW") return false;
-  const now = Date.now();
-  const aptDate = new Date(apt.appointmentDate);
-  const parts = apt.startTime.split(":").map(Number);
-  const appointmentMs = Date.UTC(
-    aptDate.getUTCFullYear(),
-    aptDate.getUTCMonth(),
-    aptDate.getUTCDate(),
-    parts[0] || 0,
-    parts[1] || 0,
-    0,
-    0
+  return canJoinTeleconsultation(
+    apt.appointmentDate,
+    apt.startTime,
+    apt.endTime,
   );
-  const diffMinutes = (appointmentMs - now) / (1000 * 60);
-  return diffMinutes <= 15 && diffMinutes >= -60;
 });
 
 

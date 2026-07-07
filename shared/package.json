@@ -4,6 +4,10 @@
   "description": "Shared types and utilities for Medicote",
   "main": "types/index.ts",
   "types": "types/index.ts",
+  "exports": {
+    ".": "./types/index.ts",
+    "./utils/appointment-time": "./utils/appointment-time.ts"
+  },
   "private": true,
   "devDependencies": {
     "typescript": "^5.9.3"

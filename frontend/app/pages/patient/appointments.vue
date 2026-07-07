@@ -139,7 +139,13 @@
                   </div>
                   <div class="flex items-center gap-1.5">
                     <Clock class="h-4 w-4 text-gray-400" />
-                    <span>{{ apt.startTime }} - {{ apt.endTime }}</span>
+                    <span>{{
+                      formatAppointmentTimeRange(
+                        apt.appointmentDate,
+                        apt.startTime,
+                        apt.endTime,
+                      )
+                    }}</span>
                   </div>
                   <div class="flex items-center gap-1.5">
                     <component
@@ -710,8 +716,18 @@ import {
   Info,
 } from "lucide-vue-next";
 import { useAuthStore } from "~/stores/auth";
-import { formatDateLong as formatDate } from "~/utils/date";
+import {
+  formatAppointmentTimeRange,
+  formatDateLong as formatDate,
+} from "~/utils/date";
 import { getStatusVariant, getStatusLabel } from "~/utils/status";
+import {
+  canJoinTeleconsultation as canJoinTeleconsultationAt,
+  getAppointmentTimestamp,
+  getMinutesUntilTeleconsultationJoin,
+  formatTimeUntilJoin,
+  isTeleconsultationSoon as isTeleconsultationSoonAt,
+} from "@medicote/shared/utils/appointment-time";
 
 definePageMeta({
   layout: "patient",
@@ -1011,20 +1027,11 @@ const canModify = (apt: Appointment): boolean => {
   )
     return false;
   const cancellationNotice = apt.practitioner?.cancellationNotice || 24;
-  const now = Date.now();
-  const aptDate = new Date(apt.appointmentDate);
-  const parts = apt.startTime.split(":").map(Number);
-  const appointmentMs = Date.UTC(
-    aptDate.getUTCFullYear(),
-    aptDate.getUTCMonth(),
-    aptDate.getUTCDate(),
-    parts[0] || 0,
-    parts[1] || 0,
-    0,
-    0
+  const appointmentMs = getAppointmentTimestamp(
+    apt.appointmentDate,
+    apt.startTime,
   );
-  const diffMs = appointmentMs - now;
-  const diffHours = diffMs / (1000 * 60 * 60);
+  const diffHours = (appointmentMs - Date.now()) / (1000 * 60 * 60);
   return diffHours >= cancellationNotice;
 };
 
@@ -1035,40 +1042,20 @@ const canCancel = (apt: Appointment): boolean => {
     apt.status === "NO_SHOW"
   )
     return false;
-  const now = Date.now();
-  const aptDate = new Date(apt.appointmentDate);
-  const parts = apt.startTime.split(":").map(Number);
-  const appointmentMs = Date.UTC(
-    aptDate.getUTCFullYear(),
-    aptDate.getUTCMonth(),
-    aptDate.getUTCDate(),
-    parts[0] || 0,
-    parts[1] || 0,
-    0,
-    0
+  return (
+    getAppointmentTimestamp(apt.appointmentDate, apt.startTime) > Date.now()
   );
-  return appointmentMs > now;
 };
 
 const canJoin = (apt: Appointment): boolean => {
   if (apt.type !== "TELECONSULTATION") return false;
   if (apt.status === "CANCELLED" || apt.status === "NO_SHOW") return false;
-  const now = Date.now();
-  const aptDate = new Date(apt.appointmentDate);
-  const parts = apt.startTime.split(":").map(Number);
-  const appointmentMs = Date.UTC(
-    aptDate.getUTCFullYear(),
-    aptDate.getUTCMonth(),
-    aptDate.getUTCDate(),
-    parts[0] || 0,
-    parts[1] || 0,
-    0,
-    0
+  return canJoinTeleconsultationAt(
+    apt.appointmentDate,
+    apt.startTime,
+    apt.endTime,
   );
-  const diffMinutes = (appointmentMs - now) / (1000 * 60);
-  return diffMinutes <= 15 && diffMinutes >= -60; // 15 min before, up to 1h after start
 };
-
 
 const isBefore48h = (apt: Appointment): boolean => {
   if (
@@ -1077,20 +1064,11 @@ const isBefore48h = (apt: Appointment): boolean => {
     apt.status === "NO_SHOW"
   )
     return false;
-  const now = Date.now();
-  const aptDate = new Date(apt.appointmentDate);
-  const parts = apt.startTime.split(":").map(Number);
-  const appointmentMs = Date.UTC(
-    aptDate.getUTCFullYear(),
-    aptDate.getUTCMonth(),
-    aptDate.getUTCDate(),
-    parts[0] || 0,
-    parts[1] || 0,
-    0,
-    0
+  const appointmentMs = getAppointmentTimestamp(
+    apt.appointmentDate,
+    apt.startTime,
   );
-  const diffMs = appointmentMs - now;
-  const diffHours = diffMs / (1000 * 60 * 60);
+  const diffHours = (appointmentMs - Date.now()) / (1000 * 60 * 60);
   return diffHours >= 48;
 };
 
@@ -1141,61 +1119,24 @@ const getActions = (apt: Appointment): string[] => {
 
 const canJoinTeleconsultation = (apt: Appointment): boolean => {
   if (apt.status === "CANCELLED" || apt.status === "NO_SHOW") return false;
-  const now = Date.now();
-  const aptDate = new Date(apt.appointmentDate);
-  const parts = apt.startTime.split(":").map(Number);
-  const appointmentMs = Date.UTC(
-    aptDate.getUTCFullYear(),
-    aptDate.getUTCMonth(),
-    aptDate.getUTCDate(),
-    parts[0] || 0,
-    parts[1] || 0,
-    0,
-    0
+  return canJoinTeleconsultationAt(
+    apt.appointmentDate,
+    apt.startTime,
+    apt.endTime,
   );
-  const diffMinutes = (appointmentMs - now) / (1000 * 60);
-  return diffMinutes <= 15 && diffMinutes >= -60;
 };
 
 const isTeleconsultationSoon = (apt: Appointment): boolean => {
-  const now = Date.now();
-  const aptDate = new Date(apt.appointmentDate);
-  const parts = apt.startTime.split(":").map(Number);
-  const appointmentMs = Date.UTC(
-    aptDate.getUTCFullYear(),
-    aptDate.getUTCMonth(),
-    aptDate.getUTCDate(),
-    parts[0] || 0,
-    parts[1] || 0,
-    0,
-    0
-  );
-  const diffMinutes = (appointmentMs - now) / (1000 * 60);
-  return diffMinutes > 15 && diffMinutes <= 120; // within 2 hours but not yet joinable
+  if (apt.status === "CANCELLED" || apt.status === "NO_SHOW") return false;
+  return isTeleconsultationSoonAt(apt.appointmentDate, apt.startTime);
 };
 
 const getTimeUntilJoin = (apt: Appointment): string => {
-  const now = Date.now();
-  const aptDate = new Date(apt.appointmentDate);
-  const parts = apt.startTime.split(":").map(Number);
-  const appointmentMs = Date.UTC(
-    aptDate.getUTCFullYear(),
-    aptDate.getUTCMonth(),
-    aptDate.getUTCDate(),
-    parts[0] || 0,
-    parts[1] || 0,
-    0,
-    0
+  const minutes = getMinutesUntilTeleconsultationJoin(
+    apt.appointmentDate,
+    apt.startTime,
   );
-  const joinTime = appointmentMs - 15 * 60 * 1000;
-  const diffMs = joinTime - now;
-  const diffMinutes = Math.ceil(diffMs / (1000 * 60));
-  if (diffMinutes >= 60) {
-    const hours = Math.floor(diffMinutes / 60);
-    const mins = diffMinutes % 60;
-    return `${hours}h${mins > 0 ? mins + "min" : ""}`;
-  }
-  return `${diffMinutes} min`;
+  return formatTimeUntilJoin(minutes);
 };
 
 

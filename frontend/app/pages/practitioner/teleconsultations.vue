@@ -942,6 +942,10 @@ import {
   getTeleconsultationStatusLabel as getStatusLabel,
   getTeleconsultationStatusBadgeVariant as getStatusBadgeVariant,
 } from "~/utils/status";
+import {
+  canJoinTeleconsultation as canJoinTeleconsultationAt,
+  getTeleconsultationJoinWindow,
+} from "@medicote/shared/utils/appointment-time";
 
 definePageMeta({
   layout: "practitioner",
@@ -1067,10 +1071,12 @@ const fetchTodaySessions = async () => {
 
         // for COMPLETED sessions, check if the rejoin window is still open
         if (s.status === "COMPLETED") {
-          const endParts = s.endTime.split(":").map(Number);
-          const endDate = new Date();
-          endDate.setHours(endParts[0] || 0, endParts[1] || 0, 0, 0);
-          const lateJoinMs = endDate.getTime() + 30 * 60 * 1000;
+          const appointmentDate = new Date(s.scheduledAt).toISOString();
+          const { lateJoinMs } = getTeleconsultationJoinWindow(
+            appointmentDate,
+            s.startTime,
+            s.endTime,
+          );
           return now <= lateJoinMs;
         }
 
@@ -1227,10 +1233,8 @@ const getQualityClass = (q: string) => {
 };
 
 const canJoinSession = (session: SessionItem) => {
-  // IN_PROGRESS can always be joined
   if (session.status === "IN_PROGRESS") return true;
 
-  // Only SCHEDULED, WAITING, and COMPLETED can be joined within time window
   if (
     session.status !== "SCHEDULED" &&
     session.status !== "WAITING" &&
@@ -1238,37 +1242,12 @@ const canJoinSession = (session: SessionItem) => {
   )
     return false;
 
-  const now = Date.now();
-  const aptDate = new Date(session.scheduledAt);
-  const [startH, startM] = session.startTime.split(":").map(Number);
-  const [endH, endM] = session.endTime.split(":").map(Number);
-
-  // Construct start and end times in local timezone to match browser display
-  const startLocal = new Date(
-    aptDate.getUTCFullYear(),
-    aptDate.getUTCMonth(),
-    aptDate.getUTCDate(),
-    startH || 0,
-    startM || 0,
-    0,
-    0
-  ).getTime();
-
-  const endLocal = new Date(
-    aptDate.getUTCFullYear(),
-    aptDate.getUTCMonth(),
-    aptDate.getUTCDate(),
-    endH || 0,
-    endM || 0,
-    0,
-    0
-  ).getTime();
-
-  const fifteenMin = 15 * 60 * 1000;
-  const lateJoinLimit = endLocal + 30 * 60 * 1000;
-
-  // Can join from 15 min before scheduled to 30 min after appointment end time
-  return now >= startLocal - fifteenMin && now <= lateJoinLimit;
+  const appointmentDate = new Date(session.scheduledAt).toISOString();
+  return canJoinTeleconsultationAt(
+    appointmentDate,
+    session.startTime,
+    session.endTime,
+  );
 };
 
 

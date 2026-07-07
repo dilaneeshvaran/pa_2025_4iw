@@ -1713,6 +1713,7 @@ import {
 } from "lucide-vue-next";
 import CreateInvoiceModal from "~/components/practitioner/CreateInvoiceModal.vue";
 import { useAuthStore } from "~/stores/auth";
+import { getAppointmentTimestamp } from "@medicote/shared/utils/appointment-time";
 
 definePageMeta({
   layout: "practitioner",
@@ -2797,23 +2798,15 @@ function isBeforeAppointmentTime(apt: AgendaAppointment): boolean {
     apt.status === "NO_SHOW"
   )
     return false;
-  const now = new Date();
-  const timeParts = apt.startTime.split(":").map(Number);
-  const h = timeParts[0] ?? 0;
-  const m = timeParts[1] ?? 0;
-  const aptTime = new Date(apt.appointmentDate);
-  aptTime.setHours(h, m, 0, 0);
-  return now < aptTime;
+  return (
+    getAppointmentTimestamp(apt.appointmentDate, apt.startTime) > Date.now()
+  );
 }
 
 function isAtOrAfterAppointmentTime(apt: AgendaAppointment): boolean {
-  const now = new Date();
-  const timeParts = apt.startTime.split(":").map(Number);
-  const h = timeParts[0] ?? 0;
-  const m = timeParts[1] ?? 0;
-  const aptTime = new Date(apt.appointmentDate);
-  aptTime.setHours(h, m, 0, 0);
-  return now >= aptTime;
+  return (
+    getAppointmentTimestamp(apt.appointmentDate, apt.startTime) <= Date.now()
+  );
 }
 
 function openAgendaCancelModal(apt: AgendaAppointment) {

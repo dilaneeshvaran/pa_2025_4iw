@@ -59,7 +59,13 @@
                 <Clock class="h-4 w-4 text-gray-400" :stroke-width="1.75" />
                 <span class="tabular-nums text-sm font-medium text-gray-700"
                   >{{ formatDate(nextAppointment.appointmentDate) }} à
-                  {{ nextAppointment.startTime }}</span
+                  {{
+                    formatAppointmentTimeRange(
+                      nextAppointment.appointmentDate,
+                      nextAppointment.startTime,
+                      nextAppointment.endTime,
+                    )
+                  }}</span
                 >
               </div>
               <div class="mt-2">
@@ -403,7 +409,15 @@ import {
   Pencil,
 } from "lucide-vue-next";
 import { useAuthStore } from "~/stores/auth";
-import { formatDate, formatNotificationTime } from "~/utils/date";
+import {
+  formatAppointmentTimeRange,
+  formatDate,
+  formatNotificationTime,
+} from "~/utils/date";
+import {
+  canJoinTeleconsultation,
+  getAppointmentTimestamp,
+} from "@medicote/shared/utils/appointment-time";
 import { getStatusVariant, getStatusLabel } from "~/utils/status";
 import type { PatientHealthReminderOccurrence } from "@medicote/shared";
 
@@ -468,19 +482,8 @@ const canModifyNext = computed(() => {
   const apt = nextAppointment.value;
   if (apt.status === "CANCELLED" || apt.status === "COMPLETED") return false;
   const cancellationNotice = apt.practitioner.cancellationNotice || 24;
-  const now = Date.now();
-  const aptDate = new Date(apt.appointmentDate);
-  const parts = apt.startTime.split(":").map(Number);
-  const aptMs = Date.UTC(
-    aptDate.getUTCFullYear(),
-    aptDate.getUTCMonth(),
-    aptDate.getUTCDate(),
-    parts[0] || 0,
-    parts[1] || 0,
-    0,
-    0
-  );
-  const diffHours = (aptMs - now) / (1000 * 60 * 60);
+  const aptMs = getAppointmentTimestamp(apt.appointmentDate, apt.startTime);
+  const diffHours = (aptMs - Date.now()) / (1000 * 60 * 60);
   return diffHours >= cancellationNotice;
 });
 
@@ -488,19 +491,9 @@ const canCancelNext = computed(() => {
   if (!nextAppointment.value) return false;
   const apt = nextAppointment.value;
   if (apt.status === "CANCELLED" || apt.status === "COMPLETED") return false;
-  const now = Date.now();
-  const aptDate = new Date(apt.appointmentDate);
-  const parts = apt.startTime.split(":").map(Number);
-  const appointmentMs = Date.UTC(
-    aptDate.getUTCFullYear(),
-    aptDate.getUTCMonth(),
-    aptDate.getUTCDate(),
-    parts[0] || 0,
-    parts[1] || 0,
-    0,
-    0
+  return (
+    getAppointmentTimestamp(apt.appointmentDate, apt.startTime) > Date.now()
   );
-  return appointmentMs > now;
 });
 
 const canJoinNext = computed(() => {
@@ -508,20 +501,11 @@ const canJoinNext = computed(() => {
   const apt = nextAppointment.value;
   if (apt.type !== "TELECONSULTATION") return false;
   if (apt.status === "CANCELLED" || apt.status === "NO_SHOW") return false;
-  const now = Date.now();
-  const aptDate = new Date(apt.appointmentDate);
-  const parts = apt.startTime.split(":").map(Number);
-  const appointmentMs = Date.UTC(
-    aptDate.getUTCFullYear(),
-    aptDate.getUTCMonth(),
-    aptDate.getUTCDate(),
-    parts[0] || 0,
-    parts[1] || 0,
-    0,
-    0
+  return canJoinTeleconsultation(
+    apt.appointmentDate,
+    apt.startTime,
+    apt.endTime,
   );
-  const diffMinutes = (appointmentMs - now) / (1000 * 60);
-  return diffMinutes <= 15 && diffMinutes >= -60;
 });
 
 const quickActions = [

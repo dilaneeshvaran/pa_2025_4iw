@@ -10,7 +10,11 @@ import {
   sendAutoNoShowPractitionerNotification,
   sendPractitionerAbsentNotification,
 } from '../../utils/email'
-import { combineDateAndTime } from '../../utils/appointment-time'
+import {
+  combineDateAndTime,
+  formatAppointmentDateKey,
+  getUTCStartOfDay,
+} from '../../utils/appointment-time'
 
 export class TeleconsultationsService {
   private formatSessionItem(session: any) {
@@ -1033,8 +1037,7 @@ export class TeleconsultationsService {
     page = 1,
   ) {
     const now = new Date()
-    const today = new Date(now)
-    today.setUTCHours(0, 0, 0, 0)
+    const today = getUTCStartOfDay(now)
 
     const where: any = {
       patientId,
@@ -1090,9 +1093,8 @@ export class TeleconsultationsService {
     const filtered =
       status === 'upcoming'
         ? allAppointments.filter((apt) => {
-            const aptDate = new Date(apt.appointmentDate)
-            const todayStr = `${today.getUTCFullYear()}-${String(today.getUTCMonth() + 1).padStart(2, '0')}-${String(today.getUTCDate()).padStart(2, '0')}`
-            const aptStr = `${aptDate.getUTCFullYear()}-${String(aptDate.getUTCMonth() + 1).padStart(2, '0')}-${String(aptDate.getUTCDate()).padStart(2, '0')}`
+            const aptStr = formatAppointmentDateKey(apt.appointmentDate)
+            const todayStr = formatAppointmentDateKey(today)
 
             if (aptStr === todayStr) {
               // for todays appointments, use endTime + 30 min grace period

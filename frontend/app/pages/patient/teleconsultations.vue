@@ -208,7 +208,13 @@
                     </div>
                     <div class="flex items-center gap-1.5">
                       <Clock class="h-4 w-4 text-gray-400" />
-                      <span>{{ apt.startTime }} - {{ apt.endTime }}</span>
+                      <span>{{
+                        formatAppointmentTimeRange(
+                          apt.appointmentDate,
+                          apt.startTime,
+                          apt.endTime,
+                        )
+                      }}</span>
                     </div>
                   </div>
                   <p v-if="apt.reason" class="mt-2 text-sm text-gray-500">
@@ -466,8 +472,18 @@
 <script setup lang="ts">
 import { Video, Calendar, Clock, Camera, Mic, X } from "lucide-vue-next";
 import { useAuthStore } from "~/stores/auth";
-import { formatDateLong as formatDate } from "~/utils/date";
+import {
+  formatAppointmentTimeRange,
+  formatDateLong as formatDate,
+} from "~/utils/date";
 import { getStatusVariant, getStatusLabel } from "~/utils/status";
+import {
+  canJoinTeleconsultation as canJoinTeleconsultationAt,
+  getAppointmentTimestamp,
+  getMinutesUntilTeleconsultationJoin,
+  formatTimeUntilJoin,
+  isTeleconsultationSoon as isTeleconsultationSoonAt,
+} from "@medicote/shared/utils/appointment-time";
 
 definePageMeta({
   layout: "patient",
@@ -526,28 +542,8 @@ const pastTotalPages = computed(() =>
 );
 const paginatedUpcoming = computed(() => {
   const sorted = [...upcomingTeleconsultations.value].sort((a, b) => {
-    const dateA = new Date(a.appointmentDate);
-    const partsA = a.startTime.split(":").map(Number);
-    const msA = Date.UTC(
-      dateA.getUTCFullYear(),
-      dateA.getUTCMonth(),
-      dateA.getUTCDate(),
-      partsA[0] || 0,
-      partsA[1] || 0,
-      0,
-      0
-    );
-    const dateB = new Date(b.appointmentDate);
-    const partsB = b.startTime.split(":").map(Number);
-    const msB = Date.UTC(
-      dateB.getUTCFullYear(),
-      dateB.getUTCMonth(),
-      dateB.getUTCDate(),
-      partsB[0] || 0,
-      partsB[1] || 0,
-      0,
-      0
-    );
+    const msA = getAppointmentTimestamp(a.appointmentDate, a.startTime);
+    const msB = getAppointmentTimestamp(b.appointmentDate, b.startTime);
     return upcomingSortOrder.value === "asc" ? msA - msB : msB - msA;
   });
   const start = (upcomingPage.value - 1) * ITEMS_PER_PAGE;
@@ -615,75 +611,24 @@ const fetchTeleconsultations = async () => {
 
 const canJoinTeleconsultation = (apt: Appointment): boolean => {
   if (apt.status === "CANCELLED" || apt.status === "NO_SHOW") return false;
-  const now = Date.now();
-  const aptDate = new Date(apt.appointmentDate);
-  const startParts = apt.startTime.split(":").map(Number);
-  const appointmentStartMs = Date.UTC(
-    aptDate.getUTCFullYear(),
-    aptDate.getUTCMonth(),
-    aptDate.getUTCDate(),
-    startParts[0] || 0,
-    startParts[1] || 0,
-    0,
-    0
+  return canJoinTeleconsultationAt(
+    apt.appointmentDate,
+    apt.startTime,
+    apt.endTime,
   );
-
-  const endParts = apt.endTime.split(":").map(Number);
-  const appointmentEndMs = Date.UTC(
-    aptDate.getUTCFullYear(),
-    aptDate.getUTCMonth(),
-    aptDate.getUTCDate(),
-    endParts[0] || 0,
-    endParts[1] || 0,
-    0,
-    0
-  );
-
-  const earlyJoinMs = appointmentStartMs - 15 * 60 * 1000;
-  const lateJoinMs = appointmentEndMs + 30 * 60 * 1000;
-
-  return now >= earlyJoinMs && now <= lateJoinMs;
 };
 
 const isTeleconsultationSoon = (apt: Appointment): boolean => {
-  const now = Date.now();
-  const aptDate = new Date(apt.appointmentDate);
-  const parts = apt.startTime.split(":").map(Number);
-  const appointmentMs = Date.UTC(
-    aptDate.getUTCFullYear(),
-    aptDate.getUTCMonth(),
-    aptDate.getUTCDate(),
-    parts[0] || 0,
-    parts[1] || 0,
-    0,
-    0
-  );
-  const diffMinutes = (appointmentMs - now) / (1000 * 60);
-  return diffMinutes > 15 && diffMinutes <= 120;
+  if (apt.status === "CANCELLED" || apt.status === "NO_SHOW") return false;
+  return isTeleconsultationSoonAt(apt.appointmentDate, apt.startTime);
 };
 
 const getTimeUntilJoin = (apt: Appointment): string => {
-  const now = Date.now();
-  const aptDate = new Date(apt.appointmentDate);
-  const parts = apt.startTime.split(":").map(Number);
-  const appointmentMs = Date.UTC(
-    aptDate.getUTCFullYear(),
-    aptDate.getUTCMonth(),
-    aptDate.getUTCDate(),
-    parts[0] || 0,
-    parts[1] || 0,
-    0,
-    0
+  const minutes = getMinutesUntilTeleconsultationJoin(
+    apt.appointmentDate,
+    apt.startTime,
   );
-  const joinTime = appointmentMs - 15 * 60 * 1000;
-  const diffMs = joinTime - now;
-  const diffMinutes = Math.ceil(diffMs / (1000 * 60));
-  if (diffMinutes >= 60) {
-    const hours = Math.floor(diffMinutes / 60);
-    const mins = diffMinutes % 60;
-    return `${hours}h${mins > 0 ? mins + "min" : ""}`;
-  }
-  return `${diffMinutes} min`;
+  return formatTimeUntilJoin(minutes);
 };
 
 

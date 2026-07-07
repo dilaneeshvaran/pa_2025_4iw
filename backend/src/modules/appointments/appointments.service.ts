@@ -1,5 +1,5 @@
 import prisma from '../../config/database'
-import { getClientLocalTime } from '../../utils/timezone'
+
 import { AppointmentStatus, AppointmentType } from '@prisma/client'
 import {
   PatientAppointmentsResult,
@@ -19,7 +19,11 @@ import {
   scheduleAppointmentReminders,
   cancelAppointmentReminders,
 } from '../../utils/reminder-scheduler'
-import { combineDateAndTime, isAppointmentFuture } from '../../utils/appointment-time'
+import {
+  combineDateAndTime,
+  getUTCStartOfDay,
+  isAppointmentFuture,
+} from '../../utils/appointment-time'
 
 export class AppointmentsService {
   async getPatientAppointments(
@@ -179,7 +183,7 @@ export class AppointmentsService {
     const utcToday = new Date()
     utcToday.setUTCHours(0, 0, 0, 0)
     const queryDate = new Date(utcToday)
-    queryDate.setDate(queryDate.getDate() - 1)
+    queryDate.setUTCDate(queryDate.getUTCDate() - 1)
  
     // fetch potential next appointments starting from queryDate
     // checking a reasonable number to find the first valid one
@@ -273,7 +277,7 @@ export class AppointmentsService {
     const utcToday = new Date()
     utcToday.setUTCHours(0, 0, 0, 0)
     const queryDate = new Date(utcToday)
-    queryDate.setDate(queryDate.getDate() + 1)
+    queryDate.setUTCDate(queryDate.getUTCDate() + 1)
  
     // fetch slightly more to filter in memory
     const appointments = await prisma.appointment.findMany({
@@ -417,16 +421,14 @@ export class AppointmentsService {
     appointmentDate.setUTCHours(0, 0, 0, 0)
 
     const now = new Date()
-    const clientLocalTime = getClientLocalTime(now, data.timezoneOffset)
-    const today = new Date(clientLocalTime)
-    today.setUTCHours(0, 0, 0, 0)
+    const today = getUTCStartOfDay(now)
 
     if (appointmentDate < today) {
       throw new Error('La date du rendez-vous ne peut pas être dans le passé')
     }
 
     const maxAdvanceDays = practitioner.maxBookingAdvance || 60
-    const maxDate = new Date(clientLocalTime)
+    const maxDate = getUTCStartOfDay(now)
     maxDate.setUTCDate(maxDate.getUTCDate() + maxAdvanceDays)
     if (appointmentDate > maxDate) {
       throw new Error(
@@ -435,12 +437,13 @@ export class AppointmentsService {
     }
 
     const minNoticeMinutes = practitioner.minBookingNotice || 60
-    const [requestHours, requestMinutes] = data.startTime.split(':').map(Number)
-    const requestedAppointmentTime = new Date(appointmentDate)
-    requestedAppointmentTime.setUTCHours(requestHours, requestMinutes, 0, 0)
+    const requestedAppointmentTime = combineDateAndTime(
+      appointmentDate,
+      data.startTime,
+    )
 
     const earliestBookable = new Date(
-      clientLocalTime.getTime() + minNoticeMinutes * 60 * 1000,
+      now.getTime() + minNoticeMinutes * 60 * 1000,
     )
     if (requestedAppointmentTime < earliestBookable) {
       const noticeLabel =

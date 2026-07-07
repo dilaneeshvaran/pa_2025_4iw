@@ -855,6 +855,7 @@ import {
   X,
 } from "lucide-vue-next";
 import { getStatusVariant, getStatusLabel } from "~/utils/status";
+import { getAppointmentTimestamp } from "@medicote/shared/utils/appointment-time";
 
 definePageMeta({
   layout: "practitioner",
@@ -1068,23 +1069,15 @@ const isBeforeAppointmentTime = (apt: CabinetAppointment) => {
     apt.status === "NO_SHOW"
   )
     return false;
-  const now = new Date();
-  const parts = apt.startTime.split(":").map(Number);
-  const h = parts[0] ?? 0;
-  const m = parts[1] ?? 0;
-  const aptTime = new Date(apt.appointmentDate);
-  aptTime.setHours(h, m, 0, 0);
-  return now < aptTime;
+  return (
+    getAppointmentTimestamp(apt.appointmentDate, apt.startTime) > Date.now()
+  );
 };
 
 const isAtOrAfterAppointmentTime = (apt: CabinetAppointment) => {
-  const now = new Date();
-  const parts = apt.startTime.split(":").map(Number);
-  const h = parts[0] ?? 0;
-  const m = parts[1] ?? 0;
-  const aptTime = new Date(apt.appointmentDate);
-  aptTime.setHours(h, m, 0, 0);
-  return now >= aptTime;
+  return (
+    getAppointmentTimestamp(apt.appointmentDate, apt.startTime) <= Date.now()
+  );
 };
 
 const getStatusBgColor = (status: string) => {
