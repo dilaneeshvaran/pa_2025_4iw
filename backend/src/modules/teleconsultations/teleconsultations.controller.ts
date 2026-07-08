@@ -23,10 +23,10 @@ export class TeleconsultationsController {
         practitioner.id,
       )
 
-      // auto cleanup expired sessions and mark no-shows
-      await teleconsultationsService.cleanupExpiredSessions()
-
       const timezoneOffset = request.headers['x-timezone-offset'] as string | undefined
+
+      // auto cleanup expired sessions and mark no-shows
+      await teleconsultationsService.cleanupExpiredSessions(timezoneOffset)
 
       const sessions = await teleconsultationsService.getTodaySessions(
         practitioner.id,
@@ -90,7 +90,9 @@ export class TeleconsultationsController {
           .status(404)
           .send({ success: false, message: 'Praticien non trouvé' })
 
-      await teleconsultationsService.cleanupExpiredSessions()
+      const timezoneOffset = request.headers['x-timezone-offset'] as string | undefined
+
+      await teleconsultationsService.cleanupExpiredSessions(timezoneOffset)
 
       const result = await teleconsultationsService.getPastSessions(
         practitioner.id,
@@ -348,6 +350,9 @@ export class TeleconsultationsController {
           .send({ success: false, message: 'Patient non trouvé' })
 
       const timezoneOffset = request.headers['x-timezone-offset'] as string | undefined
+
+      // auto cleanup expired sessions
+      await teleconsultationsService.cleanupExpiredSessions(timezoneOffset)
 
       //upcoming and past appointments
       const [upcomingResult, pastResult] = await Promise.all([

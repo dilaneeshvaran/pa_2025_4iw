@@ -14,9 +14,13 @@ jest.mock('../../../config/database', () => ({
     teleconsultationSession: {
       findUnique: jest.fn(),
       update: jest.fn(),
+      findMany: jest.fn(),
     },
     appointment: {
       findUnique: jest.fn(),
+      update: jest.fn(),
+    },
+    patient: {
       update: jest.fn(),
     },
     notification: {
@@ -444,6 +448,117 @@ describe('TeleconsultationsService - delaySession and cancelSession', () => {
       )
 
       expect(mockPrisma.auditLog.create).toHaveBeenCalled()
+    })
+  })
+
+  describe('cleanupExpiredSessions', () => {
+    const buildSession = (overrides = {}) => ({
+      id: 'session-1',
+      appointmentId: 'apt-1',
+      patientId: 'patient-1',
+      practitionerId: 'practitioner-1',
+      roomId: 'room-1',
+      roomName: 'room-name-1',
+      status: 'SCHEDULED',
+      scheduledAt: new Date('2026-07-08T09:05:00.000Z'),
+      patientJoinedAt: null,
+      practitionerJoinedAt: null,
+      appointment: {
+        id: 'apt-1',
+        duration: 5,
+        startTime: '09:05',
+        endTime: '09:10',
+        appointmentDate: new Date('2026-07-08T00:00:00.000Z'),
+        reason: 'Consultation',
+      },
+      patient: {
+        id: 'patient-1',
+        firstName: 'Marie',
+        lastName: 'Curie',
+        noShowCount: 0,
+        user: {
+          id: 'user-patient-1',
+          email: 'patient@example.com',
+        },
+      },
+      practitioner: {
+        id: 'practitioner-1',
+        firstName: 'Jean',
+        lastName: 'Dupont',
+        title: 'Dr.',
+        user: {
+          id: 'user-practitioner-1',
+          email: 'practitioner@example.com',
+        },
+      },
+      ...overrides,
+    })
+
+    it('devrait nettoyer la session si le temps local du client a depasse l heure de fin (avec offset)', async () => {
+      const session = buildSession()
+      mockPrisma.teleconsultationSession.findMany.mockResolvedValue([session] as any)
+
+      // Supposons que now = 10:00:00 local (offset +02:00 -> -120), donc UTC = 08:00:00.
+      // Si on passe offset -120, le temps local du client est de 10:00:00.
+      // L'heure de fin du rdv est 09:10:00.
+      // Donc le rdv est expire !
+      const oldRealDate = global.Date
+      const mockNow = new Date('2026-07-08T08:00:00.000Z') // 10:00 AM local (offset +02:00)
+      global.Date = class extends Date {
+        constructor(...args: any[]) {
+          if (args.length > 0) {
+            super(...args)
+            return this
+          }
+          return mockNow
+        }
+      } as any
+
+      try {
+        await service.cleanupExpiredSessions('-120')
+
+        // Doit mettre a jour la session en FAILED / NO_SHOW (puisque personne n'a rejoint)
+        expect(mockPrisma.teleconsultationSession.update).toHaveBeenCalledWith(
+          expect.objectContaining({
+            where: { id: 'session-1' },
+            data: expect.objectContaining({
+              status: 'FAILED',
+            }),
+          })
+        )
+      } finally {
+        global.Date = oldRealDate
+      }
+    })
+
+    it('ne devrait pas nettoyer la session si le temps local du client n a pas encore depasse l heure de fin', async () => {
+      const session = buildSession()
+      mockPrisma.teleconsultationSession.findMany.mockResolvedValue([session] as any)
+
+      // Supposons que now = 09:00:00 local (offset +02:00 -> -120), donc UTC = 07:00:00.
+      // Si on passe offset -120, le temps local est 09:00:00.
+      // L'heure de fin du rdv est 09:10:00.
+      // Donc ce n'est pas encore expire !
+      const oldRealDate = global.Date
+      const mockNow = new Date('2026-07-08T07:00:00.000Z')
+      global.Date = class extends Date {
+        constructor(...args: any[]) {
+          if (args.length > 0) {
+            super(...args)
+            return this
+          }
+          return mockNow
+        }
+      } as any
+
+      try {
+        await service.cleanupExpiredSessions('-120')
+
+        // Ne doit pas mettre a jour la session car non expiree
+        expect(mockPrisma.teleconsultationSession.update).not.toHaveBeenCalled()
+      } finally {
+        global.Date = oldRealDate
+      }
     })
   })
 })

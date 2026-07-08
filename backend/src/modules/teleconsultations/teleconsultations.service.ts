@@ -856,8 +856,9 @@ export class TeleconsultationsService {
   }
 
   // cleanup expired sessions grace
-  async cleanupExpiredSessions() {
+  async cleanupExpiredSessions(timezoneOffset?: string) {
     const now = new Date()
+    const clientLocalTime = getClientLocalTime(now, timezoneOffset)
 
     // find sessions that are still scheduled or waiting past the appointment end time
     const expiredSessions = await prisma.teleconsultationSession.findMany({
@@ -904,7 +905,7 @@ export class TeleconsultationsService {
       const aptEnd = combineDateAndTime(aptDate, endTime)
 
       // only process if appointment end time has passed
-      if (now <= aptEnd) continue
+      if (clientLocalTime <= aptEnd) continue
 
       const patientJoined = !!session.patientJoinedAt
       const practitionerJoined = !!session.practitionerJoinedAt
