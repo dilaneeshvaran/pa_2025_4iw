@@ -9,9 +9,11 @@ import {
   sendNoShowEmail,
   sendAutoNoShowPractitionerNotification,
   sendPractitionerAbsentNotification,
+  sendTeleconsultationParticipantJoinedEmail,
 } from '../../utils/email'
 import { combineDateAndTime } from '../../utils/appointment-time'
 import { getClientLocalTime } from '../../utils/timezone'
+import { scheduleTeleconsultationJoinedEmail } from '../../utils/teleconsultation-email-scheduler'
 
 export class TeleconsultationsService {
   private formatSessionItem(session: any) {
@@ -130,8 +132,28 @@ export class TeleconsultationsService {
     const session = await prisma.teleconsultationSession.findUnique({
       where: { id: sessionId },
       include: {
-        patient: { include: { user: { select: { id: true } } } },
-        practitioner: { include: { user: { select: { id: true } } } },
+        patient: {
+          include: {
+            user: {
+              select: {
+                id: true,
+                email: true,
+                notificationPreference: true,
+              },
+            },
+          },
+        },
+        practitioner: {
+          include: {
+            user: {
+              select: {
+                id: true,
+                email: true,
+                notificationPreference: true,
+              },
+            },
+          },
+        },
       },
     })
 
@@ -198,6 +220,117 @@ export class TeleconsultationsService {
       where: { id: sessionId },
       data: updateData,
     })
+
+    // notify the other participant if they havent joined yet
+    try {
+      const endTime = new Date(scheduledAt.getTime() + appointmentDuration * 60 * 1000)
+
+      if (now <= endTime) {
+        if (determinedRole === 'patient') {
+          if (!session.patientJoinedAt && !session.practitionerJoinedAt) {
+            const recipientUser = session.practitioner?.user
+            if (recipientUser) {
+              const recipientName = `${session.practitioner.title} ${session.practitioner.lastName}`
+              const senderName = `${session.patient.firstName} ${session.patient.lastName}`
+
+              await prisma.notification.create({
+                data: {
+                  userId: recipientUser.id,
+                  type: 'SYSTEM_ALERT',
+                  channel: 'IN_APP',
+                  title: 'Patient connecté',
+                  message: `${senderName} a rejoint la téléconsultation.`,
+                  metadata: {
+                    targetPath: `/practitioner/teleconsultations?appointmentId=${session.appointmentId}`,
+                    appointmentId: session.appointmentId,
+                    teleconsultation: true,
+                  },
+                  sent: true,
+                  sentAt: new Date(),
+                  deliveryStatus: 'DELIVERED',
+                },
+              })
+
+              const emailAllowed = recipientUser.notificationPreference?.emailNotifications !== false
+              if (emailAllowed) {
+                if (now < scheduledAt) {
+                  // Patient has joined before the starttime of appointment, delay email until start time
+                  const delayMs = scheduledAt.getTime() - now.getTime()
+                  await scheduleTeleconsultationJoinedEmail({
+                    sessionId: session.id,
+                    to: recipientUser.email,
+                    recipientName,
+                    senderName,
+                    appointmentId: session.appointmentId,
+                    isRecipientPatient: false,
+                  }, delayMs)
+                } else {
+                  // Send immediately
+                  await sendTeleconsultationParticipantJoinedEmail(recipientUser.email, {
+                    recipientName,
+                    senderName,
+                    appointmentId: session.appointmentId,
+                    isRecipientPatient: false,
+                  })
+                }
+              }
+            }
+          }
+        } else if (determinedRole === 'practitioner') {
+          if (!session.practitionerJoinedAt && !session.patientJoinedAt) {
+            const recipientUser = session.patient?.user
+            if (recipientUser) {
+              const recipientName = `${session.patient.firstName} ${session.patient.lastName}`
+              const senderName = `${session.practitioner.title} ${session.practitioner.lastName}`
+
+              await prisma.notification.create({
+                data: {
+                  userId: recipientUser.id,
+                  type: 'SYSTEM_ALERT',
+                  channel: 'IN_APP',
+                  title: 'Praticien connecté',
+                  message: `Votre praticien ${senderName} a rejoint la téléconsultation.`,
+                  metadata: {
+                    targetPath: `/patient/teleconsultations?appointmentId=${session.appointmentId}`,
+                    appointmentId: session.appointmentId,
+                    teleconsultation: true,
+                  },
+                  sent: true,
+                  sentAt: new Date(),
+                  deliveryStatus: 'DELIVERED',
+                },
+              })
+
+              const emailAllowed = recipientUser.notificationPreference?.emailNotifications !== false
+              if (emailAllowed) {
+                if (now < scheduledAt) {
+                  // practitioner has joined before the starttime of appointment, delay email until start time
+                  const delayMs = scheduledAt.getTime() - now.getTime()
+                  await scheduleTeleconsultationJoinedEmail({
+                    sessionId: session.id,
+                    to: recipientUser.email,
+                    recipientName,
+                    senderName,
+                    appointmentId: session.appointmentId,
+                    isRecipientPatient: true,
+                  }, delayMs)
+                } else {
+                  // send immediately
+                  await sendTeleconsultationParticipantJoinedEmail(recipientUser.email, {
+                    recipientName,
+                    senderName,
+                    appointmentId: session.appointmentId,
+                    isRecipientPatient: true,
+                  })
+                }
+              }
+            }
+          }
+        }
+      }
+    } catch (notifError) {
+      console.error('Error sending joined notification:', notifError)
+    }
 
     // check if both are now in the session
     const bothJoined =
