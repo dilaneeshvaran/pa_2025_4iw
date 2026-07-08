@@ -175,7 +175,7 @@
                 <p class="text-sm text-gray-500 font-mono">
                   {{ formatDate(apt.appointmentDate) }} @ {{ apt.startTime }} - {{ apt.endTime }}
                 </p>
-                <p v-if="apt.reason" class="text-xs text-gray-400 mt-1 italic">
+                <p v-if="apt.reason" class="text-xs text-gray-500 mt-1 italic">
                   Motif: {{ apt.reason }}
                 </p>
               </div>
@@ -206,7 +206,7 @@
       <div v-if="activeTab === 'patients'" class="space-y-4">
         <!-- Search bar -->
         <div class="relative">
-          <Search class="absolute left-3 top-2.5 h-4 w-4 text-gray-400" />
+          <Search class="absolute left-3 top-2.5 h-4 w-4 text-gray-500" />
           <input
             v-model="patientSearch"
             type="text"
@@ -234,7 +234,7 @@
                 <p class="font-semibold text-gray-900">{{ pat.firstName }} {{ pat.lastName }}</p>
                 <p class="text-sm text-gray-500">{{ pat.email || 'Aucun email' }} · {{ pat.phone }}</p>
               </div>
-              <div class="text-right text-xs text-gray-400">
+              <div class="text-right text-xs text-gray-500">
                 <p>Visites: {{ pat.visitCount }}</p>
                 <p class="mt-0.5">Dernière visite: {{ formatDate(pat.lastVisit) }}</p>
               </div>
@@ -255,7 +255,7 @@
           <h2 class="text-xl font-bold text-gray-900">Prendre rendez-vous</h2>
           <button
             @click="showBookingModal = false"
-            class="rounded-lg p-1 text-gray-400 hover:bg-gray-100"
+            class="rounded-lg p-1 text-gray-500 hover:bg-gray-100"
           >
             <X class="h-5 w-5" />
           </button>
@@ -266,7 +266,7 @@
           <div class="relative">
             <label class="mb-1 block text-sm font-medium text-gray-700">Patient</label>
             <div class="relative">
-              <Search class="absolute left-3 top-2.5 h-4 w-4 text-gray-400" />
+              <Search class="absolute left-3 top-2.5 h-4 w-4 text-gray-500" />
               <input
                 v-model="bookingSearch"
                 @input="debouncedPatientSearch"

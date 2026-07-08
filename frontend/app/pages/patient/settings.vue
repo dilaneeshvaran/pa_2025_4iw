@@ -494,7 +494,7 @@
                 >
               </div>
               <p class="mt-0.5 text-xs text-gray-500">{{ item.description }}</p>
-              <p v-if="item.activeRecord" class="mt-1 text-xs text-gray-400">
+              <p v-if="item.activeRecord" class="mt-1 text-xs text-gray-500">
                 Accepté le {{ formatConsentDate(item.activeRecord.acceptedAt) }} · Version
                 {{ item.activeRecord.version }}
               </p>
@@ -518,7 +518,7 @@
               </button>
               <span
                 v-if="item.isActive && item.required"
-                class="text-xs italic text-gray-400">Non révocable</span
+                class="text-xs italic text-gray-500">Non révocable</span
               >
             </div>
           </div>
@@ -544,7 +544,7 @@
             </h3>
             <button
               @click="showSetupModal = false"
-              class="text-gray-400 hover:text-gray-600 transition p-1 rounded-lg focus:ring-2 focus:ring-orange-500"
+              class="text-gray-500 hover:text-gray-600 transition p-1 rounded-lg focus:ring-2 focus:ring-orange-500"
               aria-label="Fermer"
             >
               &times;
@@ -557,7 +557,7 @@
           <div class="flex flex-col items-center justify-center my-4 p-4 bg-gray-50 rounded-xl border border-dashed border-gray-200">
             <img :src="qrCodeUrl" alt="QR Code 2FA" class="w-48 h-48 shadow-sm rounded-lg" />
             <div class="mt-4 text-center w-full">
-              <span class="text-xs text-gray-400 font-medium uppercase tracking-wider block">Clé de configuration</span>
+              <span class="text-xs text-gray-500 font-medium uppercase tracking-wider block">Clé de configuration</span>
               <div class="flex items-center justify-center gap-2 mt-1">
                 <code class="text-sm font-mono bg-gray-100 px-2 py-1 rounded text-orange-600 font-bold block select-all break-all">
                   {{ secretKey }}
@@ -578,7 +578,7 @@
               inputmode="numeric"
               maxlength="6"
               placeholder="000000"
-              class="w-full text-center tracking-widest text-lg font-bold font-mono rounded-xl border border-gray-300 px-3 py-2.5 placeholder-gray-400 shadow-sm focus:border-orange-500 focus:outline-none focus:ring-2 focus:ring-orange-500"
+              class="w-full text-center tracking-widest text-lg font-bold font-mono rounded-xl border border-gray-300 px-3 py-2.5 placeholder-gray-500 shadow-sm focus:border-orange-500 focus:outline-none focus:ring-2 focus:ring-orange-500"
               @keyup.enter="verify2FA"
             />
             <p v-if="codeError" class="mt-2 text-sm text-red-600" role="alert">
@@ -661,7 +661,7 @@
           </h3>
           <button
             @click="showDisableModal = false"
-            class="text-gray-400 hover:text-gray-600 transition p-1 rounded-lg focus:ring-2 focus:ring-red-500"
+            class="text-gray-500 hover:text-gray-600 transition p-1 rounded-lg focus:ring-2 focus:ring-red-500"
             aria-label="Fermer"
           >
             &times;
@@ -680,7 +680,7 @@
             v-model="disablePassword"
             type="password"
             placeholder="••••••••"
-            class="w-full rounded-xl border border-gray-300 px-3 py-2 placeholder-gray-400 shadow-sm focus:border-red-500 focus:outline-none focus:ring-2 focus:ring-red-500"
+            class="w-full rounded-xl border border-gray-300 px-3 py-2 placeholder-gray-500 shadow-sm focus:border-red-500 focus:outline-none focus:ring-2 focus:ring-red-500"
             @keyup.enter="confirmDisable2FA"
           />
           <p v-if="disableError" class="mt-2 text-sm text-red-600" role="alert">

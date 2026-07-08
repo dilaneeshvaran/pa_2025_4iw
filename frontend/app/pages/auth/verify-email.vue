@@ -1,7 +1,7 @@
 <template>
   <div class="flex min-h-screen items-center justify-center px-4 py-12">
     <div class="w-full max-w-md space-y-8 rounded-lg bg-white p-8 shadow-lg">
-      <div class="text-center">
+      <div class="text-center" role="status" aria-live="polite" aria-atomic="true">
         <!-- loading state -->
         <div v-if="loading" class="space-y-4">
           <div class="flex justify-center">
@@ -10,6 +10,7 @@
               xmlns="http://www.w3.org/2000/svg"
               fill="none"
               viewBox="0 0 24 24"
+              aria-hidden="true"
             >
               <circle
                 class="opacity-25"
@@ -26,9 +27,9 @@
               />
             </svg>
           </div>
-          <h2 class="text-2xl font-bold text-gray-900">
+          <h1 class="text-2xl font-bold text-gray-900">
             Vérification de votre email...
-          </h2>
+          </h1>
           <p class="text-sm text-gray-600">Veuillez patienter</p>
         </div>
 
@@ -40,6 +41,7 @@
               fill="none"
               stroke="currentColor"
               viewBox="0 0 24 24"
+              aria-hidden="true"
             >
               <path
                 stroke-linecap="round"
@@ -49,9 +51,9 @@
               />
             </svg>
           </div>
-          <h2 class="text-2xl font-bold text-gray-900">
+          <h1 class="text-2xl font-bold text-gray-900">
             Email vérifié avec succès !
-          </h2>
+          </h1>
           <p class="text-gray-600">
             Votre adresse email a été vérifiée.
             {{
@@ -78,6 +80,7 @@
               fill="none"
               stroke="currentColor"
               viewBox="0 0 24 24"
+              aria-hidden="true"
             >
               <path
                 stroke-linecap="round"
@@ -87,9 +90,9 @@
               />
             </svg>
           </div>
-          <h2 class="text-2xl font-bold text-gray-900">
+          <h1 class="text-2xl font-bold text-gray-900">
             Échec de la vérification
-          </h2>
+          </h1>
           <div
             class="rounded-md border border-red-300 bg-red-50 px-4 py-3 text-sm text-red-800"
           >
@@ -107,12 +110,15 @@
                 class="space-y-3"
                 @submit.prevent="handleResendVerification"
               >
+                <label for="resend-email" class="sr-only">Adresse email</label>
                 <input
+                  id="resend-email"
                   v-model="resendEmail"
                   type="email"
                   required
+                  autocomplete="email"
                   placeholder="Entrez votre email"
-                  class="block w-full rounded-md border border-gray-300 px-3 py-2 placeholder-gray-400 shadow-sm focus:border-orange-500 focus:outline-none focus:ring-2 focus:ring-orange-500"
+                  class="block w-full rounded-md border border-gray-300 px-3 py-2 placeholder-gray-500 shadow-sm focus:border-orange-500 focus:outline-none focus:ring-2 focus:ring-orange-500"
                 />
                 <button
                   type="submit"

@@ -118,7 +118,7 @@
             <td class="px-6 py-4">
               <div class="font-medium text-gray-900">{{ u.fullName }}</div>
               <div class="text-sm text-gray-500">{{ u.email }}</div>
-              <div v-if="u.phone" class="text-xs text-gray-400">
+              <div v-if="u.phone" class="text-xs text-gray-500">
                 {{ u.phone }}
               </div>
             </td>
@@ -172,7 +172,7 @@
                   Supprimer
                 </button>
               </div>
-              <span v-else class="text-xs text-gray-400">-</span>
+              <span v-else class="text-xs text-gray-500">-</span>
             </td>
           </tr>
         </tbody>

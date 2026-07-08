@@ -36,7 +36,7 @@
                 :src="profile.photoUrl"
                 class="h-full w-full object-cover"
               />
-              <User v-else class="h-10 w-10 text-gray-400" />
+              <User v-else class="h-10 w-10 text-gray-500" />
             </div>
             <div>
               <input

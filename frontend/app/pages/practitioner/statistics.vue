@@ -96,7 +96,7 @@
             />
             <div
               v-else
-              class="flex h-full items-center justify-center text-gray-400"
+              class="flex h-full items-center justify-center text-gray-500"
             >
               Pas de données sur cette période
             </div>

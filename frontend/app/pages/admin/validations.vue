@@ -213,7 +213,7 @@
         <div class="mb-4 flex items-center justify-between">
           <h2 class="text-xl font-bold text-gray-900">Détails de la demande</h2>
           <button
-            class="rounded-lg p-2 text-gray-400 hover:bg-gray-100 hover:text-gray-600"
+            class="rounded-lg p-2 text-gray-500 hover:bg-gray-100 hover:text-gray-600"
             @click="showDetailsModal = false"
           >
             <svg
@@ -587,7 +587,7 @@
           <div class="mb-4">
             <label class="mb-2 block text-sm font-medium text-gray-700">
               Motif du rejet *
-              <span class="text-gray-400">(min. 10 caractères)</span>
+              <span class="text-gray-500">(min. 10 caractères)</span>
             </label>
             <textarea
               v-model="rejectionReason"

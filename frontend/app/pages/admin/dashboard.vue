@@ -19,7 +19,7 @@
       >
         <div class="flex items-start justify-between">
           <div>
-            <p class="text-[10px] font-medium uppercase tracking-widest text-gray-400">
+            <p class="text-[10px] font-medium uppercase tracking-widest text-gray-500">
               {{ kpi.label }}
             </p>
             <p
@@ -167,7 +167,7 @@
         >
           <CreditCard class="mb-3 h-12 w-12 text-gray-300 opacity-60" :stroke-width="1.25" />
           <h3 class="font-display text-base font-semibold text-gray-800">Tout est à jour</h3>
-          <p class="mt-1 max-w-[280px] text-sm text-gray-400">Aucun abonnement impayé pour le moment.</p>
+          <p class="mt-1 max-w-[280px] text-sm text-gray-500">Aucun abonnement impayé pour le moment.</p>
         </div>
 
         <div v-else class="space-y-1">
@@ -189,7 +189,7 @@
               </UiBadge>
               <p
                 v-if="sub.currentPeriodEnd"
-                class="mt-1 text-[11px] tabular-nums text-gray-400"
+                class="mt-1 text-[11px] tabular-nums text-gray-500"
               >
                 Fin : {{ formatShortDate(sub.currentPeriodEnd) }}
               </p>
@@ -222,7 +222,7 @@
         >
           <AlertTriangle class="mb-3 h-12 w-12 text-gray-300 opacity-60" :stroke-width="1.25" />
           <h3 class="font-display text-base font-semibold text-gray-800">Aucun no-show</h3>
-          <p class="mt-1 max-w-[280px] text-sm text-gray-400">Aucun no-show enregistré.</p>
+          <p class="mt-1 max-w-[280px] text-sm text-gray-500">Aucun no-show enregistré.</p>
         </div>
 
         <div v-else class="space-y-1">

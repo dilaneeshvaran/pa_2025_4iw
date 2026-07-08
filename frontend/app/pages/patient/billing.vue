@@ -65,7 +65,7 @@
       >
         <Receipt class="mx-auto mb-3 h-12 w-12 text-gray-300" />
         <p class="text-gray-500">Aucune facture pour le moment</p>
-        <p class="mt-1 text-sm text-gray-400">
+        <p class="mt-1 text-sm text-gray-500">
           Vos factures apparaîtront ici après un paiement
         </p>
       </div>
@@ -116,7 +116,7 @@
                   }}
                 </span>
               </div>
-              <div class="mt-1 text-xs text-gray-400">
+              <div class="mt-1 text-xs text-gray-500">
                 <span>{{ getPaymentMethodLabel(payment.method) }}</span>
                 <span class="mx-1">·</span>
                 <span>N° {{ payment.invoiceNumber }}</span>
@@ -234,7 +234,7 @@
       >
         <Wallet class="mx-auto mb-3 h-12 w-12 text-gray-300" />
         <p class="text-gray-500">Aucun moyen de paiement enregistré</p>
-        <p class="mt-1 text-sm text-gray-400">
+        <p class="mt-1 text-sm text-gray-500">
           Ajoutez Orange Money, MTN, Wave ou une carte bancaire
         </p>
         <UiButton size="sm" class="mt-4" @click="showAddMethodModal = true">
@@ -334,7 +334,7 @@
               Ajouter un moyen de paiement
             </h3>
             <button
-              class="rounded-lg p-1 text-gray-400 hover:bg-gray-100"
+              class="rounded-lg p-1 text-gray-500 hover:bg-gray-100"
               @click="showAddMethodModal = false"
             >
               <X class="h-5 w-5" />
@@ -689,7 +689,7 @@
               Paiement de la facture
             </h3>
             <button
-              class="rounded-lg p-1 text-gray-400 hover:bg-gray-100"
+              class="rounded-lg p-1 text-gray-500 hover:bg-gray-100"
               @click="showPaymentModal = false"
             >
               <X class="h-5 w-5" />

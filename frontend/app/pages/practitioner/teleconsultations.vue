@@ -340,7 +340,7 @@
                   session.status !== 'FAILED' &&
                   session.status !== 'CANCELLED'
                 "
-                class="text-xs italic text-gray-400"
+                class="text-xs italic text-gray-500"
               >
                 Absence détectée automatiquement
               </span>
@@ -536,7 +536,7 @@
               class="rounded-lg p-1 hover:bg-gray-100"
               @click="showHistoryModal = false"
             >
-              <X class="h-5 w-5 text-gray-400" />
+              <X class="h-5 w-5 text-gray-500" />
             </button>
           </div>
 
@@ -544,7 +544,7 @@
             <div class="flex flex-wrap gap-3">
               <div class="relative flex-1">
                 <Search
-                  class="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-gray-400"
+                  class="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-gray-500"
                 />
                 <input
                   v-model="historySearch"
@@ -641,7 +641,7 @@
                     >
                       {{ getQualityLabel(item.connectionQuality) }}
                     </span>
-                    <span v-else class="text-sm text-gray-400">-</span>
+                    <span v-else class="text-sm text-gray-500">-</span>
                   </td>
                   <td class="py-3">
                     <UiBadge :variant="getStatusBadgeVariant(item.status)">{{
@@ -708,7 +708,7 @@
               class="rounded-lg p-1 hover:bg-gray-100"
               @click="closePreCallChecks"
             >
-              <X class="h-5 w-5 text-gray-400" />
+              <X class="h-5 w-5 text-gray-500" />
             </button>
           </div>
           <div class="space-y-4">
@@ -978,7 +978,7 @@
                 class="w-full rounded-lg border border-gray-300 px-3 py-2 text-sm focus:border-orange-500 focus:outline-none focus:ring-1 focus:ring-orange-500"
                 placeholder="Autre durée (ex: 25)..."
               />
-              <span class="absolute right-3 top-2 text-sm text-gray-400">minutes</span>
+              <span class="absolute right-3 top-2 text-sm text-gray-500">minutes</span>
             </div>
           </div>
           <p class="mb-4 rounded-lg bg-orange-50 p-3 text-xs text-orange-700">

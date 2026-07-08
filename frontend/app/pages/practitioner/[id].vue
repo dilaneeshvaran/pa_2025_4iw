@@ -234,7 +234,7 @@
                   v-if="practitioner.acceptsInsurance"
                   class="h-5 w-5 text-[var(--color-success)]"
                 />
-                <IconX v-else class="h-5 w-5 text-gray-400" />
+                <IconX v-else class="h-5 w-5 text-gray-500" />
                 <span class="text-gray-700">Assurance acceptée</span>
               </div>
               <div class="flex items-center gap-2">
@@ -242,7 +242,7 @@
                   v-if="practitioner.acceptsNewPatients"
                   class="h-5 w-5 text-[var(--color-success)]"
                 />
-                <IconX v-else class="h-5 w-5 text-gray-400" />
+                <IconX v-else class="h-5 w-5 text-gray-500" />
                 <span class="text-gray-700">Accepte nouveaux patients</span>
               </div>
               <div class="flex items-center gap-2">
@@ -250,7 +250,7 @@
                   v-if="practitioner.teleconsultationEnabled"
                   class="h-5 w-5 text-[var(--color-success)]"
                 />
-                <IconX v-else class="h-5 w-5 text-gray-400" />
+                <IconX v-else class="h-5 w-5 text-gray-500" />
                 <span class="text-gray-700">Téléconsultation disponible</span>
               </div>
             </div>
@@ -358,7 +358,7 @@
 
             <!-- no slots -->
             <div v-else class="py-8 text-center">
-              <IconCalendar class="mx-auto mb-4 h-12 w-12 text-gray-400" />
+              <IconCalendar class="mx-auto mb-4 h-12 w-12 text-gray-500" />
               <p class="text-gray-600">
                 Aucun créneau disponible pour les prochains jours.
               </p>
@@ -460,7 +460,7 @@
             <!-- no reviews -->
             <Card v-if="!reviews.length">
               <div class="py-8 text-center">
-                <IconStar class="mx-auto mb-4 h-12 w-12 text-gray-400" />
+                <IconStar class="mx-auto mb-4 h-12 w-12 text-gray-500" />
                 <p class="text-gray-600">Aucun avis pour le moment.</p>
               </div>
             </Card>
@@ -486,7 +486,7 @@
               <PractitionersMap :practitioners="[practitioner]" />
               <template #fallback>
                 <div class="flex h-96 items-center justify-center rounded-lg bg-gray-100">
-                  <p class="text-gray-400">Chargement de la carte...</p>
+                  <p class="text-gray-500">Chargement de la carte...</p>
                 </div>
               </template>
             </ClientOnly>

@@ -84,6 +84,9 @@ export default defineNuxtConfig({
 
   app: {
     head: {
+      htmlAttrs: {
+        lang: "fr",
+      },
       title: "MediCôte - Plateforme médicale en Côte d'Ivoire",
       meta: [
         { charset: "utf-8" },

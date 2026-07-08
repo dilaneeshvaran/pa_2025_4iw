@@ -169,7 +169,7 @@
             </h3>
             <button
               @click="showSetupModal = false"
-              class="text-gray-400 hover:text-gray-600 transition"
+              class="text-gray-500 hover:text-gray-600 transition"
               aria-label="Fermer"
             >
               &times;
@@ -287,7 +287,7 @@
           </h3>
           <button
             @click="showDisableModal = false"
-            class="text-gray-400 hover:text-gray-600 transition"
+            class="text-gray-500 hover:text-gray-600 transition"
             aria-label="Fermer"
           >
             &times;

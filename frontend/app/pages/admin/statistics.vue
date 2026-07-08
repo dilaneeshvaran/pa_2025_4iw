@@ -36,7 +36,7 @@
           <p class="mt-1 text-2xl font-bold" :class="kpi.color">
             {{ kpi.value }}
           </p>
-          <p v-if="kpi.sub" class="text-xs text-gray-400">{{ kpi.sub }}</p>
+          <p v-if="kpi.sub" class="text-xs text-gray-500">{{ kpi.sub }}</p>
         </div>
       </div>
 
@@ -73,7 +73,7 @@
                 :title="`${m.practitioners} praticiens`"
               />
             </div>
-            <span class="text-[10px] text-gray-400">{{ m.label }}</span>
+            <span class="text-[10px] text-gray-500">{{ m.label }}</span>
           </div>
         </div>
       </section>
@@ -97,7 +97,7 @@
                   :title="`${m.total} RDV (${m.completed} terminés)`"
                 />
               </div>
-              <span class="text-[10px] text-gray-400">{{ m.label }}</span>
+              <span class="text-[10px] text-gray-500">{{ m.label }}</span>
             </div>
           </div>
         </section>
@@ -119,7 +119,7 @@
                   :title="`${formatNumber(m.amount)} ${data.overview.currency}`"
                 />
               </div>
-              <span class="text-[10px] text-gray-400">{{ m.label }}</span>
+              <span class="text-[10px] text-gray-500">{{ m.label }}</span>
             </div>
           </div>
         </section>
@@ -237,7 +237,7 @@
         </section>
       </div>
 
-      <p class="text-right text-xs text-gray-400">
+      <p class="text-right text-xs text-gray-500">
         Généré le {{ formatDateTime(data.generatedAt) }}
       </p>
     </div>

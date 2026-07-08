@@ -23,7 +23,7 @@
       <div v-else-if="!practitioners.length" class="py-12 text-center">
         <Users class="mx-auto mb-3 h-16 w-16 text-gray-300" />
         <p class="text-lg text-gray-500">Aucun praticien dans votre cabinet</p>
-        <p class="mt-1 text-sm text-gray-400">
+        <p class="mt-1 text-sm text-gray-500">
           Invitez des praticiens vérifiés pour les ajouter
         </p>
       </div>
@@ -74,7 +74,7 @@
             </span>
             <button
               @click.stop="removePractitioner(prac.id)"
-              class="rounded-lg p-2 text-gray-400 transition-colors hover:bg-red-50 hover:text-red-500"
+              class="rounded-lg p-2 text-gray-500 transition-colors hover:bg-red-50 hover:text-red-500"
               title="Retirer du cabinet"
             >
               <UserMinus class="h-4 w-4" />
@@ -95,7 +95,7 @@
           <h2 class="text-xl font-bold text-gray-900">Inviter un praticien</h2>
           <button
             @click="showInviteModal = false"
-            class="rounded-lg p-1 text-gray-400 hover:bg-gray-100"
+            class="rounded-lg p-1 text-gray-500 hover:bg-gray-100"
           >
             <X class="h-5 w-5" />
           </button>

@@ -106,7 +106,7 @@
                 {{ s.practitionerName }}
               </div>
               <div class="text-sm text-gray-500">{{ s.email || "-" }}</div>
-              <div v-if="s.city" class="text-xs text-gray-400">
+              <div v-if="s.city" class="text-xs text-gray-500">
                 {{ s.title ? s.title + " · " : "" }}{{ s.city }}
               </div>
             </td>

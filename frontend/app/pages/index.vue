@@ -94,22 +94,22 @@
           <div class="p-5 bg-gray-50/50 rounded-lg border border-black/[0.04]">
             <div class="font-display text-3xl font-bold text-orange-500 md:text-4xl tabular-nums">100+</div>
             <p class="mt-1 text-xs font-semibold text-gray-800">Praticiens vérifiés</p>
-            <p class="text-[10px] text-gray-400 mt-0.5">Inscrits à l'Ordre National</p>
+            <p class="text-[10px] text-gray-600 mt-0.5">Inscrits à l'Ordre National</p>
           </div>
           <div class="p-5 bg-gray-50/50 rounded-lg border border-black/[0.04]">
             <div class="font-display text-3xl font-bold text-green-600 md:text-4xl tabular-nums">10k+</div>
             <p class="mt-1 text-xs font-semibold text-gray-800">Patients inscrits</p>
-            <p class="text-[10px] text-gray-400 mt-0.5">Partout en Côte d'Ivoire</p>
+            <p class="text-[10px] text-gray-600 mt-0.5">Partout en Côte d'Ivoire</p>
           </div>
           <div class="p-5 bg-gray-50/50 rounded-lg border border-black/[0.04]">
             <div class="font-display text-3xl font-bold text-orange-500 md:text-4xl tabular-nums">50k+</div>
             <p class="mt-1 text-xs font-semibold text-gray-800">RDV & Téléconsultations</p>
-            <p class="text-[10px] text-gray-400 mt-0.5">Réalisés avec succès</p>
+            <p class="text-[10px] text-gray-600 mt-0.5">Réalisés avec succès</p>
           </div>
           <div class="p-5 bg-gray-50/50 rounded-lg border border-black/[0.04]">
             <div class="font-display text-3xl font-bold text-green-600 md:text-4xl tabular-nums">98%</div>
             <p class="mt-1 text-xs font-semibold text-gray-800">Satisfaction</p>
-            <p class="text-[10px] text-gray-400 mt-0.5">Des patients et soignants</p>
+            <p class="text-[10px] text-gray-600 mt-0.5">Des patients et soignants</p>
           </div>
         </div>
       </div>
@@ -121,7 +121,7 @@
         <h2 id="specialties-heading" class="font-display text-2xl font-bold tracking-tight text-gray-900 sm:text-3xl">
           Rechercher par spécialité populaire
         </h2>
-        <p class="mx-auto mt-2 max-w-2xl text-sm text-gray-400">
+        <p class="mx-auto mt-2 max-w-2xl text-sm text-gray-600">
           Accédez directement aux professionnels de santé les plus consultés.
         </p>
 
@@ -129,10 +129,12 @@
           <button
             v-for="spec in popularSpecialties"
             :key="spec.name"
+            type="button"
+            :aria-label="`Rechercher un praticien : ${spec.name}`"
             @click="searchSpecialty(spec.name)"
             class="flex flex-col items-center justify-center p-5 rounded-lg border border-black/[0.06] bg-white shadow-[0_1px_2px_rgba(26,21,16,0.04)] transition-all hover:border-orange-500 hover:shadow-md active:scale-[0.98] group"
           >
-            <span class="text-3xl mb-3 group-hover:scale-110 transition-transform">{{ spec.icon }}</span>
+            <span class="text-3xl mb-3 group-hover:scale-110 transition-transform" aria-hidden="true">{{ spec.icon }}</span>
             <span class="font-semibold text-gray-700 group-hover:text-orange-500 text-xs md:text-sm">{{ spec.name }}</span>
           </button>
         </div>
@@ -146,7 +148,7 @@
           <h2 id="workflow-heading" class="font-display text-2xl font-bold tracking-tight text-gray-900 sm:text-3xl">
             Comment fonctionne MediCôte ?
           </h2>
-          <p class="mx-auto mt-2 max-w-2xl text-sm text-gray-400">
+          <p class="mx-auto mt-2 max-w-2xl text-sm text-gray-600">
             Une plateforme simple, fluide et sécurisée pour vous accompagner au quotidien.
           </p>
         </div>
@@ -160,7 +162,7 @@
               </span>
               <h3 class="font-display text-lg font-bold text-gray-900">Espace Patient</h3>
             </div>
-            <p class="text-xs text-gray-400">Prenez soin de votre health et de celle de vos proches en quelques clics.</p>
+            <p class="text-xs text-gray-600">Prenez soin de votre santé et de celle de vos proches en quelques clics.</p>
             
             <ol class="space-y-4 list-none pl-0">
               <li class="flex gap-3.5">
@@ -210,7 +212,7 @@
               </span>
               <h3 class="font-display text-lg font-bold text-gray-900">Espace Praticien</h3>
             </div>
-            <p class="text-xs text-gray-400">Digitalisez votre activité, optimisez votre agenda et développez la téléconsultation.</p>
+            <p class="text-xs text-gray-600">Digitalisez votre activité, optimisez votre agenda et développez la téléconsultation.</p>
             
             <ol class="space-y-4 list-none pl-0">
               <li class="flex gap-3.5">
@@ -227,7 +229,7 @@
                   2
                 </div>
                 <div>
-                  <h4 class="text-sm font-semibold text-gray-900">Vérification de vos credentials</h4>
+                  <h4 class="text-sm font-semibold text-gray-900">Vérification de vos justificatifs</h4>
                   <p class="text-xs text-gray-500 mt-0.5">Nos administrateurs valident votre profil auprès des instances officielles ivoiriennes sous 24h.</p>
                 </div>
               </li>

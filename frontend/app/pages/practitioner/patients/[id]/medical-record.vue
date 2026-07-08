@@ -320,14 +320,14 @@
               <div class="ml-4 flex flex-shrink-0 items-center gap-2">
                 <button
                   v-if="isPdf(doc.mimeType)"
-                  class="rounded-lg p-2 text-gray-400 transition-colors hover:bg-gray-100 hover:text-orange-600"
+                  class="rounded-lg p-2 text-gray-500 transition-colors hover:bg-gray-100 hover:text-orange-600"
                   title="Lire"
                   @click="viewDocument(doc)"
                 >
                   <Eye class="h-5 w-5" />
                 </button>
                 <button
-                  class="rounded-lg p-2 text-gray-400 transition-colors hover:bg-gray-100 hover:text-orange-600"
+                  class="rounded-lg p-2 text-gray-500 transition-colors hover:bg-gray-100 hover:text-orange-600"
                   title="Telecharger"
                   @click="downloadDocument(doc)"
                 >
@@ -370,11 +370,11 @@
             </h3>
             <div class="rounded-lg border border-gray-200 p-4">
               <div class="flex items-center gap-3">
-                <Calendar class="h-5 w-5 text-gray-400" />
+                <Calendar class="h-5 w-5 text-gray-500" />
                 <span>{{
                   formatDate(patient.lastAppointment.appointmentDate)
                 }}</span>
-                <span class="text-gray-400">-</span>
+                <span class="text-gray-500">-</span>
                 <span>{{ patient.lastAppointment.startTime }}</span>
                 <UiBadge
                   :variant="

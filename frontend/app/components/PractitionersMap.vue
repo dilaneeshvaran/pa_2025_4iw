@@ -1,24 +1,34 @@
 <template>
   <div class="relative w-full">
-    <div ref="mapContainer" class="w-full rounded-lg" style="height: 560px; z-index: 0" />
+    <div
+      ref="mapContainer"
+      role="region"
+      aria-label="Carte interactive des praticiens et cabinets"
+      class="w-full rounded-lg"
+      style="height: 560px; z-index: 0"
+    />
 
     <!-- Controls overlay -->
     <div class="absolute right-3 top-3 z-[400] flex flex-col gap-2">
       <button
-        class="flex items-center gap-2 rounded-lg border border-gray-200 bg-white px-3 py-2 text-sm font-medium shadow-md hover:bg-gray-50 disabled:opacity-60"
+        type="button"
+        class="flex items-center gap-2 rounded-lg border border-gray-200 bg-white px-3 py-2 text-sm font-medium shadow-md hover:bg-gray-50 disabled:opacity-60 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--color-primary)]"
         :disabled="locating"
         @click="locateUser"
       >
-        <IconLocate class="h-4 w-4" :class="locating ? 'animate-spin' : ''" />
+        <IconLocate class="h-4 w-4" :class="locating ? 'animate-spin' : ''" aria-hidden="true" />
         {{ locating ? "Localisation..." : "Ma position" }}
       </button>
+      <p class="sr-only" role="status" aria-live="polite">
+        {{ locating ? "Localisation en cours" : userLocation ? "Position détectée" : "" }}
+      </p>
     </div>
 
     <!-- Radius slider (shown when user is located) -->
     <div v-if="userLocation" class="absolute bottom-8 left-3 right-3 z-[400]">
       <div class="rounded-lg border border-gray-200 bg-white p-3 shadow-md">
         <div class="mb-1 flex items-center justify-between">
-          <label class="text-xs font-medium text-gray-600">
+          <label for="map-radius" class="text-xs font-medium text-gray-600">
             Rayon de recherche
           </label>
           <span class="text-xs font-semibold text-[var(--color-primary)]">
@@ -26,15 +36,17 @@
           </span>
         </div>
         <input
+          id="map-radius"
           v-model.number="radiusKm"
           type="range"
           min="1"
           max="50"
           step="1"
-          class="w-full"
+          :aria-valuetext="`Rayon de ${radiusKm} kilomètres`"
+          class="w-full accent-[#00804A] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--color-primary)]"
           @input="onRadiusChange"
         />
-        <div class="mt-1 flex justify-between text-xs text-gray-400">
+        <div class="mt-1 flex justify-between text-xs text-gray-500">
           <span>1 km</span>
           <span>50 km</span>
         </div>
@@ -46,26 +58,27 @@
       v-if="!loading && mapReady && practitionersWithCoords === 0 && cabinetsWithCoords === 0"
       class="pointer-events-none absolute inset-0 flex items-center justify-center rounded-lg bg-white/70"
       style="z-index: 400"
+      role="status"
     >
       <div class="rounded-xl bg-white p-6 text-center shadow-lg">
-        <IconMapPin class="mx-auto mb-3 h-12 w-12 text-gray-300" />
-        <p class="text-gray-600">Aucun résultat localisé dans cette zone.</p>
-        <p class="mt-1 text-sm text-gray-400">
+        <IconMapPin class="mx-auto mb-3 h-12 w-12 text-gray-300" aria-hidden="true" />
+        <p class="text-gray-700">Aucun résultat localisé dans cette zone.</p>
+        <p class="mt-1 text-sm text-gray-600">
           Cliquez sur « Ma position » pour chercher près de vous.
         </p>
       </div>
     </div>
 
     <!-- Legend -->
-    <div class="absolute bottom-8 right-3 z-[400]">
+    <div class="absolute bottom-8 right-3 z-[400]" role="group" aria-label="Légende de la carte">
       <div class="rounded-lg border border-gray-200 bg-white px-3 py-2 text-xs shadow-md">
         <div class="mb-1 flex items-center gap-2">
-          <span class="inline-block h-3 w-3 rounded-full bg-[#0891b2]" />
-          <span class="text-gray-600">Praticien</span>
+          <span class="inline-block h-3 w-3 rounded-full bg-[#0891b2]" aria-hidden="true" />
+          <span class="text-gray-700">Praticien</span>
         </div>
         <div class="flex items-center gap-2">
-          <span class="inline-block h-3 w-3 rounded-full bg-[#7c3aed]" />
-          <span class="text-gray-600">Cabinet</span>
+          <span class="inline-block h-3 w-3 rounded-full bg-[#7c3aed]" aria-hidden="true" />
+          <span class="text-gray-700">Cabinet</span>
         </div>
       </div>
     </div>
@@ -181,6 +194,9 @@ const updatePractitionerMarkers = () => {
 
       const marker = L.marker([p.latitude!, p.longitude!], {
         icon: makePractitionerIcon(),
+        title: `${p.title} ${p.firstName} ${p.lastName} — ${specialty}`,
+        alt: `Praticien : ${p.title} ${p.firstName} ${p.lastName}, ${specialty}`,
+        riseOnHover: true,
       }).bindPopup(
         `<div style="min-width:210px;font-family:Inter,sans-serif;">
           <div style="font-weight:600;font-size:14px;margin-bottom:2px;">${p.title} ${p.firstName} ${p.lastName}</div>
@@ -210,6 +226,9 @@ const updateCabinetMarkers = () => {
     .forEach((c) => {
       const marker = L.marker([c.latitude!, c.longitude!], {
         icon: makeCabinetIcon(),
+        title: `${c.name}${c.city ? " — " + c.city : ""}`,
+        alt: `Cabinet : ${c.name}${c.city ? ", " + c.city : ""}`,
+        riseOnHover: true,
       }).bindPopup(
         `<div style="min-width:210px;font-family:Inter,sans-serif;">
           <div style="font-weight:600;font-size:14px;margin-bottom:2px;">${c.name}</div>
@@ -292,7 +311,11 @@ const locateUser = () => {
         iconAnchor: [9, 9],
       });
 
-      userMarker = L.marker([latitude, longitude], { icon: userIcon })
+      userMarker = L.marker([latitude, longitude], {
+        icon: userIcon,
+        title: "Votre position",
+        alt: "Votre position actuelle",
+      })
         .bindPopup("<b>Votre position</b>")
         .addTo(map);
 

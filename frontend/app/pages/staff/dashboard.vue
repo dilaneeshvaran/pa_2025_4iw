@@ -38,7 +38,7 @@
                 dashboard.assignedTo.name
               }}</strong>
             </p>
-            <div class="flex items-center gap-4 text-xs text-gray-400">
+            <div class="flex items-center gap-4 text-xs text-gray-500">
               <div
                 v-if="dashboard.assignedTo.address"
                 class="flex items-center gap-1.5"
@@ -68,7 +68,7 @@
       <div class="rounded-2xl border border-[#E5E3DC] border-t-2 border-t-[#00804A]/30 bg-white p-5 shadow-sm hover:shadow-md transition-all duration-300">
         <div class="flex items-start justify-between">
           <div>
-            <p class="text-[10px] font-medium uppercase tracking-widest text-gray-400">
+            <p class="text-[10px] font-medium uppercase tracking-widest text-gray-500">
               Praticiens gérés
             </p>
             <p
@@ -87,7 +87,7 @@
       <div class="rounded-2xl border border-[#E5E3DC] border-t-2 border-t-[#D96F00]/30 bg-white p-5 shadow-sm hover:shadow-md transition-all duration-300">
         <div class="flex items-start justify-between">
           <div>
-            <p class="text-[10px] font-medium uppercase tracking-widest text-gray-400">
+            <p class="text-[10px] font-medium uppercase tracking-widest text-gray-500">
               RDV aujourd'hui
             </p>
             <p
@@ -106,7 +106,7 @@
       <div class="rounded-2xl border border-[#E5E3DC] border-t-2 border-t-[#00804A]/30 bg-white p-5 shadow-sm hover:shadow-md transition-all duration-300">
         <div class="flex items-start justify-between">
           <div>
-            <p class="text-[10px] font-medium uppercase tracking-widest text-gray-400">
+            <p class="text-[10px] font-medium uppercase tracking-widest text-gray-500">
               Votre rôle
             </p>
             <p class="mt-1 font-display text-base font-semibold text-gray-900">
@@ -141,7 +141,7 @@
         >
           <Users class="mb-3 h-12 w-12 text-gray-300 opacity-60" :stroke-width="1.25" />
           <h3 class="font-display text-base font-semibold text-gray-800">Aucun praticien</h3>
-          <p class="mt-1 max-w-[280px] text-sm text-gray-400">Aucun praticien ne vous est assigné.</p>
+          <p class="mt-1 max-w-[280px] text-sm text-gray-500">Aucun praticien ne vous est assigné.</p>
         </div>
 
         <div v-else class="space-y-1">
@@ -189,7 +189,7 @@
         >
           <Calendar class="mb-3 h-12 w-12 text-gray-300 opacity-60" :stroke-width="1.25" />
           <h3 class="font-display text-base font-semibold text-gray-800">Aucun rendez-vous</h3>
-          <p class="mt-1 max-w-[280px] text-sm text-gray-400">Aucun rendez-vous programmé aujourd'hui.</p>
+          <p class="mt-1 max-w-[280px] text-sm text-gray-500">Aucun rendez-vous programmé aujourd'hui.</p>
         </div>
 
         <div v-else-if="!loading" class="space-y-1">

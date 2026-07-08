@@ -33,7 +33,7 @@
         <div class="border-b px-3 py-2">
           <div class="relative">
             <Search
-              class="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-gray-400"
+              class="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-gray-500"
             />
             <input
               v-model="searchQuery"
@@ -110,7 +110,7 @@
                     {{ conv.practitionerFirstName }}
                     {{ conv.practitionerLastName }}
                   </p>
-                  <span class="ml-2 flex-shrink-0 text-xs text-gray-400">
+                  <span class="ml-2 flex-shrink-0 text-xs text-gray-500">
                     {{ formatRelativeTime(conv.lastMessageAt) }}
                   </span>
                 </div>
@@ -131,7 +131,7 @@
                 </div>
                 <p
                   v-if="conv.lastMessagePreview"
-                  class="mt-0.5 truncate text-xs text-gray-400"
+                  class="mt-0.5 truncate text-xs text-gray-500"
                 >
                   {{ conv.lastMessagePreview }}
                 </p>
@@ -247,7 +247,7 @@
               >
                 <div class="my-4 flex items-center gap-3">
                   <div class="h-px flex-1 bg-gray-200" />
-                  <span class="text-xs font-medium text-gray-400">{{
+                  <span class="text-xs font-medium text-gray-500">{{
                     dateKey
                   }}</span>
                   <div class="h-px flex-1 bg-gray-200" />
@@ -320,7 +320,7 @@
                         'mt-1 flex items-center justify-end gap-1',
                         msg.senderUserId === currentUserId
                           ? 'text-orange-200'
-                          : 'text-gray-400',
+                          : 'text-gray-500',
                       ]"
                     >
                       <span class="text-[10px]">
@@ -381,11 +381,11 @@
                 <span class="flex-1 truncate text-sm text-gray-700">
                   {{ pendingAttachment.name }}
                 </span>
-                <span class="text-xs text-gray-400">
+                <span class="text-xs text-gray-500">
                   {{ formatFileSize(pendingAttachment.size) }}
                 </span>
                 <button
-                  class="rounded p-0.5 text-gray-400 hover:text-red-500"
+                  class="rounded p-0.5 text-gray-500 hover:text-red-500"
                   @click="pendingAttachment = null"
                 >
                   <X class="h-4 w-4" />
@@ -435,7 +435,7 @@
                   <Send class="h-4 w-4" />
                 </button>
               </form>
-              <p class="mt-1 text-[10px] text-gray-400">
+              <p class="mt-1 text-[10px] text-gray-500">
                 Formats : {{ fileConstraintsInfo.allowedFormatsLabel }} · Max
                 {{ fileConstraintsInfo.maxSizeLabel }} par fichier
               </p>
@@ -456,7 +456,7 @@
           <div class="mb-4 flex items-center justify-between">
             <h3 class="text-lg font-semibold text-gray-900">Nouveau message</h3>
             <button
-              class="rounded-lg p-1.5 text-gray-400 transition-colors hover:bg-gray-100"
+              class="rounded-lg p-1.5 text-gray-500 transition-colors hover:bg-gray-100"
               @click="showNewConversation = false"
             >
               <X class="h-5 w-5" />
@@ -518,7 +518,7 @@
                   {{ prac.specialty }}
                 </p>
               </div>
-              <MessageSquare class="ml-auto h-4 w-4 text-gray-400" />
+              <MessageSquare class="ml-auto h-4 w-4 text-gray-500" />
             </button>
           </div>
         </div>

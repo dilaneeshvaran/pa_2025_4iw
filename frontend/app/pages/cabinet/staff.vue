@@ -18,7 +18,7 @@
     <div class="flex flex-wrap gap-3">
       <div class="relative min-w-[240px] flex-1">
         <Search
-          class="pointer-events-none absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-gray-400"
+          class="pointer-events-none absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-gray-500"
         />
         <input
           v-model="searchQuery"
@@ -48,7 +48,7 @@
         <p class="text-lg text-gray-500">
           {{ staffMembers.length ? "Aucun résultat" : "Aucun personnel" }}
         </p>
-        <p class="mt-1 text-sm text-gray-400">
+        <p class="mt-1 text-sm text-gray-500">
           {{
             staffMembers.length
               ? "Essayez de modifier vos filtres"
@@ -97,19 +97,19 @@
                   </button>
                   <button
                     @click="cancelEdit"
-                    class="rounded p-0.5 text-gray-400 hover:bg-gray-100"
+                    class="rounded p-0.5 text-gray-500 hover:bg-gray-100"
                     title="Annuler"
                   >
                     <X class="h-3.5 w-3.5" />
                   </button>
                 </template>
                 <template v-else>
-                  <span class="text-xs text-gray-400">{{
+                  <span class="text-xs text-gray-500">{{
                     staff.position
                   }}</span>
                   <button
                     @click="startEdit(staff)"
-                    class="rounded p-0.5 text-gray-400 hover:bg-gray-100 hover:text-orange-600"
+                    class="rounded p-0.5 text-gray-500 hover:bg-gray-100 hover:text-orange-600"
                     title="Modifier le poste"
                   >
                     <Pencil class="h-3 w-3" />
@@ -135,7 +135,7 @@
             </span>
             <button
               @click="removeStaff(staff.id)"
-              class="rounded-lg p-2 text-gray-400 transition-colors hover:bg-red-50 hover:text-red-500"
+              class="rounded-lg p-2 text-gray-500 transition-colors hover:bg-red-50 hover:text-red-500"
               title="Supprimer"
             >
               <Trash2 class="h-4 w-4" />

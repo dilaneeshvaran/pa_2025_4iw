@@ -42,7 +42,7 @@
       >
         <div class="relative flex-1 sm:max-w-sm">
           <Search
-            class="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-gray-400"
+            class="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-gray-500"
           />
           <input
             v-model="searchQuery"
@@ -134,17 +134,17 @@
 
                 <div class="mt-3 flex flex-wrap gap-4 text-sm text-gray-600">
                   <div class="flex items-center gap-1.5">
-                    <Calendar class="h-4 w-4 text-gray-400" />
+                    <Calendar class="h-4 w-4 text-gray-500" />
                     <span>{{ formatDate(apt.appointmentDate) }}</span>
                   </div>
                   <div class="flex items-center gap-1.5">
-                    <Clock class="h-4 w-4 text-gray-400" />
+                    <Clock class="h-4 w-4 text-gray-500" />
                     <span>{{ apt.startTime }} - {{ apt.endTime }}</span>
                   </div>
                   <div class="flex items-center gap-1.5">
                     <component
                       :is="apt.type === 'TELECONSULTATION' ? Video : MapPin"
-                      class="h-4 w-4 text-gray-400"
+                      class="h-4 w-4 text-gray-500"
                     />
                     <span>{{
                       apt.type === "TELECONSULTATION"
@@ -159,7 +159,7 @@
                   v-if="apt.type === 'IN_PERSON' && (apt.cabinet?.address || apt.practitioner.address)"
                   class="mt-2 flex items-start gap-1.5 text-sm text-gray-500"
                 >
-                  <MapPin class="mt-0.5 h-4 w-4 flex-shrink-0 text-gray-400" />
+                  <MapPin class="mt-0.5 h-4 w-4 flex-shrink-0 text-gray-500" />
                   <span>
                     {{ apt.cabinet?.address || apt.practitioner.address }}
                     <template v-if="apt.cabinet?.city || apt.practitioner.city"
@@ -295,7 +295,7 @@
               @click="showPreCallChecks = false"
               class="rounded-lg p-1 hover:bg-gray-100"
             >
-              <X class="h-5 w-5 text-gray-400" />
+              <X class="h-5 w-5 text-gray-500" />
             </button>
           </div>
           <div class="space-y-4">
@@ -527,7 +527,7 @@
               placeholder="Partagez votre expérience..."
               class="w-full rounded-lg border border-gray-300 px-3 py-2 text-sm focus:border-orange-500 focus:outline-none focus:ring-1 focus:ring-orange-500"
             ></textarea>
-            <p class="mt-1 text-right text-xs text-gray-400">
+            <p class="mt-1 text-right text-xs text-gray-500">
               {{ reviewComment.length }}/1000
             </p>
           </div>

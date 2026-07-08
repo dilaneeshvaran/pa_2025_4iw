@@ -203,11 +203,11 @@
                   </div>
                   <div class="mt-3 flex flex-wrap gap-4 text-sm text-gray-600">
                     <div class="flex items-center gap-1.5">
-                      <Calendar class="h-4 w-4 text-gray-400" />
+                      <Calendar class="h-4 w-4 text-gray-500" />
                       <span>{{ formatDate(apt.appointmentDate) }}</span>
                     </div>
                     <div class="flex items-center gap-1.5">
-                      <Clock class="h-4 w-4 text-gray-400" />
+                      <Clock class="h-4 w-4 text-gray-500" />
                       <span>{{ apt.startTime }} - {{ apt.endTime }}</span>
                     </div>
                   </div>
@@ -301,7 +301,7 @@
               <div
                 class="flex h-10 w-10 flex-shrink-0 items-center justify-center rounded-full bg-gray-100"
               >
-                <Video class="h-5 w-5 text-gray-400" />
+                <Video class="h-5 w-5 text-gray-500" />
               </div>
               <div>
                 <p class="font-medium text-gray-900">
@@ -315,7 +315,7 @@
                 </p>
                 <p
                   v-if="apt.teleconsultationSession?.duration"
-                  class="text-xs text-gray-400"
+                  class="text-xs text-gray-500"
                 >
                   Durée : {{ apt.teleconsultationSession.duration }} min
                 </p>
@@ -369,7 +369,7 @@
               class="rounded-lg p-1 hover:bg-gray-100"
               @click="stopPreCallTest"
             >
-              <X class="h-5 w-5 text-gray-400" />
+              <X class="h-5 w-5 text-gray-500" />
             </button>
           </div>
           <div class="space-y-4">
