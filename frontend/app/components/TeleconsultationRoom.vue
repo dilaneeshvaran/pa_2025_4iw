@@ -620,22 +620,19 @@ const createPeer = (initiator: boolean) => {
     trickle: true,
     config: {
       iceServers: [
+        // STUN — fast direct P2P path discovery
         { urls: 'stun:stun.l.google.com:19302' },
-        { urls: 'stun:stun1.l.google.com:19302' },
+        // Self-hosted TURN relay on the app's own VPS — avoids relying on
+        // unreliable free public TURN servers.
         {
-          urls: 'turn:openrelay.metered.ca:80',
-          username: 'openrelayproject',
-          credential: 'openrelayproject',
+          urls: 'turn:medicote.me:3478',
+          username: 'medicote',
+          credential: 'medicoteTurn2025',
         },
         {
-          urls: 'turn:openrelay.metered.ca:443',
-          username: 'openrelayproject',
-          credential: 'openrelayproject',
-        },
-        {
-          urls: 'turn:openrelay.metered.ca:443?transport=tcp',
-          username: 'openrelayproject',
-          credential: 'openrelayproject',
+          urls: 'turn:medicote.me:3478?transport=tcp',
+          username: 'medicote',
+          credential: 'medicoteTurn2025',
         },
       ],
     },
@@ -1077,23 +1074,18 @@ const startQualityMonitor = () => {
       const stats = await pc.getStats();
       // eslint-disable-next-line @typescript-eslint/no-explicit-any
       stats.forEach((report: Record<string, any>) => {
-        if (report.type === "candidate-pair" && report.state === "succeeded") {
+        if (report.type === 'candidate-pair' && report.state === 'succeeded') {
           const rtt = report.currentRoundTripTime;
           if (rtt !== undefined) {
-            if (rtt < 0.1) connectionQuality.value = "good";
-            else if (rtt < 0.3) connectionQuality.value = "medium";
-            else connectionQuality.value = "poor";
+            if (rtt < 0.1) connectionQuality.value = 'good';
+            else if (rtt < 0.3) connectionQuality.value = 'medium';
+            else connectionQuality.value = 'poor';
           }
         }
       });
-      // report quality to backend
-      await useAuthenticatedFetch(
-        `/teleconsultations/${props.session.id}/connection-quality`,
-        {
-          method: "PATCH",
-          body: { quality: connectionQuality.value },
-        },
-      );
+      // Quality is measured locally only — reporting to the backend every 5 s
+      // was triggering token refreshes which caused the WebSocket to reconnect
+      // mid-call, dropping ICE candidates and freezing video.
     } catch {
       // ignore stats errors
     }
