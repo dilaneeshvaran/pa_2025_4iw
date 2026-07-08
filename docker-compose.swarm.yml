@@ -215,6 +215,25 @@ services:
       restart_policy:
         condition: on-failure
 
+  coturn:
+    image: coturn/coturn:latest
+    entrypoint:
+      - sh
+      - -c
+      - 'turnserver --lt-cred-mech --fingerprint --no-multicast-peers --no-cli --realm=medicote.me --user=medicote:medicoteTurn2025 --external-ip=${VPS_PUBLIC_IP:-142.93.73.60} --listening-port=3478 --min-port=49152 --max-port=65535'
+    ports:
+      - '3478:3478/udp'
+      - '3478:3478/tcp'
+    networks:
+      - pgnetwork
+    deploy:
+      replicas: 1
+      placement:
+        constraints:
+          - node.role == manager
+      restart_policy:
+        condition: on-failure
+
 networks:
   pgnetwork:
     driver: overlay

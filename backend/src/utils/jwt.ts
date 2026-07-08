@@ -5,7 +5,7 @@ const JWT_SECRET =
 const JWT_REFRESH_SECRET =
   process.env.BACKEND_JWT_REFRESH_SECRET ||
   'your-refresh-secret-key-change-in-production'
-const JWT_EXPIRES_IN = process.env.BACKEND_JWT_EXPIRES_IN || '15m'
+const JWT_EXPIRES_IN = process.env.BACKEND_JWT_EXPIRES_IN || '2h'
 const JWT_REFRESH_EXPIRES_IN =
   process.env.BACKEND_JWT_REFRESH_EXPIRES_IN || '7d'
 

@@ -163,15 +163,31 @@ export const useMessagingStore = defineStore("messaging", () => {
     }
   }
 
-  // reconnect/disconnect automatically when access token changes (e.g. refreshed or logged out)
+  // Reconnect the WebSocket when the access token changes.
+  // On logout (no new token): always close the socket.
+  // On token refresh (new token replaces old): only reconnect if the socket
+  // is not already OPEN — avoids tearing down the WS mid-call just because
+  // a background token refresh changed the stored value.
   watch(
     () => authStore.accessToken,
-    (newToken) => {
+    (newToken, oldToken) => {
       if (!newToken) {
+        // Logged out — close everything.
         disconnect();
-      } else {
-        disconnect();
+      } else if (!oldToken) {
+        // First login — open the socket.
         connect();
+      } else {
+        // Token was refreshed. The existing socket is still authenticated
+        // on the server (the server validates the token at connect-time only).
+        // Only reconnect if the socket is not alive, to avoid mid-call drops.
+        if (
+          !socket.value ||
+          socket.value.readyState === WebSocket.CLOSED ||
+          socket.value.readyState === WebSocket.CLOSING
+        ) {
+          connect();
+        }
       }
     }
   );
