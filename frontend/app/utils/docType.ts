@@ -2,7 +2,7 @@
 export const getDocTypeLabel = (type: string): string => {
   const labels: Record<string, string> = {
     PRESCRIPTION: "Ordonnance",
-    LAB_RESULT: "Analyse",
+    LAB_RESULT: "Résultat de laboratoire",
     RADIOLOGY: "Imagerie",
     MEDICAL_REPORT: "Rapport médical",
     CERTIFICATE: "Certificat",

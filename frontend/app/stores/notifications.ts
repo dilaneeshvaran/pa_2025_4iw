@@ -31,7 +31,7 @@ interface ApiNotification {
   createdAt: string;
 }
 
-const toMetadataRecord = (metadata: unknown): AppNotificationMetadata => {
+export const toMetadataRecord = (metadata: unknown): AppNotificationMetadata => {
   if (
     metadata &&
     typeof metadata === "object" &&
@@ -43,7 +43,7 @@ const toMetadataRecord = (metadata: unknown): AppNotificationMetadata => {
   return null;
 };
 
-const normalizeNotification = (
+export const normalizeNotification = (
   notification: ApiNotification,
 ): AppNotification => ({
   ...notification,
