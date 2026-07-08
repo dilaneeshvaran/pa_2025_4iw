@@ -20,6 +20,8 @@ export default defineConfig({
     alias: {
       '~': resolve(__dirname, './app'),
       '@': resolve(__dirname, './app'),
+      '@ts-rest/core': resolve(__dirname, './app/__tests__/mocks/ts-rest-core.ts'),
+      '@medicote/shared': resolve(__dirname, './app/__tests__/mocks/medicote-shared.ts'),
     },
   },
 })

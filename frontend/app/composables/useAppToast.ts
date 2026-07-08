@@ -6,9 +6,10 @@ type ToastApi = {
 }
 
 let toastPromise: Promise<ToastApi | null> | null = null
+const isClient = () => import.meta.client || typeof window !== 'undefined'
 
 async function resolveToast(): Promise<ToastApi | null> {
-  if (!import.meta.client) {
+  if (!isClient()) {
     return null
   }
 
