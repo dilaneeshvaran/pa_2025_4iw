@@ -620,25 +620,44 @@ const createPeer = (initiator: boolean) => {
     trickle: true,
     config: {
       iceServers: [
-        { urls: "stun:stun.l.google.com:19302" },
-        { urls: "stun:stun1.l.google.com:19302" },
-        { urls: "stun:stun2.l.google.com:19302" },
-        { urls: "stun:stun3.l.google.com:19302" },
-        { urls: "stun:stun4.l.google.com:19302" },
-        { urls: "stun:stun.services.mozilla.com:3478" },
+        { urls: 'stun:stun.l.google.com:19302' },
+        { urls: 'stun:stun1.l.google.com:19302' },
+        {
+          urls: 'turn:openrelay.metered.ca:80',
+          username: 'openrelayproject',
+          credential: 'openrelayproject',
+        },
+        {
+          urls: 'turn:openrelay.metered.ca:443',
+          username: 'openrelayproject',
+          credential: 'openrelayproject',
+        },
+        {
+          urls: 'turn:openrelay.metered.ca:443?transport=tcp',
+          username: 'openrelayproject',
+          credential: 'openrelayproject',
+        },
       ],
     },
   });
 
   const pc = (peer as any)._pc as RTCPeerConnection | undefined;
   if (pc) {
-    // Use only onconnectionstatechange (not iceconnectionstatechange) to avoid
-    // duplicate events on transient ICE states causing a reconnect storm.
+    // Use only onconnectionstatechange to avoid duplicate events from
+    // iceconnectionstatechange causing a reconnect storm on transient states.
     pc.onconnectionstatechange = () => {
       const state = pc.connectionState;
       console.log('WebRTC connection state update:', state);
-      if (state === 'failed') {
-        // Debounce: wait 1 s before destroying to allow ICE restart
+
+      if (state === 'connected' || state === 'completed') {
+        // Connection established — cancel any pending reconnect timer.
+        if (disconnectTimer) {
+          clearTimeout(disconnectTimer);
+          disconnectTimer = null;
+        }
+      } else if (state === 'failed') {
+        // Debounce 2 s to allow a browser-initiated ICE restart before we
+        // tear down the peer entirely.
         if (!disconnectTimer) {
           disconnectTimer = setTimeout(() => {
             disconnectTimer = null;
@@ -646,25 +665,12 @@ const createPeer = (initiator: boolean) => {
               console.error('WebRTC connection failed, reconnecting');
               destroyPeerAndReconnect();
             }
-          }, 1000);
-        }
-      } else if (state === 'disconnected') {
-        console.warn('WebRTC connection disconnected, scheduling reconnect in 5s');
-        if (!disconnectTimer) {
-          disconnectTimer = setTimeout(() => {
-            disconnectTimer = null;
-            if (pc.connectionState === 'disconnected' || pc.connectionState === 'failed') {
-              console.error('WebRTC connection failed to recover after 5s, reconnecting');
-              destroyPeerAndReconnect();
-            }
-          }, 5000);
-        }
-      } else if (state === 'connected' || state === 'completed') {
-        if (disconnectTimer) {
-          clearTimeout(disconnectTimer);
-          disconnectTimer = null;
+          }, 2000);
         }
       }
+      // 'disconnected' is intentionally NOT handled here — the browser's
+      // built-in ICE restart recovers from transient drops in 1–3 s without
+      // us tearing down the peer (which would freeze video for much longer).
     };
   }
 
