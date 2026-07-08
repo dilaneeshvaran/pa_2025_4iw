@@ -1,7 +1,6 @@
 import { initClient } from '@ts-rest/core'
 import { reviewsContract } from '@medicote/shared'
 import { useAuthStore } from '~/stores/auth'
-import { navigateTo, useRuntimeConfig } from '#app'
 
 export const useTsRestClient = () => {
   const config = useRuntimeConfig()

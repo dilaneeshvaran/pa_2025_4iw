@@ -15,6 +15,7 @@ declare global {
 }
 
 const analyticsLoaded = ref(false)
+const isClient = () => import.meta.client || typeof window !== 'undefined'
 
 export function useAnalytics() {
   const config = useRuntimeConfig()
@@ -22,7 +23,7 @@ export function useAnalytics() {
   const isAnalyticsLoaded = computed(() => analyticsLoaded.value)
 
   const initAnalytics = (): void => {
-    if (!import.meta.client) return
+    if (!isClient()) return
     if (isDntActive(navigator, window)) return
     if (!config.public.umamiEnabled) return
     if (!config.public.umamiUrl || !config.public.umamiWebsiteId) return
@@ -46,7 +47,7 @@ export function useAnalytics() {
   }
 
   const trackPageView = (path?: string): void => {
-    if (!import.meta.client) return
+    if (!isClient()) return
     if (isDntActive(navigator, window)) return
     if (!analyticsLoaded.value || !window.umami) return
 
@@ -58,7 +59,7 @@ export function useAnalytics() {
     eventName: AllowedEvent,
     data?: Record<string, string | number | boolean>,
   ): void => {
-    if (!import.meta.client) return
+    if (!isClient()) return
     if (isDntActive(navigator, window)) return
     if (!analyticsLoaded.value || !window.umami) return
     if (!isAllowedEvent(eventName)) return
