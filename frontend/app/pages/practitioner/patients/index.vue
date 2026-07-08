@@ -52,7 +52,7 @@
           >
           <div class="relative">
             <Search
-              class="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-gray-400"
+              class="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-gray-500"
             />
             <input
               v-model="searchQuery"
@@ -63,7 +63,7 @@
             />
             <button
               v-if="searchQuery"
-              class="absolute right-3 top-1/2 -translate-y-1/2 text-gray-400 hover:text-gray-600"
+              class="absolute right-3 top-1/2 -translate-y-1/2 text-gray-500 hover:text-gray-600"
               @click="clearSearch"
             >
               <X class="h-4 w-4" />
@@ -227,7 +227,7 @@
               {{ patient.nextAppointment.startTime }}
             </span>
           </div>
-          <div v-else class="flex items-center gap-2 text-sm text-gray-400">
+          <div v-else class="flex items-center gap-2 text-sm text-gray-500">
             <CalendarX class="h-3.5 w-3.5 flex-shrink-0" />
             <span>Aucun RDV prévu</span>
           </div>
@@ -338,7 +338,7 @@
                     }}, {{ patient.nextAppointment.startTime }}
                   </span>
                 </div>
-                <span v-else class="text-sm text-gray-400"
+                <span v-else class="text-sm text-gray-500"
                   >Aucun RDV prévu</span
                 >
               </td>

@@ -13,7 +13,7 @@
     >
       <div class="relative flex-1 sm:max-w-md">
         <Search
-          class="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-gray-400"
+          class="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-gray-500"
         />
         <input
           v-model="searchQuery"
@@ -24,7 +24,7 @@
         />
         <button
           v-if="searchQuery"
-          class="absolute right-3 top-1/2 -translate-y-1/2 text-gray-400 hover:text-gray-600"
+          class="absolute right-3 top-1/2 -translate-y-1/2 text-gray-500 hover:text-gray-600"
           @click="clearSearch"
         >
           <X class="h-4 w-4" />
@@ -129,7 +129,7 @@
     >
       <FileText class="mx-auto mb-4 h-14 w-14 text-gray-300" />
       <p class="text-lg font-medium text-gray-500">Aucun document</p>
-      <p class="mt-1 text-sm text-gray-400">
+      <p class="mt-1 text-sm text-gray-500">
         {{
           searchQuery
             ? "Aucun document ne correspond à votre recherche"
@@ -176,12 +176,12 @@
         </p>
         <p
           v-if="doc.description"
-          class="mb-3 line-clamp-2 text-sm text-gray-400"
+          class="mb-3 line-clamp-2 text-sm text-gray-500"
         >
           {{ doc.description }}
         </p>
 
-        <div class="mb-4 flex items-center gap-3 text-xs text-gray-400">
+        <div class="mb-4 flex items-center gap-3 text-xs text-gray-500">
           <span>{{ formatDate(doc.uploadedAt) }}</span>
           <span>·</span>
           <span>{{ formatFileSize(doc.fileSize) }}</span>
@@ -249,14 +249,14 @@
         <div class="ml-4 flex flex-shrink-0 items-center gap-2">
           <button
             v-if="isPdf(doc.mimeType)"
-            class="rounded-lg p-2 text-gray-400 transition-colors hover:bg-gray-100 hover:text-orange-600"
+            class="rounded-lg p-2 text-gray-500 transition-colors hover:bg-gray-100 hover:text-orange-600"
             title="Lire"
             @click="viewDocument(doc)"
           >
             <Eye class="h-5 w-5" />
           </button>
           <button
-            class="rounded-lg p-2 text-gray-400 transition-colors hover:bg-gray-100 hover:text-orange-600"
+            class="rounded-lg p-2 text-gray-500 transition-colors hover:bg-gray-100 hover:text-orange-600"
             title="Télécharger"
             @click="downloadDocument(doc.id, doc.fileName)"
           >

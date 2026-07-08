@@ -13,7 +13,7 @@
           </label>
           <div class="relative">
             <Search
-              class="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-gray-400"
+              class="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-gray-500"
             />
             <input
               v-model="searchQuery"
@@ -179,7 +179,7 @@
             <td class="px-4 py-3">
               <div class="relative">
                 <button
-                  class="rounded p-1 text-gray-400 hover:bg-gray-100 hover:text-gray-600"
+                  class="rounded p-1 text-gray-500 hover:bg-gray-100 hover:text-gray-600"
                   @click.stop="toggleMenu(patient.id, $event)"
                 >
                   <MoreVertical class="h-5 w-5" />
@@ -300,7 +300,7 @@
             {{ historyData?.patient.lastName }}
           </h2>
           <button
-            class="text-gray-400 hover:text-gray-600"
+            class="text-gray-500 hover:text-gray-600"
             @click="showHistoryModal = false"
           >
             <X class="h-5 w-5" />

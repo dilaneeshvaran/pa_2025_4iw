@@ -256,14 +256,14 @@
                   type="time"
                   class="rounded-lg border border-gray-300 px-2 py-1 text-sm"
                 />
-                <span class="text-gray-400">-</span>
+                <span class="text-gray-500">-</span>
                 <input
                   v-model="openHours[day.key].close"
                   type="time"
                   class="rounded-lg border border-gray-300 px-2 py-1 text-sm"
                 />
               </template>
-              <span v-else class="text-sm text-gray-400">Fermé</span>
+              <span v-else class="text-sm text-gray-500">Fermé</span>
             </div>
           </div>
         </div>
@@ -350,7 +350,7 @@
               <Lock class="w-6 h-6 text-orange-500" />
               Configurer la 2FA
             </h3>
-            <button @click="showSetupModal = false" class="text-gray-400 hover:text-gray-600 transition p-1 rounded-lg" aria-label="Fermer">
+            <button @click="showSetupModal = false" class="text-gray-500 hover:text-gray-600 transition p-1 rounded-lg" aria-label="Fermer">
               &times;
             </button>
           </div>
@@ -361,7 +361,7 @@
           <div class="flex flex-col items-center justify-center my-4 p-4 bg-gray-50 rounded-xl border border-dashed border-gray-200">
             <img :src="qrCodeUrl" alt="QR Code 2FA" class="w-48 h-48 shadow-sm rounded-lg" />
             <div class="mt-4 text-center w-full">
-              <span class="text-xs text-gray-400 font-medium uppercase tracking-wider block">Clé de configuration</span>
+              <span class="text-xs text-gray-500 font-medium uppercase tracking-wider block">Clé de configuration</span>
               <code class="text-sm font-mono bg-gray-100 px-2 py-1 rounded text-orange-600 font-bold block select-all break-all mt-1">{{ secretKey }}</code>
             </div>
           </div>
@@ -376,7 +376,7 @@
               inputmode="numeric"
               maxlength="6"
               placeholder="000000"
-              class="w-full text-center tracking-widest text-lg font-bold font-mono rounded-xl border border-gray-300 px-3 py-2.5 placeholder-gray-400 shadow-sm focus:border-orange-500 focus:outline-none focus:ring-2 focus:ring-orange-500"
+              class="w-full text-center tracking-widest text-lg font-bold font-mono rounded-xl border border-gray-300 px-3 py-2.5 placeholder-gray-500 shadow-sm focus:border-orange-500 focus:outline-none focus:ring-2 focus:ring-orange-500"
               @keyup.enter="verify2FA"
             />
             <p v-if="codeError" class="mt-2 text-sm text-red-600" role="alert">{{ codeError }}</p>
@@ -436,7 +436,7 @@
             <Lock class="w-6 h-6 text-red-500" />
             Désactiver la 2FA ?
           </h3>
-          <button @click="showDisableModal = false" class="text-gray-400 hover:text-gray-600 transition p-1 rounded-lg" aria-label="Fermer">
+          <button @click="showDisableModal = false" class="text-gray-500 hover:text-gray-600 transition p-1 rounded-lg" aria-label="Fermer">
             &times;
           </button>
         </div>
@@ -450,7 +450,7 @@
             v-model="disablePassword"
             type="password"
             placeholder="••••••••"
-            class="w-full rounded-xl border border-gray-300 px-3 py-2 placeholder-gray-400 shadow-sm focus:border-red-500 focus:outline-none focus:ring-2 focus:ring-red-500"
+            class="w-full rounded-xl border border-gray-300 px-3 py-2 placeholder-gray-500 shadow-sm focus:border-red-500 focus:outline-none focus:ring-2 focus:ring-red-500"
             @keyup.enter="confirmDisable2FA"
           />
           <p v-if="disableError" class="mt-2 text-sm text-red-600" role="alert">{{ disableError }}</p>

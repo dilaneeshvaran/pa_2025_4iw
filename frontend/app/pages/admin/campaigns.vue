@@ -74,7 +74,7 @@
                 }})
               </span>
             </div>
-            <component :is="option.icon" class="h-5 w-5 text-gray-400" />
+            <component :is="option.icon" class="h-5 w-5 text-gray-500" />
           </label>
         </div>
 
@@ -128,7 +128,7 @@
                   type="date"
                   class="w-full rounded-lg border border-gray-300 px-3 py-2 text-sm focus:border-red-500 focus:ring-red-500"
                 />
-                <span class="text-gray-400">-</span>
+                <span class="text-gray-500">-</span>
                 <input
                   v-model="customDateTo"
                   type="date"
@@ -224,10 +224,10 @@
                 <input
                   type="checkbox"
                   disabled
-                  class="h-4 w-4 rounded text-gray-400"
+                  class="h-4 w-4 rounded text-gray-500"
                 />
-                <Smartphone class="h-4 w-4 text-gray-400" />
-                <span class="text-sm text-gray-400"
+                <Smartphone class="h-4 w-4 text-gray-500" />
+                <span class="text-sm text-gray-500"
                   >SMS
                   <span class="text-xs">(bientôt disponible)</span>
                 </span>
@@ -319,7 +319,7 @@
         <div class="flex flex-wrap items-center gap-4">
           <div class="relative flex-1">
             <Search
-              class="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-gray-400"
+              class="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-gray-500"
             />
             <input
               v-model="historySearch"
@@ -482,7 +482,7 @@
             {{ selectedCampaign.title }}
           </h3>
           <button
-            class="text-gray-400 hover:text-gray-600"
+            class="text-gray-500 hover:text-gray-600"
             @click="showDetailModal = false"
           >
             <X class="h-5 w-5" />

@@ -2,9 +2,9 @@
   <div class="flex min-h-screen items-center justify-center px-4 py-12">
     <div class="w-full max-w-2xl space-y-8 rounded-lg bg-white p-8 shadow-lg">
       <div>
-        <h2 class="text-center text-3xl font-bold text-gray-900">
+        <h1 class="text-center text-3xl font-bold text-gray-900">
           Créer un compte patient
-        </h2>
+        </h1>
         <p class="mt-2 text-center text-sm text-gray-600">
           Inscrivez-vous pour prendre rendez-vous avec nos praticiens
         </p>
@@ -13,7 +13,7 @@
       <form class="mt-8 space-y-6" @submit.prevent="handleRegister">
         <!-- error message -->
         <div
-          v-if="errorMessage"
+          v-if="errorMessage" role="alert"
           class="rounded-md border border-red-300 bg-red-50 px-4 py-3 text-sm text-red-800"
         >
           {{ errorMessage }}
@@ -21,7 +21,7 @@
 
         <!-- success message -->
         <div
-          v-if="successMessage"
+          v-if="successMessage" role="status"
           class="rounded-md border border-green-300 bg-green-50 px-4 py-3 text-sm text-green-800"
         >
           {{ successMessage }}
@@ -42,7 +42,7 @@
               required
               autocomplete="given-name"
               :class="[
-                'mt-1 block w-full rounded-md border px-3 py-2 placeholder-gray-400 shadow-sm focus:outline-none focus:ring-2 focus:ring-offset-0',
+                'mt-1 block w-full rounded-md border px-3 py-2 placeholder-gray-500 shadow-sm focus:outline-none focus:ring-2 focus:ring-offset-0',
                 fieldErrors.firstName
                   ? 'border-red-300 text-red-900 placeholder-red-300 focus:border-red-500 focus:ring-red-500'
                   : 'border-gray-300 focus:border-orange-500 focus:ring-orange-500'
@@ -74,7 +74,7 @@
               required
               autocomplete="family-name"
               :class="[
-                'mt-1 block w-full rounded-md border px-3 py-2 placeholder-gray-400 shadow-sm focus:outline-none focus:ring-2 focus:ring-offset-0',
+                'mt-1 block w-full rounded-md border px-3 py-2 placeholder-gray-500 shadow-sm focus:outline-none focus:ring-2 focus:ring-offset-0',
                 fieldErrors.lastName
                   ? 'border-red-300 text-red-900 placeholder-red-300 focus:border-red-500 focus:ring-red-500'
                   : 'border-gray-300 focus:border-orange-500 focus:ring-orange-500'
@@ -103,7 +103,7 @@
               required
               autocomplete="email"
               :class="[
-                'mt-1 block w-full rounded-md border px-3 py-2 placeholder-gray-400 shadow-sm focus:outline-none focus:ring-2 focus:ring-offset-0',
+                'mt-1 block w-full rounded-md border px-3 py-2 placeholder-gray-500 shadow-sm focus:outline-none focus:ring-2 focus:ring-offset-0',
                 fieldErrors.email
                   ? 'border-red-300 text-red-900 placeholder-red-300 focus:border-red-500 focus:ring-red-500'
                   : 'border-gray-300 focus:border-orange-500 focus:ring-orange-500'
@@ -132,7 +132,7 @@
               required
               autocomplete="tel"
               :class="[
-                'mt-1 block w-full rounded-md border px-3 py-2 placeholder-gray-400 shadow-sm focus:outline-none focus:ring-2 focus:ring-offset-0',
+                'mt-1 block w-full rounded-md border px-3 py-2 placeholder-gray-500 shadow-sm focus:outline-none focus:ring-2 focus:ring-offset-0',
                 fieldErrors.phone
                   ? 'border-red-300 text-red-900 placeholder-red-300 focus:border-red-500 focus:ring-red-500'
                   : 'border-gray-300 focus:border-orange-500 focus:ring-orange-500'
@@ -165,7 +165,7 @@
               :min="minDate"
               :max="maxDate"
               :class="[
-                'mt-1 block w-full rounded-md border px-3 py-2 placeholder-gray-400 shadow-sm focus:outline-none focus:ring-2 focus:ring-offset-0',
+                'mt-1 block w-full rounded-md border px-3 py-2 placeholder-gray-500 shadow-sm focus:outline-none focus:ring-2 focus:ring-offset-0',
                 fieldErrors.dateOfBirth
                   ? 'border-red-300 text-red-900 placeholder-red-300 focus:border-red-500 focus:ring-red-500'
                   : 'border-gray-300 focus:border-orange-500 focus:ring-orange-500'
@@ -228,7 +228,7 @@
               required
               autocomplete="new-password"
               :class="[
-                'mt-1 block w-full rounded-md border px-3 py-2 placeholder-gray-400 shadow-sm focus:outline-none focus:ring-2 focus:ring-offset-0',
+                'mt-1 block w-full rounded-md border px-3 py-2 placeholder-gray-500 shadow-sm focus:outline-none focus:ring-2 focus:ring-offset-0',
                 fieldErrors.password
                   ? 'border-red-300 text-red-900 placeholder-red-300 focus:border-red-500 focus:ring-red-500'
                   : 'border-gray-300 focus:border-orange-500 focus:ring-orange-500'
@@ -264,7 +264,7 @@
               required
               autocomplete="new-password"
               :class="[
-                'mt-1 block w-full rounded-md border px-3 py-2 placeholder-gray-400 shadow-sm focus:outline-none focus:ring-2 focus:ring-offset-0',
+                'mt-1 block w-full rounded-md border px-3 py-2 placeholder-gray-500 shadow-sm focus:outline-none focus:ring-2 focus:ring-offset-0',
                 fieldErrors.confirmPassword
                   ? 'border-red-300 text-red-900 placeholder-red-300 focus:border-red-500 focus:ring-red-500'
                   : 'border-gray-300 focus:border-orange-500 focus:ring-orange-500'

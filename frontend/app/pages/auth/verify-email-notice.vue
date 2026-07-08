@@ -5,11 +5,11 @@
         <div
           class="mx-auto flex h-16 w-16 items-center justify-center rounded-full bg-yellow-100"
         >
-          <Icon name="lucide:mail" class="h-8 w-8 text-yellow-600" />
+          <Icon name="lucide:mail" class="h-8 w-8 text-yellow-600" aria-hidden="true" />
         </div>
-        <h2 class="mt-6 text-3xl font-bold text-gray-900">
+        <h1 class="mt-6 text-3xl font-bold text-gray-900">
           Vérifiez votre email
-        </h2>
+        </h1>
         <p class="mt-4 text-sm text-gray-600">
           Votre compte a été créé avec succès, mais vous devez vérifier votre
           adresse email avant d'accéder au tableau de bord.
@@ -19,7 +19,7 @@
       <div class="rounded-md border border-orange-200 bg-orange-50 p-4">
         <div class="flex">
           <div class="flex-shrink-0">
-            <Icon name="lucide:info" class="h-5 w-5 text-orange-400" />
+            <Icon name="lucide:info" class="h-5 w-5 text-orange-500" aria-hidden="true" />
           </div>
           <div class="ml-3">
             <p class="text-sm text-orange-700">
@@ -35,6 +35,7 @@
       <!-- success message -->
       <div
         v-if="successMessage"
+        role="status"
         class="rounded-md border border-green-300 bg-green-50 px-4 py-3 text-sm text-green-800"
       >
         {{ successMessage }}
@@ -43,6 +44,7 @@
       <!-- error message -->
       <div
         v-if="errorMessage"
+        role="alert"
         class="rounded-md border border-red-300 bg-red-50 px-4 py-3 text-sm text-red-800"
       >
         {{ errorMessage }}

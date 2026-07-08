@@ -57,7 +57,7 @@
         </div>
         <button
           @click="dismissProfileAlert"
-          class="text-gray-400 transition-colors hover:text-gray-600"
+          class="text-gray-500 transition-colors hover:text-gray-600"
         >
           <X class="h-4 w-4" :stroke-width="1.75" />
         </button>
@@ -76,7 +76,7 @@
       >
         <div class="flex items-start justify-between">
           <div>
-            <p class="text-[10px] font-medium uppercase tracking-widest text-gray-400">
+            <p class="text-[10px] font-medium uppercase tracking-widest text-gray-500">
               {{ kpi.label }}
             </p>
             <p
@@ -115,7 +115,7 @@
         >
           <Calendar class="mb-3 h-12 w-12 text-gray-300 opacity-60" :stroke-width="1.25" />
           <h3 class="font-display text-base font-semibold text-gray-800">Aucun rendez-vous</h3>
-          <p class="mt-1 max-w-[280px] text-sm text-gray-400">Aucun rendez-vous à venir pour le moment.</p>
+          <p class="mt-1 max-w-[280px] text-sm text-gray-500">Aucun rendez-vous à venir pour le moment.</p>
         </div>
 
         <div v-else class="mt-4 flex flex-col">
@@ -231,7 +231,7 @@
         >
           <CalendarCheck class="mb-3 h-12 w-12 text-gray-300 opacity-60" :stroke-width="1.25" />
           <h3 class="font-display text-base font-semibold text-gray-800">Aucun rendez-vous</h3>
-          <p class="mt-1 max-w-[280px] text-sm text-gray-400">Aucun rendez-vous prévu aujourd'hui.</p>
+          <p class="mt-1 max-w-[280px] text-sm text-gray-500">Aucun rendez-vous prévu aujourd'hui.</p>
         </div>
 
         <div v-else class="max-h-64 space-y-1 overflow-y-auto">
@@ -306,7 +306,7 @@
                     : `${dashboard?.waitingTeleconsultations} patients en attente`
               }}
             </p>
-            <p class="text-xs text-gray-400">Salle d'attente virtuelle</p>
+            <p class="text-xs text-gray-500">Salle d'attente virtuelle</p>
           </div>
         </div>
       </UiCard>
@@ -315,7 +315,7 @@
       <UiCard>
         <div class="mb-4 flex items-center justify-between">
           <div class="flex items-center gap-2">
-            <MessageSquare class="h-4 w-4 text-gray-400" :stroke-width="1.75" />
+            <MessageSquare class="h-4 w-4 text-gray-500" :stroke-width="1.75" />
             <h3 class="font-display text-base font-semibold text-gray-900">
               Messages récents
             </h3>
@@ -349,7 +349,7 @@
         >
           <MessageSquare class="mb-3 h-12 w-12 text-gray-300 opacity-60" :stroke-width="1.25" />
           <h3 class="font-display text-base font-semibold text-gray-800">Aucun message</h3>
-          <p class="mt-1 max-w-[280px] text-sm text-gray-400">Vos échanges apparaîtront ici.</p>
+          <p class="mt-1 max-w-[280px] text-sm text-gray-500">Vos échanges apparaîtront ici.</p>
         </div>
 
         <div v-else class="space-y-1">
@@ -369,7 +369,7 @@
                 <p class="text-sm font-medium text-gray-900">
                   {{ msg.patientName }}
                 </p>
-                <span class="tabular-nums text-xs text-gray-400">
+                <span class="tabular-nums text-xs text-gray-500">
                   {{ formatRelativeTime(msg.createdAt) }}
                 </span>
               </div>
@@ -422,7 +422,7 @@
       <div v-else-if="!dashboard?.todos?.length" class="flex flex-col items-center justify-center py-12 text-center">
         <ListTodo class="mb-3 h-12 w-12 text-gray-300 opacity-60" :stroke-width="1.25" />
         <h3 class="font-display text-base font-semibold text-gray-800">Aucune tâche</h3>
-        <p class="mt-1 max-w-[280px] text-sm text-gray-400">Vos tâches en cours apparaîtront ici.</p>
+        <p class="mt-1 max-w-[280px] text-sm text-gray-500">Vos tâches en cours apparaîtront ici.</p>
       </div>
 
       <div v-else class="space-y-1">
@@ -446,7 +446,7 @@
           <span
             :class="[
               'flex-1 text-sm',
-              todo.completed ? 'text-gray-400 line-through' : 'text-gray-900',
+              todo.completed ? 'text-gray-500 line-through' : 'text-gray-900',
             ]"
           >
             {{ todo.title }}
@@ -454,7 +454,7 @@
           <button
             @click="deleteTodo(todo.id)"
             :disabled="deletingId === todo.id"
-            class="flex h-6 w-6 flex-shrink-0 items-center justify-center rounded text-gray-400 transition-colors hover:bg-red-50 hover:text-red-500"
+            class="flex h-6 w-6 flex-shrink-0 items-center justify-center rounded text-gray-500 transition-colors hover:bg-red-50 hover:text-red-500"
           >
             <X class="h-3.5 w-3.5" />
           </button>

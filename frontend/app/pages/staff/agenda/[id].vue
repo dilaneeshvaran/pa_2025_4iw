@@ -3,7 +3,7 @@
     <div class="flex items-center gap-4">
       <button
         @click="navigateTo('/staff/agenda')"
-        class="rounded-lg p-2 text-gray-400 transition-colors hover:bg-gray-100 hover:text-gray-600"
+        class="rounded-lg p-2 text-gray-500 transition-colors hover:bg-gray-100 hover:text-gray-600"
       >
         <ArrowLeft class="h-5 w-5" />
       </button>
@@ -126,7 +126,7 @@
           >
             <div class="text-center">
               <p class="text-lg font-bold text-green-600">{{ event.startTime }}</p>
-              <p class="text-xs text-gray-400">{{ event.endTime }}</p>
+              <p class="text-xs text-gray-500">{{ event.endTime }}</p>
             </div>
             <div class="h-10 w-px bg-gray-200"></div>
             <div class="min-w-0 flex-1">
@@ -154,14 +154,14 @@
             >
               <button
                 @click="openModifyModal(event)"
-                class="rounded-lg p-2 text-gray-400 transition-colors hover:bg-orange-50 hover:text-orange-500"
+                class="rounded-lg p-2 text-gray-500 transition-colors hover:bg-orange-50 hover:text-orange-500"
                 title="Modifier"
               >
                 <Pencil class="h-4 w-4" />
               </button>
               <button
                 @click="openCancelModal(event)"
-                class="rounded-lg p-2 text-gray-400 transition-colors hover:bg-red-50 hover:text-red-500"
+                class="rounded-lg p-2 text-gray-500 transition-colors hover:bg-red-50 hover:text-red-500"
                 title="Annuler"
               >
                 <XCircle class="h-4 w-4" />
@@ -176,12 +176,12 @@
           >
             <div class="text-center">
               <p class="text-lg font-bold text-green-600">{{ event.startTime }}</p>
-              <p class="text-xs text-gray-400">{{ event.endTime }}</p>
+              <p class="text-xs text-gray-500">{{ event.endTime }}</p>
             </div>
             <div class="h-10 w-px bg-gray-200"></div>
             <div class="min-w-0 flex-1">
               <p class="font-semibold text-gray-700 flex items-center gap-1.5">
-                <Ban class="h-4 w-4 text-gray-400" />
+                <Ban class="h-4 w-4 text-gray-500" />
                 Créneau bloqué
               </p>
               <p class="text-sm text-gray-500 italic">
@@ -239,7 +239,7 @@
               :class="[
                 'cursor-pointer rounded px-2 py-1 text-xs transition-opacity hover:opacity-80',
                 apt.status === 'CANCELLED'
-                  ? 'bg-gray-100 text-gray-400 line-through'
+                  ? 'bg-gray-100 text-gray-500 line-through'
                   : 'bg-green-100 text-green-800',
               ]"
               :title="`${apt.patient?.firstName} ${apt.patient?.lastName}`"
@@ -299,7 +299,7 @@
             </div>
             <p
               v-if="getMonthDayEvents(day.dateStr).length > 3"
-              class="text-[10px] text-gray-400 font-semibold pl-1"
+              class="text-[10px] text-gray-500 font-semibold pl-1"
             >
               +{{ getMonthDayEvents(day.dateStr).length - 3 }}
             </p>
@@ -322,7 +322,7 @@
             </h3>
             <button
               @click="showNewAppointmentModal = false"
-              class="rounded-lg p-1 text-gray-400 hover:bg-gray-100"
+              class="rounded-lg p-1 text-gray-500 hover:bg-gray-100"
             >
               <X class="h-5 w-5" />
             </button>
@@ -352,9 +352,9 @@
                     @click="selectPatient(p)"
                     class="flex w-full items-center gap-2 px-4 py-2 text-left text-sm hover:bg-gray-50"
                   >
-                    <User class="h-4 w-4 text-gray-400" />
+                    <User class="h-4 w-4 text-gray-500" />
                     {{ p.firstName }} {{ p.lastName }}
-                    <span class="text-xs text-gray-400">{{ p.phone }}</span>
+                    <span class="text-xs text-gray-500">{{ p.phone }}</span>
                   </button>
                 </div>
               </div>
@@ -956,7 +956,7 @@ function getMonthDayEvents(dateStr: string): any[] {
       type: "appointment",
       startTime: apt.startTime,
       label: `${apt.startTime} ${apt.patient?.lastName || ""}`,
-      class: apt.status === "CANCELLED" ? "bg-gray-100 text-gray-400 line-through" : "bg-green-100 text-green-700",
+      class: apt.status === "CANCELLED" ? "bg-gray-100 text-gray-500 line-through" : "bg-green-100 text-green-700",
       appointment: apt,
     });
   });

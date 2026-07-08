@@ -8,7 +8,7 @@
       <div class="flex flex-wrap items-center gap-3">
         <!-- Cabinet Selector styled beautifully -->
         <div class="flex items-center gap-2 rounded-xl border border-gray-200 bg-white p-1.5 shadow-sm">
-          <span class="pl-2.5 text-xs font-semibold uppercase tracking-wider text-gray-400">Planning :</span>
+          <span class="pl-2.5 text-xs font-semibold uppercase tracking-wider text-gray-500">Planning :</span>
           <div class="relative">
             <select
               id="cabinet-select"
@@ -176,7 +176,7 @@
             >
               <div class="text-center">
                 <p class="text-lg font-bold text-orange-600">{{ event.startTime }}</p>
-                <p class="text-xs text-gray-400">{{ event.endTime }}</p>
+                <p class="text-xs text-gray-500">{{ event.endTime }}</p>
               </div>
               <div class="h-10 w-px bg-gray-200"></div>
               <div class="min-w-0 flex-1">
@@ -257,7 +257,7 @@
                   event.status !== 'NO_SHOW' &&
                   event.status !== 'CANCELLED'
                 "
-                class="ml-1 text-xs italic text-gray-400"
+                class="ml-1 text-xs italic text-gray-500"
               >
                 Absence détectée automatiquement
               </span>
@@ -270,12 +270,12 @@
             >
               <div class="text-center">
                 <p class="text-lg font-bold text-gray-600">{{ event.startTime }}</p>
-                <p class="text-xs text-gray-400">{{ event.endTime }}</p>
+                <p class="text-xs text-gray-500">{{ event.endTime }}</p>
               </div>
               <div class="h-10 w-px bg-gray-200"></div>
               <div class="min-w-0 flex-1">
                 <p class="font-semibold text-gray-700 flex items-center gap-1.5">
-                  <Ban class="h-4 w-4 text-gray-400" />
+                  <Ban class="h-4 w-4 text-gray-500" />
                   Créneau bloqué
                 </p>
                 <p class="text-sm text-gray-500 italic">
@@ -404,7 +404,7 @@
               </div>
               <p
                 v-if="getMonthDayEvents(day.dateStr).length > 3"
-                class="text-[10px] text-gray-400 font-semibold pl-1"
+                class="text-[10px] text-gray-500 font-semibold pl-1"
               >
                 +{{ getMonthDayEvents(day.dateStr).length - 3 }}
               </p>
@@ -520,7 +520,7 @@
             </button>
             <button
               @click="removeAbsence(absence.id)"
-              class="rounded p-1 text-gray-400 hover:bg-red-50 hover:text-red-500"
+              class="rounded p-1 text-gray-500 hover:bg-red-50 hover:text-red-500"
             >
               <Trash2 class="h-4 w-4" />
             </button>
@@ -558,13 +558,13 @@
               <span class="text-sm text-gray-500">
                 {{ slot.startTime }} – {{ slot.endTime }}
               </span>
-              <span v-if="slot.reason" class="ml-2 text-sm text-gray-400">
+              <span v-if="slot.reason" class="ml-2 text-sm text-gray-500">
                 ({{ slot.reason }})
               </span>
             </div>
             <button
               @click="removeBlockedSlot(slot.id)"
-              class="rounded p-1 text-gray-400 hover:bg-red-50 hover:text-red-500"
+              class="rounded p-1 text-gray-500 hover:bg-red-50 hover:text-red-500"
             >
               <Trash2 class="h-4 w-4" />
             </button>
@@ -633,9 +633,9 @@
                     {{ slot }}
                   </option>
                 </select>
-                <ChevronDown class="pointer-events-none absolute right-2 top-1/2 h-4 w-4 -translate-y-1/2 text-gray-400" />
+                <ChevronDown class="pointer-events-none absolute right-2 top-1/2 h-4 w-4 -translate-y-1/2 text-gray-500" />
               </div>
-              <span class="text-gray-400">–</span>
+              <span class="text-gray-500">–</span>
               <div class="relative">
                 <select
                   :value="getDaySchedule(day.value)?.endTime || '17:00'"
@@ -656,10 +656,10 @@
                     {{ slot }}
                   </option>
                 </select>
-                <ChevronDown class="pointer-events-none absolute right-2 top-1/2 h-4 w-4 -translate-y-1/2 text-gray-400" />
+                <ChevronDown class="pointer-events-none absolute right-2 top-1/2 h-4 w-4 -translate-y-1/2 text-gray-500" />
               </div>
             </template>
-            <span v-else class="text-sm text-gray-400">Repos</span>
+            <span v-else class="text-sm text-gray-500">Repos</span>
           </div>
         </div>
       </UiCard>
@@ -970,7 +970,7 @@
             </h3>
             <button
               @click="showNewAppointmentModal = false"
-              class="rounded-lg p-1 text-gray-400 hover:bg-gray-100"
+              class="rounded-lg p-1 text-gray-500 hover:bg-gray-100"
             >
               <X class="h-5 w-5" />
             </button>
@@ -1001,9 +1001,9 @@
                     @click="selectPatient(p)"
                     class="flex w-full items-center gap-2 px-4 py-2 text-left text-sm hover:bg-gray-50"
                   >
-                    <User class="h-4 w-4 text-gray-400" />
+                    <User class="h-4 w-4 text-gray-500" />
                     {{ p.firstName }} {{ p.lastName }}
-                    <span class="text-xs text-gray-400">{{ p.phone }}</span>
+                    <span class="text-xs text-gray-500">{{ p.phone }}</span>
                   </button>
                 </div>
               </div>
@@ -1099,7 +1099,7 @@
             </h3>
             <button
               @click="showBlockSlotModal = false"
-              class="rounded-lg p-1 text-gray-400 hover:bg-gray-100"
+              class="rounded-lg p-1 text-gray-500 hover:bg-gray-100"
             >
               <X class="h-5 w-5" />
             </button>
@@ -1520,7 +1520,7 @@
             </h3>
             <button
               @click="showAppointmentDetailsModal = false"
-              class="rounded-lg p-1 text-gray-400 hover:bg-gray-100"
+              class="rounded-lg p-1 text-gray-500 hover:bg-gray-100"
             >
               <X class="h-5 w-5" />
             </button>
@@ -1529,7 +1529,7 @@
           <template v-if="appointmentDetailsSelected">
             <div class="mb-4 space-y-3 rounded-lg bg-gray-50 p-4">
               <div class="flex items-center gap-3">
-                <User class="h-5 w-5 text-gray-400" />
+                <User class="h-5 w-5 text-gray-500" />
                 <div>
                   <p class="font-medium text-gray-900">
                     {{ appointmentDetailsSelected.patient.firstName }}
@@ -1544,7 +1544,7 @@
                 </div>
               </div>
               <div class="flex items-center gap-3">
-                <CalendarDays class="h-5 w-5 text-gray-400" />
+                <CalendarDays class="h-5 w-5 text-gray-500" />
                 <div>
                   <p class="text-sm text-gray-900">
                     {{

@@ -480,7 +480,7 @@
       >
         <div class="relative flex-1 sm:max-w-md">
           <SearchIcon
-            class="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-gray-400"
+            class="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-gray-500"
           />
           <input
             v-model="docSearchQuery"
@@ -491,7 +491,7 @@
           />
           <button
             v-if="docSearchQuery"
-            class="absolute right-3 top-1/2 -translate-y-1/2 text-gray-400 hover:text-gray-600"
+            class="absolute right-3 top-1/2 -translate-y-1/2 text-gray-500 hover:text-gray-600"
             @click="clearDocSearch"
           >
             <X class="h-4 w-4" />
@@ -611,7 +611,7 @@
                   {{ getDocTypeLabel(doc.type) }}
                 </span>
                 <button
-                  class="rounded-lg p-1 text-gray-400 hover:bg-red-50 hover:text-red-500"
+                  class="rounded-lg p-1 text-gray-500 hover:bg-red-50 hover:text-red-500"
                   title="Supprimer"
                   @click="deleteOwnDocument(doc.id)"
                 >
@@ -622,7 +622,7 @@
             <h3 class="mb-1 line-clamp-2 font-medium text-gray-900">
               {{ doc.title }}
             </h3>
-            <p class="mb-3 text-xs text-gray-400">
+            <p class="mb-3 text-xs text-gray-500">
               {{ formatDate(doc.uploadedAt) }} ·
               {{ formatFileSize(doc.fileSize) }}
             </p>
@@ -683,21 +683,21 @@
             <div class="ml-4 flex flex-shrink-0 items-center gap-1">
               <button
                 v-if="isPdf(doc.mimeType)"
-                class="rounded-lg p-2 text-gray-400 hover:bg-gray-100 hover:text-orange-600"
+                class="rounded-lg p-2 text-gray-500 hover:bg-gray-100 hover:text-orange-600"
                 title="Lire"
                 @click="viewOwnDocument(doc)"
               >
                 <Eye class="h-5 w-5" />
               </button>
               <button
-                class="rounded-lg p-2 text-gray-400 hover:bg-gray-100 hover:text-orange-600"
+                class="rounded-lg p-2 text-gray-500 hover:bg-gray-100 hover:text-orange-600"
                 title="Télécharger"
                 @click="downloadDocument(doc.id, doc.fileName)"
               >
                 <Download class="h-5 w-5" />
               </button>
               <button
-                class="rounded-lg p-2 text-gray-400 hover:bg-red-50 hover:text-red-500"
+                class="rounded-lg p-2 text-gray-500 hover:bg-red-50 hover:text-red-500"
                 title="Supprimer"
                 @click="deleteOwnDocument(doc.id)"
               >
@@ -784,13 +784,13 @@
                 <p v-if="vac.nextDoseDate" class="mt-1 text-sm text-orange-600">
                   Prochaine dose : {{ formatDate(vac.nextDoseDate) }}
                 </p>
-                <p v-if="vac.administeredBy" class="text-xs text-gray-400">
+                <p v-if="vac.administeredBy" class="text-xs text-gray-500">
                   Par : {{ vac.administeredBy }}
                   <span v-if="vac.location"> · {{ vac.location }}</span>
                 </p>
               </div>
               <button
-                class="rounded-lg p-2 text-gray-400 hover:bg-red-50 hover:text-red-500"
+                class="rounded-lg p-2 text-gray-500 hover:bg-red-50 hover:text-red-500"
                 title="Supprimer"
                 @click="deleteVaccination(vac.id)"
               >
@@ -837,7 +837,7 @@
                 {{ latestMetrics.find(m => m.metricType === type)?.unit ?? '' }}
               </span>
             </div>
-            <p class="text-xs text-gray-400 mt-2">
+            <p class="text-xs text-gray-500 mt-2">
               <span v-if="latestMetrics.find(m => m.metricType === type)">
                 Le {{ formatDate(latestMetrics.find(m => m.metricType === type)!.recordedAt) }}
               </span>
@@ -886,7 +886,7 @@
               <div v-else class="overflow-x-auto">
                 <table class="w-full text-left border-collapse">
                   <thead>
-                    <tr class="border-b text-xs font-semibold text-gray-400 uppercase">
+                    <tr class="border-b text-xs font-semibold text-gray-500 uppercase">
                       <th class="py-3 px-4">Date de mesure</th>
                       <th class="py-3 px-4 text-right">Valeur enregistrée</th>
                       <th class="py-3 px-4 text-right">Actions</th>
@@ -906,7 +906,7 @@
                       </td>
                       <td class="py-3 px-4 text-right">
                         <button
-                          class="rounded-lg p-1.5 text-gray-400 hover:bg-red-50 hover:text-red-600 transition-colors"
+                          class="rounded-lg p-1.5 text-gray-500 hover:bg-red-50 hover:text-red-600 transition-colors"
                           title="Supprimer"
                           @click="deleteMetric(item.id, item.metricType)"
                         >
@@ -1140,7 +1140,7 @@
                 class="w-full rounded-lg border border-gray-300 px-4 py-2 text-sm file:mr-4 file:rounded-lg file:border-0 file:bg-orange-50 file:px-4 file:py-2 file:text-sm file:font-medium file:text-orange-700 hover:file:bg-orange-100"
                 @change="handleFileSelect"
               />
-              <p class="mt-1 text-xs text-gray-400">
+              <p class="mt-1 text-xs text-gray-500">
                 PDF, image ou document Word (max 10 Mo)
               </p>
             </div>
@@ -1268,7 +1268,7 @@
                   required
                 />
                 <div class="absolute inset-y-0 right-0 flex items-center pr-3 pointer-events-none">
-                  <span class="text-sm font-semibold text-gray-400">
+                  <span class="text-sm font-semibold text-gray-500">
                     {{ metricForm.unit }}
                   </span>
                 </div>

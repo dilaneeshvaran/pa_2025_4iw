@@ -15,7 +15,7 @@
       <div class="rounded-2xl border border-[#E5E3DC] border-t-2 border-t-[#00804A]/30 bg-white p-5 shadow-sm hover:shadow-md transition-all duration-300">
         <div class="flex items-start justify-between">
           <div>
-            <p class="text-[10px] font-medium uppercase tracking-widest text-gray-400">Praticiens</p>
+            <p class="text-[10px] font-medium uppercase tracking-widest text-gray-500">Praticiens</p>
             <p
               v-if="loading"
               class="mt-1 h-8 w-12 animate-pulse rounded bg-gray-200"
@@ -32,7 +32,7 @@
       <div class="rounded-2xl border border-[#E5E3DC] border-t-2 border-t-[#D96F00]/30 bg-white p-5 shadow-sm hover:shadow-md transition-all duration-300">
         <div class="flex items-start justify-between">
           <div>
-            <p class="text-[10px] font-medium uppercase tracking-widest text-gray-400">Personnel</p>
+            <p class="text-[10px] font-medium uppercase tracking-widest text-gray-500">Personnel</p>
             <p
               v-if="loading"
               class="mt-1 h-8 w-12 animate-pulse rounded bg-gray-200"
@@ -49,7 +49,7 @@
       <div class="rounded-2xl border border-[#E5E3DC] border-t-2 border-t-[#00804A]/30 bg-white p-5 shadow-sm hover:shadow-md transition-all duration-300">
         <div class="flex items-start justify-between">
           <div>
-            <p class="text-[10px] font-medium uppercase tracking-widest text-gray-400">RDV aujourd'hui</p>
+            <p class="text-[10px] font-medium uppercase tracking-widest text-gray-500">RDV aujourd'hui</p>
             <p
               v-if="loading"
               class="mt-1 h-8 w-12 animate-pulse rounded bg-gray-200"
@@ -91,7 +91,7 @@
       >
         <Users class="mb-3 h-12 w-12 text-gray-300 opacity-60" :stroke-width="1.25" />
         <h3 class="font-display text-base font-semibold text-gray-800">Aucun praticien</h3>
-        <p class="mt-1 max-w-[280px] text-sm text-gray-400">Aucun praticien dans ce cabinet.</p>
+        <p class="mt-1 max-w-[280px] text-sm text-gray-500">Aucun praticien dans ce cabinet.</p>
         <UiButton
           variant="outline"
           size="sm"
@@ -125,7 +125,7 @@
               </p>
             </div>
           </div>
-          <span class="text-xs text-gray-400 tabular-nums">
+          <span class="text-xs text-gray-500 tabular-nums">
             Rejoint le {{ formatDate(prac.joinedAt) }}
           </span>
         </div>

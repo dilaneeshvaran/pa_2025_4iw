@@ -85,7 +85,7 @@
                   />
                   <div
                     v-else
-                    class="flex h-full w-full items-center justify-center text-2xl font-bold text-gray-400"
+                    class="flex h-full w-full items-center justify-center text-2xl font-bold text-gray-500"
                   >
                     {{ practitioner.firstName.charAt(0)
                     }}{{ practitioner.lastName.charAt(0) }}

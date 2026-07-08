@@ -2,129 +2,166 @@
   <div class="min-h-screen bg-gray-50">
     <div class="mx-auto max-w-7xl px-4 py-8 sm:px-6 lg:px-8">
       <Card class="mb-6 shadow-sm border border-gray-100 rounded-xl bg-white p-2">
-        <div class="relative flex items-center">
+        <div role="search" class="relative flex items-center">
+          <label for="search-main" class="sr-only">Rechercher un praticien</label>
           <div class="pointer-events-none absolute inset-y-0 left-0 flex items-center pl-3">
-            <IconSearch class="h-5 w-5 text-gray-400" />
+            <IconSearch class="h-5 w-5 text-gray-500" aria-hidden="true" />
           </div>
           <input
+            id="search-main"
             v-model="filters.search"
             type="text"
             placeholder="Rechercher un praticien par nom, mot-clé ou spécialité..."
-            class="block w-full rounded-xl border-none py-3.5 pl-11 pr-10 text-base text-gray-900 bg-gray-50/50 focus:bg-white focus:outline-none focus:ring-2 focus:ring-[var(--color-primary)]/20 transition-all placeholder-gray-400"
+            class="block w-full rounded-xl border-none py-3.5 pl-11 pr-10 text-base text-gray-900 bg-gray-50/50 focus:bg-white focus:outline-none focus:ring-2 focus:ring-[var(--color-primary)]/40 transition-all placeholder-gray-500"
             @input="debouncedSearch"
           />
           <button
             v-if="filters.search"
+            type="button"
+            aria-label="Effacer la recherche"
             @click="filters.search = ''; searchPractitioners()"
-            class="absolute inset-y-0 right-0 flex items-center pr-3.5 text-gray-400 hover:text-gray-600 focus:outline-none"
+            class="absolute inset-y-0 right-0 flex items-center pr-3.5 text-gray-500 hover:text-gray-700 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--color-primary)] rounded-md"
           >
-            <IconX class="h-5 w-5" />
+            <IconX class="h-5 w-5" aria-hidden="true" />
           </button>
         </div>
       </Card>
 
       <!-- Tabs + view toggle -->
       <div class="mb-6 flex items-center justify-between border-b border-gray-200">
-        <nav class="-mb-px flex gap-6" aria-label="Tabs">
+        <div class="-mb-px flex gap-6" role="tablist" aria-label="Type de résultats">
           <button
+            id="tab-practitioners"
+            type="button"
+            role="tab"
+            :aria-selected="activeTab === 'practitioners'"
+            :tabindex="activeTab === 'practitioners' ? 0 : -1"
+            aria-controls="panel-practitioners"
             :class="[
               activeTab === 'practitioners'
                 ? 'border-[var(--color-primary)] font-bold text-[var(--color-primary)]'
-                : 'border-transparent font-medium text-gray-500 hover:border-gray-300 hover:text-gray-700',
-              'whitespace-nowrap border-b-2 px-1 py-4 text-sm transition-colors',
+                : 'border-transparent font-medium text-gray-600 hover:border-gray-300 hover:text-gray-800',
+              'whitespace-nowrap border-b-2 px-1 py-4 text-sm transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--color-primary)] rounded-t',
             ]"
             @click="activeTab = 'practitioners'"
+            @keydown="onTabKeydown"
           >
             Praticiens
           </button>
           <button
+            id="tab-cabinets"
+            type="button"
+            role="tab"
+            :aria-selected="activeTab === 'cabinets'"
+            :tabindex="activeTab === 'cabinets' ? 0 : -1"
+            aria-controls="panel-cabinets"
             :class="[
               activeTab === 'cabinets'
                 ? 'border-[var(--color-primary)] font-bold text-[var(--color-primary)]'
-                : 'border-transparent font-medium text-gray-500 hover:border-gray-300 hover:text-gray-700',
-              'whitespace-nowrap border-b-2 px-1 py-4 text-sm transition-colors',
+                : 'border-transparent font-medium text-gray-600 hover:border-gray-300 hover:text-gray-800',
+              'whitespace-nowrap border-b-2 px-1 py-4 text-sm transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--color-primary)] rounded-t',
             ]"
             @click="activeTab = 'cabinets'"
+            @keydown="onTabKeydown"
           >
             Cabinets
           </button>
-        </nav>
+        </div>
 
         <!-- List / Map toggle -->
-        <div class="mb-px flex overflow-hidden rounded-lg border border-gray-200 bg-white">
+        <div class="mb-px flex overflow-hidden rounded-lg border border-gray-200 bg-white" role="group" aria-label="Mode d'affichage">
           <button
+            type="button"
+            :aria-pressed="viewMode === 'list'"
             :class="[
               viewMode === 'list'
                 ? 'bg-[var(--color-primary)] text-white'
-                : 'text-gray-500 hover:bg-gray-50',
-              'flex items-center gap-1.5 px-3 py-1.5 text-sm font-medium transition-colors',
+                : 'text-gray-600 hover:bg-gray-50',
+              'flex items-center gap-1.5 px-3 py-1.5 text-sm font-medium transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-inset focus-visible:ring-[var(--color-primary)]',
             ]"
             @click="viewMode = 'list'"
           >
-            <IconList class="h-4 w-4" />
+            <IconList class="h-4 w-4" aria-hidden="true" />
             Liste
           </button>
           <button
+            type="button"
+            :aria-pressed="viewMode === 'map'"
             :class="[
               viewMode === 'map'
                 ? 'bg-[var(--color-primary)] text-white'
-                : 'text-gray-500 hover:bg-gray-50',
-              'flex items-center gap-1.5 px-3 py-1.5 text-sm font-medium transition-colors',
+                : 'text-gray-600 hover:bg-gray-50',
+              'flex items-center gap-1.5 px-3 py-1.5 text-sm font-medium transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-inset focus-visible:ring-[var(--color-primary)]',
             ]"
             @click="viewMode = 'map'"
           >
-            <IconMap class="h-4 w-4" />
+            <IconMap class="h-4 w-4" aria-hidden="true" />
             Carte
           </button>
         </div>
       </div>
 
       <!-- ── PRACTITIONERS TAB ── -->
-      <div v-if="activeTab === 'practitioners'" class="grid gap-6 lg:grid-cols-4">
+      <div
+        v-if="activeTab === 'practitioners'"
+        id="panel-practitioners"
+        role="tabpanel"
+        aria-labelledby="tab-practitioners"
+        tabindex="0"
+        class="grid gap-6 lg:grid-cols-4 focus:outline-none"
+      >
         <!-- Sidebar filters -->
         <aside class="lg:col-span-1">
           <!-- Mobile Filters Toggle Button -->
           <div class="lg:hidden mb-4">
             <button
+              type="button"
+              aria-controls="filters-panel"
+              :aria-expanded="showMobileFilters"
               @click="showMobileFilters = !showMobileFilters"
-              class="w-full flex items-center justify-between px-4 py-2.5 bg-white border border-gray-200 rounded-lg shadow-sm font-semibold text-gray-700 hover:bg-gray-50 active:scale-[0.98] transition-all"
+              class="w-full flex items-center justify-between px-4 py-2.5 bg-white border border-gray-200 rounded-lg shadow-sm font-semibold text-gray-700 hover:bg-gray-50 active:scale-[0.98] transition-all focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--color-primary)]"
             >
               <span class="flex items-center gap-2">
-                <IconFilter class="h-4 w-4 text-[var(--color-primary)]" />
+                <IconFilter class="h-4 w-4 text-[var(--color-primary)]" aria-hidden="true" />
                 Filtrer les résultats
                 <span
                   v-if="activeFiltersCount > 0"
                   class="ml-1.5 px-2 py-0.5 text-xs font-bold text-white bg-orange-500 rounded-full font-mono"
                 >
-                  {{ activeFiltersCount }}
+                  {{ activeFiltersCount }} <span class="sr-only">filtres actifs</span>
                 </span>
               </span>
-              <component :is="showMobileFilters ? IconChevronUp : IconChevronDown" class="h-4 w-4 text-gray-500" />
+              <component :is="showMobileFilters ? IconChevronUp : IconChevronDown" class="h-4 w-4 text-gray-500" aria-hidden="true" />
             </button>
           </div>
 
           <!-- Filters Card -->
           <Card
+            id="filters-panel"
+            role="region"
+            aria-label="Filtres de recherche"
             :class="[
               showMobileFilters ? 'block' : 'hidden lg:block',
               'transition-all duration-300 shadow-sm border border-gray-100 rounded-xl bg-white p-5'
             ]"
           >
             <!-- Title & Reset Button -->
-            <div class="flex items-center justify-between border-b border-gray-155 pb-4 mb-5">
+            <div class="flex items-center justify-between border-b border-gray-100 pb-4 mb-5">
               <div class="flex items-center gap-2">
-                <IconSliders class="h-5 w-5 text-[var(--color-primary)]" />
+                <IconSliders class="h-5 w-5 text-[var(--color-primary)]" aria-hidden="true" />
                 <h3 class="text-base font-bold text-gray-900">Filtres</h3>
                 <span v-if="activeFiltersCount > 0" class="flex h-5 w-5 items-center justify-center rounded-full bg-orange-100 text-xs font-bold text-orange-600 font-mono">
                   {{ activeFiltersCount }}
+                  <span class="sr-only">filtres actifs</span>
                 </span>
               </div>
               <button
                 v-if="activeFiltersCount > 0"
+                type="button"
                 @click="resetFilters"
-                class="flex items-center gap-1 text-xs font-medium text-red-650 hover:text-red-750 transition-colors focus:outline-none"
+                class="flex items-center gap-1 text-xs font-medium text-red-600 hover:text-red-700 transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-red-500 rounded"
               >
-                <IconRotateCcw class="h-3.5 w-3.5" />
+                <IconRotateCcw class="h-3.5 w-3.5" aria-hidden="true" />
                 Effacer
               </button>
             </div>
@@ -132,51 +169,57 @@
             <!-- Group 1: Recherche & Localisation -->
             <div class="space-y-4 mb-6">
               <div>
-                <label class="mb-1.5 block text-xs font-bold uppercase tracking-wider text-gray-400">
+                <label for="filter-search" class="mb-1.5 block text-xs font-bold uppercase tracking-wider text-gray-600">
                   Mots-clés
                 </label>
                 <div class="relative">
                   <div class="pointer-events-none absolute inset-y-0 left-0 flex items-center pl-3">
-                    <IconSearch class="h-4 w-4 text-gray-400" />
+                    <IconSearch class="h-4 w-4 text-gray-500" aria-hidden="true" />
                   </div>
                   <input
+                    id="filter-search"
                     v-model="filters.search"
                     type="text"
                     placeholder="Nom, bio..."
-                    class="block w-full rounded-lg border border-gray-300 py-2 pl-9 pr-8 text-sm focus:border-[var(--color-primary)] focus:outline-none focus:ring-2 focus:ring-[var(--color-primary)] focus:ring-opacity-20"
+                    class="block w-full rounded-lg border border-gray-300 py-2 pl-9 pr-8 text-sm focus:border-[var(--color-primary)] focus:outline-none focus:ring-2 focus:ring-[var(--color-primary)] focus:ring-opacity-40"
                     @input="debouncedSearch"
                   />
                   <button
                     v-if="filters.search"
+                    type="button"
+                    aria-label="Effacer les mots-clés"
                     @click="filters.search = ''; searchPractitioners()"
-                    class="absolute inset-y-0 right-0 flex items-center pr-2.5 text-gray-400 hover:text-gray-650"
+                    class="absolute inset-y-0 right-0 flex items-center pr-2.5 text-gray-500 hover:text-gray-700 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--color-primary)] rounded"
                   >
-                    <IconX class="h-4 w-4" />
+                    <IconX class="h-4 w-4" aria-hidden="true" />
                   </button>
                 </div>
               </div>
 
               <div>
-                <label class="mb-1.5 block text-xs font-bold uppercase tracking-wider text-gray-400">
+                <label for="filter-city" class="mb-1.5 block text-xs font-bold uppercase tracking-wider text-gray-600">
                   Localisation
                 </label>
                 <div class="relative">
                   <div class="pointer-events-none absolute inset-y-0 left-0 flex items-center pl-3">
-                    <IconMapPin class="h-4 w-4 text-gray-400" />
+                    <IconMapPin class="h-4 w-4 text-gray-500" aria-hidden="true" />
                   </div>
                   <input
+                    id="filter-city"
                     v-model="filters.city"
                     type="text"
                     placeholder="Ville (ex: Cocody...)"
-                    class="block w-full rounded-lg border border-gray-300 py-2 pl-9 pr-8 text-sm focus:border-[var(--color-primary)] focus:outline-none focus:ring-2 focus:ring-[var(--color-primary)] focus:ring-opacity-20"
+                    class="block w-full rounded-lg border border-gray-300 py-2 pl-9 pr-8 text-sm focus:border-[var(--color-primary)] focus:outline-none focus:ring-2 focus:ring-[var(--color-primary)] focus:ring-opacity-40"
                     @input="debouncedSearch"
                   />
                   <button
                     v-if="filters.city"
+                    type="button"
+                    aria-label="Effacer la localisation"
                     @click="filters.city = ''; searchPractitioners()"
-                    class="absolute inset-y-0 right-0 flex items-center pr-2.5 text-gray-400 hover:text-gray-655"
+                    class="absolute inset-y-0 right-0 flex items-center pr-2.5 text-gray-500 hover:text-gray-700 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--color-primary)] rounded"
                   >
-                    <IconX class="h-4 w-4" />
+                    <IconX class="h-4 w-4" aria-hidden="true" />
                   </button>
                 </div>
               </div>
@@ -187,11 +230,12 @@
             <!-- Group 2: Spécialité & Cabinet -->
             <div class="space-y-4 mb-6">
               <div>
-                <label class="mb-1.5 block text-xs font-bold uppercase tracking-wider text-gray-400 flex items-center gap-1">
-                  <IconStethoscope class="h-3.5 w-3.5 text-gray-400" />
+                <label for="filter-specialty" class="mb-1.5 block text-xs font-bold uppercase tracking-wider text-gray-600 flex items-center gap-1">
+                  <IconStethoscope class="h-3.5 w-3.5 text-gray-500" aria-hidden="true" />
                   Spécialité
                 </label>
                 <select
+                  id="filter-specialty"
                   v-model="filters.specialtyId"
                   class="w-full rounded-lg border border-gray-300 px-3 py-2 text-sm focus:border-[var(--color-primary)] focus:outline-none focus:ring-2 focus:ring-[var(--color-primary)] bg-white"
                   @change="searchPractitioners"
@@ -208,11 +252,12 @@
               </div>
 
               <div>
-                <label class="mb-1.5 block text-xs font-bold uppercase tracking-wider text-gray-400 flex items-center gap-1">
-                  <IconBuilding class="h-3.5 w-3.5 text-gray-400" />
+                <label for="filter-cabinet" class="mb-1.5 block text-xs font-bold uppercase tracking-wider text-gray-600 flex items-center gap-1">
+                  <IconBuilding class="h-3.5 w-3.5 text-gray-500" aria-hidden="true" />
                   Cabinet / Clinique
                 </label>
                 <select
+                  id="filter-cabinet"
                   v-model="filters.cabinetId"
                   class="w-full rounded-lg border border-gray-300 px-3 py-2 text-sm focus:border-[var(--color-primary)] focus:outline-none focus:ring-2 focus:ring-[var(--color-primary)] bg-white"
                   @change="searchPractitioners"
@@ -233,14 +278,14 @@
             <hr class="border-gray-100 my-4" />
 
             <!-- Group 3: Disponibilités & Mode -->
-            <div class="space-y-3 mb-6">
-              <label class="mb-1.5 block text-xs font-bold uppercase tracking-wider text-gray-400">
+            <fieldset class="space-y-3 mb-6">
+              <legend class="mb-1.5 block text-xs font-bold uppercase tracking-wider text-gray-600">
                 Services & Options
-              </label>
-              
-              <label class="flex cursor-pointer items-center justify-between py-1.5 group select-none">
+              </legend>
+
+              <label class="flex cursor-pointer items-center justify-between py-1.5 group select-none focus-within:ring-2 focus-within:ring-[var(--color-primary)] focus-within:ring-offset-1 rounded">
                 <span class="flex items-center gap-2 text-sm text-gray-700 group-hover:text-gray-900 transition-colors">
-                  <IconVideo class="h-4 w-4 text-emerald-600" />
+                  <IconVideo class="h-4 w-4 text-emerald-600" aria-hidden="true" />
                   Téléconsultation
                 </span>
                 <input
@@ -251,9 +296,9 @@
                 />
               </label>
 
-              <label class="flex cursor-pointer items-center justify-between py-1.5 group select-none">
+              <label class="flex cursor-pointer items-center justify-between py-1.5 group select-none focus-within:ring-2 focus-within:ring-[var(--color-primary)] focus-within:ring-offset-1 rounded">
                 <span class="flex items-center gap-2 text-sm text-gray-700 group-hover:text-gray-900 transition-colors">
-                  <IconCalendar class="h-4 w-4 text-orange-500" />
+                  <IconCalendar class="h-4 w-4 text-orange-500" aria-hidden="true" />
                   Disponible aujourd'hui
                 </span>
                 <input
@@ -264,9 +309,9 @@
                 />
               </label>
 
-              <label class="flex cursor-pointer items-center justify-between py-1.5 group select-none">
+              <label class="flex cursor-pointer items-center justify-between py-1.5 group select-none focus-within:ring-2 focus-within:ring-[var(--color-primary)] focus-within:ring-offset-1 rounded">
                 <span class="flex items-center gap-2 text-sm text-gray-700 group-hover:text-gray-900 transition-colors">
-                  <IconCreditCard class="h-4 w-4 text-blue-500" />
+                  <IconCreditCard class="h-4 w-4 text-blue-500" aria-hidden="true" />
                   Accepte l'assurance
                 </span>
                 <input
@@ -276,7 +321,7 @@
                   @change="searchPractitioners"
                 />
               </label>
-            </div>
+            </fieldset>
 
             <hr class="border-gray-100 my-4" />
 
@@ -284,24 +329,26 @@
             <div class="space-y-4">
               <div>
                 <div class="flex items-center justify-between mb-1.5">
-                  <label class="block text-xs font-bold uppercase tracking-wider text-gray-400">
+                  <label for="filter-maxprice" class="block text-xs font-bold uppercase tracking-wider text-gray-600">
                     Tarif consultation max
                   </label>
-                  <span class="text-xs font-semibold text-emerald-750 bg-emerald-50 px-2.5 py-0.5 rounded-full border border-emerald-100 font-mono">
+                  <span class="text-xs font-semibold text-emerald-700 bg-emerald-50 px-2.5 py-0.5 rounded-full border border-emerald-100 font-mono">
                     {{ filters.maxPrice.toLocaleString() }} XOF
                   </span>
                 </div>
                 <div class="relative pt-1">
                   <input
+                    id="filter-maxprice"
                     v-model.number="filters.maxPrice"
                     type="range"
                     min="0"
                     max="50000"
                     step="5000"
-                    class="h-1.5 w-full cursor-pointer appearance-none rounded-lg bg-gray-200 accent-[#00804A] focus:outline-none"
+                    :aria-valuetext="`${filters.maxPrice.toLocaleString()} francs CFA maximum`"
+                    class="h-1.5 w-full cursor-pointer appearance-none rounded-lg bg-gray-200 accent-[#00804A] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--color-primary)]"
                     @input="debouncedSearch"
                   />
-                  <div class="mt-1 flex justify-between text-[10px] font-semibold text-gray-400">
+                  <div class="mt-1 flex justify-between text-[10px] font-semibold text-gray-500">
                     <span>0 XOF</span>
                     <span>50 000 XOF</span>
                   </div>
@@ -309,11 +356,12 @@
               </div>
 
               <div>
-                <label class="mb-1.5 block text-xs font-bold uppercase tracking-wider text-gray-400 flex items-center gap-1">
-                  <IconStar class="h-3.5 w-3.5 text-yellow-500" />
+                <label for="filter-rating" class="mb-1.5 block text-xs font-bold uppercase tracking-wider text-gray-600 flex items-center gap-1">
+                  <IconStar class="h-3.5 w-3.5 text-yellow-500" aria-hidden="true" />
                   Note minimale
                 </label>
                 <select
+                  id="filter-rating"
                   v-model.number="filters.minRating"
                   class="w-full rounded-lg border border-gray-300 px-3 py-2 text-sm focus:border-[var(--color-primary)] focus:outline-none focus:ring-2 focus:ring-[var(--color-primary)] bg-white"
                   @change="searchPractitioners"
@@ -332,12 +380,12 @@
         <div class="lg:col-span-3">
           <!-- MAP VIEW -->
           <div v-if="viewMode === 'map'" class="rounded-xl border border-gray-200 bg-white p-4 shadow-sm">
-            <p class="mb-3 text-sm text-gray-500">
+            <p class="mb-3 text-sm text-gray-600" role="status" aria-live="polite">
               <template v-if="loading">Chargement...</template>
               <template v-else>
                 {{ pagination.total }} praticien{{ pagination.total > 1 ? "s" : "" }} trouvé{{ pagination.total > 1 ? "s" : "" }}
                 <span v-if="geoFilters.active" class="ml-2 inline-flex items-center gap-1 rounded-full bg-blue-50 px-2 py-0.5 text-xs text-blue-700">
-                  <IconLocate class="h-3 w-3" /> Recherche géolocalisée
+                  <IconLocate class="h-3 w-3" aria-hidden="true" /> Recherche géolocalisée
                 </span>
               </template>
             </p>
@@ -350,7 +398,7 @@
               />
               <template #fallback>
                 <div class="flex h-[560px] items-center justify-center rounded-lg bg-gray-100">
-                  <p class="text-gray-400">Chargement de la carte...</p>
+                  <p class="text-gray-500">Chargement de la carte...</p>
                 </div>
               </template>
             </ClientOnly>
@@ -359,7 +407,7 @@
           <!-- LIST VIEW -->
           <div v-else>
             <div class="mb-4 flex items-center justify-between">
-              <p class="text-gray-600">
+              <p class="text-gray-600" role="status" aria-live="polite">
                 <template v-if="loading">Chargement...</template>
                 <template v-else>
                   {{ pagination.total }} praticien{{ pagination.total > 1 ? "s" : "" }}
@@ -368,7 +416,7 @@
               </p>
             </div>
 
-            <div v-if="loading" class="space-y-4">
+            <div v-if="loading" class="space-y-4" aria-hidden="true">
               <Card v-for="i in 3" :key="i" class="animate-pulse">
                 <div class="flex gap-6">
                   <div class="h-24 w-24 flex-shrink-0 rounded-full bg-gray-200" />
@@ -385,7 +433,7 @@
             </div>
 
             <div v-else-if="practitioners.length === 0" class="py-12 text-center">
-              <p class="text-lg text-gray-500">
+              <p class="text-lg text-gray-600">
                 Aucun praticien trouvé avec ces critères.
               </p>
             </div>
@@ -408,7 +456,7 @@
                     />
                     <div
                       v-else
-                      class="flex h-full w-full items-center justify-center text-2xl font-bold text-gray-400"
+                      class="flex h-full w-full items-center justify-center text-2xl font-bold text-gray-500"
                     >
                       {{ practitioner.firstName.charAt(0)
                       }}{{ practitioner.lastName.charAt(0) }}
@@ -439,12 +487,13 @@
                         v-if="practitioner.averageRating"
                         class="flex items-center gap-1"
                       >
-                        <IconStar class="h-4 w-4 fill-yellow-455 text-yellow-455" />
+                        <IconStar class="h-4 w-4 fill-yellow-400 text-yellow-400" aria-hidden="true" />
                         <span class="font-medium">{{ practitioner.averageRating }}</span>
-                        <span class="text-sm text-gray-600 font-sans">({{ practitioner.totalReviews }})</span>
+                        <span class="sr-only">étoiles sur 5,</span>
+                        <span class="text-sm text-gray-600 font-sans">({{ practitioner.totalReviews }}<span class="sr-only">&nbsp;avis</span>)</span>
                       </div>
                       <div class="flex items-center gap-1 text-sm text-gray-600">
-                        <IconMapPin class="h-4 w-4" />
+                        <IconMapPin class="h-4 w-4" aria-hidden="true" />
                         {{ practitioner.city }}
                       </div>
                     </div>
@@ -477,37 +526,47 @@
               </Card>
             </div>
 
-            <div
+            <nav
               v-if="pagination.totalPages > 1"
               class="mt-6 flex justify-center gap-2"
+              aria-label="Pagination des résultats"
             >
               <Button
                 variant="outline"
                 :disabled="pagination.page === 1"
+                aria-label="Page précédente"
                 @click="changePage(pagination.page - 1)"
               >
                 Précédent
               </Button>
-              <span class="flex items-center px-4 text-sm text-gray-600 font-sans">
+              <span class="flex items-center px-4 text-sm text-gray-600 font-sans" aria-current="page" aria-live="polite">
                 Page {{ pagination.page }} sur {{ pagination.totalPages }}
               </span>
               <Button
                 variant="outline"
                 :disabled="pagination.page === pagination.totalPages"
+                aria-label="Page suivante"
                 @click="changePage(pagination.page + 1)"
               >
                 Suivant
               </Button>
-            </div>
+            </nav>
           </div>
         </div>
       </div>
 
       <!-- ── CABINETS TAB ── -->
-      <div v-else>
+      <div
+        v-else
+        id="panel-cabinets"
+        role="tabpanel"
+        aria-labelledby="tab-cabinets"
+        tabindex="0"
+        class="focus:outline-none"
+      >
         <!-- MAP VIEW -->
         <div v-if="viewMode === 'map'" class="rounded-xl border border-gray-200 bg-white p-4 shadow-sm">
-          <p class="mb-3 text-sm text-gray-500">
+          <p class="mb-3 text-sm text-gray-600" role="status" aria-live="polite">
             {{ cabinets.length }} cabinet{{ cabinets.length > 1 ? "s" : "" }}
             trouvé{{ cabinets.length > 1 ? "s" : "" }}
           </p>
@@ -520,7 +579,7 @@
             />
             <template #fallback>
               <div class="flex h-[560px] items-center justify-center rounded-lg bg-gray-100">
-                <p class="text-gray-400">Chargement de la carte...</p>
+                <p class="text-gray-500">Chargement de la carte...</p>
               </div>
             </template>
           </ClientOnly>
@@ -529,14 +588,14 @@
         <!-- LIST VIEW -->
         <div v-else class="space-y-4">
           <div class="mb-4 flex items-center justify-between">
-            <p class="text-gray-600">
+            <p class="text-gray-600" role="status" aria-live="polite">
               {{ cabinets.length }} cabinet{{ cabinets.length > 1 ? "s" : "" }}
               trouvé{{ cabinets.length > 1 ? "s" : "" }}
             </p>
           </div>
 
           <div v-if="cabinets.length === 0" class="py-12 text-center">
-            <p class="text-lg text-gray-500">Aucun cabinet trouvé.</p>
+            <p class="text-lg text-gray-600">Aucun cabinet trouvé.</p>
           </div>
 
           <div v-else class="grid gap-6 md:grid-cols-2 lg:grid-cols-3">
@@ -548,7 +607,7 @@
               <div>
                 <h3 class="mb-2 text-xl font-semibold">{{ cabinet.name }}</h3>
                 <div class="mb-2 flex items-center gap-1 text-sm text-gray-600">
-                  <IconMapPin class="h-4 w-4" />
+                  <IconMapPin class="h-4 w-4" aria-hidden="true" />
                   {{ cabinet.city || "Ville non renseignée" }}
                 </div>
                 <p class="mb-4 text-sm text-gray-500">
@@ -580,7 +639,7 @@
 </template>
 
 <script setup lang="ts">
-import { ref, reactive, computed, onMounted, watch } from "vue";
+import { ref, reactive, computed, onMounted, watch, nextTick } from "vue";
 import {
   Search as IconSearch,
   Filter as IconFilter,
@@ -646,6 +705,29 @@ interface Practitioner {
 
 const activeTab = ref<"practitioners" | "cabinets">("practitioners");
 const viewMode = ref<"list" | "map">("list");
+
+// Accessible tab navigation (ARIA APG pattern: arrow keys move focus between tabs)
+const TABS = ["practitioners", "cabinets"] as const;
+const focusTab = (name: "practitioners" | "cabinets") => {
+  activeTab.value = name;
+  void nextTick(() => document.getElementById(`tab-${name}`)?.focus());
+};
+const onTabKeydown = (e: KeyboardEvent) => {
+  const idx = TABS.indexOf(activeTab.value);
+  if (e.key === "ArrowRight") {
+    e.preventDefault();
+    focusTab(idx === TABS.length - 1 ? TABS[0] : TABS[idx + 1]!);
+  } else if (e.key === "ArrowLeft") {
+    e.preventDefault();
+    focusTab(idx <= 0 ? TABS[TABS.length - 1]! : TABS[idx - 1]!);
+  } else if (e.key === "Home") {
+    e.preventDefault();
+    focusTab(TABS[0]);
+  } else if (e.key === "End") {
+    e.preventDefault();
+    focusTab(TABS[TABS.length - 1]!);
+  }
+};
 const showMobileFilters = ref(false);
 
 const filters = reactive({

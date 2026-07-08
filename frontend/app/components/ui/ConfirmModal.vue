@@ -16,6 +16,7 @@
         :aria-labelledby="titleId"
         :aria-describedby="descriptionId"
         @keydown.esc="onCancel"
+        @keydown.tab="onTrapTab"
         @mousedown.self="onCancel"
       >
         <!-- Backdrop -->
@@ -60,7 +61,7 @@
               </UiButton>
               <UiButton :variant="confirmVariant" class="flex-1" :disabled="loading" @click="onConfirm">
                 <span v-if="loading" class="flex items-center gap-1.5">
-                  <svg class="h-4 w-4 animate-spin" viewBox="0 0 24 24" fill="none">
+                  <svg class="h-4 w-4 animate-spin" viewBox="0 0 24 24" fill="none" aria-hidden="true">
                     <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4" />
                     <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8v8z" />
                   </svg>
@@ -106,6 +107,7 @@ const emit = defineEmits<{
 }>()
 
 const panelRef = ref<HTMLElement | null>(null)
+let previouslyFocused: HTMLElement | null = null
 
 const uid = Math.random().toString(36).slice(2)
 const titleId = `confirm-modal-title-${uid}`
@@ -149,11 +151,44 @@ watch(
   () => props.modelValue,
   async (open) => {
     if (open) {
+      previouslyFocused = (document.activeElement as HTMLElement | null) ?? null
       await nextTick()
       panelRef.value?.focus()
+    } else if (previouslyFocused) {
+      // Restore focus to the trigger when the dialog closes (WCAG 2.4.3)
+      previouslyFocused.focus?.()
+      previouslyFocused = null
     }
   },
 )
+
+// Keep keyboard focus inside the dialog while open (WCAG 2.1.2 / 2.4.3)
+function onTrapTab(e: KeyboardEvent) {
+  const panel = panelRef.value
+  if (!panel) return
+  const focusables = Array.from(
+    panel.querySelectorAll<HTMLElement>(
+      'a[href], button:not([disabled]), input:not([disabled]), select:not([disabled]), textarea:not([disabled]), [tabindex]:not([tabindex="-1"])',
+    ),
+  ).filter((el) => el.offsetParent !== null || el === document.activeElement)
+  if (focusables.length === 0) {
+    e.preventDefault()
+    panel.focus()
+    return
+  }
+  const first = focusables[0]!
+  const last = focusables[focusables.length - 1]!
+  const active = document.activeElement
+  if (e.shiftKey) {
+    if (active === first || active === panel) {
+      e.preventDefault()
+      last.focus()
+    }
+  } else if (active === last) {
+    e.preventDefault()
+    first.focus()
+  }
+}
 
 function onCancel() {
   emit('update:modelValue', false)

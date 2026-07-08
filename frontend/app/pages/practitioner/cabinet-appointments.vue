@@ -463,7 +463,7 @@
               class="rounded-lg p-1 hover:bg-gray-100"
               @click="showHistoryModal = false"
             >
-              <X class="h-5 w-5 text-gray-400" />
+              <X class="h-5 w-5 text-gray-500" />
             </button>
           </div>
 
@@ -471,7 +471,7 @@
             <div class="flex flex-wrap gap-3">
               <div class="relative flex-1">
                 <Search
-                  class="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-gray-400"
+                  class="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-gray-500"
                 />
                 <input
                   v-model="historySearch"

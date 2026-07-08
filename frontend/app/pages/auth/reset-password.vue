@@ -2,9 +2,9 @@
   <div class="flex min-h-screen items-center justify-center px-4 py-12">
     <div class="w-full max-w-md space-y-8 rounded-lg bg-white p-8 shadow-lg">
       <div>
-        <h2 class="text-center text-3xl font-bold text-gray-900">
+        <h1 class="text-center text-3xl font-bold text-gray-900">
           Réinitialiser le mot de passe
-        </h2>
+        </h1>
         <p class="mt-2 text-center text-sm text-gray-600">
           Entrez votre nouveau mot de passe
         </p>
@@ -14,6 +14,7 @@
         <!-- error message -->
         <div
           v-if="errorMessage"
+          role="alert"
           class="rounded-md border border-red-300 bg-red-50 px-4 py-3 text-sm text-red-800"
         >
           {{ errorMessage }}
@@ -22,6 +23,7 @@
         <!-- success message -->
         <div
           v-if="successMessage"
+          role="status"
           class="rounded-md border border-green-300 bg-green-50 px-4 py-3 text-sm text-green-800"
         >
           {{ successMessage }}
@@ -41,7 +43,7 @@
               type="password"
               required
               autocomplete="new-password"
-              class="mt-1 block w-full rounded-md border border-gray-300 px-3 py-2 placeholder-gray-400 shadow-sm focus:border-orange-500 focus:outline-none focus:ring-2 focus:ring-orange-500"
+              class="mt-1 block w-full rounded-md border border-gray-300 px-3 py-2 placeholder-gray-500 shadow-sm focus:border-orange-500 focus:outline-none focus:ring-2 focus:ring-orange-500"
               placeholder="••••••••"
             />
             <p class="mt-1 text-xs text-gray-500">
@@ -63,7 +65,7 @@
               type="password"
               required
               autocomplete="new-password"
-              class="mt-1 block w-full rounded-md border border-gray-300 px-3 py-2 placeholder-gray-400 shadow-sm focus:border-orange-500 focus:outline-none focus:ring-2 focus:ring-orange-500"
+              class="mt-1 block w-full rounded-md border border-gray-300 px-3 py-2 placeholder-gray-500 shadow-sm focus:border-orange-500 focus:outline-none focus:ring-2 focus:ring-orange-500"
               placeholder="••••••••"
             />
           </div>
@@ -87,6 +89,7 @@
               fill="none"
               stroke="currentColor"
               viewBox="0 0 24 24"
+              aria-hidden="true"
             >
               <path
                 stroke-linecap="round"

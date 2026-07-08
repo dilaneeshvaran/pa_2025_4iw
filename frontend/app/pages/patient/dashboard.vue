@@ -28,7 +28,7 @@
         <div v-else-if="!nextAppointment" class="flex flex-col items-center justify-center py-12 text-center">
           <Calendar class="mb-3 h-12 w-12 text-gray-300 opacity-60" :stroke-width="1.25" />
           <h3 class="font-display text-base font-semibold text-gray-800">Aucun rendez-vous</h3>
-          <p class="mt-1 max-w-[280px] text-sm text-gray-400">
+          <p class="mt-1 max-w-[280px] text-sm text-gray-500">
             Vous n'avez pas encore de rendez-vous planifié.
           </p>
           <UiButton size="sm" class-name="mt-5" @click="navigateTo('/search')">
@@ -56,7 +56,7 @@
                 }}
               </p>
               <div class="mt-2 flex items-center gap-2">
-                <Clock class="h-4 w-4 text-gray-400" :stroke-width="1.75" />
+                <Clock class="h-4 w-4 text-gray-500" :stroke-width="1.75" />
                 <span class="tabular-nums text-sm font-medium text-gray-700"
                   >{{ formatDate(nextAppointment.appointmentDate) }} à
                   {{ nextAppointment.startTime }}</span
@@ -170,7 +170,7 @@
           <div v-else-if="healthReminders.length === 0" class="flex flex-col items-center justify-center py-12 text-center">
             <Bell class="mb-3 h-12 w-12 text-gray-300 opacity-60" :stroke-width="1.25" />
             <h3 class="font-display text-base font-semibold text-gray-800">Tout est à jour</h3>
-            <p class="mt-1 max-w-[280px] text-sm text-gray-400">Aucune notification en attente.</p>
+            <p class="mt-1 max-w-[280px] text-sm text-gray-500">Aucune notification en attente.</p>
           </div>
 
           <!-- notifications list -->
@@ -185,7 +185,7 @@
                 <p class="text-sm font-medium text-gray-900">
                   {{ reminder.message }}
                 </p>
-                <p class="mt-0.5 text-xs text-gray-400">
+                <p class="mt-0.5 text-xs text-gray-500">
                   {{ reminder.practitioner.title }}
                   {{ reminder.practitioner.firstName }}
                   {{ reminder.practitioner.lastName }} ·
@@ -221,7 +221,7 @@
           <div v-else-if="pastAppointments.length === 0" class="flex flex-col items-center justify-center py-12 text-center">
             <FileText class="mb-3 h-12 w-12 text-gray-300 opacity-60" :stroke-width="1.25" />
             <h3 class="font-display text-base font-semibold text-gray-800">Aucun rendez-vous</h3>
-            <p class="mt-1 max-w-[280px] text-sm text-gray-400">Vos rendez-vous passés apparaîtront ici.</p>
+            <p class="mt-1 max-w-[280px] text-sm text-gray-500">Vos rendez-vous passés apparaîtront ici.</p>
           </div>
 
           <!-- past appointments list -->
@@ -239,7 +239,7 @@
                 <p class="text-xs text-gray-500">
                   {{ apt.practitioner.specialty || "Médecine générale" }}
                 </p>
-                <p class="mt-1 tabular-nums text-xs text-gray-400">
+                <p class="mt-1 tabular-nums text-xs text-gray-500">
                   {{ formatDate(apt.appointmentDate) }}
                 </p>
               </div>

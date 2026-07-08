@@ -1,5 +1,6 @@
 <template>
   <div class="flex min-h-screen bg-gray-50">
+    <a href="#main-content" class="skip-link">Aller au contenu principal</a>
     <!-- mobile backdrop -->
     <div
       v-if="sidebarOpen"
@@ -37,12 +38,13 @@
         </div>
 
         <!-- navigation -->
-        <nav class="flex-1 overflow-y-auto px-3 py-4">
+        <nav class="flex-1 overflow-y-auto px-3 py-4" aria-label="Navigation principale">
           <p class="px-3 pb-2 pt-1 text-[10px] font-medium uppercase tracking-[0.12em] text-gray-400">Administration</p>
           <ul class="space-y-0.5">
             <li v-for="item in menuItems" :key="item.path">
               <NuxtLink
                 :to="item.path"
+                :aria-current="isActive(item.path) ? 'page' : undefined"
                 :class="[
                   'flex h-9 items-center gap-2.5 rounded-md px-3 text-sm transition-all duration-150',
                   isActive(item.path)
@@ -99,7 +101,7 @@
         </button>
         <CommonNotificationBell class="ml-auto" />
       </header>
-      <main class="p-4 sm:p-6">
+      <main id="main-content" tabindex="-1" class="p-4 sm:p-6 focus:outline-none">
         <slot />
       </main>
     </div>
