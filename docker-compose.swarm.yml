@@ -220,10 +220,39 @@ services:
     entrypoint:
       - sh
       - -c
-      - 'turnserver --lt-cred-mech --fingerprint --no-multicast-peers --no-cli --realm=medicote.me --user=medicote:medicoteTurn2025 --external-ip=${VPS_PUBLIC_IP:-142.93.73.60} --listening-port=3478 --min-port=49152 --max-port=65535'
+      - 'turnserver --lt-cred-mech --fingerprint --no-multicast-peers --no-cli --realm=medicote.me --user=medicote:medicoteTurn2025 --external-ip=${VPS_PUBLIC_IP:-142.93.73.60} --listening-port=3478 --min-port=49152 --max-port=49171'
+    # Ports MUST be published in host mode. The Swarm routing mesh (ingress)
+    # source-NATs incoming packets, which hides the real client IP from coturn
+    # and prevents it from relaying media. mode: host binds coturn straight to
+    # the node's network interface so TURN relay allocations actually work.
     ports:
-      - '3478:3478/udp'
-      - '3478:3478/tcp'
+      # STUN/TURN control channel
+      - { target: 3478, published: 3478, protocol: udp, mode: host }
+      - { target: 3478, published: 3478, protocol: tcp, mode: host }
+      # Media relay range — MUST match --min-port/--max-port above and be open
+      # in the VPS/cloud firewall. host mode has no range syntax, so every relay
+      # port is listed explicitly. 20 ports ≈ 10-20 concurrent relayed calls;
+      # to scale, widen both this list and --max-port together.
+      - { target: 49152, published: 49152, protocol: udp, mode: host }
+      - { target: 49153, published: 49153, protocol: udp, mode: host }
+      - { target: 49154, published: 49154, protocol: udp, mode: host }
+      - { target: 49155, published: 49155, protocol: udp, mode: host }
+      - { target: 49156, published: 49156, protocol: udp, mode: host }
+      - { target: 49157, published: 49157, protocol: udp, mode: host }
+      - { target: 49158, published: 49158, protocol: udp, mode: host }
+      - { target: 49159, published: 49159, protocol: udp, mode: host }
+      - { target: 49160, published: 49160, protocol: udp, mode: host }
+      - { target: 49161, published: 49161, protocol: udp, mode: host }
+      - { target: 49162, published: 49162, protocol: udp, mode: host }
+      - { target: 49163, published: 49163, protocol: udp, mode: host }
+      - { target: 49164, published: 49164, protocol: udp, mode: host }
+      - { target: 49165, published: 49165, protocol: udp, mode: host }
+      - { target: 49166, published: 49166, protocol: udp, mode: host }
+      - { target: 49167, published: 49167, protocol: udp, mode: host }
+      - { target: 49168, published: 49168, protocol: udp, mode: host }
+      - { target: 49169, published: 49169, protocol: udp, mode: host }
+      - { target: 49170, published: 49170, protocol: udp, mode: host }
+      - { target: 49171, published: 49171, protocol: udp, mode: host }
     networks:
       - pgnetwork
     deploy:
