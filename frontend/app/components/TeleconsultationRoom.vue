@@ -456,6 +456,7 @@ let screenStream: MediaStream | null = null;
 let durationInterval: ReturnType<typeof setInterval> | null = null;
 let qualityInterval: ReturnType<typeof setInterval> | null = null;
 let reannounceTimer: ReturnType<typeof setTimeout> | null = null;
+let disconnectTimer: ReturnType<typeof setTimeout> | null = null;
 
 const connectionQualityColor = computed(() => {
   switch (connectionQuality.value) {
@@ -590,6 +591,24 @@ const reannounceJoin = () => {
   }
 };
 
+const destroyPeerAndReconnect = () => {
+  if (disconnectTimer) {
+    clearTimeout(disconnectTimer);
+    disconnectTimer = null;
+  }
+  stopDurationTimer();
+  stopQualityMonitor();
+  if (peer) {
+    try {
+      peer.destroy();
+    } catch {}
+    peer = null;
+  }
+  remoteStream.value = null;
+  callStatus.value = "waiting";
+  scheduleReannounce(1000);
+};
+
 const createPeer = (initiator: boolean) => {
   if (!localStream.value) {
     console.warn("Creating peer without local stream (media may be one-way)");
@@ -598,29 +617,44 @@ const createPeer = (initiator: boolean) => {
   peer = new SimplePeer({
     initiator,
     stream: localStream.value || undefined,
-    trickle: true,
+    trickle: false,
     config: {
       iceServers: [
         { urls: "stun:stun.l.google.com:19302" },
-        { urls: "stun:stun1.l.google.com:19302" },
-        { urls: "stun:stun2.l.google.com:19302" },
-        { urls: "stun:stun3.l.google.com:19302" },
-        { urls: "stun:stun4.l.google.com:19302" },
         { urls: "stun:stun.services.mozilla.com:3478" },
-        { urls: "stun:global.stun.twilio.com:3478" },
       ],
     },
   });
 
   const pc = (peer as any)._pc as RTCPeerConnection | undefined;
   if (pc) {
-    pc.onconnectionstatechange = () => {
-      const state = pc.connectionState;
-      if (state === 'failed' || state === 'disconnected') {
-        console.warn('WebRTC connection state:', state);
-        scheduleReannounce(1000);
+    const handleStateChange = () => {
+      const state: string = pc.connectionState || pc.iceConnectionState;
+      console.log('WebRTC connection state update:', state);
+      if (state === 'failed') {
+        console.error('WebRTC connection failed, reconnecting immediately');
+        destroyPeerAndReconnect();
+      } else if (state === 'disconnected') {
+        console.warn('WebRTC connection disconnected, scheduling reconnect in 4s');
+        if (!disconnectTimer) {
+          disconnectTimer = setTimeout(() => {
+            disconnectTimer = null;
+            const currentState: string = pc.connectionState || pc.iceConnectionState;
+            if (currentState === 'disconnected' || currentState === 'failed') {
+              console.error('WebRTC connection failed to recover after 4s, reconnecting');
+              destroyPeerAndReconnect();
+            }
+          }, 4000);
+        }
+      } else if (state === 'connected' || state === 'completed') {
+        if (disconnectTimer) {
+          clearTimeout(disconnectTimer);
+          disconnectTimer = null;
+        }
       }
     };
+    pc.onconnectionstatechange = handleStateChange;
+    pc.oniceconnectionstatechange = handleStateChange;
   }
 
   peer.on("signal", (data: SimplePeer.SignalData) => {
@@ -644,7 +678,7 @@ const createPeer = (initiator: boolean) => {
         signal: data,
       });
     } else {
-      // ice candidate
+      // ice candidate (should not be called when trickle is false, but kept as fallback)
       send({
         type: "webrtc_ice_candidate",
         targetUserId: targetUserId.value,
@@ -677,23 +711,28 @@ const createPeer = (initiator: boolean) => {
   });
 
   peer.on("close", () => {
+    if (disconnectTimer) {
+      clearTimeout(disconnectTimer);
+      disconnectTimer = null;
+    }
     stopDurationTimer();
     stopQualityMonitor();
     callStatus.value = "waiting";
     remoteStream.value = null;
+    peer = null;
     scheduleReannounce();
   });
 
   peer.on("error", (err: Error) => {
     console.error("Peer error:", err);
     const wasConnected = callStatus.value === "connected";
-    peer = null;
     if (wasConnected || callStatus.value === "connecting") {
-      stopDurationTimer();
-      stopQualityMonitor();
-      callStatus.value = "waiting";
-      remoteStream.value = null;
-      scheduleReannounce(1500);
+      destroyPeerAndReconnect();
+    } else {
+      if (peer) {
+        try { peer.destroy(); } catch {}
+        peer = null;
+      }
     }
   });
 };
@@ -948,6 +987,10 @@ const endCall = async () => {
     clearTimeout(reannounceTimer);
     reannounceTimer = null;
   }
+  if (disconnectTimer) {
+    clearTimeout(disconnectTimer);
+    disconnectTimer = null;
+  }
 
   stopDurationTimer();
   stopQualityMonitor();
@@ -1102,6 +1145,10 @@ onUnmounted(() => {
   if (reannounceTimer) {
     clearTimeout(reannounceTimer);
     reannounceTimer = null;
+  }
+  if (disconnectTimer) {
+    clearTimeout(disconnectTimer);
+    disconnectTimer = null;
   }
 
   if (targetUserId.value) {
