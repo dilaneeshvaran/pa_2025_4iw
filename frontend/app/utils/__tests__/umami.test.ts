@@ -96,10 +96,18 @@ describe('analytics utils', () => {
 
     it('injecte le script uniquement si buildScriptElement est appele explicitement', () => {
       expect(document.querySelectorAll('script[data-website-id]').length).toBe(0)
+      const appendChild = vi
+        .spyOn(document.head, 'appendChild')
+        .mockImplementation((node) => {
+          const scriptNode = node as HTMLScriptElement
+          document.head.innerHTML += `<script data-website-id="${scriptNode.getAttribute('data-website-id') ?? ''}"></script>`
+          return node
+        })
 
       const script = buildScriptElement('https://umami.example.com', 'abc-123', 'localhost')
       document.head.appendChild(script)
 
+      expect(appendChild).toHaveBeenCalledWith(script)
       expect(document.querySelectorAll('script[data-website-id]').length).toBe(1)
     })
 
