@@ -1101,3 +1101,47 @@ export async function sendEarlierSlotAlertEmail(
 
   await sendEmail(to, 'Disponibilité plus proche libérée - MediCôte', html)
 }
+
+export async function sendTeleconsultationParticipantJoinedEmail(
+  to: string,
+  data: {
+    recipientName: string
+    senderName: string
+    appointmentId: string
+    isRecipientPatient: boolean
+  }
+): Promise<void> {
+  const joinUrl = data.isRecipientPatient
+    ? `${APP_URL}/patient/teleconsultations?appointmentId=${data.appointmentId}`
+    : `${APP_URL}/practitioner/teleconsultations?appointmentId=${data.appointmentId}`
+
+  const title = data.isRecipientPatient
+    ? 'Votre praticien a rejoint la téléconsultation - MediCôte'
+    : 'Votre patient a rejoint la téléconsultation - MediCôte'
+
+  const contentHtml = data.isRecipientPatient
+    ? `
+      <h2 style="color: #ff8200; font-family: 'Outfit', sans-serif; font-size: 20px; font-weight: 600; margin-top: 0; margin-bottom: 16px;">Votre praticien vous attend</h2>
+      <p style="margin: 0 0 16px 0;">Bonjour ${data.recipientName},</p>
+      <p style="margin: 0 0 20px 0;">Votre praticien <strong>${data.senderName}</strong> a rejoint la téléconsultation. Vous pouvez vous connecter dès maintenant pour débuter la séance :</p>
+    `
+    : `
+      <h2 style="color: #ff8200; font-family: 'Outfit', sans-serif; font-size: 20px; font-weight: 600; margin-top: 0; margin-bottom: 16px;">Votre patient est en ligne</h2>
+      <p style="margin: 0 0 16px 0;">Bonjour ${data.recipientName},</p>
+      <p style="margin: 0 0 20px 0;">Votre patient <strong>${data.senderName}</strong> a rejoint la téléconsultation. Vous pouvez vous connecter dès maintenant pour débuter la séance :</p>
+    `
+
+  const html = buildEmailHtml({
+    title,
+    preheader: data.isRecipientPatient
+      ? `${data.senderName} a rejoint la téléconsultation.`
+      : `${data.senderName} a rejoint la téléconsultation.`,
+    contentHtml,
+    actionUrl: joinUrl,
+    actionText: 'Rejoindre la téléconsultation',
+    accentColor: '#ff8200',
+  })
+
+  await sendEmail(to, title, html)
+}
+

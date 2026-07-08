@@ -13,6 +13,7 @@ import prisma from './config/database'
 import { redis } from './config/redis'
 import { startReminderWorker } from './utils/reminder-scheduler'
 import { startHealthReminderWorker } from './utils/health-reminder-scheduler'
+import { startTeleconsultationEmailWorker } from './utils/teleconsultation-email-scheduler'
 import { websocketPlugin } from './plugins/websocket'
 import { sanitizeErrorMessage } from './utils/errors'
 import securityPlugin from './plugins/security'
@@ -61,6 +62,10 @@ app.register(routes)
 let reminderWorker: ReturnType<typeof startReminderWorker> | null = null
 let healthReminderWorker: ReturnType<typeof startHealthReminderWorker> | null =
   null
+let teleconsultationEmailWorker: ReturnType<
+  typeof startTeleconsultationEmailWorker
+> | null = null
+
 try {
   reminderWorker = startReminderWorker()
   console.log('Reminder worker started')
@@ -73,6 +78,13 @@ try {
   console.log('Health reminder worker started')
 } catch (error) {
   console.error('Failed to start health reminder worker:', error)
+}
+
+try {
+  teleconsultationEmailWorker = startTeleconsultationEmailWorker()
+  console.log('Teleconsultation email worker started')
+} catch (error) {
+  console.error('Failed to start teleconsultation email worker:', error)
 }
 // error handler for zod validation errors
 app.setErrorHandler((error, request, reply) => {
@@ -114,6 +126,9 @@ app.addHook('onClose', async () => {
   }
   if (healthReminderWorker) {
     await healthReminderWorker.close()
+  }
+  if (teleconsultationEmailWorker) {
+    await teleconsultationEmailWorker.close()
   }
   await redis.quit()
   await prisma.$disconnect()
