@@ -20,6 +20,8 @@ vi.mock('~/stores/auth', async () => {
 class MockWebSocket {
   static OPEN = 1
   static CONNECTING = 0
+  static CLOSING = 2
+  static CLOSED = 3
   static instances: MockWebSocket[] = []
 
   readyState = MockWebSocket.CONNECTING
@@ -200,15 +202,36 @@ describe('messaging store', () => {
     })
   })
 
-  it('reconnecte quand le token change', async () => {
+  it('préserve une socket vivante quand le token est rafraîchi', async () => {
     const store = useMessagingStore()
     await store.connect()
-    const firstSocket = MockWebSocket.instances[0]!
+    // Grab this store's own socket rather than instances[0], which can hold a
+    // socket opened by a leaked watcher from an earlier test.
+    const firstSocket = store.socket as unknown as MockWebSocket
+    firstSocket.readyState = MockWebSocket.OPEN
+    firstSocket.onopen?.()
 
     useAuthStore().accessToken = 'new-token'
     await nextTick()
 
-    expect(firstSocket.closed).toBe(true)
-    expect(MockWebSocket.instances.at(-1)?.url).toContain('token=new-token')
+    // A background token refresh must NOT tear down a live socket, otherwise
+    // the WebSocket drops mid-call and freezes the teleconsultation video.
+    expect(firstSocket.closed).toBe(false)
+    expect(store.socket).toBe(firstSocket)
+  })
+
+  it('reconnecte avec le nouveau token quand la socket est morte', async () => {
+    const store = useMessagingStore()
+    await store.connect()
+    const firstSocket = store.socket as unknown as MockWebSocket
+    firstSocket.readyState = MockWebSocket.CLOSED
+
+    useAuthStore().accessToken = 'new-token'
+    await nextTick()
+
+    expect(store.socket).not.toBe(firstSocket)
+    expect((store.socket as unknown as MockWebSocket)?.url).toContain(
+      'token=new-token',
+    )
   })
 })
