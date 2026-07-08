@@ -1,4 +1,10 @@
 process.env.TZ = 'UTC'
+jest.mock('../../teleconsultations/teleconsultations.service', () => ({
+  teleconsultationsService: {
+    cleanupExpiredSessions: jest.fn().mockResolvedValue(undefined),
+  },
+}))
+
 import { practitionerDashboardService } from '../practitioners-dashboard.service'
 
 jest.mock('../../../config/database', () => ({

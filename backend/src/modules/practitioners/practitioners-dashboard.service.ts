@@ -5,6 +5,7 @@ import { UpdateBillingConfigInput } from './practitioners-dashboard.schema'
 import { decrypt } from '../../utils/crypto'
 import { combineDateAndTime, isAppointmentFuture } from '../../utils/appointment-time'
 import { getClientLocalTime } from '../../utils/timezone'
+import { teleconsultationsService } from '../teleconsultations/teleconsultations.service'
 
 export class PractitionerDashboardService {
   //get all dashboard data in one go for efficiency
@@ -13,6 +14,9 @@ export class PractitionerDashboardService {
     timezoneOffset?: string,
   ): Promise<DashboardData> {
     const now = new Date()
+    // auto cleanup expired teleconsultations
+    await teleconsultationsService.cleanupExpiredSessions(timezoneOffset)
+
     const clientLocalTime = getClientLocalTime(now, timezoneOffset)
     const today = new Date(clientLocalTime)
     today.setUTCHours(0, 0, 0, 0)
