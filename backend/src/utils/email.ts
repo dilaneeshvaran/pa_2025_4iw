@@ -765,6 +765,51 @@ export async function sendPractitionerAbsentNotification(
   await sendEmail(to, 'Téléconsultation annulée - MediCôte', html)
 }
 
+export async function sendPractitionerLateEmail(
+  to: string,
+  data: {
+    patientName: string
+    practitionerTitle: string
+    practitionerFirstName: string
+    practitionerLastName: string
+    appointmentDate: string
+    appointmentTime: string
+    delayMinutes: number
+  },
+): Promise<void> {
+  const html = buildEmailHtml({
+    title: 'Retard de votre praticien - MediCôte',
+    preheader: `Votre praticien ${data.practitionerTitle} ${data.practitionerLastName} aura environ ${data.delayMinutes} minutes de retard.`,
+    contentHtml: `
+      <h2 style="color: #ff8200; font-family: 'Outfit', sans-serif; font-size: 20px; font-weight: 600; margin-top: 0; margin-bottom: 16px;">Retard signalé par votre praticien</h2>
+      <p style="margin: 0 0 16px 0;">Bonjour ${data.patientName},</p>
+      <p style="margin: 0 0 20px 0;">Nous vous informons que votre praticien aura environ <strong>${data.delayMinutes} minutes</strong> de retard pour votre téléconsultation du ${data.appointmentDate} prévue à ${data.appointmentTime}.</p>
+      
+      <div style="background-color: #f8fafc; border: 1px solid #e2e8f0; border-radius: 8px; padding: 20px; margin: 24px 0;">
+        <table border="0" cellpadding="0" cellspacing="0" width="100%" style="font-size: 14px; font-family: 'Inter', sans-serif; color: #475569; border-collapse: collapse;">
+          <tr>
+            <td style="padding: 6px 0; font-weight: 600; color: #1e293b; width: 35%; vertical-align: top;">Praticien :</td>
+            <td style="padding: 6px 0; color: #334155;">${data.practitionerTitle} ${data.practitionerFirstName} ${data.practitionerLastName}</td>
+          </tr>
+          <tr>
+            <td style="padding: 6px 0; font-weight: 600; color: #1e293b; vertical-align: top;">Nouvelle estimation :</td>
+            <td style="padding: 6px 0; color: #ff8200; font-weight: bold;">+ ${data.delayMinutes} minutes</td>
+          </tr>
+        </table>
+      </div>
+
+      <p style="margin: 24px 0 0 0; font-size: 14px; color: #64748b;">
+        Vous pouvez vous connecter à la salle de téléconsultation et attendre le praticien. Nous vous remercions pour votre patience.
+      </p>
+    `,
+    actionUrl: `${APP_URL}/patient/teleconsultations`,
+    actionText: 'Rejoindre la téléconsultation',
+  })
+
+  await sendEmail(to, 'Retard de votre praticien - MediCôte', html)
+}
+
+
 export async function sendStaffAccountCreatedEmail(
   to: string,
   firstName: string,
