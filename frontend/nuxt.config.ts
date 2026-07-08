@@ -70,6 +70,7 @@ export default defineNuxtConfig({
       umamiUrl: process.env.NUXT_PUBLIC_UMAMI_URL || "",
       umamiWebsiteId: process.env.NUXT_PUBLIC_UMAMI_WEBSITE_ID || "",
       umamiEnabled: process.env.NUXT_PUBLIC_UMAMI_ENABLED !== "false",
+      webrtcIceServers: process.env.NUXT_PUBLIC_WEBRTC_ICE_SERVERS || "",
     },
   },
 

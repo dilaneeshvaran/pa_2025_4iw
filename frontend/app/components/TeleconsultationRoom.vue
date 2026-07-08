@@ -417,6 +417,7 @@ const emit = defineEmits<{
   close: [];
 }>();
 
+const config = useRuntimeConfig();
 const authStore = useAuthStore();
 const messagingStore = useMessagingStore();
 const { send, on, off } = messagingStore;
@@ -614,27 +615,52 @@ const createPeer = (initiator: boolean) => {
     console.warn("Creating peer without local stream (media may be one-way)");
   }
 
+  let iceServers: { urls: string; username?: string; credential?: string }[] = [];
+
+  if (config.public.webrtcIceServers) {
+    try {
+      iceServers = JSON.parse(config.public.webrtcIceServers as string);
+    } catch (e) {
+      console.error("Failed to parse NUXT_PUBLIC_WEBRTC_ICE_SERVERS:", e);
+    }
+  }
+
+  if (!iceServers.length) {
+    // Default fallback: use STUN everywhere
+    iceServers.push({ urls: "stun:stun.l.google.com:19302" });
+
+    // Only append the production TURN server when we are NOT on a local hostname.
+    // This prevents 50-second timeout/connection failure loops in local environments.
+    const isLocal = typeof window !== "undefined" && (
+      window.location.hostname === "localhost" ||
+      window.location.hostname === "127.0.0.1" ||
+      window.location.hostname.startsWith("192.168.") ||
+      window.location.hostname.startsWith("10.") ||
+      window.location.hostname.endsWith(".local")
+    );
+
+    if (!isLocal) {
+      iceServers.push(
+        {
+          urls: "turn:medicote.me:3478",
+          username: "medicote",
+          credential: "medicoteTurn2025",
+        },
+        {
+          urls: "turn:medicote.me:3478?transport=tcp",
+          username: "medicote",
+          credential: "medicoteTurn2025",
+        }
+      );
+    }
+  }
+
   peer = new SimplePeer({
     initiator,
     stream: localStream.value || undefined,
     trickle: true,
     config: {
-      iceServers: [
-        // STUN — fast direct P2P path discovery
-        { urls: 'stun:stun.l.google.com:19302' },
-        // Self-hosted TURN relay on the app's own VPS — avoids relying on
-        // unreliable free public TURN servers.
-        {
-          urls: 'turn:medicote.me:3478',
-          username: 'medicote',
-          credential: 'medicoteTurn2025',
-        },
-        {
-          urls: 'turn:medicote.me:3478?transport=tcp',
-          username: 'medicote',
-          credential: 'medicoteTurn2025',
-        },
-      ],
+      iceServers,
     },
   });
 
