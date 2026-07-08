@@ -1034,6 +1034,7 @@ definePageMeta({
 
 const authStore = useAuthStore();
 const router = useRouter();
+const toast = useAppToast();
 
 interface SessionItem {
   id: string;
@@ -1552,11 +1553,12 @@ async function confirmTeleCancel() {
       },
     );
     showTeleCancelModal.value = false;
+    toast.success("Téléconsultation annulée");
     await refreshData();
   } catch (e: unknown) {
     console.error("Error cancelling:", e);
     const apiError = e as { data?: { message?: string } };
-    alert(apiError?.data?.message || "Erreur lors de l'annulation");
+    toast.error(apiError?.data?.message || "Erreur lors de l'annulation");
   } finally {
     teleCancelLoading.value = false;
   }
@@ -1580,12 +1582,12 @@ async function confirmTeleDelay() {
       },
     );
     showTeleDelayModal.value = false;
-    alert("Notification de retard envoyée avec succès");
+    toast.success("Notification de retard envoyée avec succès");
     await refreshData();
   } catch (e: unknown) {
     console.error("Error sending delay notification:", e);
     const apiError = e as { data?: { message?: string } };
-    alert(apiError?.data?.message || "Erreur lors de l'envoi de la notification");
+    toast.error(apiError?.data?.message || "Erreur lors de l'envoi de la notification");
   } finally {
     teleDelayLoading.value = false;
   }
@@ -1620,11 +1622,12 @@ async function confirmTeleModify() {
       },
     );
     showTeleModifyModal.value = false;
+    toast.success("Téléconsultation modifiée avec succès");
     await refreshData();
   } catch (e: unknown) {
     console.error("Error modifying:", e);
     const apiError = e as { data?: { message?: string } };
-    alert(apiError?.data?.message || "Erreur lors de la modification");
+    toast.error(apiError?.data?.message || "Erreur lors de la modification");
   } finally {
     teleModifyLoading.value = false;
   }
