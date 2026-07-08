@@ -213,13 +213,15 @@ class CampaignsService {
       input.targetType === 'ALL_PATIENTS' ||
       input.targetType === 'ALL_USERS' ||
       (input.targetType === 'CUSTOM' &&
-        (input.targetUserTypes || []).includes('PATIENT'))
+        ((input.targetUserTypes || []).includes('PATIENT') ||
+          (input.targetUserTypes || []).length === 0))
 
     const shouldIncludePractitioners =
       input.targetType === 'ALL_PRACTITIONERS' ||
       input.targetType === 'ALL_USERS' ||
       (input.targetType === 'CUSTOM' &&
-        (input.targetUserTypes || []).includes('PRACTITIONER'))
+        ((input.targetUserTypes || []).includes('PRACTITIONER') ||
+          (input.targetUserTypes || []).length === 0))
 
     if (shouldIncludePatients) {
       const patients = await prisma.patient.findMany({
@@ -364,7 +366,7 @@ class CampaignsService {
       INFO: { bg: '#ecfdf5', border: '#10b981', text: '#065f46' },
       WARNING: { bg: '#fff5e6', border: '#ff8200', text: '#b35900' },
       URGENT: { bg: '#fef2f2', border: '#ef4444', text: '#991b1b' },
-      MAINTENANCE: { bg: '#fff5e6', border: '#ff8200', text: '#b35900' },
+      MAINTENANCE: { bg: '#f8fafc', border: '#64748b', text: '#334155' },
     }
     const colors = typeColors[messageType] || typeColors.INFO
 
