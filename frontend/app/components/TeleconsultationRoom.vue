@@ -617,10 +617,14 @@ const createPeer = (initiator: boolean) => {
   peer = new SimplePeer({
     initiator,
     stream: localStream.value || undefined,
-    trickle: false,
+    trickle: true,
     config: {
       iceServers: [
         { urls: "stun:stun.l.google.com:19302" },
+        { urls: "stun:stun1.l.google.com:19302" },
+        { urls: "stun:stun2.l.google.com:19302" },
+        { urls: "stun:stun3.l.google.com:19302" },
+        { urls: "stun:stun4.l.google.com:19302" },
         { urls: "stun:stun.services.mozilla.com:3478" },
       ],
     },
@@ -628,23 +632,32 @@ const createPeer = (initiator: boolean) => {
 
   const pc = (peer as any)._pc as RTCPeerConnection | undefined;
   if (pc) {
-    const handleStateChange = () => {
-      const state: string = pc.connectionState || pc.iceConnectionState;
+    // Use only onconnectionstatechange (not iceconnectionstatechange) to avoid
+    // duplicate events on transient ICE states causing a reconnect storm.
+    pc.onconnectionstatechange = () => {
+      const state = pc.connectionState;
       console.log('WebRTC connection state update:', state);
       if (state === 'failed') {
-        console.error('WebRTC connection failed, reconnecting immediately');
-        destroyPeerAndReconnect();
-      } else if (state === 'disconnected') {
-        console.warn('WebRTC connection disconnected, scheduling reconnect in 4s');
+        // Debounce: wait 1 s before destroying to allow ICE restart
         if (!disconnectTimer) {
           disconnectTimer = setTimeout(() => {
             disconnectTimer = null;
-            const currentState: string = pc.connectionState || pc.iceConnectionState;
-            if (currentState === 'disconnected' || currentState === 'failed') {
-              console.error('WebRTC connection failed to recover after 4s, reconnecting');
+            if (pc.connectionState === 'failed') {
+              console.error('WebRTC connection failed, reconnecting');
               destroyPeerAndReconnect();
             }
-          }, 4000);
+          }, 1000);
+        }
+      } else if (state === 'disconnected') {
+        console.warn('WebRTC connection disconnected, scheduling reconnect in 5s');
+        if (!disconnectTimer) {
+          disconnectTimer = setTimeout(() => {
+            disconnectTimer = null;
+            if (pc.connectionState === 'disconnected' || pc.connectionState === 'failed') {
+              console.error('WebRTC connection failed to recover after 5s, reconnecting');
+              destroyPeerAndReconnect();
+            }
+          }, 5000);
         }
       } else if (state === 'connected' || state === 'completed') {
         if (disconnectTimer) {
@@ -653,8 +666,6 @@ const createPeer = (initiator: boolean) => {
         }
       }
     };
-    pc.onconnectionstatechange = handleStateChange;
-    pc.oniceconnectionstatechange = handleStateChange;
   }
 
   peer.on("signal", (data: SimplePeer.SignalData) => {
@@ -678,7 +689,7 @@ const createPeer = (initiator: boolean) => {
         signal: data,
       });
     } else {
-      // ice candidate (should not be called when trickle is false, but kept as fallback)
+      // ice candidate — sent incrementally while trickle ICE is enabled
       send({
         type: "webrtc_ice_candidate",
         targetUserId: targetUserId.value,
