@@ -91,4 +91,17 @@ export async function teleconsultationsRoutes(fastify: FastifyInstance) {
       teleconsultationsController,
     ),
   )
+
+  fastify.post(
+    '/:id/delay',
+    { preHandler: [authenticate, authorize(['PRACTITIONER'])] },
+    teleconsultationsController.delaySession.bind(teleconsultationsController),
+  )
+
+  fastify.post(
+    '/:id/cancel',
+    { preHandler: [authenticate, authorize(['PRACTITIONER'])] },
+    teleconsultationsController.cancelSession.bind(teleconsultationsController),
+  )
 }
+

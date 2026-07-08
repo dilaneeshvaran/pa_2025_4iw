@@ -10,10 +10,14 @@ import {
   sendAutoNoShowPractitionerNotification,
   sendPractitionerAbsentNotification,
   sendTeleconsultationParticipantJoinedEmail,
+  sendPractitionerLateEmail,
+  sendAppointmentCancelledByPractitionerEmail,
 } from '../../utils/email'
 import { combineDateAndTime } from '../../utils/appointment-time'
 import { getClientLocalTime } from '../../utils/timezone'
 import { scheduleTeleconsultationJoinedEmail } from '../../utils/teleconsultation-email-scheduler'
+import { cancelAppointmentReminders } from '../../utils/reminder-scheduler'
+
 
 export class TeleconsultationsService {
   private formatSessionItem(session: any) {
@@ -1289,6 +1293,181 @@ export class TeleconsultationsService {
       totalPages: Math.ceil(total / limit),
     }
   }
+
+  async delaySession(sessionId: string, userId: string, delay: number) {
+    const session = await prisma.teleconsultationSession.findUnique({
+      where: { id: sessionId },
+      include: {
+        appointment: true,
+        patient: {
+          include: {
+            user: {
+              include: {
+                notificationPreference: true,
+              },
+            },
+          },
+        },
+        practitioner: {
+          include: {
+            user: true,
+          },
+        },
+      },
+    })
+
+    if (!session) {
+      throw new Error('Session non trouvée')
+    }
+
+    if (session.practitioner.userId !== userId) {
+      throw new Error('Non autorisé')
+    }
+
+    const patientUser = session.patient.user
+    const practitionerName = `${session.practitioner.title ?? 'Dr.'} ${session.practitioner.firstName} ${session.practitioner.lastName}`
+
+    await prisma.notification.create({
+      data: {
+        userId: patientUser.id,
+        type: 'SYSTEM_ALERT',
+        channel: 'IN_APP',
+        title: 'Retard de votre praticien',
+        message: `Votre praticien ${practitionerName} a indiqué qu'il aura environ ${delay} minutes de retard pour votre téléconsultation.`,
+        metadata: {
+          targetPath: `/patient/teleconsultations?appointmentId=${session.appointmentId}`,
+          appointmentId: session.appointmentId,
+          teleconsultation: true,
+        },
+        sent: true,
+        sentAt: new Date(),
+        deliveryStatus: 'DELIVERED',
+      },
+    })
+
+    const emailAllowed = patientUser.notificationPreference?.emailNotifications !== false
+    if (emailAllowed) {
+      await sendPractitionerLateEmail(patientUser.email, {
+        patientName: `${session.patient.firstName} ${session.patient.lastName}`,
+        practitionerTitle: session.practitioner.title ?? 'Dr.',
+        practitionerFirstName: session.practitioner.firstName,
+        practitionerLastName: session.practitioner.lastName,
+        appointmentDate: session.appointment.appointmentDate.toLocaleDateString('fr-FR'),
+        appointmentTime: session.appointment.startTime,
+        delayMinutes: delay,
+      })
+    }
+
+    await prisma.auditLog.create({
+      data: {
+        userId,
+        action: 'UPDATE' as AuditAction,
+        resource: 'TeleconsultationSession',
+        resourceId: sessionId,
+        metadata: { event: 'delayed', delayMinutes: delay },
+      },
+    })
+
+    return session
+  }
+
+  async cancelSession(sessionId: string, userId: string, reason?: string) {
+    const session = await prisma.teleconsultationSession.findUnique({
+      where: { id: sessionId },
+      include: {
+        appointment: true,
+        patient: {
+          include: {
+            user: {
+              include: {
+                notificationPreference: true,
+              },
+            },
+          },
+        },
+        practitioner: {
+          include: {
+            user: true,
+          },
+        },
+      },
+    })
+
+    if (!session) {
+      throw new Error('Session non trouvée')
+    }
+
+    if (session.practitioner.userId !== userId) {
+      throw new Error('Non autorisé')
+    }
+
+    const updatedSession = await prisma.teleconsultationSession.update({
+      where: { id: sessionId },
+      data: {
+        status: 'CANCELLED',
+        endedAt: new Date(),
+        errorMessage: reason || 'Annulé par le praticien',
+      },
+    })
+
+    await prisma.appointment.update({
+      where: { id: session.appointmentId },
+      data: {
+        status: 'CANCELLED',
+        cancelledAt: new Date(),
+        cancelledBy: userId,
+        cancellationReason: reason || 'Annulé par le praticien',
+      },
+    })
+
+    await cancelAppointmentReminders(session.appointmentId)
+
+    const patientUser = session.patient.user
+    const practitionerName = `${session.practitioner.title ?? 'Dr.'} ${session.practitioner.firstName} ${session.practitioner.lastName}`
+
+    await prisma.notification.create({
+      data: {
+        userId: patientUser.id,
+        type: 'APPOINTMENT_CANCELLATION',
+        channel: 'IN_APP',
+        title: 'Téléconsultation annulée',
+        message: `Votre téléconsultation avec ${practitionerName} a été annulée.`,
+        metadata: {
+          appointmentId: session.appointmentId,
+          teleconsultation: true,
+        },
+        sent: true,
+        sentAt: new Date(),
+        deliveryStatus: 'DELIVERED',
+      },
+    })
+
+    const emailAllowed = patientUser.notificationPreference?.emailNotifications !== false
+    if (emailAllowed) {
+      await sendAppointmentCancelledByPractitionerEmail(patientUser.email, {
+        patientName: `${session.patient.firstName} ${session.patient.lastName}`,
+        practitionerTitle: session.practitioner.title ?? 'Dr.',
+        practitionerFirstName: session.practitioner.firstName,
+        practitionerLastName: session.practitioner.lastName,
+        appointmentDate: session.appointment.appointmentDate.toLocaleDateString('fr-FR'),
+        appointmentTime: session.appointment.startTime,
+        reason,
+      })
+    }
+
+    await prisma.auditLog.create({
+      data: {
+        userId,
+        action: 'UPDATE' as AuditAction,
+        resource: 'TeleconsultationSession',
+        resourceId: sessionId,
+        metadata: { event: 'cancelled', reason },
+      },
+    })
+
+    return updatedSession
+  }
 }
+
 
 export const teleconsultationsService = new TeleconsultationsService()

@@ -2,6 +2,8 @@ import { FastifyRequest, FastifyReply } from 'fastify'
 import { teleconsultationsService } from './teleconsultations.service'
 import prisma from '../../config/database'
 import { sanitizeErrorMessage } from '../../utils/errors'
+import { delaySessionSchema, cancelSessionSchema } from './teleconsultations.schema'
+
 
 export class TeleconsultationsController {
   // 4 practitioner
@@ -379,6 +381,43 @@ export class TeleconsultationsController {
         .send({ success: false, message: 'Erreur serveur' })
     }
   }
+
+  async delaySession(request: FastifyRequest, reply: FastifyReply) {
+    try {
+      const user = request.user as { id: string }
+      const { id } = request.params as { id: string }
+      const { delay } = delaySessionSchema.parse(request.body)
+
+      const session = await teleconsultationsService.delaySession(id, user.id, delay)
+      return reply.status(200).send({ success: true, data: session })
+    } catch (error) {
+      request.log.error(error)
+      const message = sanitizeErrorMessage(error, 'Erreur serveur')
+      let statusCode = 400
+      if (message === 'Non autorisé') statusCode = 403
+      if (message === 'Session non trouvée') statusCode = 404
+      return reply.status(statusCode).send({ success: false, message })
+    }
+  }
+
+  async cancelSession(request: FastifyRequest, reply: FastifyReply) {
+    try {
+      const user = request.user as { id: string }
+      const { id } = request.params as { id: string }
+      const { reason } = cancelSessionSchema.parse(request.body)
+
+      const session = await teleconsultationsService.cancelSession(id, user.id, reason)
+      return reply.status(200).send({ success: true, data: session, message: 'Téléconsultation annulée avec succès' })
+    } catch (error) {
+      request.log.error(error)
+      const message = sanitizeErrorMessage(error, 'Erreur serveur')
+      let statusCode = 400
+      if (message === 'Non autorisé') statusCode = 403
+      if (message === 'Session non trouvée') statusCode = 404
+      return reply.status(statusCode).send({ success: false, message })
+    }
+  }
 }
+
 
 export const teleconsultationsController = new TeleconsultationsController()

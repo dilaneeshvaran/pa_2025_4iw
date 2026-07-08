@@ -301,6 +301,17 @@
                 Dossier
               </UiButton>
 
+              <UiButton
+                v-if="session.status === 'SCHEDULED' || session.status === 'WAITING'"
+                variant="outline"
+                size="sm"
+                @click="openTeleDelayModal(session)"
+              >
+                <Clock class="mr-1.5 h-4 w-4" />
+                Retard
+              </UiButton>
+
+
               <!-- before appointment time: modifier / annuler -->
               <template v-if="isTeleBeforeTime(session)">
                 <UiButton
@@ -917,8 +928,81 @@
         </div>
       </div>
     </Teleport>
+
+    <!-- tele delay modal -->
+    <Teleport to="body">
+      <div
+        v-if="showTeleDelayModal"
+        class="fixed inset-0 z-50 flex items-center justify-center bg-black/50"
+        @click.self="showTeleDelayModal = false"
+      >
+        <div class="mx-4 w-full max-w-md rounded-xl bg-white p-6 shadow-2xl">
+          <div class="mb-4 flex items-center gap-3">
+            <div
+              class="flex h-10 w-10 items-center justify-center rounded-full bg-orange-100"
+            >
+              <Clock class="h-5 w-5 text-orange-600" />
+            </div>
+            <h3 class="text-lg font-semibold text-gray-900">
+              Signaler un retard
+            </h3>
+          </div>
+          <p class="mb-4 text-sm text-gray-600">
+            Sélectionnez ou saisissez le retard estimé pour votre téléconsultation avec
+            <strong>{{ teleSelectedSession?.patientName }}</strong>.
+          </p>
+          <div class="mb-4">
+            <label class="mb-2 block text-sm font-medium text-gray-700">Durée du retard (en minutes)</label>
+            <div class="grid grid-cols-4 gap-2 mb-3">
+              <button
+                v-for="mins in [5, 10, 15, 20]"
+                :key="mins"
+                type="button"
+                :class="[
+                  'rounded-lg border py-2 text-sm font-medium transition-colors',
+                  teleDelayMinutes === mins
+                    ? 'border-orange-500 bg-orange-50 text-orange-700'
+                    : 'border-gray-300 hover:bg-gray-50 text-gray-700'
+                ]"
+                @click="teleDelayMinutes = mins"
+              >
+                {{ mins }} min
+              </button>
+            </div>
+            <div class="relative">
+              <input
+                v-model.number="teleDelayMinutes"
+                type="number"
+                min="1"
+                max="120"
+                class="w-full rounded-lg border border-gray-300 px-3 py-2 text-sm focus:border-orange-500 focus:outline-none focus:ring-1 focus:ring-orange-500"
+                placeholder="Autre durée (ex: 25)..."
+              />
+              <span class="absolute right-3 top-2 text-sm text-gray-400">minutes</span>
+            </div>
+          </div>
+          <p class="mb-4 rounded-lg bg-orange-50 p-3 text-xs text-orange-700">
+            Un email et une notification in-app seront envoyés immédiatement au patient.
+          </p>
+          <div class="flex justify-end gap-3">
+            <UiButton variant="secondary" @click="showTeleDelayModal = false"
+              >Retour</UiButton
+            >
+            <UiButton
+              :disabled="teleDelayLoading || !teleDelayMinutes || teleDelayMinutes < 1"
+              @click="confirmTeleDelay"
+            >
+              {{
+                teleDelayLoading ? "Envoi..." : "Envoyer la notification"
+              }}
+            </UiButton>
+          </div>
+        </div>
+      </div>
+    </Teleport>
   </div>
 </template>
+
 
 <script setup lang="ts">
 import {
@@ -1426,6 +1510,11 @@ const teleModifyDate = ref("");
 const teleModifyTime = ref("");
 const teleModifyLoading = ref(false);
 
+const showTeleDelayModal = ref(false);
+const teleDelayMinutes = ref<number | null>(10);
+const teleDelayLoading = ref(false);
+
+
 function isTeleBeforeTime(session: SessionItem): boolean {
   if (
     session.status === "COMPLETED" ||
@@ -1456,9 +1545,9 @@ async function confirmTeleCancel() {
   teleCancelLoading.value = true;
   try {
     await useAuthenticatedFetch(
-      `/practitioner/agenda/appointments/${teleSelectedSession.value.appointmentId}/cancel`,
+      `/teleconsultations/${teleSelectedSession.value.id}/cancel`,
       {
-        method: "PATCH",
+        method: "POST",
         body: { reason: teleCancelReason.value || undefined },
       },
     );
@@ -1472,6 +1561,36 @@ async function confirmTeleCancel() {
     teleCancelLoading.value = false;
   }
 }
+
+function openTeleDelayModal(session: SessionItem) {
+  teleSelectedSession.value = session;
+  teleDelayMinutes.value = 10;
+  showTeleDelayModal.value = true;
+}
+
+async function confirmTeleDelay() {
+  if (!teleSelectedSession.value || !teleDelayMinutes.value) return;
+  teleDelayLoading.value = true;
+  try {
+    await useAuthenticatedFetch(
+      `/teleconsultations/${teleSelectedSession.value.id}/delay`,
+      {
+        method: "POST",
+        body: { delay: teleDelayMinutes.value },
+      },
+    );
+    showTeleDelayModal.value = false;
+    alert("Notification de retard envoyée avec succès");
+    await refreshData();
+  } catch (e: unknown) {
+    console.error("Error sending delay notification:", e);
+    const apiError = e as { data?: { message?: string } };
+    alert(apiError?.data?.message || "Erreur lors de l'envoi de la notification");
+  } finally {
+    teleDelayLoading.value = false;
+  }
+}
+
 
 function openTeleModifyModal(session: SessionItem) {
   teleSelectedSession.value = session;

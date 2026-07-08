@@ -1,7 +1,12 @@
 import { TeleconsultationsService } from '../teleconsultations.service'
 import prisma from '../../../config/database'
-import { sendTeleconsultationParticipantJoinedEmail } from '../../../utils/email'
+import {
+  sendTeleconsultationParticipantJoinedEmail,
+  sendPractitionerLateEmail,
+  sendAppointmentCancelledByPractitionerEmail,
+} from '../../../utils/email'
 import { scheduleTeleconsultationJoinedEmail } from '../../../utils/teleconsultation-email-scheduler'
+import { cancelAppointmentReminders } from '../../../utils/reminder-scheduler'
 
 jest.mock('../../../config/database', () => ({
   __esModule: true,
@@ -28,11 +33,18 @@ jest.mock('../../../utils/email', () => ({
   sendNoShowEmail: jest.fn(),
   sendAutoNoShowPractitionerNotification: jest.fn(),
   sendPractitionerAbsentNotification: jest.fn(),
+  sendPractitionerLateEmail: jest.fn().mockResolvedValue(undefined),
+  sendAppointmentCancelledByPractitionerEmail: jest.fn().mockResolvedValue(undefined),
 }))
 
 jest.mock('../../../utils/teleconsultation-email-scheduler', () => ({
   scheduleTeleconsultationJoinedEmail: jest.fn().mockResolvedValue(undefined),
 }))
+
+jest.mock('../../../utils/reminder-scheduler', () => ({
+  cancelAppointmentReminders: jest.fn().mockResolvedValue(undefined),
+}))
+
 
 const mockPrisma = prisma as jest.Mocked<typeof prisma>
 const mockSendEmail = sendTeleconsultationParticipantJoinedEmail as jest.MockedFunction<
@@ -41,6 +53,13 @@ const mockSendEmail = sendTeleconsultationParticipantJoinedEmail as jest.MockedF
 const mockScheduleEmail = scheduleTeleconsultationJoinedEmail as jest.MockedFunction<
   typeof scheduleTeleconsultationJoinedEmail
 >
+const mockSendPractitionerLateEmail = sendPractitionerLateEmail as jest.MockedFunction<
+  typeof sendPractitionerLateEmail
+>
+const mockSendAppointmentCancelledByPractitionerEmail = sendAppointmentCancelledByPractitionerEmail as jest.MockedFunction<
+  typeof sendAppointmentCancelledByPractitionerEmail
+>
+
 
 describe('TeleconsultationsService - joinSession notifications', () => {
   let service: TeleconsultationsService
@@ -283,3 +302,149 @@ describe('TeleconsultationsService - joinSession notifications', () => {
     expect(mockSendEmail).not.toHaveBeenCalled()
   })
 })
+
+describe('TeleconsultationsService - delaySession and cancelSession', () => {
+  let service: TeleconsultationsService
+
+  beforeEach(() => {
+    jest.clearAllMocks()
+    service = new TeleconsultationsService()
+  })
+
+  const buildSession = (overrides = {}) => ({
+    id: 'session-1',
+    appointmentId: 'apt-1',
+    patientId: 'patient-1',
+    practitionerId: 'practitioner-1',
+    roomId: 'room-1',
+    roomName: 'room-name-1',
+    status: 'SCHEDULED',
+    scheduledAt: new Date(),
+    patientJoinedAt: null,
+    practitionerJoinedAt: null,
+    appointment: {
+      appointmentDate: new Date(),
+      startTime: '10:00',
+    },
+    patient: {
+      firstName: 'Marie',
+      lastName: 'Curie',
+      user: {
+        id: 'user-patient-1',
+        email: 'patient@example.com',
+        notificationPreference: { emailNotifications: true },
+      },
+    },
+    practitioner: {
+      title: 'Dr.',
+      firstName: 'Jean',
+      lastName: 'Dupont',
+      userId: 'user-practitioner-1',
+      user: {
+        id: 'user-practitioner-1',
+        email: 'practitioner@example.com',
+      },
+    },
+    ...overrides,
+  })
+
+  describe('delaySession', () => {
+    it('devrait envoyer une notification in-app et un email de retard', async () => {
+      const session = buildSession()
+      mockPrisma.teleconsultationSession.findUnique.mockResolvedValue(session as any)
+
+      await service.delaySession('session-1', 'user-practitioner-1', 15)
+
+      expect(mockPrisma.notification.create).toHaveBeenCalledWith(
+        expect.objectContaining({
+          data: expect.objectContaining({
+            userId: 'user-patient-1',
+            type: 'SYSTEM_ALERT',
+            title: 'Retard de votre praticien',
+            message: expect.stringContaining('15 minutes'),
+          }),
+        })
+      )
+
+      expect(mockSendPractitionerLateEmail).toHaveBeenCalledWith(
+        'patient@example.com',
+        expect.objectContaining({
+          patientName: 'Marie Curie',
+          delayMinutes: 15,
+        })
+      )
+
+      expect(mockPrisma.auditLog.create).toHaveBeenCalled()
+    })
+
+    it('devrait lever une erreur si la session n\'existe pas', async () => {
+      mockPrisma.teleconsultationSession.findUnique.mockResolvedValue(null)
+
+      await expect(
+        service.delaySession('session-not-found', 'user-practitioner-1', 15)
+      ).rejects.toThrow('Session non trouvée')
+    })
+
+    it('devrait lever une erreur si le praticien n\'est pas l\'auteur de la consultation', async () => {
+      const session = buildSession()
+      mockPrisma.teleconsultationSession.findUnique.mockResolvedValue(session as any)
+
+      await expect(
+        service.delaySession('session-1', 'user-practitioner-diff', 15)
+      ).rejects.toThrow('Non autorisé')
+    })
+  })
+
+  describe('cancelSession', () => {
+    it('devrait annuler la session et le rendez-vous, et notifier le patient', async () => {
+      const session = buildSession()
+      mockPrisma.teleconsultationSession.findUnique.mockResolvedValue(session as any)
+      mockPrisma.teleconsultationSession.update.mockResolvedValue({
+        ...session,
+        status: 'CANCELLED',
+      } as any)
+
+      await service.cancelSession('session-1', 'user-practitioner-1', 'Imprévu')
+
+      expect(mockPrisma.teleconsultationSession.update).toHaveBeenCalledWith({
+        where: { id: 'session-1' },
+        data: expect.objectContaining({
+          status: 'CANCELLED',
+          errorMessage: 'Imprévu',
+        }),
+      })
+
+      expect(mockPrisma.appointment.update).toHaveBeenCalledWith({
+        where: { id: 'apt-1' },
+        data: expect.objectContaining({
+          status: 'CANCELLED',
+          cancelledBy: 'user-practitioner-1',
+          cancellationReason: 'Imprévu',
+        }),
+      })
+
+      expect(cancelAppointmentReminders).toHaveBeenCalledWith('apt-1')
+
+      expect(mockPrisma.notification.create).toHaveBeenCalledWith(
+        expect.objectContaining({
+          data: expect.objectContaining({
+            userId: 'user-patient-1',
+            type: 'APPOINTMENT_CANCELLATION',
+            title: 'Téléconsultation annulée',
+          }),
+        })
+      )
+
+      expect(mockSendAppointmentCancelledByPractitionerEmail).toHaveBeenCalledWith(
+        'patient@example.com',
+        expect.objectContaining({
+          patientName: 'Marie Curie',
+          reason: 'Imprévu',
+        })
+      )
+
+      expect(mockPrisma.auditLog.create).toHaveBeenCalled()
+    })
+  })
+})
+

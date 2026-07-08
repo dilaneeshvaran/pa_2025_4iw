@@ -1041,28 +1041,71 @@ export class AvailabilitiesService {
       },
     })
 
+    if (appointment.type === 'TELECONSULTATION') {
+      try {
+        await prisma.teleconsultationSession.updateMany({
+          where: { appointmentId },
+          data: {
+            status: 'CANCELLED',
+            endedAt: new Date(),
+            errorMessage: data.reason || 'Annulé par le praticien',
+          },
+        })
+      } catch (err) {
+        console.error(`Failed to cancel teleconsultation session for appointment ${appointmentId}:`, err)
+      }
+    }
+
     await cancelAppointmentReminders(appointmentId)
 
-    // patient user email
+    // patient user email and id
     const patientUser = await prisma.user.findFirst({
       where: { patient: { id: appointment.patientId } },
-      select: { email: true },
+      select: { id: true, email: true },
     })
 
-    if (patientUser?.email) {
-      await sendAppointmentCancelledByPractitionerEmail(patientUser.email, {
-        patientName: `${appointment.patient.firstName} ${appointment.patient.lastName}`,
-        practitionerTitle: appointment.practitioner.title ?? 'Dr.',
-        practitionerFirstName: appointment.practitioner.firstName,
-        practitionerLastName: appointment.practitioner.lastName,
-        appointmentDate:
-          appointment.appointmentDate.toLocaleDateString('fr-FR'),
-        appointmentTime: appointment.startTime,
-        reason: data.reason,
-      })
+    if (patientUser) {
+      // create in-app notification
+      try {
+        const practitionerName = `${appointment.practitioner.title ?? 'Dr.'} ${appointment.practitioner.firstName} ${appointment.practitioner.lastName}`
+        await prisma.notification.create({
+          data: {
+            userId: patientUser.id,
+            type: 'APPOINTMENT_CANCELLATION',
+            channel: 'IN_APP',
+            title: appointment.type === 'TELECONSULTATION' ? 'Téléconsultation annulée' : 'Rendez-vous annulé',
+            message: appointment.type === 'TELECONSULTATION'
+              ? `Votre téléconsultation avec ${practitionerName} a été annulée.`
+              : `Votre rendez-vous avec ${practitionerName} a été annulé.`,
+            metadata: {
+              appointmentId,
+              teleconsultation: appointment.type === 'TELECONSULTATION',
+            },
+            sent: true,
+            sentAt: new Date(),
+            deliveryStatus: 'DELIVERED',
+          },
+        })
+      } catch (notifErr) {
+        console.error(`Failed to create cancellation in-app notification for appointment ${appointmentId}:`, notifErr)
+      }
+
+      if (patientUser.email) {
+        await sendAppointmentCancelledByPractitionerEmail(patientUser.email, {
+          patientName: `${appointment.patient.firstName} ${appointment.patient.lastName}`,
+          practitionerTitle: appointment.practitioner.title ?? 'Dr.',
+          practitionerFirstName: appointment.practitioner.firstName,
+          practitionerLastName: appointment.practitioner.lastName,
+          appointmentDate:
+            appointment.appointmentDate.toLocaleDateString('fr-FR'),
+          appointmentTime: appointment.startTime,
+          reason: data.reason,
+        })
+      }
     }
 
     return updated
+
   }
 
   async modifyAppointmentByPractitioner(
