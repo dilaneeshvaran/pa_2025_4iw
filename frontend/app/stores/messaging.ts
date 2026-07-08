@@ -18,6 +18,7 @@ export const useMessagingStore = defineStore("messaging", () => {
   let pingInterval: ReturnType<typeof setInterval> | null = null;
   let reconnectTimeout: ReturnType<typeof setTimeout> | null = null;
   let intentionalClose = false;
+  const pendingQueue: string[] = [];
 
   async function connect() {
     if (socket.value?.readyState === WebSocket.OPEN) return;
@@ -54,6 +55,11 @@ export const useMessagingStore = defineStore("messaging", () => {
     ws.onopen = () => {
       isConnected.value = true;
       startPing();
+      // Flush any messages buffered while we were connecting.
+      while (pendingQueue.length > 0) {
+        const msg = pendingQueue.shift();
+        if (msg) ws.send(msg);
+      }
     };
 
     ws.onmessage = (event: MessageEvent) => {
@@ -96,14 +102,19 @@ export const useMessagingStore = defineStore("messaging", () => {
       clearTimeout(reconnectTimeout);
       reconnectTimeout = null;
     }
+    pendingQueue.length = 0;
     socket.value?.close();
     socket.value = null;
     isConnected.value = false;
   }
 
   function send(data: object) {
+    const payload = JSON.stringify(data);
     if (socket.value?.readyState === WebSocket.OPEN) {
-      socket.value.send(JSON.stringify(data));
+      socket.value.send(payload);
+    } else if (socket.value?.readyState === WebSocket.CONNECTING) {
+      // Buffer the message — will be sent once the connection opens.
+      pendingQueue.push(payload);
     }
   }
 
