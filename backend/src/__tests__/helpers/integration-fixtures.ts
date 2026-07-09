@@ -1,4 +1,4 @@
-import { TestUserRole } from './integration-app'
+import type { TestUserRole } from './integration-app'
 
 export function testUser(role: TestUserRole = 'PATIENT', id = `user-${role.toLowerCase()}`) {
   return {
