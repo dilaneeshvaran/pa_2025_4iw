@@ -1,20 +1,20 @@
 <template>
   <div class="space-y-6">
     <div>
-      <h1 class="mb-2 text-2xl font-bold text-gray-900">Mes Cabinets</h1>
-      <p class="text-gray-600">
+      <h1 class="mb-2 text-2xl font-bold text-gray-900 dark:text-gray-100">Mes Cabinets</h1>
+      <p class="text-gray-600 dark:text-gray-400">
         Gérez vos affiliations et invitations de cabinets
       </p>
     </div>
 
-    <div class="border-b border-gray-200">
+    <div class="border-b border-gray-200 dark:border-gray-800">
       <nav class="scrollbar-hide -mb-px flex space-x-8 overflow-x-auto" aria-label="Tabs">
         <button
           @click="currentTab = 'active'"
           :class="[
             currentTab === 'active'
-              ? 'border-orange-500 text-orange-600'
-              : 'border-transparent text-gray-500 hover:border-gray-300 hover:text-gray-700',
+              ? 'border-orange-500 text-orange-600 dark:text-orange-400'
+              : 'border-transparent text-gray-500 dark:text-gray-400 hover:border-gray-300 hover:text-gray-700 dark:hover:text-gray-200',
             'shrink-0 whitespace-nowrap border-b-2 px-1 py-4 text-sm font-medium transition-colors',
           ]"
         >
@@ -23,8 +23,8 @@
             v-if="cabinets.length"
             :class="[
               currentTab === 'active'
-                ? 'bg-orange-100 text-orange-600'
-                : 'bg-gray-100 text-gray-900',
+                ? 'bg-orange-100 dark:bg-orange-900/30 text-orange-600 dark:text-orange-400'
+                : 'bg-gray-100 dark:bg-gray-800 text-gray-900 dark:text-gray-100',
               'ml-2 hidden rounded-full px-2.5 py-0.5 text-xs font-medium md:inline-block',
             ]"
           >
@@ -35,8 +35,8 @@
           @click="currentTab = 'invitations'"
           :class="[
             currentTab === 'invitations'
-              ? 'border-orange-500 text-orange-600'
-              : 'border-transparent text-gray-500 hover:border-gray-300 hover:text-gray-700',
+              ? 'border-orange-500 text-orange-600 dark:text-orange-400'
+              : 'border-transparent text-gray-500 dark:text-gray-400 hover:border-gray-300 hover:text-gray-700 dark:hover:text-gray-200',
             'shrink-0 whitespace-nowrap border-b-2 px-1 py-4 text-sm font-medium transition-colors',
           ]"
         >
@@ -45,8 +45,8 @@
             v-if="invitations.length"
             :class="[
               currentTab === 'invitations'
-                ? 'bg-orange-100 text-orange-600'
-                : 'bg-red-100 text-red-600',
+                ? 'bg-orange-100 dark:bg-orange-900/30 text-orange-600 dark:text-orange-400'
+                : 'bg-red-100 dark:bg-red-900/30 text-red-600 dark:text-red-400',
               'ml-2 rounded-full px-2.5 py-0.5 text-xs font-medium',
             ]"
           >
@@ -71,8 +71,8 @@
     <div v-else-if="currentTab === 'active'" class="space-y-4">
       <div v-if="!cabinets.length" class="py-12 text-center">
         <Building class="mx-auto mb-4 h-12 w-12 text-gray-300" />
-        <h3 class="text-sm font-medium text-gray-900">Aucun cabinet</h3>
-        <p class="mt-1 text-sm text-gray-500">
+        <h3 class="text-sm font-medium text-gray-900 dark:text-gray-100">Aucun cabinet</h3>
+        <p class="mt-1 text-sm text-gray-500 dark:text-gray-400">
           Vous n'êtes membre d'aucun cabinet pour le moment.
         </p>
       </div>
@@ -84,16 +84,16 @@
         <div class="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
           <div class="flex items-start gap-4 sm:items-center">
             <div
-              class="flex h-12 w-12 flex-shrink-0 items-center justify-center rounded-lg bg-orange-50"
+              class="flex h-12 w-12 flex-shrink-0 items-center justify-center rounded-lg bg-orange-50 dark:bg-orange-950/30"
             >
-              <Building class="h-6 w-6 text-orange-600" />
+              <Building class="h-6 w-6 text-orange-600 dark:text-orange-400" />
             </div>
             <div>
-              <h3 class="text-lg font-medium text-gray-900">
+              <h3 class="text-lg font-medium text-gray-900 dark:text-gray-100">
                 {{ item.cabinet.name }}
               </h3>
               <div
-                class="mt-1 flex flex-col gap-1 text-sm text-gray-500 sm:flex-row sm:items-center sm:gap-4"
+                class="mt-1 flex flex-col gap-1 text-sm text-gray-500 dark:text-gray-400 sm:flex-row sm:items-center sm:gap-4"
               >
                 <span class="flex items-center gap-1">
                   <MapPin class="h-4 w-4" />
@@ -105,7 +105,7 @@
                 </span>
                 <span
                   v-if="item.isPaused"
-                  class="flex items-center gap-1 rounded-full bg-yellow-100 px-2 py-0.5 text-xs font-medium text-yellow-600"
+                  class="flex items-center gap-1 rounded-full bg-yellow-100 dark:bg-yellow-900/30 px-2 py-0.5 text-xs font-medium text-yellow-600 dark:text-yellow-400"
                 >
                   En pause
                 </span>
@@ -142,25 +142,25 @@
           </div>
         </div>
 
-        <div v-if="expandedColleagues[item.cabinet.id]" class="mt-4 border-t border-gray-100 pt-4">
-          <h4 class="text-sm font-semibold text-gray-700 mb-2">Praticiens de ce cabinet</h4>
-          <div v-if="colleaguesLoading[item.cabinet.id]" class="text-xs text-gray-500">
+        <div v-if="expandedColleagues[item.cabinet.id]" class="mt-4 border-t border-gray-100 dark:border-gray-800 pt-4">
+          <h4 class="text-sm font-semibold text-gray-700 dark:text-gray-300 mb-2">Praticiens de ce cabinet</h4>
+          <div v-if="colleaguesLoading[item.cabinet.id]" class="text-xs text-gray-500 dark:text-gray-400">
             Chargement...
           </div>
-          <div v-else-if="!colleagues[item.cabinet.id]?.length" class="text-xs text-gray-500">
+          <div v-else-if="!colleagues[item.cabinet.id]?.length" class="text-xs text-gray-500 dark:text-gray-400">
             Aucun autre praticien dans ce cabinet.
           </div>
           <div v-else class="space-y-2">
             <div
               v-for="col in colleagues[item.cabinet.id]"
               :key="col.id"
-              class="flex justify-between items-center bg-gray-50 p-2 rounded text-sm"
+              class="flex justify-between items-center bg-gray-50 dark:bg-gray-900 p-2 rounded text-sm"
             >
               <div>
-                <span class="font-medium text-gray-900">{{ col.title }} {{ col.firstName }} {{ col.lastName }}</span>
-                <span class="text-xs text-gray-500 ml-2">({{ col.specialties.join(', ') || 'Généraliste' }})</span>
+                <span class="font-medium text-gray-900 dark:text-gray-100">{{ col.title }} {{ col.firstName }} {{ col.lastName }}</span>
+                <span class="text-xs text-gray-500 dark:text-gray-400 ml-2">({{ col.specialties.join(', ') || 'Généraliste' }})</span>
               </div>
-              <span class="text-xs text-gray-500">{{ col.phone }}</span>
+              <span class="text-xs text-gray-500 dark:text-gray-400">{{ col.phone }}</span>
             </div>
           </div>
         </div>
@@ -170,8 +170,8 @@
     <div v-else-if="currentTab === 'invitations'" class="space-y-4">
       <div v-if="!invitations.length" class="py-12 text-center">
         <Mail class="mx-auto mb-4 h-12 w-12 text-gray-300" />
-        <h3 class="text-sm font-medium text-gray-900">Aucune invitation</h3>
-        <p class="mt-1 text-sm text-gray-500">
+        <h3 class="text-sm font-medium text-gray-900 dark:text-gray-100">Aucune invitation</h3>
+        <p class="mt-1 text-sm text-gray-500 dark:text-gray-400">
           Vous n'avez pas d'invitations en attente.
         </p>
       </div>
@@ -183,16 +183,16 @@
       >
         <div class="flex items-start gap-4 sm:items-center">
           <div
-            class="flex h-12 w-12 flex-shrink-0 items-center justify-center rounded-lg bg-yellow-50"
+            class="flex h-12 w-12 flex-shrink-0 items-center justify-center rounded-lg bg-yellow-50 dark:bg-yellow-950/30"
           >
-            <Mail class="h-6 w-6 text-yellow-600" />
+            <Mail class="h-6 w-6 text-yellow-600 dark:text-yellow-400" />
           </div>
           <div>
-            <h3 class="text-lg font-medium text-gray-900">
+            <h3 class="text-lg font-medium text-gray-900 dark:text-gray-100">
               {{ invitation.cabinet.name }}
             </h3>
             <div
-              class="mt-1 flex flex-col gap-1 text-sm text-gray-500 sm:flex-row sm:items-center sm:gap-4"
+              class="mt-1 flex flex-col gap-1 text-sm text-gray-500 dark:text-gray-400 sm:flex-row sm:items-center sm:gap-4"
             >
               <span class="flex items-center gap-1">
                 <MapPin class="h-4 w-4" />

@@ -4,8 +4,8 @@
       class="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between"
     >
       <div>
-        <h1 class="mb-1 text-2xl font-bold text-gray-900">Patients</h1>
-        <p class="text-gray-600">
+        <h1 class="mb-1 text-2xl font-bold text-gray-900 dark:text-gray-100">Patients</h1>
+        <p class="text-gray-600 dark:text-gray-400">
           {{
             loading
               ? "Chargement..."
@@ -15,14 +15,14 @@
       </div>
       <!-- view changer -->
       <div
-        class="flex items-center gap-2 rounded-lg border border-gray-200 p-1"
+        class="flex items-center gap-2 rounded-lg border border-gray-200 dark:border-gray-800 p-1"
       >
         <button
           :class="[
             'flex items-center gap-1.5 rounded-md px-3 py-1.5 text-sm font-medium transition-colors',
             viewMode === 'card'
               ? 'bg-orange-500 text-white shadow-sm'
-              : 'text-gray-600 hover:bg-gray-100',
+              : 'text-gray-600 dark:text-gray-400 hover:bg-gray-100 dark:hover:bg-gray-800',
           ]"
           @click="viewMode = 'card'"
         >
@@ -34,7 +34,7 @@
             'flex items-center gap-1.5 rounded-md px-3 py-1.5 text-sm font-medium transition-colors',
             viewMode === 'list'
               ? 'bg-orange-500 text-white shadow-sm'
-              : 'text-gray-600 hover:bg-gray-100',
+              : 'text-gray-600 dark:text-gray-400 hover:bg-gray-100 dark:hover:bg-gray-800',
           ]"
           @click="viewMode = 'list'"
         >
@@ -47,23 +47,23 @@
     <UiCard>
       <div class="flex flex-col gap-4 lg:flex-row lg:items-end">
         <div class="flex-1">
-          <label class="mb-1 block text-sm font-medium text-gray-700"
+          <label class="mb-1 block text-sm font-medium text-gray-700 dark:text-gray-300"
             >Rechercher</label
           >
           <div class="relative">
             <Search
-              class="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-gray-500"
+              class="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-gray-500 dark:text-gray-400"
             />
             <input
               v-model="searchQuery"
               type="text"
               placeholder="Nom, téléphone ou email..."
-              class="w-full rounded-lg border border-gray-300 py-2 pl-10 pr-4 text-sm focus:border-orange-500 focus:outline-none focus:ring-1 focus:ring-orange-500"
+              class="w-full rounded-lg border border-gray-300 dark:border-gray-700 py-2 pl-10 pr-4 text-sm focus:border-orange-500 focus:outline-none focus:ring-1 focus:ring-orange-500"
               @input="debouncedSearch"
             />
             <button
               v-if="searchQuery"
-              class="absolute right-3 top-1/2 -translate-y-1/2 text-gray-500 hover:text-gray-600"
+              class="absolute right-3 top-1/2 -translate-y-1/2 text-gray-500 dark:text-gray-400 hover:text-gray-600"
               @click="clearSearch"
             >
               <X class="h-4 w-4" />
@@ -72,12 +72,12 @@
         </div>
 
         <div class="w-full lg:w-48">
-          <label class="mb-1 block text-sm font-medium text-gray-700"
+          <label class="mb-1 block text-sm font-medium text-gray-700 dark:text-gray-300"
             >Filtre</label
           >
           <select
             v-model="filterValue"
-            class="w-full rounded-lg border border-gray-300 px-3 py-2 text-sm focus:border-orange-500 focus:outline-none focus:ring-1 focus:ring-orange-500"
+            class="w-full rounded-lg border border-gray-300 dark:border-gray-700 px-3 py-2 text-sm focus:border-orange-500 focus:outline-none focus:ring-1 focus:ring-orange-500"
             @change="resetAndFetch"
           >
             <option value="all">Tous les patients</option>
@@ -88,12 +88,12 @@
         </div>
 
         <div class="w-full lg:w-40">
-          <label class="mb-1 block text-sm font-medium text-gray-700"
+          <label class="mb-1 block text-sm font-medium text-gray-700 dark:text-gray-300"
             >Genre</label
           >
           <select
             v-model="genderFilter"
-            class="w-full rounded-lg border border-gray-300 px-3 py-2 text-sm focus:border-orange-500 focus:outline-none focus:ring-1 focus:ring-orange-500"
+            class="w-full rounded-lg border border-gray-300 dark:border-gray-700 px-3 py-2 text-sm focus:border-orange-500 focus:outline-none focus:ring-1 focus:ring-orange-500"
             @change="resetAndFetch"
           >
             <option value="">Tous</option>
@@ -104,12 +104,12 @@
         </div>
 
         <div class="w-full lg:w-52">
-          <label class="mb-1 block text-sm font-medium text-gray-700"
+          <label class="mb-1 block text-sm font-medium text-gray-700 dark:text-gray-300"
             >Trier par</label
           >
           <select
             v-model="sortValue"
-            class="w-full rounded-lg border border-gray-300 px-3 py-2 text-sm focus:border-orange-500 focus:outline-none focus:ring-1 focus:ring-orange-500"
+            class="w-full rounded-lg border border-gray-300 dark:border-gray-700 px-3 py-2 text-sm focus:border-orange-500 focus:outline-none focus:ring-1 focus:ring-orange-500"
             @change="resetAndFetch"
           >
             <option value="name-asc">Nom (A-Z)</option>
@@ -137,7 +137,7 @@
         <div
           v-for="i in 6"
           :key="i"
-          class="animate-pulse rounded-lg border border-gray-200 bg-white p-5"
+          class="animate-pulse rounded-lg border border-gray-200 dark:border-gray-800 bg-white dark:bg-gray-900 p-5"
         >
           <div class="mb-4 flex items-center gap-3">
             <div class="h-12 w-12 rounded-full bg-gray-200" />
@@ -157,7 +157,7 @@
         <div
           v-for="i in 6"
           :key="i"
-          class="h-16 rounded-lg border border-gray-200 bg-white"
+          class="h-16 rounded-lg border border-gray-200 dark:border-gray-800 bg-white dark:bg-gray-900"
         />
       </div>
     </div>
@@ -166,8 +166,8 @@
     <UiCard v-else-if="patients.length === 0">
       <div class="py-12 text-center">
         <Users class="mx-auto mb-4 h-16 w-16 text-gray-300" />
-        <p class="text-lg font-medium text-gray-900">Aucun patient trouvé</p>
-        <p class="mt-1 text-gray-500">
+        <p class="text-lg font-medium text-gray-900 dark:text-gray-100">Aucun patient trouvé</p>
+        <p class="mt-1 text-gray-500 dark:text-gray-400">
           {{
             searchQuery || filterValue !== "all" || genderFilter
               ? "Essayez de modifier vos filtres de recherche"
@@ -185,20 +185,20 @@
       <div
         v-for="patient in patients"
         :key="patient.id"
-        class="cursor-pointer rounded-lg border border-gray-200 bg-white p-5 shadow-sm transition-all hover:border-orange-300 hover:shadow-md"
+        class="cursor-pointer rounded-lg border border-gray-200 dark:border-gray-800 bg-white dark:bg-gray-900 p-5 shadow-sm transition-all hover:border-orange-300 hover:shadow-md"
         @click="openPatientDetail(patient.id)"
       >
         <div class="mb-3 flex items-start gap-3">
           <div
-            class="flex h-12 w-12 flex-shrink-0 items-center justify-center rounded-full bg-orange-100"
+            class="flex h-12 w-12 flex-shrink-0 items-center justify-center rounded-full bg-orange-100 dark:bg-orange-900/30"
           >
-            <span class="text-sm font-semibold text-orange-600">
+            <span class="text-sm font-semibold text-orange-600 dark:text-orange-400">
               {{ patient.firstName.charAt(0) }}{{ patient.lastName.charAt(0) }}
             </span>
           </div>
           <div class="min-w-0 flex-1">
             <div class="flex items-center gap-2">
-              <p class="truncate font-semibold text-gray-900">
+              <p class="truncate font-semibold text-gray-900 dark:text-gray-100">
                 {{ patient.firstName }} {{ patient.lastName }}
               </p>
               <UiBadge
@@ -209,25 +209,25 @@
                 Nouveau
               </UiBadge>
             </div>
-            <p class="text-sm text-gray-500">
+            <p class="text-sm text-gray-500 dark:text-gray-400">
               {{ getAge(patient.dateOfBirth) }} ans
             </p>
           </div>
         </div>
 
-        <div class="mb-4 rounded-md bg-gray-50 px-3 py-2">
+        <div class="mb-4 rounded-md bg-gray-50 dark:bg-gray-900 px-3 py-2">
           <div
             v-if="patient.nextAppointment"
             class="flex items-center gap-2 text-sm"
           >
             <Calendar class="h-3.5 w-3.5 flex-shrink-0 text-orange-500" />
-            <span class="text-gray-700">
+            <span class="text-gray-700 dark:text-gray-300">
               Prochain :
               {{ formatShortDate(patient.nextAppointment.appointmentDate) }},
               {{ patient.nextAppointment.startTime }}
             </span>
           </div>
-          <div v-else class="flex items-center gap-2 text-sm text-gray-500">
+          <div v-else class="flex items-center gap-2 text-sm text-gray-500 dark:text-gray-400">
             <CalendarX class="h-3.5 w-3.5 flex-shrink-0" />
             <span>Aucun RDV prévu</span>
           </div>
@@ -261,54 +261,54 @@
       <div class="overflow-x-auto">
         <table class="w-full">
           <thead>
-            <tr class="border-b border-gray-200 bg-gray-50">
+            <tr class="border-b border-gray-200 dark:border-gray-800 bg-gray-50 dark:bg-gray-900">
               <th
-                class="px-4 py-3 text-left text-xs font-medium uppercase tracking-wider text-gray-500"
+                class="px-4 py-3 text-left text-xs font-medium uppercase tracking-wider text-gray-500 dark:text-gray-400"
               >
                 Patient
               </th>
               <th
-                class="px-4 py-3 text-left text-xs font-medium uppercase tracking-wider text-gray-500"
+                class="px-4 py-3 text-left text-xs font-medium uppercase tracking-wider text-gray-500 dark:text-gray-400"
               >
                 Âge
               </th>
               <th
-                class="hidden px-4 py-3 text-left text-xs font-medium uppercase tracking-wider text-gray-500 md:table-cell"
+                class="hidden px-4 py-3 text-left text-xs font-medium uppercase tracking-wider text-gray-500 dark:text-gray-400 md:table-cell"
               >
                 Prochain RDV
               </th>
               <th
-                class="hidden px-4 py-3 text-left text-xs font-medium uppercase tracking-wider text-gray-500 lg:table-cell"
+                class="hidden px-4 py-3 text-left text-xs font-medium uppercase tracking-wider text-gray-500 dark:text-gray-400 lg:table-cell"
               >
                 Consultations
               </th>
               <th
-                class="px-4 py-3 text-right text-xs font-medium uppercase tracking-wider text-gray-500"
+                class="px-4 py-3 text-right text-xs font-medium uppercase tracking-wider text-gray-500 dark:text-gray-400"
               >
                 Actions
               </th>
             </tr>
           </thead>
-          <tbody class="divide-y divide-gray-200">
+          <tbody class="divide-y divide-gray-200 dark:divide-gray-800">
             <tr
               v-for="patient in patients"
               :key="patient.id"
-              class="cursor-pointer transition-colors hover:bg-gray-50"
+              class="cursor-pointer transition-colors hover:bg-gray-50 dark:hover:bg-gray-800"
               @click="openPatientDetail(patient.id)"
             >
               <td class="whitespace-nowrap px-4 py-3">
                 <div class="flex items-center gap-3">
                   <div
-                    class="flex h-9 w-9 flex-shrink-0 items-center justify-center rounded-full bg-orange-100"
+                    class="flex h-9 w-9 flex-shrink-0 items-center justify-center rounded-full bg-orange-100 dark:bg-orange-900/30"
                   >
-                    <span class="text-xs font-semibold text-orange-600">
+                    <span class="text-xs font-semibold text-orange-600 dark:text-orange-400">
                       {{ patient.firstName.charAt(0)
                       }}{{ patient.lastName.charAt(0) }}
                     </span>
                   </div>
                   <div>
                     <div class="flex items-center gap-2">
-                      <p class="text-sm font-medium text-gray-900">
+                      <p class="text-sm font-medium text-gray-900 dark:text-gray-100">
                         {{ patient.firstName }} {{ patient.lastName }}
                       </p>
                       <UiBadge
@@ -319,11 +319,11 @@
                         Nouveau
                       </UiBadge>
                     </div>
-                    <p class="text-xs text-gray-500">{{ patient.phone }}</p>
+                    <p class="text-xs text-gray-500 dark:text-gray-400">{{ patient.phone }}</p>
                   </div>
                 </div>
               </td>
-              <td class="whitespace-nowrap px-4 py-3 text-sm text-gray-600">
+              <td class="whitespace-nowrap px-4 py-3 text-sm text-gray-600 dark:text-gray-400">
                 {{ getAge(patient.dateOfBirth) }} ans
               </td>
               <td class="hidden whitespace-nowrap px-4 py-3 md:table-cell">
@@ -332,18 +332,18 @@
                   class="flex items-center gap-1.5 text-sm"
                 >
                   <Calendar class="h-3.5 w-3.5 text-orange-500" />
-                  <span class="text-gray-700">
+                  <span class="text-gray-700 dark:text-gray-300">
                     {{
                       formatShortDate(patient.nextAppointment.appointmentDate)
                     }}, {{ patient.nextAppointment.startTime }}
                   </span>
                 </div>
-                <span v-else class="text-sm text-gray-500"
+                <span v-else class="text-sm text-gray-500 dark:text-gray-400"
                   >Aucun RDV prévu</span
                 >
               </td>
               <td class="hidden whitespace-nowrap px-4 py-3 lg:table-cell">
-                <span class="text-sm text-gray-600">{{
+                <span class="text-sm text-gray-600 dark:text-gray-400">{{
                   patient.totalConsultations
                 }}</span>
               </td>
@@ -379,7 +379,7 @@
 
     <!-- pagination -->
     <div v-if="totalPages > 1" class="flex items-center justify-between">
-      <p class="text-sm text-gray-600">
+      <p class="text-sm text-gray-600 dark:text-gray-400">
         Page {{ currentPage }} sur {{ totalPages }} - {{ total }} résultat{{
           total !== 1 ? "s" : ""
         }}

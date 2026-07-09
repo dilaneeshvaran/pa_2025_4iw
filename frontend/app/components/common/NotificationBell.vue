@@ -2,7 +2,7 @@
   <div ref="root" class="relative" @keydown.escape="isOpen = false">
     <button
       type="button"
-      class="relative inline-flex h-9 w-9 items-center justify-center rounded-md border border-black/[0.08] bg-white text-gray-600 shadow-[0_1px_2px_rgba(26,21,16,0.05)] transition-all duration-150 hover:bg-gray-50 hover:text-gray-900 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#00804A]/40 active:scale-[0.98]"
+      class="relative inline-flex h-9 w-9 items-center justify-center rounded-md border border-black/[0.08] bg-white dark:bg-gray-900 text-gray-600 dark:text-gray-400 shadow-[0_1px_2px_rgba(26,21,16,0.05)] transition-all duration-150 hover:bg-gray-50 dark:hover:bg-gray-800 hover:text-gray-900 dark:hover:text-gray-100 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#00804A]/40 active:scale-[0.98]"
       :aria-label="bellLabel"
       aria-haspopup="menu"
       :aria-expanded="isOpen"
@@ -19,14 +19,14 @@
 
     <div
       v-if="isOpen"
-      class="absolute right-0 z-50 mt-2 w-[min(24rem,calc(100vw-2rem))] overflow-hidden rounded-lg border border-black/[0.08] bg-white shadow-[0_8px_30px_rgb(0,0,0,0.08)]"
+      class="absolute right-0 z-50 mt-2 w-[min(24rem,calc(100vw-2rem))] overflow-hidden rounded-lg border border-black/[0.08] bg-white dark:bg-gray-900 shadow-[0_8px_30px_rgb(0,0,0,0.08)]"
       role="menu"
       aria-label="Notifications"
     >
-      <div class="flex items-center justify-between gap-3 border-b border-gray-100 px-4 py-3">
+      <div class="flex items-center justify-between gap-3 border-b border-gray-100 dark:border-gray-800 px-4 py-3">
         <div>
-          <p class="font-display text-sm font-semibold text-gray-900">Notifications</p>
-          <p class="text-xs text-gray-500">
+          <p class="font-display text-sm font-semibold text-gray-900 dark:text-gray-100">Notifications</p>
+          <p class="text-xs text-gray-500 dark:text-gray-400">
             {{ notificationsStore.unreadCount }} non lue{{
               notificationsStore.unreadCount > 1 ? "s" : ""
             }}
@@ -35,7 +35,7 @@
         <button
           v-if="notificationsStore.unreadCount > 0"
           type="button"
-          class="inline-flex min-h-8 items-center gap-1.5 rounded-md px-2.5 text-xs font-semibold text-[#D96F00] transition-colors hover:bg-[#D96F00]/5 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#D96F00]/20 disabled:cursor-not-allowed disabled:opacity-60"
+          class="inline-flex min-h-8 items-center gap-1.5 rounded-md px-2.5 text-xs font-semibold text-[#D96F00] dark:text-orange-300 transition-colors hover:bg-[#D96F00]/5 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#D96F00]/20 disabled:cursor-not-allowed disabled:opacity-60"
           :disabled="markingAll"
           @click="markAllAsRead"
         >
@@ -47,7 +47,7 @@
 
       <div
         v-if="notificationsStore.error"
-        class="flex gap-2 border-b border-red-100 bg-red-50 px-4 py-3 text-xs text-red-700"
+        class="flex gap-2 border-b border-red-100 dark:border-red-900/40 bg-red-50 dark:bg-red-950/30 px-4 py-3 text-xs text-red-700 dark:text-red-300"
       >
         <AlertCircle class="mt-0.5 h-3.5 w-3.5 flex-shrink-0" />
         <span>{{ notificationsStore.error }}</span>
@@ -55,7 +55,7 @@
 
       <div
         v-if="notificationsStore.loading && !notificationsStore.loaded"
-        class="flex items-center justify-center gap-2 px-4 py-8 text-xs text-gray-500"
+        class="flex items-center justify-center gap-2 px-4 py-8 text-xs text-gray-500 dark:text-gray-400"
       >
         <Loader2 class="h-3.5 w-3.5 animate-spin" />
         Chargement des notifications
@@ -66,8 +66,8 @@
         class="px-4 py-8 text-center"
       >
         <Bell class="mx-auto mb-3 h-8 w-8 text-gray-300 opacity-60" :stroke-width="1.25" />
-        <p class="font-display text-sm font-semibold text-gray-700">Aucune notification</p>
-        <p class="mt-1 text-xs text-gray-500">
+        <p class="font-display text-sm font-semibold text-gray-700 dark:text-gray-300">Aucune notification</p>
+        <p class="mt-1 text-xs text-gray-500 dark:text-gray-400">
           Les alertes importantes apparaîtront ici.
         </p>
       </div>
@@ -77,8 +77,8 @@
           v-for="notification in notificationsStore.notifications"
           :key="notification.id"
           type="button"
-          class="flex w-full gap-3 px-4 py-3 text-left transition-colors hover:bg-gray-50 focus:bg-gray-50 focus:outline-none"
-          :class="notification.read ? 'bg-white' : 'bg-[#00804A]/5'"
+          class="flex w-full gap-3 px-4 py-3 text-left transition-colors hover:bg-gray-50 dark:hover:bg-gray-800 focus:bg-gray-50 focus:outline-none"
+          :class="notification.read ? 'bg-white dark:bg-gray-900' : 'bg-[#00804A]/5'"
           role="menuitem"
           @click="openNotification(notification)"
         >
@@ -88,10 +88,10 @@
             aria-hidden="true"
           />
           <span class="min-w-0 flex-1">
-            <span class="block truncate text-sm font-semibold text-gray-900">
+            <span class="block truncate text-sm font-semibold text-gray-900 dark:text-gray-100">
               {{ notification.title }}
             </span>
-            <span class="mt-0.5 line-clamp-2 block text-xs text-gray-600">
+            <span class="mt-0.5 line-clamp-2 block text-xs text-gray-600 dark:text-gray-400">
               {{ notification.message }}
             </span>
             <span class="mt-1.5 flex items-center gap-1 text-[10px] text-gray-400">

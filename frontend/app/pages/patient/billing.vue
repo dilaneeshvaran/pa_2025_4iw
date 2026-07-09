@@ -1,13 +1,13 @@
 <template>
   <div class="space-y-6">
     <div>
-      <h1 class="mb-2 text-2xl font-bold text-gray-900">
+      <h1 class="mb-2 text-2xl font-bold text-gray-900 dark:text-gray-100">
         Factures & Paiements
       </h1>
-      <p class="text-gray-600">Gérez vos factures et moyens de paiement</p>
+      <p class="text-gray-600 dark:text-gray-400">Gérez vos factures et moyens de paiement</p>
     </div>
 
-    <div class="border-b border-gray-200">
+    <div class="border-b border-gray-200 dark:border-gray-800">
       <nav class="flex gap-6">
         <button
           v-for="tab in tabs"
@@ -15,8 +15,8 @@
           :class="[
             'border-b-2 pb-3 text-sm font-medium transition-colors',
             activeTab === tab.key
-              ? 'border-orange-600 text-orange-600'
-              : 'border-transparent text-gray-500 hover:text-gray-700',
+              ? 'border-orange-600 text-orange-600 dark:text-orange-400'
+              : 'border-transparent text-gray-500 dark:text-gray-400 hover:text-gray-700 dark:hover:text-gray-200',
           ]"
           @click="activeTab = tab.key"
         >
@@ -31,7 +31,7 @@
       <div class="mb-4 flex flex-wrap items-center gap-3">
         <select
           v-model="statusFilter"
-          class="rounded-lg border border-gray-300 pl-3 pr-8 py-2 text-sm focus:border-orange-600 focus:outline-none"
+          class="rounded-lg border border-gray-300 dark:border-gray-700 pl-3 pr-8 py-2 text-sm focus:border-orange-600 focus:outline-none"
         >
           <option value="all">Tous les statuts</option>
           <option value="COMPLETED">Payé</option>
@@ -46,7 +46,7 @@
         <div
           v-for="i in 3"
           :key="i"
-          class="animate-pulse rounded-lg border bg-white p-4"
+          class="animate-pulse rounded-lg border bg-white dark:bg-gray-900 p-4"
         >
           <div class="flex items-center justify-between">
             <div class="space-y-2">
@@ -61,11 +61,11 @@
       <!-- empty state -->
       <div
         v-else-if="payments.length === 0"
-        class="rounded-lg border bg-white py-12 text-center"
+        class="rounded-lg border bg-white dark:bg-gray-900 py-12 text-center"
       >
         <Receipt class="mx-auto mb-3 h-12 w-12 text-gray-300" />
-        <p class="text-gray-500">Aucune facture pour le moment</p>
-        <p class="mt-1 text-sm text-gray-500">
+        <p class="text-gray-500 dark:text-gray-400">Aucune facture pour le moment</p>
+        <p class="mt-1 text-sm text-gray-500 dark:text-gray-400">
           Vos factures apparaîtront ici après un paiement
         </p>
       </div>
@@ -75,12 +75,12 @@
         <div
           v-for="payment in payments"
           :key="payment.id"
-          class="rounded-lg border bg-white p-4 transition-shadow hover:shadow-md"
+          class="rounded-lg border bg-white dark:bg-gray-900 p-4 transition-shadow hover:shadow-md"
         >
           <div class="flex flex-col gap-3 sm:flex-row sm:items-start sm:justify-between">
             <div class="flex-1">
               <div class="flex items-center gap-2">
-                <span class="font-medium text-gray-900">
+                <span class="font-medium text-gray-900 dark:text-gray-100">
                   {{ payment.appointment.practitioner.title }}
                   {{ payment.appointment.practitioner.firstName }}
                   {{ payment.appointment.practitioner.lastName }}
@@ -90,7 +90,7 @@
                 </UiBadge>
               </div>
               <div
-                class="mt-1 flex flex-wrap items-center gap-3 text-sm text-gray-500"
+                class="mt-1 flex flex-wrap items-center gap-3 text-sm text-gray-500 dark:text-gray-400"
               >
                 <span class="flex items-center gap-1">
                   <Calendar class="h-3.5 w-3.5" />
@@ -116,14 +116,14 @@
                   }}
                 </span>
               </div>
-              <div class="mt-1 text-xs text-gray-500">
+              <div class="mt-1 text-xs text-gray-500 dark:text-gray-400">
                 <span>{{ getPaymentMethodLabel(payment.method) }}</span>
                 <span class="mx-1">·</span>
                 <span>N° {{ payment.invoiceNumber }}</span>
               </div>
               <div
                 v-if="payment.refundedAmount"
-                class="mt-1 text-xs text-orange-600"
+                class="mt-1 text-xs text-orange-600 dark:text-orange-400"
               >
                 Remboursé : {{ payment.refundedAmount.toLocaleString() }} FCFA
                 <span v-if="payment.refundReason"
@@ -132,14 +132,14 @@
               </div>
             </div>
             <div class="flex flex-col items-start gap-2 sm:items-end">
-              <span class="text-lg font-bold text-gray-900">
+              <span class="text-lg font-bold text-gray-900 dark:text-gray-100">
                 {{ payment.amount.toLocaleString() }}
-                <span class="text-sm font-normal text-gray-500">FCFA</span>
+                <span class="text-sm font-normal text-gray-500 dark:text-gray-400">FCFA</span>
               </span>
               <div class="flex gap-2">
                 <button
                   v-if="payment.invoice"
-                  class="flex items-center gap-1 rounded-lg border border-gray-200 px-3 py-1.5 text-xs text-gray-600 transition-colors hover:bg-gray-50"
+                  class="flex items-center gap-1 rounded-lg border border-gray-200 dark:border-gray-800 px-3 py-1.5 text-xs text-gray-600 dark:text-gray-400 transition-colors hover:bg-gray-50 dark:hover:bg-gray-800"
                   @click="
                     downloadInvoice(payment.invoice!.id, payment.invoiceNumber)
                   "
@@ -149,7 +149,7 @@
                 </button>
                 <button
                   v-if="canRefund(payment)"
-                  class="flex items-center gap-1 rounded-lg border border-orange-200 px-3 py-1.5 text-xs text-orange-600 transition-colors hover:bg-orange-50"
+                  class="flex items-center gap-1 rounded-lg border border-orange-200 dark:border-orange-800/40 px-3 py-1.5 text-xs text-orange-600 dark:text-orange-400 transition-colors hover:bg-orange-50"
                   @click="openRefundModal(payment)"
                 >
                   <RotateCcw class="h-3.5 w-3.5" />
@@ -171,7 +171,7 @@
 
       <!-- pagination -->
       <div v-if="totalPages > 1" class="mt-4 flex items-center justify-between">
-        <p class="text-sm text-gray-500">
+        <p class="text-sm text-gray-500 dark:text-gray-400">
           Page {{ currentPage }} sur {{ totalPages }} ({{ totalPayments }}
           résultats)
         </p>
@@ -215,7 +215,7 @@
         <div
           v-for="i in 2"
           :key="i"
-          class="animate-pulse rounded-lg border bg-white p-4"
+          class="animate-pulse rounded-lg border bg-white dark:bg-gray-900 p-4"
         >
           <div class="flex items-center gap-4">
             <div class="h-10 w-10 rounded-full bg-gray-200"></div>
@@ -230,11 +230,11 @@
       <!-- empty state -->
       <div
         v-else-if="paymentMethods.length === 0"
-        class="rounded-lg border bg-white py-12 text-center"
+        class="rounded-lg border bg-white dark:bg-gray-900 py-12 text-center"
       >
         <Wallet class="mx-auto mb-3 h-12 w-12 text-gray-300" />
-        <p class="text-gray-500">Aucun moyen de paiement enregistré</p>
-        <p class="mt-1 text-sm text-gray-500">
+        <p class="text-gray-500 dark:text-gray-400">Aucun moyen de paiement enregistré</p>
+        <p class="mt-1 text-sm text-gray-500 dark:text-gray-400">
           Ajoutez Orange Money, MTN, Wave ou une carte bancaire
         </p>
         <UiButton size="sm" class="mt-4" @click="showAddMethodModal = true">
@@ -247,7 +247,7 @@
         <div
           v-for="method in paymentMethods"
           :key="method.id"
-          class="rounded-lg border bg-white p-4 transition-shadow hover:shadow-md"
+          class="rounded-lg border bg-white dark:bg-gray-900 p-4 transition-shadow hover:shadow-md"
         >
           <div class="flex items-center justify-between">
             <div class="flex items-center gap-4">
@@ -255,15 +255,15 @@
                 :class="[
                   'flex h-12 w-12 items-center justify-center rounded-full text-xl',
                   method.type === 'MOBILE_MONEY'
-                    ? 'bg-orange-100'
-                    : 'bg-orange-100',
+                    ? 'bg-orange-100 dark:bg-orange-900/30'
+                    : 'bg-orange-100 dark:bg-orange-900/30',
                 ]"
               >
                 {{ getMethodIcon(method) }}
               </div>
               <div>
                 <div class="flex items-center gap-2">
-                  <span class="font-medium text-gray-900">{{
+                  <span class="font-medium text-gray-900 dark:text-gray-100">{{
                     method.label
                   }}</span>
                   <UiBadge v-if="method.isDefault" variant="primary">
@@ -274,7 +274,7 @@
                   </UiBadge>
                   <UiBadge v-else variant="success"> Vérifié </UiBadge>
                 </div>
-                <p class="text-sm text-gray-500">
+                <p class="text-sm text-gray-500 dark:text-gray-400">
                   <span v-if="method.type === 'MOBILE_MONEY'">
                     {{ getOperatorLabel(method.mobileOperator) }}
                     <span v-if="method.mobileNumber">
@@ -296,20 +296,20 @@
             <div class="flex items-center gap-2">
               <button
                 v-if="!method.isVerified"
-                class="rounded-lg border border-orange-200 px-3 py-1.5 text-xs text-orange-600 transition-colors hover:bg-orange-50"
+                class="rounded-lg border border-orange-200 dark:border-orange-800/40 px-3 py-1.5 text-xs text-orange-600 dark:text-orange-400 transition-colors hover:bg-orange-50"
                 @click="openVerifyModal(method)"
               >
                 Vérifier
               </button>
               <button
                 v-if="!method.isDefault"
-                class="rounded-lg border border-gray-200 px-3 py-1.5 text-xs text-gray-600 transition-colors hover:bg-gray-50"
+                class="rounded-lg border border-gray-200 dark:border-gray-800 px-3 py-1.5 text-xs text-gray-600 dark:text-gray-400 transition-colors hover:bg-gray-50 dark:hover:bg-gray-800"
                 @click="setDefault(method.id)"
               >
                 Par défaut
               </button>
               <button
-                class="rounded-lg border border-red-200 p-1.5 text-red-500 transition-colors hover:bg-red-50"
+                class="rounded-lg border border-red-200 dark:border-red-800/40 p-1.5 text-red-500 transition-colors hover:bg-red-50"
                 @click="openDeleteMethodModal(method)"
               >
                 <Trash2 class="h-4 w-4" />
@@ -328,13 +328,13 @@
         class="fixed inset-0 z-50 flex items-center justify-center bg-black/50"
         @click.self="showAddMethodModal = false"
       >
-        <div class="mx-4 w-full max-w-lg rounded-xl bg-white p-6 shadow-2xl">
+        <div class="mx-4 w-full max-w-lg rounded-xl bg-white dark:bg-gray-900 p-6 shadow-2xl">
           <div class="mb-4 flex items-center justify-between">
-            <h3 class="text-lg font-semibold text-gray-900">
+            <h3 class="text-lg font-semibold text-gray-900 dark:text-gray-100">
               Ajouter un moyen de paiement
             </h3>
             <button
-              class="rounded-lg p-1 text-gray-500 hover:bg-gray-100"
+              class="rounded-lg p-1 text-gray-500 dark:text-gray-400 hover:bg-gray-100 dark:hover:bg-gray-800"
               @click="showAddMethodModal = false"
             >
               <X class="h-5 w-5" />
@@ -343,15 +343,15 @@
 
           <!-- payment type selection -->
           <div class="mb-4 space-y-3">
-            <label class="text-sm font-medium text-gray-700">Type</label>
+            <label class="text-sm font-medium text-gray-700 dark:text-gray-300">Type</label>
             <div class="grid grid-cols-2 gap-3">
               <button
                 type="button"
                 class="flex flex-col items-center gap-2 rounded-lg border-2 p-4 transition-all"
                 :class="[
                   newMethodType === 'MOBILE_MONEY'
-                    ? 'border-orange-500 bg-orange-50'
-                    : 'border-gray-200 hover:border-gray-300',
+                    ? 'border-orange-500 bg-orange-50 dark:bg-orange-950/30'
+                    : 'border-gray-200 dark:border-gray-800 hover:border-gray-300',
                 ]"
                 @click="newMethodType = 'MOBILE_MONEY'"
               >
@@ -363,8 +363,8 @@
                 class="flex flex-col items-center gap-2 rounded-lg border-2 p-4 transition-all"
                 :class="[
                   newMethodType === 'CARD'
-                    ? 'border-orange-500 bg-orange-50'
-                    : 'border-gray-200 hover:border-gray-300',
+                    ? 'border-orange-500 bg-orange-50 dark:bg-orange-950/30'
+                    : 'border-gray-200 dark:border-gray-800 hover:border-gray-300',
                 ]"
                 @click="newMethodType = 'CARD'"
               >
@@ -377,7 +377,7 @@
           <!-- mobile money form -->
           <div v-if="newMethodType === 'MOBILE_MONEY'" class="space-y-4">
             <div>
-              <label class="text-sm font-medium text-gray-700">Opérateur</label>
+              <label class="text-sm font-medium text-gray-700 dark:text-gray-300">Opérateur</label>
               <div class="mt-2 grid grid-cols-2 gap-2">
                 <button
                   v-for="op in mobileOperatorOptions"
@@ -386,8 +386,8 @@
                   class="flex items-center gap-2 rounded-lg border-2 px-3 py-2.5 text-sm transition-all"
                   :class="[
                     newMobileOperator === op.value
-                      ? 'border-orange-500 bg-orange-50'
-                      : 'border-gray-200 hover:border-gray-300',
+                      ? 'border-orange-500 bg-orange-50 dark:bg-orange-950/30'
+                      : 'border-gray-200 dark:border-gray-800 hover:border-gray-300',
                   ]"
                   @click="newMobileOperator = op.value"
                 >
@@ -397,14 +397,14 @@
               </div>
             </div>
             <div>
-              <label class="text-sm font-medium text-gray-700"
+              <label class="text-sm font-medium text-gray-700 dark:text-gray-300"
                 >Numéro de téléphone</label
               >
               <input
                 v-model="newMobileNumber"
                 type="tel"
                 placeholder="07 XX XX XX XX"
-                class="mt-1 w-full rounded-lg border border-gray-300 px-4 py-2.5 focus:border-orange-500 focus:outline-none focus:ring-2 focus:ring-orange-500"
+                class="mt-1 w-full rounded-lg border border-gray-300 dark:border-gray-700 px-4 py-2.5 focus:border-orange-500 focus:outline-none focus:ring-2 focus:ring-orange-500"
               />
             </div>
           </div>
@@ -412,7 +412,7 @@
           <!-- card form -->
           <div v-if="newMethodType === 'CARD'" class="space-y-4">
             <div>
-              <label class="text-sm font-medium text-gray-700"
+              <label class="text-sm font-medium text-gray-700 dark:text-gray-300"
                 >Numéro de carte</label
               >
               <input
@@ -420,15 +420,15 @@
                 type="text"
                 placeholder="4XXX XXXX XXXX XXXX"
                 maxlength="19"
-                class="mt-1 w-full rounded-lg border border-gray-300 px-4 py-2.5 focus:border-orange-600 focus:outline-none focus:ring-2 focus:ring-orange-600"
+                class="mt-1 w-full rounded-lg border border-gray-300 dark:border-gray-700 px-4 py-2.5 focus:border-orange-600 focus:outline-none focus:ring-2 focus:ring-orange-600"
               />
             </div>
             <div class="grid grid-cols-3 gap-3">
               <div>
-                <label class="text-sm font-medium text-gray-700">Mois</label>
+                <label class="text-sm font-medium text-gray-700 dark:text-gray-300">Mois</label>
                 <select
                   v-model="newCardExpMonth"
-                  class="mt-1 w-full rounded-lg border border-gray-300 pl-3 pr-8 py-2.5 focus:border-orange-600 focus:outline-none"
+                  class="mt-1 w-full rounded-lg border border-gray-300 dark:border-gray-700 pl-3 pr-8 py-2.5 focus:border-orange-600 focus:outline-none"
                 >
                   <option v-for="m in 12" :key="m" :value="m">
                     {{ String(m).padStart(2, "0") }}
@@ -436,10 +436,10 @@
                 </select>
               </div>
               <div>
-                <label class="text-sm font-medium text-gray-700">Année</label>
+                <label class="text-sm font-medium text-gray-700 dark:text-gray-300">Année</label>
                 <select
                   v-model="newCardExpYear"
-                  class="mt-1 w-full rounded-lg border border-gray-300 pl-3 pr-8 py-2.5 focus:border-orange-600 focus:outline-none"
+                  class="mt-1 w-full rounded-lg border border-gray-300 dark:border-gray-700 pl-3 pr-8 py-2.5 focus:border-orange-600 focus:outline-none"
                 >
                   <option v-for="y in 10" :key="y" :value="2025 + y">
                     {{ 2025 + y }}
@@ -447,13 +447,13 @@
                 </select>
               </div>
               <div>
-                <label class="text-sm font-medium text-gray-700">CVV</label>
+                <label class="text-sm font-medium text-gray-700 dark:text-gray-300">CVV</label>
                 <input
                   v-model="newCardCvv"
                   type="text"
                   placeholder="XXX"
                   maxlength="4"
-                  class="mt-1 w-full rounded-lg border border-gray-300 px-4 py-2.5 focus:border-orange-600 focus:outline-none"
+                  class="mt-1 w-full rounded-lg border border-gray-300 dark:border-gray-700 px-4 py-2.5 focus:border-orange-600 focus:outline-none"
                 />
               </div>
             </div>
@@ -465,7 +465,7 @@
               <input
                 v-model="newMethodIsDefault"
                 type="checkbox"
-                class="h-4 w-4 rounded border-gray-300 text-orange-600 focus:ring-orange-500"
+                class="h-4 w-4 rounded border-gray-300 dark:border-gray-700 text-orange-600 dark:text-orange-400 focus:ring-orange-500"
               />
               Définir comme moyen de paiement par défaut
             </label>
@@ -473,7 +473,7 @@
 
           <div
             v-if="addMethodError"
-            class="mt-3 rounded-lg bg-red-50 p-3 text-sm text-red-600"
+            class="mt-3 rounded-lg bg-red-50 dark:bg-red-950/30 p-3 text-sm text-red-600 dark:text-red-400"
           >
             {{ addMethodError }}
           </div>
@@ -505,11 +505,11 @@
         class="fixed inset-0 z-50 flex items-center justify-center bg-black/50"
         @click.self="showVerifyModal = false"
       >
-        <div class="mx-4 w-full max-w-sm rounded-xl bg-white p-6 shadow-2xl">
-          <h3 class="mb-2 text-lg font-semibold text-gray-900">
+        <div class="mx-4 w-full max-w-sm rounded-xl bg-white dark:bg-gray-900 p-6 shadow-2xl">
+          <h3 class="mb-2 text-lg font-semibold text-gray-900 dark:text-gray-100">
             Vérifier le moyen de paiement
           </h3>
-          <p class="mb-4 text-sm text-gray-600">
+          <p class="mb-4 text-sm text-gray-600 dark:text-gray-400">
             Entrez le code de vérification envoyé à votre numéro
             <strong>{{ verifyingMethod?.label }}</strong
             >.
@@ -519,11 +519,11 @@
             type="text"
             placeholder="Code à 4-6 chiffres"
             maxlength="8"
-            class="mb-4 w-full rounded-lg border border-gray-300 px-4 py-2.5 text-center text-lg tracking-widest focus:border-orange-600 focus:outline-none focus:ring-2 focus:ring-orange-600"
+            class="mb-4 w-full rounded-lg border border-gray-300 dark:border-gray-700 px-4 py-2.5 text-center text-lg tracking-widest focus:border-orange-600 focus:outline-none focus:ring-2 focus:ring-orange-600"
           />
           <div
             v-if="verifyError"
-            class="mb-3 rounded-lg bg-red-50 p-3 text-sm text-red-600"
+            class="mb-3 rounded-lg bg-red-50 dark:bg-red-950/30 p-3 text-sm text-red-600 dark:text-red-400"
           >
             {{ verifyError }}
           </div>
@@ -554,18 +554,18 @@
         class="fixed inset-0 z-50 flex items-center justify-center bg-black/50"
         @click.self="showDeleteMethodModal = false"
       >
-        <div class="mx-4 w-full max-w-sm rounded-xl bg-white p-6 shadow-2xl">
+        <div class="mx-4 w-full max-w-sm rounded-xl bg-white dark:bg-gray-900 p-6 shadow-2xl">
           <div class="mb-4 flex items-center gap-3">
             <div
-              class="flex h-10 w-10 items-center justify-center rounded-full bg-red-100"
+              class="flex h-10 w-10 items-center justify-center rounded-full bg-red-100 dark:bg-red-900/30"
             >
-              <AlertTriangle class="h-5 w-5 text-red-600" />
+              <AlertTriangle class="h-5 w-5 text-red-600 dark:text-red-400" />
             </div>
-            <h3 class="text-lg font-semibold text-gray-900">
+            <h3 class="text-lg font-semibold text-gray-900 dark:text-gray-100">
               Confirmer la suppression
             </h3>
           </div>
-          <p class="mb-4 text-sm text-gray-600">
+          <p class="mb-4 text-sm text-gray-600 dark:text-gray-400">
             Voulez-vous supprimer <strong>{{ deletingMethod?.label }}</strong> ?
             Cette action est irréversible.
           </p>
@@ -597,19 +597,19 @@
         class="fixed inset-0 z-50 flex items-center justify-center bg-black/50"
         @click.self="showRefundModal = false"
       >
-        <div class="mx-4 w-full max-w-md rounded-xl bg-white p-6 shadow-2xl">
+        <div class="mx-4 w-full max-w-md rounded-xl bg-white dark:bg-gray-900 p-6 shadow-2xl">
           <div class="mb-4 flex items-center gap-3">
             <div
-              class="flex h-10 w-10 items-center justify-center rounded-full bg-orange-100"
+              class="flex h-10 w-10 items-center justify-center rounded-full bg-orange-100 dark:bg-orange-900/30"
             >
-              <RotateCcw class="h-5 w-5 text-orange-600" />
+              <RotateCcw class="h-5 w-5 text-orange-600 dark:text-orange-400" />
             </div>
-            <h3 class="text-lg font-semibold text-gray-900">
+            <h3 class="text-lg font-semibold text-gray-900 dark:text-gray-100">
               Demander un remboursement
             </h3>
           </div>
 
-          <div class="mb-4 rounded-lg bg-yellow-50 p-4 text-sm text-yellow-800">
+          <div class="mb-4 rounded-lg bg-yellow-50 dark:bg-yellow-950/30 p-4 text-sm text-yellow-800 dark:text-yellow-200">
             <p class="mb-2 font-medium">Politique de remboursement :</p>
             <ul class="list-inside list-disc space-y-1 text-xs">
               <li>
@@ -631,26 +631,26 @@
           </div>
 
           <div class="mb-4">
-            <label class="text-sm font-medium text-gray-700"
+            <label class="text-sm font-medium text-gray-700 dark:text-gray-300"
               >Raison (optionnel)</label
             >
             <textarea
               v-model="refundReason"
               rows="2"
               placeholder="Décrivez la raison du remboursement..."
-              class="mt-1 w-full rounded-lg border border-gray-300 px-4 py-2.5 focus:border-orange-600 focus:outline-none focus:ring-2 focus:ring-orange-600"
+              class="mt-1 w-full rounded-lg border border-gray-300 dark:border-gray-700 px-4 py-2.5 focus:border-orange-600 focus:outline-none focus:ring-2 focus:ring-orange-600"
             ></textarea>
           </div>
 
           <div
             v-if="refundError"
-            class="mb-3 rounded-lg bg-red-50 p-3 text-sm text-red-600"
+            class="mb-3 rounded-lg bg-red-50 dark:bg-red-950/30 p-3 text-sm text-red-600 dark:text-red-400"
           >
             {{ refundError }}
           </div>
           <div
             v-if="refundSuccess"
-            class="mb-3 rounded-lg bg-green-50 p-3 text-sm text-green-700"
+            class="mb-3 rounded-lg bg-green-50 dark:bg-green-950/30 p-3 text-sm text-green-700 dark:text-green-300"
           >
             {{ refundSuccess }}
           </div>
@@ -683,29 +683,29 @@
         class="fixed inset-0 z-50 flex items-center justify-center bg-black/50"
         @click.self="showPaymentModal = false"
       >
-        <div class="mx-4 w-full max-w-lg rounded-xl bg-white p-6 shadow-2xl">
+        <div class="mx-4 w-full max-w-lg rounded-xl bg-white dark:bg-gray-900 p-6 shadow-2xl">
           <div class="mb-4 flex items-center justify-between">
-            <h3 class="text-lg font-semibold text-gray-900">
+            <h3 class="text-lg font-semibold text-gray-900 dark:text-gray-100">
               Paiement de la facture
             </h3>
             <button
-              class="rounded-lg p-1 text-gray-500 hover:bg-gray-100"
+              class="rounded-lg p-1 text-gray-500 dark:text-gray-400 hover:bg-gray-100 dark:hover:bg-gray-800"
               @click="showPaymentModal = false"
             >
               <X class="h-5 w-5" />
             </button>
           </div>
 
-          <div class="mb-6 rounded-lg bg-gray-50 p-4">
+          <div class="mb-6 rounded-lg bg-gray-50 dark:bg-gray-900 p-4">
             <div class="flex justify-between text-sm">
-              <span class="text-gray-600">Montant à payer :</span>
-              <span class="font-bold text-gray-900"
+              <span class="text-gray-600 dark:text-gray-400">Montant à payer :</span>
+              <span class="font-bold text-gray-900 dark:text-gray-100"
                 >{{ payingPayment?.amount.toLocaleString() }} FCFA</span
               >
             </div>
             <div class="mt-2 flex justify-between text-sm">
-              <span class="text-gray-600">Consultation avec :</span>
-              <span class="font-medium text-gray-900"
+              <span class="text-gray-600 dark:text-gray-400">Consultation avec :</span>
+              <span class="font-medium text-gray-900 dark:text-gray-100"
                 >Dr.
                 {{ payingPayment?.appointment.practitioner.lastName }}</span
               >
@@ -713,18 +713,18 @@
           </div>
 
           <div class="mb-6">
-            <label class="mb-3 block text-sm font-medium text-gray-700"
+            <label class="mb-3 block text-sm font-medium text-gray-700 dark:text-gray-300"
               >Moyen de paiement</label
             >
             <div class="space-y-3">
               <label
                 v-for="method in verifiedPaymentMethods"
                 :key="method.id"
-                class="flex cursor-pointer items-center justify-between rounded-lg border p-4 transition-colors hover:bg-gray-50"
+                class="flex cursor-pointer items-center justify-between rounded-lg border p-4 transition-colors hover:bg-gray-50 dark:hover:bg-gray-800"
                 :class="
                   selectedPaymentMethod === method.id
-                    ? 'border-orange-500 bg-orange-50 ring-1 ring-orange-500 hover:bg-orange-50'
-                    : 'border-gray-200'
+                    ? 'border-orange-500 bg-orange-50 dark:bg-orange-950/30 ring-1 ring-orange-500 hover:bg-orange-50'
+                    : 'border-gray-200 dark:border-gray-800'
                 "
               >
                 <div class="flex items-center gap-3">
@@ -733,21 +733,21 @@
                     name="paymentMethod"
                     :value="method.id"
                     v-model="selectedPaymentMethod"
-                    class="h-4 w-4 border-gray-300 text-orange-600 focus:ring-orange-500"
+                    class="h-4 w-4 border-gray-300 dark:border-gray-700 text-orange-600 dark:text-orange-400 focus:ring-orange-500"
                   />
                   <div
                     class="flex h-8 w-8 items-center justify-center rounded-full text-sm"
                     :class="
                       method.type === 'MOBILE_MONEY'
-                        ? 'bg-orange-100'
-                        : 'bg-orange-100'
+                        ? 'bg-orange-100 dark:bg-orange-900/30'
+                        : 'bg-orange-100 dark:bg-orange-900/30'
                     "
                   >
                     {{ getMethodIcon(method) }}
                   </div>
                   <div>
                     <div
-                      class="flex items-center gap-2 font-medium text-gray-900"
+                      class="flex items-center gap-2 font-medium text-gray-900 dark:text-gray-100"
                     >
                       {{ method.label }}
                       <UiBadge v-if="method.isDefault" variant="primary"
@@ -755,7 +755,7 @@
                       >
                     </div>
 
-                    <div class="text-xs text-gray-500">
+                    <div class="text-xs text-gray-500 dark:text-gray-400">
                       <template v-if="method.type === 'MOBILE_MONEY'">
                         {{ getOperatorLabel(method.mobileOperator) }}
                         {{
@@ -772,12 +772,12 @@
 
               <div
                 v-if="verifiedPaymentMethods.length === 0"
-                class="rounded-lg bg-gray-50 p-4 text-center text-sm text-gray-600"
+                class="rounded-lg bg-gray-50 dark:bg-gray-900 p-4 text-center text-sm text-gray-600 dark:text-gray-400"
               >
                 Aucun moyen de paiement vérifié.
                 <button
                   type="button"
-                  class="mt-2 block w-full text-orange-600 hover:underline"
+                  class="mt-2 block w-full text-orange-600 dark:text-orange-400 hover:underline"
                   @click="
                     showPaymentModal = false;
                     activeTab = 'methods';
@@ -791,7 +791,7 @@
 
           <div
             v-if="paymentError"
-            class="mb-4 rounded-lg bg-red-50 p-3 text-sm text-red-600"
+            class="mb-4 rounded-lg bg-red-50 dark:bg-red-950/30 p-3 text-sm text-red-600 dark:text-red-400"
           >
             {{ paymentError }}
           </div>

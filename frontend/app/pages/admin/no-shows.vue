@@ -1,56 +1,56 @@
 <template>
   <div>
-    <h1 class="mb-2 text-2xl font-bold text-gray-900">Gestion des No-Shows</h1>
-    <p class="mb-6 text-gray-600">
+    <h1 class="mb-2 text-2xl font-bold text-gray-900 dark:text-gray-100">Gestion des No-Shows</h1>
+    <p class="mb-6 text-gray-600 dark:text-gray-400">
       Patients avec absences répétées - avertissements et sanctions
     </p>
 
-    <div class="mb-6 rounded-lg border border-gray-200 bg-white p-4">
+    <div class="mb-6 rounded-lg border border-gray-200 dark:border-gray-800 bg-white dark:bg-gray-900 p-4">
       <div class="flex flex-wrap items-end gap-4">
         <div class="min-w-[240px] flex-1">
-          <label class="mb-1 block text-sm font-medium text-gray-700">
+          <label class="mb-1 block text-sm font-medium text-gray-700 dark:text-gray-300">
             Rechercher
           </label>
           <div class="relative">
             <Search
-              class="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-gray-500"
+              class="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-gray-500 dark:text-gray-400"
             />
             <input
               v-model="searchQuery"
               type="text"
               placeholder="Nom, prénom ou email..."
-              class="w-full rounded-lg border border-gray-300 py-2 pl-10 pr-4 text-sm focus:border-orange-500 focus:outline-none focus:ring-1 focus:ring-orange-500"
+              class="w-full rounded-lg border border-gray-300 dark:border-gray-700 py-2 pl-10 pr-4 text-sm focus:border-orange-500 focus:outline-none focus:ring-1 focus:ring-orange-500"
               @input="debouncedFetch"
             />
           </div>
         </div>
 
         <div>
-          <label class="mb-1 block text-sm font-medium text-gray-700">
+          <label class="mb-1 block text-sm font-medium text-gray-700 dark:text-gray-300">
             Date début
           </label>
           <input
             v-model="dateFrom"
             type="date"
-            class="rounded-lg border border-gray-300 px-3 py-2 text-sm focus:border-orange-500 focus:outline-none focus:ring-1 focus:ring-orange-500"
+            class="rounded-lg border border-gray-300 dark:border-gray-700 px-3 py-2 text-sm focus:border-orange-500 focus:outline-none focus:ring-1 focus:ring-orange-500"
             @change="fetchPatients"
           />
         </div>
 
         <div>
-          <label class="mb-1 block text-sm font-medium text-gray-700">
+          <label class="mb-1 block text-sm font-medium text-gray-700 dark:text-gray-300">
             Date fin
           </label>
           <input
             v-model="dateTo"
             type="date"
-            class="rounded-lg border border-gray-300 px-3 py-2 text-sm focus:border-orange-500 focus:outline-none focus:ring-1 focus:ring-orange-500"
+            class="rounded-lg border border-gray-300 dark:border-gray-700 px-3 py-2 text-sm focus:border-orange-500 focus:outline-none focus:ring-1 focus:ring-orange-500"
             @change="fetchPatients"
           />
         </div>
 
         <div>
-          <label class="mb-1 block text-sm font-medium text-gray-700">
+          <label class="mb-1 block text-sm font-medium text-gray-700 dark:text-gray-300">
             Absences min.
           </label>
           <input
@@ -58,18 +58,18 @@
             type="number"
             min="0"
             placeholder="0"
-            class="w-24 rounded-lg border border-gray-300 px-3 py-2 text-sm focus:border-orange-500 focus:outline-none focus:ring-1 focus:ring-orange-500"
+            class="w-24 rounded-lg border border-gray-300 dark:border-gray-700 px-3 py-2 text-sm focus:border-orange-500 focus:outline-none focus:ring-1 focus:ring-orange-500"
             @change="fetchPatients"
           />
         </div>
 
         <div>
-          <label class="mb-1 block text-sm font-medium text-gray-700">
+          <label class="mb-1 block text-sm font-medium text-gray-700 dark:text-gray-300">
             Statut
           </label>
           <select
             v-model="statusFilter"
-            class="rounded-lg border border-gray-300 px-3 py-2 text-sm focus:border-orange-500 focus:outline-none focus:ring-1 focus:ring-orange-500"
+            class="rounded-lg border border-gray-300 dark:border-gray-700 px-3 py-2 text-sm focus:border-orange-500 focus:outline-none focus:ring-1 focus:ring-orange-500"
             @change="fetchPatients"
           >
             <option value="">Tous</option>
@@ -80,12 +80,12 @@
         </div>
 
         <div>
-          <label class="mb-1 block text-sm font-medium text-gray-700">
+          <label class="mb-1 block text-sm font-medium text-gray-700 dark:text-gray-300">
             Tri no-shows
           </label>
           <select
             v-model="sortOrder"
-            class="rounded-lg border border-gray-300 px-3 py-2 text-sm focus:border-orange-500 focus:outline-none focus:ring-1 focus:ring-orange-500"
+            class="rounded-lg border border-gray-300 dark:border-gray-700 px-3 py-2 text-sm focus:border-orange-500 focus:outline-none focus:ring-1 focus:ring-orange-500"
             @change="fetchPatients"
           >
             <option value="desc">Plus élevé d'abord</option>
@@ -95,33 +95,33 @@
       </div>
     </div>
 
-    <div v-if="loading" class="py-12 text-center text-gray-500">
+    <div v-if="loading" class="py-12 text-center text-gray-500 dark:text-gray-400">
       Chargement des données...
     </div>
 
-    <div v-else-if="fetchError" class="rounded-lg bg-red-50 p-4 text-red-800">
+    <div v-else-if="fetchError" class="rounded-lg bg-red-50 dark:bg-red-950/30 p-4 text-red-800 dark:text-red-200">
       {{ fetchError }}
     </div>
 
     <div
       v-else-if="patients.length === 0"
-      class="rounded-lg border border-gray-200 bg-white py-12 text-center"
+      class="rounded-lg border border-gray-200 dark:border-gray-800 bg-white dark:bg-gray-900 py-12 text-center"
     >
       <AlertTriangle class="mx-auto mb-3 h-12 w-12 text-gray-300" />
-      <p class="text-gray-500">Aucun patient avec absences trouvé</p>
+      <p class="text-gray-500 dark:text-gray-400">Aucun patient avec absences trouvé</p>
     </div>
 
     <div
       v-else
-      class="overflow-x-auto rounded-lg border border-gray-200 bg-white"
+      class="overflow-x-auto rounded-lg border border-gray-200 dark:border-gray-800 bg-white dark:bg-gray-900"
     >
       <table class="w-full text-left text-sm">
-        <thead class="border-b border-gray-200 bg-gray-50">
+        <thead class="border-b border-gray-200 dark:border-gray-800 bg-gray-50 dark:bg-gray-900">
           <tr>
-            <th class="px-4 py-3 font-medium text-gray-700">Patient</th>
-            <th class="px-4 py-3 font-medium text-gray-700">Total RDV</th>
+            <th class="px-4 py-3 font-medium text-gray-700 dark:text-gray-300">Patient</th>
+            <th class="px-4 py-3 font-medium text-gray-700 dark:text-gray-300">Total RDV</th>
             <th
-              class="cursor-pointer px-4 py-3 font-medium text-gray-700"
+              class="cursor-pointer px-4 py-3 font-medium text-gray-700 dark:text-gray-300"
               @click="toggleSort"
             >
               No-shows
@@ -130,30 +130,30 @@
                 class="ml-1 inline h-4 w-4"
               />
             </th>
-            <th class="px-4 py-3 font-medium text-gray-700">Taux présence</th>
-            <th class="px-4 py-3 font-medium text-gray-700">Statut</th>
-            <th class="px-4 py-3 font-medium text-gray-700">Actions</th>
+            <th class="px-4 py-3 font-medium text-gray-700 dark:text-gray-300">Taux présence</th>
+            <th class="px-4 py-3 font-medium text-gray-700 dark:text-gray-300">Statut</th>
+            <th class="px-4 py-3 font-medium text-gray-700 dark:text-gray-300">Actions</th>
           </tr>
         </thead>
-        <tbody class="divide-y divide-gray-100">
+        <tbody class="divide-y divide-gray-100 dark:divide-gray-800">
           <tr
             v-for="patient in patients"
             :key="patient.id"
-            class="hover:bg-gray-50"
+            class="hover:bg-gray-50 dark:hover:bg-gray-800"
           >
             <td class="px-4 py-3">
               <div>
-                <p class="font-medium text-gray-900">
+                <p class="font-medium text-gray-900 dark:text-gray-100">
                   {{ patient.firstName }} {{ patient.lastName }}
                 </p>
-                <p class="text-xs text-gray-500">{{ patient.email }}</p>
+                <p class="text-xs text-gray-500 dark:text-gray-400">{{ patient.email }}</p>
               </div>
             </td>
-            <td class="px-4 py-3 text-gray-700">
+            <td class="px-4 py-3 text-gray-700 dark:text-gray-300">
               {{ patient.totalAppointments }}
             </td>
             <td class="px-4 py-3">
-              <span class="font-semibold text-red-600">
+              <span class="font-semibold text-red-600 dark:text-red-400">
                 {{ patient.noShows }}
               </span>
             </td>
@@ -162,10 +162,10 @@
                 :class="[
                   'font-medium',
                   patient.attendanceRate >= 80
-                    ? 'text-green-600'
+                    ? 'text-green-600 dark:text-green-400'
                     : patient.attendanceRate >= 50
-                      ? 'text-yellow-600'
-                      : 'text-red-600',
+                      ? 'text-yellow-600 dark:text-yellow-400'
+                      : 'text-red-600 dark:text-red-400',
                 ]"
               >
                 {{ patient.attendanceRate }}%
@@ -179,7 +179,7 @@
             <td class="px-4 py-3">
               <div class="relative">
                 <button
-                  class="rounded p-1 text-gray-500 hover:bg-gray-100 hover:text-gray-600"
+                  class="rounded p-1 text-gray-500 dark:text-gray-400 hover:bg-gray-100 dark:hover:bg-gray-800 hover:text-gray-600"
                   @click.stop="toggleMenu(patient.id, $event)"
                 >
                   <MoreVertical class="h-5 w-5" />
@@ -195,14 +195,14 @@
     <Teleport to="body">
       <div
         v-if="openMenuId"
-        class="fixed z-50 w-52 rounded-lg border border-gray-200 bg-white py-1 shadow-lg"
+        class="fixed z-50 w-52 rounded-lg border border-gray-200 dark:border-gray-800 bg-white dark:bg-gray-900 py-1 shadow-lg"
         :style="{
           top: menuPosition.top + 'px',
           left: menuPosition.left + 'px',
         }"
       >
         <button
-          class="flex w-full items-center gap-2 px-4 py-2 text-sm text-gray-700 hover:bg-gray-50"
+          class="flex w-full items-center gap-2 px-4 py-2 text-sm text-gray-700 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-gray-800"
           @click="viewHistory(patients.find((p: any) => p.id === openMenuId)!)"
         >
           <History class="h-4 w-4" />
@@ -212,7 +212,7 @@
           v-if="
             patients.find((p: any) => p.id === openMenuId)?.status !== 'banned'
           "
-          class="flex w-full items-center gap-2 px-4 py-2 text-sm text-yellow-700 hover:bg-yellow-50"
+          class="flex w-full items-center gap-2 px-4 py-2 text-sm text-yellow-700 dark:text-yellow-300 hover:bg-yellow-50"
           @click="
             openWarnModal(patients.find((p: any) => p.id === openMenuId)!)
           "
@@ -224,7 +224,7 @@
           v-if="
             patients.find((p: any) => p.id === openMenuId)?.status !== 'banned'
           "
-          class="flex w-full items-center gap-2 px-4 py-2 text-sm text-red-700 hover:bg-red-50"
+          class="flex w-full items-center gap-2 px-4 py-2 text-sm text-red-700 dark:text-red-300 hover:bg-red-50"
           @click="openBanModal(patients.find((p: any) => p.id === openMenuId)!)"
         >
           <Ban class="h-4 w-4" />
@@ -234,7 +234,7 @@
           v-if="
             patients.find((p: any) => p.id === openMenuId)?.status === 'banned'
           "
-          class="flex w-full items-center gap-2 px-4 py-2 text-sm text-green-700 hover:bg-green-50"
+          class="flex w-full items-center gap-2 px-4 py-2 text-sm text-green-700 dark:text-green-300 hover:bg-green-50"
           @click="liftSanction(patients.find((p: any) => p.id === openMenuId)!)"
         >
           <ShieldCheck class="h-4 w-4" />
@@ -247,7 +247,7 @@
       v-if="pagination.totalPages > 1"
       class="mt-4 flex items-center justify-between"
     >
-      <p class="text-sm text-gray-600">
+      <p class="text-sm text-gray-600 dark:text-gray-400">
         Page {{ pagination.page }} sur {{ pagination.totalPages }} ({{
           pagination.total
         }}
@@ -256,7 +256,7 @@
       <div class="flex gap-2">
         <button
           :disabled="pagination.page <= 1"
-          class="rounded-lg border border-gray-300 px-3 py-1.5 text-sm font-medium text-gray-700 hover:bg-gray-50 disabled:cursor-not-allowed disabled:opacity-50"
+          class="rounded-lg border border-gray-300 dark:border-gray-700 px-3 py-1.5 text-sm font-medium text-gray-700 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-gray-800 disabled:cursor-not-allowed disabled:opacity-50"
           @click="goToPage(pagination.page - 1)"
         >
           Précédent
@@ -268,7 +268,7 @@
             'rounded-lg border px-3 py-1.5 text-sm font-medium',
             p === pagination.page
               ? 'border-orange-600 bg-orange-500 text-white'
-              : 'border-gray-300 text-gray-700 hover:bg-gray-50',
+              : 'border-gray-300 dark:border-gray-700 text-gray-700 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-gray-800',
           ]"
           @click="goToPage(p)"
         >
@@ -276,7 +276,7 @@
         </button>
         <button
           :disabled="pagination.page >= pagination.totalPages"
-          class="rounded-lg border border-gray-300 px-3 py-1.5 text-sm font-medium text-gray-700 hover:bg-gray-50 disabled:cursor-not-allowed disabled:opacity-50"
+          class="rounded-lg border border-gray-300 dark:border-gray-700 px-3 py-1.5 text-sm font-medium text-gray-700 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-gray-800 disabled:cursor-not-allowed disabled:opacity-50"
           @click="goToPage(pagination.page + 1)"
         >
           Suivant
@@ -291,49 +291,49 @@
       @click.self="showHistoryModal = false"
     >
       <div
-        class="max-h-[85vh] w-full max-w-3xl overflow-y-auto rounded-xl bg-white p-6 shadow-xl"
+        class="max-h-[85vh] w-full max-w-3xl overflow-y-auto rounded-xl bg-white dark:bg-gray-900 p-6 shadow-xl"
       >
         <div class="mb-4 flex items-center justify-between">
-          <h2 class="text-lg font-bold text-gray-900">
+          <h2 class="text-lg font-bold text-gray-900 dark:text-gray-100">
             Historique -
             {{ historyData?.patient.firstName }}
             {{ historyData?.patient.lastName }}
           </h2>
           <button
-            class="text-gray-500 hover:text-gray-600"
+            class="text-gray-500 dark:text-gray-400 hover:text-gray-600"
             @click="showHistoryModal = false"
           >
             <X class="h-5 w-5" />
           </button>
         </div>
 
-        <div v-if="historyLoading" class="py-8 text-center text-gray-500">
+        <div v-if="historyLoading" class="py-8 text-center text-gray-500 dark:text-gray-400">
           Chargement...
         </div>
 
         <div v-else-if="historyData">
-          <div class="mb-4 rounded-lg bg-gray-50 p-4">
+          <div class="mb-4 rounded-lg bg-gray-50 dark:bg-gray-900 p-4">
             <div class="grid grid-cols-2 gap-4 sm:grid-cols-4">
               <div>
-                <p class="text-xs text-gray-500">Email</p>
+                <p class="text-xs text-gray-500 dark:text-gray-400">Email</p>
                 <p class="text-sm font-medium">
                   {{ historyData.patient.email }}
                 </p>
               </div>
               <div>
-                <p class="text-xs text-gray-500">No-shows</p>
-                <p class="text-sm font-semibold text-red-600">
+                <p class="text-xs text-gray-500 dark:text-gray-400">No-shows</p>
+                <p class="text-sm font-semibold text-red-600 dark:text-red-400">
                   {{ historyData.patient.noShowCount }}
                 </p>
               </div>
               <div>
-                <p class="text-xs text-gray-500">Avertissements</p>
+                <p class="text-xs text-gray-500 dark:text-gray-400">Avertissements</p>
                 <p class="text-sm font-medium">
                   {{ historyData.patient.warningCount }}
                 </p>
               </div>
               <div>
-                <p class="text-xs text-gray-500">Statut</p>
+                <p class="text-xs text-gray-500 dark:text-gray-400">Statut</p>
                 <UiBadge
                   :variant="getStatusVariant(historyData.patient.status)"
                 >
@@ -346,7 +346,7 @@
                 historyData.patient.status === 'banned' &&
                 historyData.patient.penaltyUntil
               "
-              class="mt-3 rounded bg-red-50 p-2 text-sm text-red-700"
+              class="mt-3 rounded bg-red-50 dark:bg-red-950/30 p-2 text-sm text-red-700 dark:text-red-300"
             >
               <strong>Banni jusqu'au :</strong>
               {{ formatDate(historyData.patient.penaltyUntil) }}
@@ -360,7 +360,7 @@
           <div class="mb-4 flex gap-2">
             <button
               v-if="historyData.patient.status !== 'banned'"
-              class="flex items-center gap-1 rounded-lg bg-yellow-50 px-3 py-1.5 text-sm font-medium text-yellow-700 hover:bg-yellow-100"
+              class="flex items-center gap-1 rounded-lg bg-yellow-50 dark:bg-yellow-950/30 px-3 py-1.5 text-sm font-medium text-yellow-700 dark:text-yellow-300 hover:bg-yellow-100"
               :disabled="actionLoading"
               @click="openWarnModalFromHistory"
             >
@@ -369,7 +369,7 @@
             </button>
             <button
               v-if="historyData.patient.status !== 'banned'"
-              class="flex items-center gap-1 rounded-lg bg-red-50 px-3 py-1.5 text-sm font-medium text-red-700 hover:bg-red-100"
+              class="flex items-center gap-1 rounded-lg bg-red-50 dark:bg-red-950/30 px-3 py-1.5 text-sm font-medium text-red-700 dark:text-red-300 hover:bg-red-100"
               :disabled="actionLoading"
               @click="openBanModalFromHistory"
             >
@@ -378,7 +378,7 @@
             </button>
             <button
               v-if="historyData.patient.status === 'banned'"
-              class="flex items-center gap-1 rounded-lg bg-green-50 px-3 py-1.5 text-sm font-medium text-green-700 hover:bg-green-100"
+              class="flex items-center gap-1 rounded-lg bg-green-50 dark:bg-green-950/30 px-3 py-1.5 text-sm font-medium text-green-700 dark:text-green-300 hover:bg-green-100"
               :disabled="actionLoading"
               @click="liftSanctionFromHistory"
             >
@@ -390,28 +390,28 @@
           <!-- appointments list -->
           <div class="overflow-x-auto">
             <table class="w-full text-left text-sm">
-              <thead class="border-b bg-gray-50">
+              <thead class="border-b bg-gray-50 dark:bg-gray-900">
                 <tr>
-                  <th class="px-3 py-2 font-medium text-gray-700">Date</th>
-                  <th class="px-3 py-2 font-medium text-gray-700">Horaire</th>
-                  <th class="px-3 py-2 font-medium text-gray-700">Praticien</th>
-                  <th class="px-3 py-2 font-medium text-gray-700">Type</th>
-                  <th class="px-3 py-2 font-medium text-gray-700">Statut</th>
+                  <th class="px-3 py-2 font-medium text-gray-700 dark:text-gray-300">Date</th>
+                  <th class="px-3 py-2 font-medium text-gray-700 dark:text-gray-300">Horaire</th>
+                  <th class="px-3 py-2 font-medium text-gray-700 dark:text-gray-300">Praticien</th>
+                  <th class="px-3 py-2 font-medium text-gray-700 dark:text-gray-300">Type</th>
+                  <th class="px-3 py-2 font-medium text-gray-700 dark:text-gray-300">Statut</th>
                 </tr>
               </thead>
-              <tbody class="divide-y divide-gray-100">
+              <tbody class="divide-y divide-gray-100 dark:divide-gray-800">
                 <tr
                   v-for="apt in historyData.appointments"
                   :key="apt.id"
                   :class="apt.status === 'NO_SHOW' ? 'bg-red-50/50' : ''"
                 >
-                  <td class="px-3 py-2 text-gray-700">
+                  <td class="px-3 py-2 text-gray-700 dark:text-gray-300">
                     {{ formatDate(apt.appointmentDate) }}
                   </td>
-                  <td class="px-3 py-2 text-gray-700">
+                  <td class="px-3 py-2 text-gray-700 dark:text-gray-300">
                     {{ apt.startTime }} - {{ apt.endTime }}
                   </td>
-                  <td class="px-3 py-2 text-gray-700">
+                  <td class="px-3 py-2 text-gray-700 dark:text-gray-300">
                     {{ apt.practitioner.title }}
                     {{ apt.practitioner.firstName }}
                     {{ apt.practitioner.lastName }}
@@ -441,7 +441,7 @@
 
           <div
             v-if="historyData.appointments.length === 0"
-            class="py-6 text-center text-gray-500"
+            class="py-6 text-center text-gray-500 dark:text-gray-400"
           >
             Aucun rendez-vous trouvé
           </div>
@@ -455,11 +455,11 @@
       class="fixed inset-0 z-50 flex items-center justify-center bg-black/50"
       @click.self="showWarnModal = false"
     >
-      <div class="w-full max-w-md rounded-xl bg-white p-6 shadow-xl">
-        <h2 class="mb-4 text-lg font-bold text-gray-900">
+      <div class="w-full max-w-md rounded-xl bg-white dark:bg-gray-900 p-6 shadow-xl">
+        <h2 class="mb-4 text-lg font-bold text-gray-900 dark:text-gray-100">
           Envoyer un avertissement
         </h2>
-        <p class="mb-4 text-sm text-gray-600">
+        <p class="mb-4 text-sm text-gray-600 dark:text-gray-400">
           Un email d'avertissement sera envoyé à
           <strong>
             {{ warnTarget?.firstName }} {{ warnTarget?.lastName }}
@@ -468,7 +468,7 @@
         </p>
         <div class="flex justify-end gap-3">
           <button
-            class="rounded-lg border border-gray-300 px-4 py-2 text-sm font-medium text-gray-700 hover:bg-gray-50"
+            class="rounded-lg border border-gray-300 dark:border-gray-700 px-4 py-2 text-sm font-medium text-gray-700 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-gray-800"
             @click="showWarnModal = false"
           >
             Annuler
@@ -490,9 +490,9 @@
       class="fixed inset-0 z-50 flex items-center justify-center bg-black/50"
       @click.self="showBanModal = false"
     >
-      <div class="w-full max-w-md rounded-xl bg-white p-6 shadow-xl">
-        <h2 class="mb-4 text-lg font-bold text-gray-900">Bannir le patient</h2>
-        <p class="mb-4 text-sm text-gray-600">
+      <div class="w-full max-w-md rounded-xl bg-white dark:bg-gray-900 p-6 shadow-xl">
+        <h2 class="mb-4 text-lg font-bold text-gray-900 dark:text-gray-100">Bannir le patient</h2>
+        <p class="mb-4 text-sm text-gray-600 dark:text-gray-400">
           Le patient
           <strong>
             {{ banTarget?.firstName }} {{ banTarget?.lastName }}
@@ -502,7 +502,7 @@
 
         <div class="mb-4 space-y-3">
           <div>
-            <label class="mb-1 block text-sm font-medium text-gray-700">
+            <label class="mb-1 block text-sm font-medium text-gray-700 dark:text-gray-300">
               Durée (en jours)
             </label>
             <input
@@ -510,29 +510,29 @@
               type="number"
               min="1"
               placeholder="Ex: 30"
-              class="w-full rounded-lg border border-gray-300 px-3 py-2 text-sm focus:border-orange-500 focus:outline-none focus:ring-1 focus:ring-orange-500"
+              class="w-full rounded-lg border border-gray-300 dark:border-gray-700 px-3 py-2 text-sm focus:border-orange-500 focus:outline-none focus:ring-1 focus:ring-orange-500"
             />
           </div>
           <div>
-            <label class="mb-1 block text-sm font-medium text-gray-700">
+            <label class="mb-1 block text-sm font-medium text-gray-700 dark:text-gray-300">
               Raison (visible par le patient)
             </label>
             <textarea
               v-model="banReason"
               rows="3"
               placeholder="Ex: Absences répétées à 5 rendez-vous consécutifs..."
-              class="w-full rounded-lg border border-gray-300 px-3 py-2 text-sm focus:border-orange-500 focus:outline-none focus:ring-1 focus:ring-orange-500"
+              class="w-full rounded-lg border border-gray-300 dark:border-gray-700 px-3 py-2 text-sm focus:border-orange-500 focus:outline-none focus:ring-1 focus:ring-orange-500"
             />
           </div>
         </div>
 
-        <p v-if="banError" class="mb-3 text-sm text-red-600">
+        <p v-if="banError" class="mb-3 text-sm text-red-600 dark:text-red-400">
           {{ banError }}
         </p>
 
         <div class="flex justify-end gap-3">
           <button
-            class="rounded-lg border border-gray-300 px-4 py-2 text-sm font-medium text-gray-700 hover:bg-gray-50"
+            class="rounded-lg border border-gray-300 dark:border-gray-700 px-4 py-2 text-sm font-medium text-gray-700 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-gray-800"
             @click="showBanModal = false"
           >
             Annuler

@@ -1,12 +1,12 @@
 <template>
   <div class="space-y-8">
     <div>
-      <h1 class="mb-2 text-2xl font-bold text-gray-900">Paramètres</h1>
-      <p class="text-gray-600">Gérez votre compte et vos préférences</p>
+      <h1 class="mb-2 text-2xl font-bold text-gray-900 dark:text-gray-100">Paramètres</h1>
+      <p class="text-gray-600 dark:text-gray-400">Gérez votre compte et vos préférences</p>
     </div>
 
     <!-- tabs -->
-    <div class="border-b border-gray-200">
+    <div class="border-b border-gray-200 dark:border-gray-800">
       <nav class="-mb-px flex space-x-8">
         <button
           v-for="tab in tabs"
@@ -14,8 +14,8 @@
           :class="[
             'flex items-center gap-2 border-b-2 px-1 py-3 text-sm font-medium transition-colors',
             activeTab === tab.id
-              ? 'border-orange-600 text-orange-600'
-              : 'border-transparent text-gray-500 hover:border-gray-300 hover:text-gray-700',
+              ? 'border-orange-600 text-orange-600 dark:text-orange-400'
+              : 'border-transparent text-gray-500 dark:text-gray-400 hover:border-gray-300 hover:text-gray-700 dark:hover:text-gray-200',
           ]"
           @click="activeTab = tab.id"
         >
@@ -28,7 +28,7 @@
     <!-- account info  -->
     <div v-if="activeTab === 'account'" class="space-y-6">
       <UiCard>
-        <h3 class="mb-4 text-lg font-semibold text-gray-900">
+        <h3 class="mb-4 text-lg font-semibold text-gray-900 dark:text-gray-100">
           Informations personnelles
         </h3>
 
@@ -41,13 +41,13 @@
         <form v-else class="space-y-4" @submit.prevent="saveProfile">
           <div class="grid gap-4 sm:grid-cols-2">
             <div>
-              <label class="mb-1 block text-sm font-medium text-gray-700"
+              <label class="mb-1 block text-sm font-medium text-gray-700 dark:text-gray-300"
                 >Prénom</label
               >
               <UiInput v-model="profile.firstName" placeholder="Prénom" />
             </div>
             <div>
-              <label class="mb-1 block text-sm font-medium text-gray-700"
+              <label class="mb-1 block text-sm font-medium text-gray-700 dark:text-gray-300"
                 >Nom</label
               >
               <UiInput v-model="profile.lastName" placeholder="Nom" />
@@ -56,18 +56,18 @@
 
           <div class="grid gap-4 sm:grid-cols-2">
             <div>
-              <label class="mb-1 block text-sm font-medium text-gray-700"
+              <label class="mb-1 block text-sm font-medium text-gray-700 dark:text-gray-300"
                 >Date de naissance</label
               >
               <UiInput v-model="profile.dateOfBirth" type="date" :min="minDate" :max="maxDate" />
             </div>
             <div>
-              <label class="mb-1 block text-sm font-medium text-gray-700"
+              <label class="mb-1 block text-sm font-medium text-gray-700 dark:text-gray-300"
                 >Genre</label
               >
               <select
                 v-model="profile.gender"
-                class="w-full rounded-lg border border-gray-300 px-4 py-2.5 text-base transition-colors focus:border-orange-500 focus:outline-none focus:ring-2 focus:ring-orange-500 focus:ring-opacity-20"
+                class="w-full rounded-lg border border-gray-300 dark:border-gray-700 px-4 py-2.5 text-base transition-colors focus:border-orange-500 focus:outline-none focus:ring-2 focus:ring-orange-500 focus:ring-opacity-20"
               >
                 <option value="MALE">Homme</option>
                 <option value="FEMALE">Femme</option>
@@ -78,14 +78,14 @@
           </div>
 
           <div>
-            <label class="mb-1 block text-sm font-medium text-gray-700"
+            <label class="mb-1 block text-sm font-medium text-gray-700 dark:text-gray-300"
               >Téléphone</label
             >
             <UiInput v-model="profile.phone" placeholder="+225 XX XX XX XX" />
           </div>
 
           <div>
-            <label class="mb-1 block text-sm font-medium text-gray-700"
+            <label class="mb-1 block text-sm font-medium text-gray-700 dark:text-gray-300"
               >Adresse</label
             >
             <UiInput v-model="profile.address" placeholder="Adresse" />
@@ -93,13 +93,13 @@
 
           <div class="grid gap-4 sm:grid-cols-2">
             <div>
-              <label class="mb-1 block text-sm font-medium text-gray-700"
+              <label class="mb-1 block text-sm font-medium text-gray-700 dark:text-gray-300"
                 >Ville</label
               >
               <UiInput v-model="profile.city" placeholder="Abidjan" />
             </div>
             <div>
-              <label class="mb-1 block text-sm font-medium text-gray-700"
+              <label class="mb-1 block text-sm font-medium text-gray-700 dark:text-gray-300"
                 >Code postal</label
               >
               <UiInput v-model="profile.postalCode" placeholder="Code postal" />
@@ -111,8 +111,8 @@
             :class="[
               'rounded-lg p-3 text-sm',
               profileError
-                ? 'bg-red-50 text-red-700'
-                : 'bg-green-50 text-green-700',
+                ? 'bg-red-50 dark:bg-red-950/30 text-red-700 dark:text-red-300'
+                : 'bg-green-50 dark:bg-green-950/30 text-green-700 dark:text-green-300',
             ]"
           >
             {{ profileMsg }}
@@ -128,16 +128,16 @@
 
       <!-- email settings -->
       <UiCard>
-        <h3 class="mb-4 text-lg font-semibold text-gray-900">Adresse email</h3>
+        <h3 class="mb-4 text-lg font-semibold text-gray-900 dark:text-gray-100">Adresse email</h3>
         <form class="space-y-4" @submit.prevent="saveEmail">
           <div>
-            <label class="mb-1 block text-sm font-medium text-gray-700"
+            <label class="mb-1 block text-sm font-medium text-gray-700 dark:text-gray-300"
               >Email actuel</label
             >
-            <p class="text-sm text-gray-600">{{ currentEmail }}</p>
+            <p class="text-sm text-gray-600 dark:text-gray-400">{{ currentEmail }}</p>
           </div>
           <div>
-            <label class="mb-1 block text-sm font-medium text-gray-700"
+            <label class="mb-1 block text-sm font-medium text-gray-700 dark:text-gray-300"
               >Nouvel email</label
             >
             <UiInput
@@ -147,7 +147,7 @@
             />
           </div>
           <div>
-            <label class="mb-1 block text-sm font-medium text-gray-700"
+            <label class="mb-1 block text-sm font-medium text-gray-700 dark:text-gray-300"
               >Mot de passe (confirmation)</label
             >
             <UiInput
@@ -161,8 +161,8 @@
             :class="[
               'rounded-lg p-3 text-sm',
               emailError
-                ? 'bg-red-50 text-red-700'
-                : 'bg-green-50 text-green-700',
+                ? 'bg-red-50 dark:bg-red-950/30 text-red-700 dark:text-red-300'
+                : 'bg-green-50 dark:bg-green-950/30 text-green-700 dark:text-green-300',
             ]"
           >
             {{ emailMsg }}
@@ -177,10 +177,10 @@
 
       <!-- password settings -->
       <UiCard>
-        <h3 class="mb-4 text-lg font-semibold text-gray-900">Mot de passe</h3>
+        <h3 class="mb-4 text-lg font-semibold text-gray-900 dark:text-gray-100">Mot de passe</h3>
         <form class="space-y-4" @submit.prevent="savePassword">
           <div>
-            <label class="mb-1 block text-sm font-medium text-gray-700"
+            <label class="mb-1 block text-sm font-medium text-gray-700 dark:text-gray-300"
               >Mot de passe actuel</label
             >
             <UiInput
@@ -190,7 +190,7 @@
             />
           </div>
           <div>
-            <label class="mb-1 block text-sm font-medium text-gray-700"
+            <label class="mb-1 block text-sm font-medium text-gray-700 dark:text-gray-300"
               >Nouveau mot de passe</label
             >
             <UiInput
@@ -200,7 +200,7 @@
             />
           </div>
           <div>
-            <label class="mb-1 block text-sm font-medium text-gray-700"
+            <label class="mb-1 block text-sm font-medium text-gray-700 dark:text-gray-300"
               >Confirmer le nouveau mot de passe</label
             >
             <UiInput
@@ -214,8 +214,8 @@
             :class="[
               'rounded-lg p-3 text-sm',
               passwordError
-                ? 'bg-red-50 text-red-700'
-                : 'bg-green-50 text-green-700',
+                ? 'bg-red-50 dark:bg-red-950/30 text-red-700 dark:text-red-300'
+                : 'bg-green-50 dark:bg-green-950/30 text-green-700 dark:text-green-300',
             ]"
           >
             {{ passwordMsg }}
@@ -234,10 +234,10 @@
       <UiCard>
         <div class="flex items-center justify-between">
           <div>
-            <h3 class="text-lg font-semibold text-gray-900">
+            <h3 class="text-lg font-semibold text-gray-900 dark:text-gray-100">
               Authentification à deux facteurs (2FA)
             </h3>
-            <p class="mt-1 text-sm text-gray-500">
+            <p class="mt-1 text-sm text-gray-500 dark:text-gray-400">
               Ajoutez une couche de sécurité supplémentaire à votre compte
             </p>
           </div>
@@ -251,7 +251,7 @@
           >
             <span
               :class="[
-                'pointer-events-none inline-block h-5 w-5 transform rounded-full bg-white shadow ring-0 transition duration-200 ease-in-out',
+                'pointer-events-none inline-block h-5 w-5 transform rounded-full bg-white dark:bg-gray-900 shadow ring-0 transition duration-200 ease-in-out',
                 twoFactorEnabled ? 'translate-x-5' : 'translate-x-0',
               ]"
             />
@@ -262,8 +262,8 @@
           :class="[
             'mt-3 rounded-lg p-3 text-sm',
             twoFactorError
-              ? 'bg-red-50 text-red-700'
-              : 'bg-green-50 text-green-700',
+              ? 'bg-red-50 dark:bg-red-950/30 text-red-700 dark:text-red-300'
+              : 'bg-green-50 dark:bg-green-950/30 text-green-700 dark:text-green-300',
           ]"
         >
           {{ twoFactorMsg }}
@@ -274,7 +274,7 @@
     <!-- notification preferences -->
     <div v-if="activeTab === 'notifications'" class="space-y-6">
       <UiCard>
-        <h3 class="mb-6 text-lg font-semibold text-gray-900">
+        <h3 class="mb-6 text-lg font-semibold text-gray-900 dark:text-gray-100">
           Préférences de notification
         </h3>
 
@@ -282,15 +282,15 @@
           <div v-for="i in 5" :key="i" class="h-10 rounded bg-gray-200" />
         </div>
 
-        <div v-else class="divide-y divide-gray-100">
+        <div v-else class="divide-y divide-gray-100 dark:divide-gray-800">
           <div
             v-for="pref in notificationOptions"
             :key="pref.key"
             class="flex items-center justify-between py-4"
           >
             <div>
-              <p class="text-sm font-medium text-gray-900">{{ pref.label }}</p>
-              <p class="text-sm text-gray-500">{{ pref.description }}</p>
+              <p class="text-sm font-medium text-gray-900 dark:text-gray-100">{{ pref.label }}</p>
+              <p class="text-sm text-gray-500 dark:text-gray-400">{{ pref.description }}</p>
             </div>
             <button
               :class="[
@@ -304,7 +304,7 @@
             >
               <span
                 :class="[
-                  'pointer-events-none inline-block h-5 w-5 transform rounded-full bg-white shadow ring-0 transition duration-200 ease-in-out',
+                  'pointer-events-none inline-block h-5 w-5 transform rounded-full bg-white dark:bg-gray-900 shadow ring-0 transition duration-200 ease-in-out',
                   notifPrefs[pref.key as keyof typeof notifPrefs]
                     ? 'translate-x-5'
                     : 'translate-x-0',
@@ -319,8 +319,8 @@
           :class="[
             'mt-4 rounded-lg p-3 text-sm',
             notifError
-              ? 'bg-red-50 text-red-700'
-              : 'bg-green-50 text-green-700',
+              ? 'bg-red-50 dark:bg-red-950/30 text-red-700 dark:text-red-300'
+              : 'bg-green-50 dark:bg-green-950/30 text-green-700 dark:text-green-300',
           ]"
         >
           {{ notifMsg }}
@@ -333,15 +333,15 @@
       <UiCard>
         <div class="flex items-start gap-4">
           <div
-            class="flex h-10 w-10 shrink-0 items-center justify-center rounded-lg bg-orange-100"
+            class="flex h-10 w-10 shrink-0 items-center justify-center rounded-lg bg-orange-100 dark:bg-orange-900/30"
           >
-            <Download class="h-5 w-5 text-orange-600" />
+            <Download class="h-5 w-5 text-orange-600 dark:text-orange-400" />
           </div>
           <div class="flex-1">
-            <h3 class="text-lg font-semibold text-gray-900">
+            <h3 class="text-lg font-semibold text-gray-900 dark:text-gray-100">
               Télécharger mes données
             </h3>
-            <p class="mt-1 text-sm text-gray-500">
+            <p class="mt-1 text-sm text-gray-500 dark:text-gray-400">
               Demandez une copie de toutes vos données personnelles au format
               JSON. Vous recevrez un email lorsque l'export sera prêt.
             </p>
@@ -350,8 +350,8 @@
               :class="[
                 'mt-3 rounded-lg p-3 text-sm',
                 exportError
-                  ? 'bg-red-50 text-red-700'
-                  : 'bg-green-50 text-green-700',
+                  ? 'bg-red-50 dark:bg-red-950/30 text-red-700 dark:text-red-300'
+                  : 'bg-green-50 dark:bg-green-950/30 text-green-700 dark:text-green-300',
               ]"
             >
               {{ exportMsg }}
@@ -377,15 +377,15 @@
       <UiCard>
         <div class="flex items-start gap-4">
           <div
-            class="flex h-10 w-10 shrink-0 items-center justify-center rounded-lg bg-red-100"
+            class="flex h-10 w-10 shrink-0 items-center justify-center rounded-lg bg-red-100 dark:bg-red-900/30"
           >
-            <Trash2 class="h-5 w-5 text-red-600" />
+            <Trash2 class="h-5 w-5 text-red-600 dark:text-red-400" />
           </div>
           <div class="flex-1">
-            <h3 class="text-lg font-semibold text-red-900">
+            <h3 class="text-lg font-semibold text-red-900 dark:text-red-200">
               Demander la suppression de mon compte
             </h3>
-            <p class="mt-1 text-sm text-gray-500">
+            <p class="mt-1 text-sm text-gray-500 dark:text-gray-400">
               Cette action déclenche un délai de grâce de 30 jours. Vous pouvez
               annuler la demande pendant cette période. Après ce délai, toutes
               vos données seront définitivement supprimées.
@@ -400,13 +400,13 @@
 
             <div
               v-else
-              class="mt-4 space-y-3 rounded-lg border border-red-200 bg-red-50 p-4"
+              class="mt-4 space-y-3 rounded-lg border border-red-200 dark:border-red-800/40 bg-red-50 dark:bg-red-950/30 p-4"
             >
-              <p class="text-sm font-medium text-red-800">
+              <p class="text-sm font-medium text-red-800 dark:text-red-200">
                 Êtes-vous sûr de vouloir supprimer votre compte ?
               </p>
               <div>
-                <label class="mb-1 block text-sm text-red-700"
+                <label class="mb-1 block text-sm text-red-700 dark:text-red-300"
                   >Raison (optionnel)</label
                 >
                 <textarea
@@ -440,8 +440,8 @@
                 :class="[
                   'rounded-lg p-3 text-sm',
                   deleteError
-                    ? 'bg-red-100 text-red-700'
-                    : 'bg-green-50 text-green-700',
+                    ? 'bg-red-100 dark:bg-red-900/30 text-red-700 dark:text-red-300'
+                    : 'bg-green-50 dark:bg-green-950/30 text-green-700 dark:text-green-300',
                 ]"
               >
                 {{ deleteMsg }}
@@ -455,8 +455,8 @@
     <!-- consents -->
     <div v-if="activeTab === 'consents'" class="space-y-6">
       <UiCard>
-        <h3 class="mb-2 text-lg font-semibold text-gray-900">Consentements</h3>
-        <p class="mb-6 text-sm text-gray-500">
+        <h3 class="mb-2 text-lg font-semibold text-gray-900 dark:text-gray-100">Consentements</h3>
+        <p class="mb-6 text-sm text-gray-500 dark:text-gray-400">
           Gérez vos consentements RGPD. Vous pouvez accepter ou révoquer chaque
           consentement à tout moment.
         </p>
@@ -469,7 +469,7 @@
           v-if="consentsMsg"
           :class="[
             'mb-4 rounded-lg p-3 text-sm',
-            consentsError ? 'bg-red-50 text-red-700' : 'bg-green-50 text-green-700',
+            consentsError ? 'bg-red-50 dark:bg-red-950/30 text-red-700 dark:text-red-300' : 'bg-green-50 dark:bg-green-950/30 text-green-700 dark:text-green-300',
           ]"
         >
           {{ consentsMsg }}
@@ -479,22 +479,22 @@
           <div
             v-for="item in allConsentItems"
             :key="item.type"
-            class="flex items-start justify-between rounded-lg border border-gray-200 p-4"
+            class="flex items-start justify-between rounded-lg border border-gray-200 dark:border-gray-800 p-4"
           >
             <div class="flex-1">
               <div class="flex items-center gap-2">
-                <p class="text-sm font-medium text-gray-900">{{ item.label }}</p>
+                <p class="text-sm font-medium text-gray-900 dark:text-gray-100">{{ item.label }}</p>
                 <UiBadge :variant="item.isActive ? 'success' : 'warning'">
                   {{ item.isActive ? 'Accepté' : 'En attente' }}
                 </UiBadge>
                 <span
                   v-if="item.required"
-                  class="rounded bg-orange-100 px-1.5 py-0.5 text-xs font-medium text-orange-700"
+                  class="rounded bg-orange-100 dark:bg-orange-900/30 px-1.5 py-0.5 text-xs font-medium text-orange-700 dark:text-orange-300"
                   >Requis</span
                 >
               </div>
-              <p class="mt-0.5 text-xs text-gray-500">{{ item.description }}</p>
-              <p v-if="item.activeRecord" class="mt-1 text-xs text-gray-500">
+              <p class="mt-0.5 text-xs text-gray-500 dark:text-gray-400">{{ item.description }}</p>
+              <p v-if="item.activeRecord" class="mt-1 text-xs text-gray-500 dark:text-gray-400">
                 Accepté le {{ formatConsentDate(item.activeRecord.acceptedAt) }} · Version
                 {{ item.activeRecord.version }}
               </p>
@@ -511,14 +511,14 @@
               <button
                 v-if="item.isActive && !item.required"
                 :disabled="savingConsent === item.type"
-                class="rounded-lg border border-gray-300 px-3 py-1.5 text-xs font-medium text-gray-600 transition-colors hover:bg-gray-50 disabled:opacity-50"
+                class="rounded-lg border border-gray-300 dark:border-gray-700 px-3 py-1.5 text-xs font-medium text-gray-600 dark:text-gray-400 transition-colors hover:bg-gray-50 dark:hover:bg-gray-800 disabled:opacity-50"
                 @click="revokeConsent(item.type)"
               >
                 {{ savingConsent === item.type ? '...' : 'Révoquer' }}
               </button>
               <span
                 v-if="item.isActive && item.required"
-                class="text-xs italic text-gray-500">Non révocable</span
+                class="text-xs italic text-gray-500 dark:text-gray-400">Non révocable</span
               >
             </div>
           </div>
@@ -534,32 +534,32 @@
       aria-modal="true"
       aria-labelledby="setup-modal-title"
     >
-      <div class="bg-white rounded-2xl max-w-md w-full p-6 shadow-2xl border border-gray-100 transition-all transform scale-100 max-h-[90vh] overflow-y-auto">
+      <div class="bg-white dark:bg-gray-900 rounded-2xl max-w-md w-full p-6 shadow-2xl border border-gray-100 dark:border-gray-800 transition-all transform scale-100 max-h-[90vh] overflow-y-auto">
         <!-- Setup Phase -->
         <div v-if="!showBackupCodes">
           <div class="flex items-center justify-between mb-4">
-            <h3 id="setup-modal-title" class="text-xl font-bold text-gray-900 flex items-center gap-2">
+            <h3 id="setup-modal-title" class="text-xl font-bold text-gray-900 dark:text-gray-100 flex items-center gap-2">
               <Shield class="w-6 h-6 text-orange-500" />
               Configurer la 2FA
             </h3>
             <button
               @click="showSetupModal = false"
-              class="text-gray-500 hover:text-gray-600 transition p-1 rounded-lg focus:ring-2 focus:ring-orange-500"
+              class="text-gray-500 dark:text-gray-400 hover:text-gray-600 transition p-1 rounded-lg focus:ring-2 focus:ring-orange-500"
               aria-label="Fermer"
             >
               &times;
             </button>
           </div>
-          <p class="text-sm text-gray-600 mb-4">
+          <p class="text-sm text-gray-600 dark:text-gray-400 mb-4">
             Scannez ce code QR avec votre application d'authentification (Google Authenticator, Authy, etc.) ou saisissez la clé de configuration manuellement.
           </p>
 
-          <div class="flex flex-col items-center justify-center my-4 p-4 bg-gray-50 rounded-xl border border-dashed border-gray-200">
+          <div class="flex flex-col items-center justify-center my-4 p-4 bg-gray-50 dark:bg-gray-900 rounded-xl border border-dashed border-gray-200 dark:border-gray-800">
             <img :src="qrCodeUrl" alt="QR Code 2FA" class="w-48 h-48 shadow-sm rounded-lg" />
             <div class="mt-4 text-center w-full">
-              <span class="text-xs text-gray-500 font-medium uppercase tracking-wider block">Clé de configuration</span>
+              <span class="text-xs text-gray-500 dark:text-gray-400 font-medium uppercase tracking-wider block">Clé de configuration</span>
               <div class="flex items-center justify-center gap-2 mt-1">
-                <code class="text-sm font-mono bg-gray-100 px-2 py-1 rounded text-orange-600 font-bold block select-all break-all">
+                <code class="text-sm font-mono bg-gray-100 dark:bg-gray-800 px-2 py-1 rounded text-orange-600 dark:text-orange-400 font-bold block select-all break-all">
                   {{ secretKey }}
                 </code>
               </div>
@@ -567,7 +567,7 @@
           </div>
 
           <div class="mt-4">
-            <label for="2fa-verification-code" class="block text-sm font-medium text-gray-700 mb-1">
+            <label for="2fa-verification-code" class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
               Code de vérification (6 chiffres)
             </label>
             <input
@@ -578,10 +578,10 @@
               inputmode="numeric"
               maxlength="6"
               placeholder="000000"
-              class="w-full text-center tracking-widest text-lg font-bold font-mono rounded-xl border border-gray-300 px-3 py-2.5 placeholder-gray-500 shadow-sm focus:border-orange-500 focus:outline-none focus:ring-2 focus:ring-orange-500"
+              class="w-full text-center tracking-widest text-lg font-bold font-mono rounded-xl border border-gray-300 dark:border-gray-700 px-3 py-2.5 placeholder-gray-500 shadow-sm focus:border-orange-500 focus:outline-none focus:ring-2 focus:ring-orange-500"
               @keyup.enter="verify2FA"
             />
-            <p v-if="codeError" class="mt-2 text-sm text-red-600" role="alert">
+            <p v-if="codeError" class="mt-2 text-sm text-red-600 dark:text-red-400" role="alert">
               {{ codeError }}
             </p>
           </div>
@@ -589,7 +589,7 @@
           <div class="mt-6 flex justify-end gap-3">
             <button
               @click="showSetupModal = false"
-              class="px-4 py-2 text-sm font-semibold text-gray-700 bg-gray-100 hover:bg-gray-200 rounded-xl transition focus:ring-2 focus:ring-gray-400"
+              class="px-4 py-2 text-sm font-semibold text-gray-700 dark:text-gray-300 bg-gray-100 dark:bg-gray-800 hover:bg-gray-200 rounded-xl transition focus:ring-2 focus:ring-gray-400"
             >
               Annuler
             </button>
@@ -607,21 +607,21 @@
         <!-- Backup Codes Phase -->
         <div v-else>
           <div class="flex items-center justify-between mb-4">
-            <h3 class="text-xl font-bold text-gray-900 flex items-center gap-2">
-              <Shield class="w-6 h-6 text-green-600" />
+            <h3 class="text-xl font-bold text-gray-900 dark:text-gray-100 flex items-center gap-2">
+              <Shield class="w-6 h-6 text-green-600 dark:text-green-400" />
               Codes de secours générés
             </h3>
           </div>
-          <p class="text-sm text-gray-600 mb-4">
+          <p class="text-sm text-gray-600 dark:text-gray-400 mb-4">
             Voici vos codes de secours. Conservez-les précieusement dans un endroit sûr (comme un gestionnaire de mots de passe). Ils vous permettront d'accéder à votre compte si vous n'avez plus accès à votre application d'authentification.
           </p>
 
-          <div class="bg-red-50 border border-red-200 rounded-xl p-3 mb-4 text-xs text-red-800">
+          <div class="bg-red-50 dark:bg-red-950/30 border border-red-200 dark:border-red-800/40 rounded-xl p-3 mb-4 text-xs text-red-800 dark:text-red-200">
             <strong>ATTENTION :</strong> Ces codes de secours ne seront affichés qu'une seule fois. Chacun d'eux ne peut être utilisé qu'une seule fois.
           </div>
 
-          <div class="grid grid-cols-2 gap-2 p-3 bg-gray-50 border border-gray-100 rounded-xl font-mono text-center text-sm text-gray-800">
-            <div v-for="code in backupCodes" :key="code" class="p-1 rounded bg-white border border-gray-200 select-all font-bold">
+          <div class="grid grid-cols-2 gap-2 p-3 bg-gray-50 dark:bg-gray-900 border border-gray-100 dark:border-gray-800 rounded-xl font-mono text-center text-sm text-gray-800 dark:text-gray-200">
+            <div v-for="code in backupCodes" :key="code" class="p-1 rounded bg-white dark:bg-gray-900 border border-gray-200 dark:border-gray-800 select-all font-bold">
               {{ code }}
             </div>
           </div>
@@ -629,7 +629,7 @@
           <div class="mt-6 flex flex-col sm:flex-row gap-2">
             <button
               @click="copyBackupCodes"
-              class="flex-1 px-4 py-2 text-sm font-semibold text-gray-700 bg-gray-100 hover:bg-gray-200 rounded-xl transition focus:ring-2 focus:ring-gray-400 flex items-center justify-center gap-1.5"
+              class="flex-1 px-4 py-2 text-sm font-semibold text-gray-700 dark:text-gray-300 bg-gray-100 dark:bg-gray-800 hover:bg-gray-200 rounded-xl transition focus:ring-2 focus:ring-gray-400 flex items-center justify-center gap-1.5"
             >
               <Download class="w-4 h-4" />
               Copier les codes
@@ -653,26 +653,26 @@
       aria-modal="true"
       aria-labelledby="disable-modal-title"
     >
-      <div class="bg-white rounded-2xl max-w-md w-full p-6 shadow-2xl border border-gray-100 transition-all transform scale-100">
+      <div class="bg-white dark:bg-gray-900 rounded-2xl max-w-md w-full p-6 shadow-2xl border border-gray-100 dark:border-gray-800 transition-all transform scale-100">
         <div class="flex items-center justify-between mb-4">
-          <h3 id="disable-modal-title" class="text-xl font-bold text-gray-900 flex items-center gap-2">
+          <h3 id="disable-modal-title" class="text-xl font-bold text-gray-900 dark:text-gray-100 flex items-center gap-2">
             <Trash2 class="w-6 h-6 text-red-500" />
             Désactiver la 2FA ?
           </h3>
           <button
             @click="showDisableModal = false"
-            class="text-gray-500 hover:text-gray-600 transition p-1 rounded-lg focus:ring-2 focus:ring-red-500"
+            class="text-gray-500 dark:text-gray-400 hover:text-gray-600 transition p-1 rounded-lg focus:ring-2 focus:ring-red-500"
             aria-label="Fermer"
           >
             &times;
           </button>
         </div>
-        <p class="text-sm text-gray-600 mb-4">
+        <p class="text-sm text-gray-600 dark:text-gray-400 mb-4">
           La désactivation de la double authentification réduit la sécurité de votre compte. Saisissez votre mot de passe pour confirmer cette action.
         </p>
 
         <div>
-          <label for="2fa-disable-password" class="block text-sm font-medium text-gray-700 mb-1">
+          <label for="2fa-disable-password" class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
             Mot de passe actuel
           </label>
           <input
@@ -680,10 +680,10 @@
             v-model="disablePassword"
             type="password"
             placeholder="••••••••"
-            class="w-full rounded-xl border border-gray-300 px-3 py-2 placeholder-gray-500 shadow-sm focus:border-red-500 focus:outline-none focus:ring-2 focus:ring-red-500"
+            class="w-full rounded-xl border border-gray-300 dark:border-gray-700 px-3 py-2 placeholder-gray-500 shadow-sm focus:border-red-500 focus:outline-none focus:ring-2 focus:ring-red-500"
             @keyup.enter="confirmDisable2FA"
           />
-          <p v-if="disableError" class="mt-2 text-sm text-red-600" role="alert">
+          <p v-if="disableError" class="mt-2 text-sm text-red-600 dark:text-red-400" role="alert">
             {{ disableError }}
           </p>
         </div>
@@ -691,7 +691,7 @@
         <div class="mt-6 flex justify-end gap-3">
           <button
             @click="showDisableModal = false"
-            class="px-4 py-2 text-sm font-semibold text-gray-700 bg-gray-100 hover:bg-gray-200 rounded-xl transition focus:ring-2 focus:ring-gray-400"
+            class="px-4 py-2 text-sm font-semibold text-gray-700 dark:text-gray-300 bg-gray-100 dark:bg-gray-800 hover:bg-gray-200 rounded-xl transition focus:ring-2 focus:ring-gray-400"
           >
             Annuler
           </button>

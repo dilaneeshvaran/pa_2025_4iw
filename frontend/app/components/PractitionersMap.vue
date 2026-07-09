@@ -12,7 +12,7 @@
     <div class="absolute right-3 top-3 z-[400] flex flex-col gap-2">
       <button
         type="button"
-        class="flex items-center gap-2 rounded-lg border border-gray-200 bg-white px-3 py-2 text-sm font-medium shadow-md hover:bg-gray-50 disabled:opacity-60 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--color-primary)]"
+        class="flex items-center gap-2 rounded-lg border border-gray-200 dark:border-gray-800 bg-white dark:bg-gray-900 px-3 py-2 text-sm font-medium shadow-md hover:bg-gray-50 dark:hover:bg-gray-800 disabled:opacity-60 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--color-primary)]"
         :disabled="locating"
         @click="locateUser"
       >
@@ -26,9 +26,9 @@
 
     <!-- Radius slider (shown when user is located) -->
     <div v-if="userLocation" class="absolute bottom-8 left-3 right-3 z-[400]">
-      <div class="rounded-lg border border-gray-200 bg-white p-3 shadow-md">
+      <div class="rounded-lg border border-gray-200 dark:border-gray-800 bg-white dark:bg-gray-900 p-3 shadow-md">
         <div class="mb-1 flex items-center justify-between">
-          <label for="map-radius" class="text-xs font-medium text-gray-600">
+          <label for="map-radius" class="text-xs font-medium text-gray-600 dark:text-gray-400">
             Rayon de recherche
           </label>
           <span class="text-xs font-semibold text-[var(--color-primary)]">
@@ -46,7 +46,7 @@
           class="w-full accent-[#00804A] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--color-primary)]"
           @input="onRadiusChange"
         />
-        <div class="mt-1 flex justify-between text-xs text-gray-500">
+        <div class="mt-1 flex justify-between text-xs text-gray-500 dark:text-gray-400">
           <span>1 km</span>
           <span>50 km</span>
         </div>
@@ -60,10 +60,10 @@
       style="z-index: 400"
       role="status"
     >
-      <div class="rounded-xl bg-white p-6 text-center shadow-lg">
+      <div class="rounded-xl bg-white dark:bg-gray-900 p-6 text-center shadow-lg">
         <IconMapPin class="mx-auto mb-3 h-12 w-12 text-gray-300" aria-hidden="true" />
-        <p class="text-gray-700">Aucun résultat localisé dans cette zone.</p>
-        <p class="mt-1 text-sm text-gray-600">
+        <p class="text-gray-700 dark:text-gray-300">Aucun résultat localisé dans cette zone.</p>
+        <p class="mt-1 text-sm text-gray-600 dark:text-gray-400">
           Cliquez sur « Ma position » pour chercher près de vous.
         </p>
       </div>
@@ -71,14 +71,14 @@
 
     <!-- Legend -->
     <div class="absolute bottom-8 right-3 z-[400]" role="group" aria-label="Légende de la carte">
-      <div class="rounded-lg border border-gray-200 bg-white px-3 py-2 text-xs shadow-md">
+      <div class="rounded-lg border border-gray-200 dark:border-gray-800 bg-white dark:bg-gray-900 px-3 py-2 text-xs shadow-md">
         <div class="mb-1 flex items-center gap-2">
           <span class="inline-block h-3 w-3 rounded-full bg-[#0891b2]" aria-hidden="true" />
-          <span class="text-gray-700">Praticien</span>
+          <span class="text-gray-700 dark:text-gray-300">Praticien</span>
         </div>
         <div class="flex items-center gap-2">
           <span class="inline-block h-3 w-3 rounded-full bg-[#7c3aed]" aria-hidden="true" />
-          <span class="text-gray-700">Cabinet</span>
+          <span class="text-gray-700 dark:text-gray-300">Cabinet</span>
         </div>
       </div>
     </div>

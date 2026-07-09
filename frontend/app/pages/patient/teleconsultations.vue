@@ -2,8 +2,8 @@
   <div class="space-y-6">
     <div class="flex items-center justify-between">
       <div>
-        <h1 class="mb-2 text-2xl font-bold text-gray-900">Téléconsultations</h1>
-        <p class="text-gray-600">Gérez vos consultations à distance</p>
+        <h1 class="mb-2 text-2xl font-bold text-gray-900 dark:text-gray-100">Téléconsultations</h1>
+        <p class="text-gray-600 dark:text-gray-400">Gérez vos consultations à distance</p>
       </div>
       <UiButton variant="secondary" @click="showPreCallChecks = true">
         <Camera class="mr-1.5 h-4 w-4" />
@@ -15,14 +15,14 @@
     <UiCard>
       <div class="flex items-center justify-between">
         <div class="flex items-center gap-3">
-          <Video class="h-5 w-5 text-green-600" />
-          <h3 class="text-lg font-semibold text-gray-900">
+          <Video class="h-5 w-5 text-green-600 dark:text-green-400" />
+          <h3 class="text-lg font-semibold text-gray-900 dark:text-gray-100">
             Préparer ma consultation
           </h3>
         </div>
       </div>
       <div class="mt-4 grid gap-3 sm:grid-cols-2 lg:grid-cols-4">
-        <div class="flex items-center gap-2 rounded-lg bg-gray-50 p-3">
+        <div class="flex items-center gap-2 rounded-lg bg-gray-50 dark:bg-gray-900 p-3">
           <div
             :class="[
               'h-3 w-3 rounded-full',
@@ -31,7 +31,7 @@
           />
           <span class="text-sm">Caméra</span>
         </div>
-        <div class="flex items-center gap-2 rounded-lg bg-gray-50 p-3">
+        <div class="flex items-center gap-2 rounded-lg bg-gray-50 dark:bg-gray-900 p-3">
           <div
             :class="[
               'h-3 w-3 rounded-full',
@@ -40,7 +40,7 @@
           />
           <span class="text-sm">Microphone</span>
         </div>
-        <div class="flex items-center gap-2 rounded-lg bg-gray-50 p-3">
+        <div class="flex items-center gap-2 rounded-lg bg-gray-50 dark:bg-gray-900 p-3">
           <div
             :class="[
               'h-3 w-3 rounded-full',
@@ -53,7 +53,7 @@
           />
           <span class="text-sm">Réseau</span>
         </div>
-        <div class="flex items-center gap-2 rounded-lg bg-gray-50 p-3">
+        <div class="flex items-center gap-2 rounded-lg bg-gray-50 dark:bg-gray-900 p-3">
           <div
             :class="[
               'h-3 w-3 rounded-full',
@@ -65,14 +65,14 @@
       </div>
     </UiCard>
 
-    <div class="border-b border-gray-200">
+    <div class="border-b border-gray-200 dark:border-gray-800">
       <nav class="-mb-px flex gap-6">
         <button
           :class="[
             'whitespace-nowrap border-b-2 px-1 py-3 text-sm font-medium transition-colors',
             activeTab === 'upcoming'
-              ? 'border-orange-600 text-orange-600'
-              : 'border-transparent text-gray-500 hover:border-gray-300 hover:text-gray-700',
+              ? 'border-orange-600 text-orange-600 dark:text-orange-400'
+              : 'border-transparent text-gray-500 dark:text-gray-400 hover:border-gray-300 hover:text-gray-700 dark:hover:text-gray-200',
           ]"
           @click="activeTab = 'upcoming'"
         >
@@ -81,8 +81,8 @@
             :class="[
               'ml-2 rounded-full px-2 py-0.5 text-xs',
               activeTab === 'upcoming'
-                ? 'bg-orange-100 text-orange-600'
-                : 'bg-gray-100 text-gray-500',
+                ? 'bg-orange-100 dark:bg-orange-900/30 text-orange-600 dark:text-orange-400'
+                : 'bg-gray-100 dark:bg-gray-800 text-gray-500 dark:text-gray-400',
             ]"
           >
             {{ upcomingTeleconsultations.length }}
@@ -92,8 +92,8 @@
           :class="[
             'whitespace-nowrap border-b-2 px-1 py-3 text-sm font-medium transition-colors',
             activeTab === 'past'
-              ? 'border-orange-600 text-orange-600'
-              : 'border-transparent text-gray-500 hover:border-gray-300 hover:text-gray-700',
+              ? 'border-orange-600 text-orange-600 dark:text-orange-400'
+              : 'border-transparent text-gray-500 dark:text-gray-400 hover:border-gray-300 hover:text-gray-700 dark:hover:text-gray-200',
           ]"
           @click="activeTab = 'past'"
         >
@@ -102,8 +102,8 @@
             :class="[
               'ml-2 rounded-full px-2 py-0.5 text-xs',
               activeTab === 'past'
-                ? 'bg-orange-100 text-orange-600'
-                : 'bg-gray-100 text-gray-500',
+                ? 'bg-orange-100 dark:bg-orange-900/30 text-orange-600 dark:text-orange-400'
+                : 'bg-gray-100 dark:bg-gray-800 text-gray-500 dark:text-gray-400',
             ]"
           >
             {{ pastTeleconsultations.length }}
@@ -114,13 +114,13 @@
 
     <div v-if="activeTab === 'upcoming'">
       <div class="mb-4 flex items-center justify-end">
-        <div class="inline-flex rounded-lg border border-gray-300 bg-white">
+        <div class="inline-flex rounded-lg border border-gray-300 dark:border-gray-700 bg-white dark:bg-gray-900">
           <button
             :class="[
               'rounded-l-lg px-3 py-1.5 text-xs font-medium transition-colors',
               upcomingSortOrder === 'asc'
                 ? 'bg-orange-500 text-white'
-                : 'text-gray-700 hover:bg-gray-50',
+                : 'text-gray-700 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-gray-800',
             ]"
             @click="upcomingSortOrder = 'asc'"
           >
@@ -131,7 +131,7 @@
               'rounded-r-lg px-3 py-1.5 text-xs font-medium transition-colors',
               upcomingSortOrder === 'desc'
                 ? 'bg-orange-500 text-white'
-                : 'text-gray-700 hover:bg-gray-50',
+                : 'text-gray-700 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-gray-800',
             ]"
             @click="upcomingSortOrder = 'desc'"
           >
@@ -143,7 +143,7 @@
         <div
           v-for="i in 2"
           :key="i"
-          class="animate-pulse rounded-lg border bg-white p-6"
+          class="animate-pulse rounded-lg border bg-white dark:bg-gray-900 p-6"
         >
           <div class="flex gap-4">
             <div class="h-16 w-16 rounded-full bg-gray-200" />
@@ -157,13 +157,13 @@
 
       <div
         v-else-if="upcomingTeleconsultations.length === 0"
-        class="rounded-lg border bg-white py-12 text-center"
+        class="rounded-lg border bg-white dark:bg-gray-900 py-12 text-center"
       >
         <Video class="mx-auto mb-4 h-16 w-16 text-gray-300" />
-        <h3 class="mb-2 text-lg font-medium text-gray-900">
+        <h3 class="mb-2 text-lg font-medium text-gray-900 dark:text-gray-100">
           Aucune téléconsultation à venir
         </h3>
-        <p class="mb-6 text-gray-500">
+        <p class="mb-6 text-gray-500 dark:text-gray-400">
           Prenez rendez-vous avec un praticien qui propose la téléconsultation.
         </p>
         <UiButton @click="navigateTo('/search')"
@@ -176,24 +176,24 @@
           <div
             v-for="apt in paginatedUpcoming"
             :key="apt.id"
-            class="rounded-lg border bg-white shadow-sm transition-shadow hover:shadow-md"
+            class="rounded-lg border bg-white dark:bg-gray-900 shadow-sm transition-shadow hover:shadow-md"
           >
             <div class="p-6">
               <div class="flex items-start gap-4">
                 <div
-                  class="flex h-16 w-16 flex-shrink-0 items-center justify-center rounded-full bg-green-100"
+                  class="flex h-16 w-16 flex-shrink-0 items-center justify-center rounded-full bg-green-100 dark:bg-green-900/30"
                 >
-                  <Video class="h-8 w-8 text-green-600" />
+                  <Video class="h-8 w-8 text-green-600 dark:text-green-400" />
                 </div>
                 <div class="min-w-0 flex-1">
                   <div class="flex items-start justify-between gap-3">
                     <div>
-                      <h3 class="text-lg font-semibold text-gray-900">
+                      <h3 class="text-lg font-semibold text-gray-900 dark:text-gray-100">
                         {{ apt.practitioner.title }}
                         {{ apt.practitioner.firstName }}
                         {{ apt.practitioner.lastName }}
                       </h3>
-                      <p class="text-sm text-gray-600">
+                      <p class="text-sm text-gray-600 dark:text-gray-400">
                         {{ apt.practitioner.specialty || "Médecine générale" }}
                       </p>
                     </div>
@@ -201,23 +201,23 @@
                       getStatusLabel(apt.status)
                     }}</UiBadge>
                   </div>
-                  <div class="mt-3 flex flex-wrap gap-4 text-sm text-gray-600">
+                  <div class="mt-3 flex flex-wrap gap-4 text-sm text-gray-600 dark:text-gray-400">
                     <div class="flex items-center gap-1.5">
-                      <Calendar class="h-4 w-4 text-gray-500" />
+                      <Calendar class="h-4 w-4 text-gray-500 dark:text-gray-400" />
                       <span>{{ formatDate(apt.appointmentDate) }}</span>
                     </div>
                     <div class="flex items-center gap-1.5">
-                      <Clock class="h-4 w-4 text-gray-500" />
+                      <Clock class="h-4 w-4 text-gray-500 dark:text-gray-400" />
                       <span>{{ apt.startTime }} - {{ apt.endTime }}</span>
                     </div>
                   </div>
-                  <p v-if="apt.reason" class="mt-2 text-sm text-gray-500">
+                  <p v-if="apt.reason" class="mt-2 text-sm text-gray-500 dark:text-gray-400">
                     Motif : {{ apt.reason }}
                   </p>
                 </div>
               </div>
             </div>
-            <div class="flex gap-3 rounded-b-lg border-t bg-gray-50 px-6 py-3">
+            <div class="flex gap-3 rounded-b-lg border-t bg-gray-50 dark:bg-gray-900 px-6 py-3">
               <UiButton
                 v-if="canJoinTeleconsultation(apt)"
                 size="sm"
@@ -251,7 +251,7 @@
           >
             Précédent
           </UiButton>
-          <span class="text-sm text-gray-600">
+          <span class="text-sm text-gray-600 dark:text-gray-400">
             Page {{ upcomingPage }} / {{ upcomingTotalPages }}
           </span>
           <UiButton
@@ -271,7 +271,7 @@
         <div
           v-for="i in 2"
           :key="i"
-          class="animate-pulse rounded-lg border bg-white p-6"
+          class="animate-pulse rounded-lg border bg-white dark:bg-gray-900 p-6"
         >
           <div class="flex gap-4">
             <div class="h-10 w-10 rounded-full bg-gray-200" />
@@ -285,9 +285,9 @@
 
       <div
         v-else-if="pastTeleconsultations.length === 0"
-        class="rounded-lg border bg-white py-8 text-center"
+        class="rounded-lg border bg-white dark:bg-gray-900 py-8 text-center"
       >
-        <p class="text-gray-500">Aucune téléconsultation passée</p>
+        <p class="text-gray-500 dark:text-gray-400">Aucune téléconsultation passée</p>
       </div>
 
       <div v-else>
@@ -295,27 +295,27 @@
           <div
             v-for="apt in paginatedPast"
             :key="apt.id"
-            class="flex items-center justify-between rounded-lg border bg-white p-4"
+            class="flex items-center justify-between rounded-lg border bg-white dark:bg-gray-900 p-4"
           >
             <div class="flex items-center gap-4">
               <div
-                class="flex h-10 w-10 flex-shrink-0 items-center justify-center rounded-full bg-gray-100"
+                class="flex h-10 w-10 flex-shrink-0 items-center justify-center rounded-full bg-gray-100 dark:bg-gray-800"
               >
-                <Video class="h-5 w-5 text-gray-500" />
+                <Video class="h-5 w-5 text-gray-500 dark:text-gray-400" />
               </div>
               <div>
-                <p class="font-medium text-gray-900">
+                <p class="font-medium text-gray-900 dark:text-gray-100">
                   {{ apt.practitioner.title }}
                   {{ apt.practitioner.firstName }}
                   {{ apt.practitioner.lastName }}
                 </p>
-                <p class="text-sm text-gray-500">
+                <p class="text-sm text-gray-500 dark:text-gray-400">
                   {{ formatDate(apt.appointmentDate) }} à
                   {{ apt.startTime }}
                 </p>
                 <p
                   v-if="apt.teleconsultationSession?.duration"
-                  class="text-xs text-gray-500"
+                  class="text-xs text-gray-500 dark:text-gray-400"
                 >
                   Durée : {{ apt.teleconsultationSession.duration }} min
                 </p>
@@ -339,7 +339,7 @@
           >
             Précédent
           </UiButton>
-          <span class="text-sm text-gray-600">
+          <span class="text-sm text-gray-600 dark:text-gray-400">
             Page {{ pastPage }} / {{ pastTotalPages }}
           </span>
           <UiButton
@@ -360,16 +360,16 @@
         class="fixed inset-0 z-50 flex items-center justify-center bg-black/50"
         @click.self="stopPreCallTest"
       >
-        <div class="mx-4 w-full max-w-lg rounded-xl bg-white p-6 shadow-2xl">
+        <div class="mx-4 w-full max-w-lg rounded-xl bg-white dark:bg-gray-900 p-6 shadow-2xl">
           <div class="mb-4 flex items-center justify-between">
-            <h3 class="text-lg font-semibold text-gray-900">
+            <h3 class="text-lg font-semibold text-gray-900 dark:text-gray-100">
               Test caméra et microphone
             </h3>
             <button
-              class="rounded-lg p-1 hover:bg-gray-100"
+              class="rounded-lg p-1 hover:bg-gray-100 dark:hover:bg-gray-800"
               @click="stopPreCallTest"
             >
-              <X class="h-5 w-5 text-gray-500" />
+              <X class="h-5 w-5 text-gray-500 dark:text-gray-400" />
             </button>
           </div>
           <div class="space-y-4">
@@ -382,27 +382,27 @@
                 class="h-48 w-full object-cover"
               />
             </div>
-            <div class="flex items-center gap-3 rounded-lg bg-gray-50 p-3">
+            <div class="flex items-center gap-3 rounded-lg bg-gray-50 dark:bg-gray-900 p-3">
               <div class="h-2 flex-1 overflow-hidden rounded-full bg-gray-200">
                 <div
                   :style="{ width: micLevel + '%' }"
                   class="h-full rounded-full bg-green-500 transition-all"
                 />
               </div>
-              <span class="text-xs text-gray-500">Volume micro</span>
+              <span class="text-xs text-gray-500 dark:text-gray-400">Volume micro</span>
             </div>
             <div class="grid grid-cols-1 gap-3 sm:grid-cols-2">
               <div
                 class="flex items-center gap-2 rounded-lg border p-3"
                 :class="
                   preCallStatus.camera
-                    ? 'border-green-200 bg-green-50'
-                    : 'border-red-200 bg-red-50'
+                    ? 'border-green-200 dark:border-green-800/40 bg-green-50 dark:bg-green-950/30'
+                    : 'border-red-200 dark:border-red-800/40 bg-red-50 dark:bg-red-950/30'
                 "
               >
                 <Camera
                   :class="
-                    preCallStatus.camera ? 'text-green-600' : 'text-red-600'
+                    preCallStatus.camera ? 'text-green-600 dark:text-green-400' : 'text-red-600 dark:text-red-400'
                   "
                   class="h-5 w-5"
                 />
@@ -414,13 +414,13 @@
                 class="flex items-center gap-2 rounded-lg border p-3"
                 :class="
                   preCallStatus.microphone
-                    ? 'border-green-200 bg-green-50'
-                    : 'border-red-200 bg-red-50'
+                    ? 'border-green-200 dark:border-green-800/40 bg-green-50 dark:bg-green-950/30'
+                    : 'border-red-200 dark:border-red-800/40 bg-red-50 dark:bg-red-950/30'
                 "
               >
                 <Mic
                   :class="
-                    preCallStatus.microphone ? 'text-green-600' : 'text-red-600'
+                    preCallStatus.microphone ? 'text-green-600 dark:text-green-400' : 'text-red-600 dark:text-red-400'
                   "
                   class="h-5 w-5"
                 />
@@ -429,8 +429,8 @@
                 }}</span>
               </div>
             </div>
-            <div class="rounded-lg border border-orange-200 bg-orange-50 p-3">
-              <p class="text-sm text-orange-800">
+            <div class="rounded-lg border border-orange-200 dark:border-orange-800/40 bg-orange-50 dark:bg-orange-950/30 p-3">
+              <p class="text-sm text-orange-800 dark:text-orange-200">
                 <strong>Conseil :</strong> Utilisez un casque ou des écouteurs
                 pour une meilleure qualité audio.
               </p>

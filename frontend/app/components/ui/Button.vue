@@ -41,9 +41,9 @@ const buttonClass = computed(() => {
     secondary:
       "bg-[#D96F00] text-white shadow-[0_1px_2px_rgba(217,111,0,0.25)] hover:bg-[#B85E00]",
     outline:
-      "bg-gray-100 text-gray-800 border border-black/10 font-medium hover:bg-gray-200",
+      "bg-gray-100 dark:bg-gray-800 text-gray-800 dark:text-gray-200 border border-black/10 font-medium hover:bg-gray-200",
     ghost:
-      "bg-transparent text-gray-500 font-medium hover:bg-gray-100 hover:text-gray-900",
+      "bg-transparent text-gray-500 dark:text-gray-400 font-medium hover:bg-gray-100 dark:hover:bg-gray-800 hover:text-gray-900 dark:hover:text-gray-100",
     danger:
       "bg-red-600 text-white shadow-[0_1px_2px_rgba(220,38,38,0.25)] hover:bg-red-700",
   };

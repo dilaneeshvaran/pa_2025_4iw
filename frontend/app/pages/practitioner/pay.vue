@@ -1,10 +1,10 @@
 <template>
   <div class="min-h-screen bg-slate-50 flex flex-col">
     <!-- Header -->
-    <header class="bg-white border-b border-slate-200 py-4 px-6 shadow-sm flex items-center justify-between">
+    <header class="bg-white dark:bg-gray-900 border-b border-slate-200 py-4 px-6 shadow-sm flex items-center justify-between">
       <div class="flex items-center space-x-3">
-        <span class="text-2xl font-bold text-orange-600 tracking-wide">MediCôte</span>
-        <span class="text-xs bg-orange-100 text-orange-800 font-medium px-2 py-0.5 rounded-full">Espace Praticien</span>
+        <span class="text-2xl font-bold text-orange-600 dark:text-orange-400 tracking-wide">MediCôte</span>
+        <span class="text-xs bg-orange-100 dark:bg-orange-900/30 text-orange-800 dark:text-orange-200 font-medium px-2 py-0.5 rounded-full">Espace Praticien</span>
       </div>
       
       <div class="flex items-center space-x-4">
@@ -23,7 +23,7 @@
 
     <!-- Main Content -->
     <main class="flex-1 max-w-4xl w-full mx-auto p-6 md:p-8 flex flex-col justify-center">
-      <div class="bg-white border border-slate-200 rounded-2xl shadow-xl overflow-hidden">
+      <div class="bg-white dark:bg-gray-900 border border-slate-200 rounded-2xl shadow-xl overflow-hidden">
         <!-- Notice Alert Section -->
         <div class="bg-gradient-to-r from-orange-500 to-amber-500 text-white p-6 md:p-8 flex flex-col md:flex-row items-start md:items-center justify-between gap-6">
           <div class="flex items-start space-x-4">
@@ -41,7 +41,7 @@
           <button
             @click="checkSubscriptionStatus"
             :disabled="checking"
-            class="flex items-center bg-white text-orange-700 font-bold px-6 py-3 rounded-xl hover:bg-orange-50 active:scale-95 transition-all text-sm shadow-md disabled:opacity-50"
+            class="flex items-center bg-white dark:bg-gray-900 text-orange-700 dark:text-orange-300 font-bold px-6 py-3 rounded-xl hover:bg-orange-50 active:scale-95 transition-all text-sm shadow-md disabled:opacity-50"
           >
             <RefreshCw class="w-4 h-4 mr-2" :class="{ 'animate-spin': checking }" />
             Réactiver mon compte
@@ -51,11 +51,11 @@
         <!-- Body -->
         <div class="p-6 md:p-8">
           <!-- Verification Success / Info banner -->
-          <div v-if="hasVerifiedMethod" class="mb-6 bg-emerald-50 border border-emerald-200 rounded-xl p-4 flex items-start space-x-3 text-emerald-800 text-sm">
-            <CheckCircle class="w-5 h-5 text-emerald-600 flex-shrink-0 mt-0.5" />
+          <div v-if="hasVerifiedMethod" class="mb-6 bg-emerald-50 dark:bg-emerald-950/30 border border-emerald-200 dark:border-emerald-800/40 rounded-xl p-4 flex items-start space-x-3 text-emerald-800 dark:text-emerald-200 text-sm">
+            <CheckCircle class="w-5 h-5 text-emerald-600 dark:text-emerald-400 flex-shrink-0 mt-0.5" />
             <div>
               <p class="font-semibold">Moyen de paiement vérifié configuré !</p>
-              <p class="text-emerald-700 mt-1">
+              <p class="text-emerald-700 dark:text-emerald-300 mt-1">
                 Vous avez configuré au moins un moyen de paiement validé. Cliquez sur le bouton <strong>"Réactiver mon compte"</strong> ci-dessus pour retourner à votre tableau de bord.
               </p>
             </div>
@@ -77,7 +77,7 @@
 
           <!-- Loading -->
           <div v-if="loading" class="flex flex-col items-center justify-center py-12 text-slate-400">
-            <Loader2 class="w-8 h-8 animate-spin text-orange-600 mb-3" />
+            <Loader2 class="w-8 h-8 animate-spin text-orange-600 dark:text-orange-400 mb-3" />
             Chargement des moyens de paiement...
           </div>
 
@@ -95,7 +95,7 @@
               :key="method.id"
               class="border rounded-xl p-4 transition-all flex flex-col md:flex-row md:items-center justify-between gap-4"
               :class="[
-                method.isDefault ? 'border-orange-500 bg-orange-50/10' : 'border-slate-200 hover:border-slate-300 bg-white'
+                method.isDefault ? 'border-orange-500 bg-orange-50/10' : 'border-slate-200 hover:border-slate-300 bg-white dark:bg-gray-900'
               ]"
             >
               <div class="flex items-start space-x-3.5">
@@ -108,19 +108,19 @@
                     <span class="font-bold text-slate-800">{{ method.label }}</span>
                     <span
                       v-if="method.isDefault"
-                      class="text-[10px] font-bold bg-orange-100 text-orange-800 px-2 py-0.5 rounded-full"
+                      class="text-[10px] font-bold bg-orange-100 dark:bg-orange-900/30 text-orange-800 dark:text-orange-200 px-2 py-0.5 rounded-full"
                     >
                       Par défaut
                     </span>
                     <span
                       v-if="method.isVerified"
-                      class="text-[10px] font-bold bg-emerald-100 text-emerald-800 px-2 py-0.5 rounded-full"
+                      class="text-[10px] font-bold bg-emerald-100 dark:bg-emerald-900/30 text-emerald-800 dark:text-emerald-200 px-2 py-0.5 rounded-full"
                     >
                       Vérifié
                     </span>
                     <span
                       v-else
-                      class="text-[10px] font-bold bg-amber-100 text-amber-800 px-2 py-0.5 rounded-full"
+                      class="text-[10px] font-bold bg-amber-100 dark:bg-amber-900/30 text-amber-800 dark:text-amber-200 px-2 py-0.5 rounded-full"
                     >
                       En attente de vérification
                     </span>
@@ -136,7 +136,7 @@
                 <button
                   v-if="!method.isVerified"
                   @click="openVerifyModal(method)"
-                  class="text-xs font-bold text-orange-700 bg-orange-50 hover:bg-orange-100 px-3.5 py-2 rounded-lg transition-colors border border-orange-200"
+                  class="text-xs font-bold text-orange-700 dark:text-orange-300 bg-orange-50 dark:bg-orange-950/30 hover:bg-orange-100 px-3.5 py-2 rounded-lg transition-colors border border-orange-200 dark:border-orange-800/40"
                 >
                   Vérifier
                 </button>
@@ -149,7 +149,7 @@
                 </button>
                 <button
                   @click="openDeleteModal(method)"
-                  class="text-xs font-semibold text-red-600 hover:text-red-700 hover:bg-red-50 p-2 rounded-lg transition-colors"
+                  class="text-xs font-semibold text-red-600 dark:text-red-400 hover:text-red-700 hover:bg-red-50 p-2 rounded-lg transition-colors"
                   aria-label="Supprimer"
                 >
                   <Trash2 class="w-4 h-4" />
@@ -162,13 +162,13 @@
     </main>
 
     <!-- Footer -->
-    <footer class="bg-white border-t border-slate-200 py-6 text-center text-xs text-slate-500 mt-auto">
+    <footer class="bg-white dark:bg-gray-900 border-t border-slate-200 py-6 text-center text-xs text-slate-500 mt-auto">
       <p>&copy; 2026 MediCôte. Tous droits réservés. Assessment Annuel Web Engineering ESGI.</p>
     </footer>
 
     <!-- Add Payment Method Modal -->
     <div v-if="showAddModal" class="fixed inset-0 bg-slate-900/60 backdrop-blur-sm z-50 flex items-center justify-center p-4">
-      <div class="bg-white rounded-2xl max-w-md w-full shadow-2xl overflow-hidden border border-slate-100 flex flex-col max-h-[90vh]">
+      <div class="bg-white dark:bg-gray-900 rounded-2xl max-w-md w-full shadow-2xl overflow-hidden border border-slate-100 flex flex-col max-h-[90vh]">
         <div class="p-6 border-b border-slate-100 flex items-center justify-between">
           <h3 class="font-bold text-slate-800 text-lg">Ajouter un moyen de paiement</h3>
           <button @click="showAddModal = false" class="text-slate-400 hover:text-slate-600 transition-colors p-1.5 rounded-lg hover:bg-slate-100">
@@ -178,7 +178,7 @@
 
         <form @submit.prevent="addMethod" class="p-6 space-y-6 overflow-y-auto flex-1">
           <!-- Error alert -->
-          <div v-if="addError" class="bg-red-50 border border-red-200 rounded-xl p-3.5 text-xs text-red-800">
+          <div v-if="addError" class="bg-red-50 dark:bg-red-950/30 border border-red-200 dark:border-red-800/40 rounded-xl p-3.5 text-xs text-red-800 dark:text-red-200">
             {{ addError }}
           </div>
 
@@ -188,7 +188,7 @@
               type="button"
               @click="newType = 'MOBILE_MONEY'"
               class="flex-1 text-center py-2.5 rounded-lg text-sm font-semibold transition-all"
-              :class="newType === 'MOBILE_MONEY' ? 'bg-white text-orange-700 shadow-sm' : 'text-slate-600 hover:text-slate-800'"
+              :class="newType === 'MOBILE_MONEY' ? 'bg-white dark:bg-gray-900 text-orange-700 dark:text-orange-300 shadow-sm' : 'text-slate-600 hover:text-slate-800'"
             >
               📱 Mobile Money
             </button>
@@ -196,7 +196,7 @@
               type="button"
               @click="newType = 'CARD'"
               class="flex-1 text-center py-2.5 rounded-lg text-sm font-semibold transition-all"
-              :class="newType === 'CARD' ? 'bg-white text-orange-700 shadow-sm' : 'text-slate-600 hover:text-slate-800'"
+              :class="newType === 'CARD' ? 'bg-white dark:bg-gray-900 text-orange-700 dark:text-orange-300 shadow-sm' : 'text-slate-600 hover:text-slate-800'"
             >
               💳 Carte Bancaire
             </button>
@@ -215,7 +215,7 @@
                   class="flex items-center justify-center p-3 rounded-xl border-2 transition-all font-semibold text-sm"
                   :class="[
                     newOperator === op.value
-                      ? 'border-orange-500 bg-orange-50/20 text-orange-800'
+                      ? 'border-orange-500 bg-orange-50/20 text-orange-800 dark:text-orange-200'
                       : 'border-slate-200 hover:border-slate-300 text-slate-700'
                   ]"
                 >
@@ -249,7 +249,7 @@
                   class="flex items-center justify-center p-3 rounded-xl border-2 transition-all font-semibold text-sm"
                   :class="[
                     newCardBrand === 'visa'
-                      ? 'border-orange-500 bg-orange-50/20 text-orange-800'
+                      ? 'border-orange-500 bg-orange-50/20 text-orange-800 dark:text-orange-200'
                       : 'border-slate-200 hover:border-slate-300 text-slate-700'
                   ]"
                 >
@@ -261,7 +261,7 @@
                   class="flex items-center justify-center p-3 rounded-xl border-2 transition-all font-semibold text-sm"
                   :class="[
                     newCardBrand === 'mastercard'
-                      ? 'border-orange-500 bg-orange-50/20 text-orange-800'
+                      ? 'border-orange-500 bg-orange-50/20 text-orange-800 dark:text-orange-200'
                       : 'border-slate-200 hover:border-slate-300 text-slate-700'
                   ]"
                 >
@@ -290,7 +290,7 @@
                   <select
                     id="expMonth"
                     v-model="newExpMonth"
-                    class="flex-1 px-3 py-3 rounded-xl border border-slate-200 focus:border-orange-500 focus:ring-2 focus:ring-orange-200 transition-all text-sm outline-none bg-white"
+                    class="flex-1 px-3 py-3 rounded-xl border border-slate-200 focus:border-orange-500 focus:ring-2 focus:ring-orange-200 transition-all text-sm outline-none bg-white dark:bg-gray-900"
                   >
                     <option v-for="m in 12" :key="m" :value="m">{{ String(m).padStart(2, '0') }}</option>
                   </select>
@@ -298,7 +298,7 @@
                   <select
                     v-model="newExpYear"
                     aria-label="Année d'expiration"
-                    class="flex-1 px-3 py-3 rounded-xl border border-slate-200 focus:border-orange-500 focus:ring-2 focus:ring-orange-200 transition-all text-sm outline-none bg-white"
+                    class="flex-1 px-3 py-3 rounded-xl border border-slate-200 focus:border-orange-500 focus:ring-2 focus:ring-orange-200 transition-all text-sm outline-none bg-white dark:bg-gray-900"
                   >
                     <option v-for="y in 10" :key="y" :value="2025 + y">{{ 2025 + y }}</option>
                   </select>
@@ -325,7 +325,7 @@
               id="newIsDefault"
               type="checkbox"
               v-model="newIsDefault"
-              class="h-4.5 w-4.5 text-orange-600 focus:ring-orange-500 border-slate-300 rounded"
+              class="h-4.5 w-4.5 text-orange-600 dark:text-orange-400 focus:ring-orange-500 border-slate-300 rounded"
             />
             <label for="newIsDefault" class="ml-2 block text-sm text-slate-700">
               Définir comme moyen de paiement par défaut
@@ -355,14 +355,14 @@
 
     <!-- Verify OTP Modal -->
     <div v-if="showVerifyModal" class="fixed inset-0 bg-slate-900/60 backdrop-blur-sm z-50 flex items-center justify-center p-4">
-      <div class="bg-white rounded-2xl max-w-sm w-full shadow-2xl p-6 border border-slate-100">
+      <div class="bg-white dark:bg-gray-900 rounded-2xl max-w-sm w-full shadow-2xl p-6 border border-slate-100">
         <h3 class="font-bold text-slate-800 text-lg mb-2">Vérifier le moyen de paiement</h3>
         <p class="text-xs text-slate-500 mb-6">
           Un code de vérification à 6 chiffres a été simulé pour votre compte. Entrez n'importe quel code entre 4 et 8 chiffres pour valider ce moyen de paiement.
         </p>
 
         <form @submit.prevent="verifyMethod" class="space-y-4">
-          <div v-if="verifyError" class="bg-red-50 border border-red-200 rounded-xl p-3 text-xs text-red-800">
+          <div v-if="verifyError" class="bg-red-50 dark:bg-red-950/30 border border-red-200 dark:border-red-800/40 rounded-xl p-3 text-xs text-red-800 dark:text-red-200">
             {{ verifyError }}
           </div>
 
@@ -401,7 +401,7 @@
 
     <!-- Delete Confirmation Modal -->
     <div v-if="showDeleteModal" class="fixed inset-0 bg-slate-900/60 backdrop-blur-sm z-50 flex items-center justify-center p-4">
-      <div class="bg-white rounded-2xl max-w-sm w-full shadow-2xl p-6 border border-slate-100">
+      <div class="bg-white dark:bg-gray-900 rounded-2xl max-w-sm w-full shadow-2xl p-6 border border-slate-100">
         <h3 class="font-bold text-slate-800 text-lg mb-2">Supprimer le moyen de paiement</h3>
         <p class="text-xs text-slate-500 mb-6">
           Êtes-vous sûr de vouloir supprimer {{ selectedMethod?.label }} ? Cette opération est irréversible.

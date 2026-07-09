@@ -1,29 +1,29 @@
 <template>
   <div>
-    <h1 class="mb-2 text-2xl font-bold text-gray-900">Gestion abonnements</h1>
-    <p class="mb-6 text-gray-600">
+    <h1 class="mb-2 text-2xl font-bold text-gray-900 dark:text-gray-100">Gestion abonnements</h1>
+    <p class="mb-6 text-gray-600 dark:text-gray-400">
       Consultez et gérez les abonnements des praticiens.
     </p>
 
     <!-- stat cards -->
     <div class="mb-6 grid grid-cols-2 gap-4 md:grid-cols-4">
-      <div class="rounded-xl border border-gray-200 bg-white p-4">
-        <p class="text-sm text-gray-500">Total</p>
-        <p class="text-2xl font-bold text-gray-900">{{ stats.total }}</p>
+      <div class="rounded-xl border border-gray-200 dark:border-gray-800 bg-white dark:bg-gray-900 p-4">
+        <p class="text-sm text-gray-500 dark:text-gray-400">Total</p>
+        <p class="text-2xl font-bold text-gray-900 dark:text-gray-100">{{ stats.total }}</p>
       </div>
-      <div class="rounded-xl border border-gray-200 bg-white p-4">
-        <p class="text-sm text-gray-500">Actifs</p>
-        <p class="text-2xl font-bold text-green-600">{{ stats.active }}</p>
+      <div class="rounded-xl border border-gray-200 dark:border-gray-800 bg-white dark:bg-gray-900 p-4">
+        <p class="text-sm text-gray-500 dark:text-gray-400">Actifs</p>
+        <p class="text-2xl font-bold text-green-600 dark:text-green-400">{{ stats.active }}</p>
       </div>
-      <div class="rounded-xl border border-gray-200 bg-white p-4">
-        <p class="text-sm text-gray-500">Annulation prévue</p>
-        <p class="text-2xl font-bold text-orange-600">
+      <div class="rounded-xl border border-gray-200 dark:border-gray-800 bg-white dark:bg-gray-900 p-4">
+        <p class="text-sm text-gray-500 dark:text-gray-400">Annulation prévue</p>
+        <p class="text-2xl font-bold text-orange-600 dark:text-orange-400">
           {{ stats.scheduledCancel }}
         </p>
       </div>
-      <div class="rounded-xl border border-gray-200 bg-white p-4">
-        <p class="text-sm text-gray-500">Expirés</p>
-        <p class="text-2xl font-bold text-red-600">{{ stats.expired }}</p>
+      <div class="rounded-xl border border-gray-200 dark:border-gray-800 bg-white dark:bg-gray-900 p-4">
+        <p class="text-sm text-gray-500 dark:text-gray-400">Expirés</p>
+        <p class="text-2xl font-bold text-red-600 dark:text-red-400">{{ stats.expired }}</p>
       </div>
     </div>
 
@@ -33,12 +33,12 @@
         v-model="search"
         type="text"
         placeholder="Rechercher par praticien ou email..."
-        class="min-w-64 flex-1 rounded-lg border border-gray-300 px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-orange-500"
+        class="min-w-64 flex-1 rounded-lg border border-gray-300 dark:border-gray-700 px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-orange-500"
         @input="debouncedFetch"
       />
       <select
         v-model="statusFilter"
-        class="rounded-lg border border-gray-300 px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-orange-500"
+        class="rounded-lg border border-gray-300 dark:border-gray-700 px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-orange-500"
         @change="resetAndFetch"
       >
         <option value="">Tous les statuts</option>
@@ -49,7 +49,7 @@
       </select>
       <select
         v-model="planFilter"
-        class="rounded-lg border border-gray-300 px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-orange-500"
+        class="rounded-lg border border-gray-300 dark:border-gray-700 px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-orange-500"
         @change="resetAndFetch"
       >
         <option value="">Tous les plans</option>
@@ -58,55 +58,55 @@
         <option value="PRO">Pro (24 000 XOF / mois)</option>
       </select>
       <button
-        class="rounded-lg bg-gray-100 px-4 py-2 text-sm text-gray-700 transition-colors hover:bg-gray-200"
+        class="rounded-lg bg-gray-100 dark:bg-gray-800 px-4 py-2 text-sm text-gray-700 dark:text-gray-300 transition-colors hover:bg-gray-200"
         @click="resetFilters"
       >
         Réinitialiser
       </button>
     </div>
 
-    <div v-if="loading" class="py-12 text-center text-gray-500">
+    <div v-if="loading" class="py-12 text-center text-gray-500 dark:text-gray-400">
       Chargement...
     </div>
 
-    <div v-else-if="fetchError" class="rounded-lg bg-red-50 p-4 text-red-800">
+    <div v-else-if="fetchError" class="rounded-lg bg-red-50 dark:bg-red-950/30 p-4 text-red-800 dark:text-red-200">
       {{ fetchError }}
     </div>
 
-    <div v-else class="overflow-x-auto rounded-lg border border-gray-200">
-      <table class="min-w-full divide-y divide-gray-200">
-        <thead class="bg-gray-50">
+    <div v-else class="overflow-x-auto rounded-lg border border-gray-200 dark:border-gray-800">
+      <table class="min-w-full divide-y divide-gray-200 dark:divide-gray-800">
+        <thead class="bg-gray-50 dark:bg-gray-900">
           <tr>
-            <th class="px-6 py-3 text-left text-xs font-medium uppercase tracking-wider text-gray-500">
+            <th class="px-6 py-3 text-left text-xs font-medium uppercase tracking-wider text-gray-500 dark:text-gray-400">
               Praticien
             </th>
-            <th class="px-6 py-3 text-left text-xs font-medium uppercase tracking-wider text-gray-500">
+            <th class="px-6 py-3 text-left text-xs font-medium uppercase tracking-wider text-gray-500 dark:text-gray-400">
               Plan
             </th>
-            <th class="px-6 py-3 text-left text-xs font-medium uppercase tracking-wider text-gray-500">
+            <th class="px-6 py-3 text-left text-xs font-medium uppercase tracking-wider text-gray-500 dark:text-gray-400">
               Statut
             </th>
-            <th class="px-6 py-3 text-left text-xs font-medium uppercase tracking-wider text-gray-500">
+            <th class="px-6 py-3 text-left text-xs font-medium uppercase tracking-wider text-gray-500 dark:text-gray-400">
               Échéance
             </th>
-            <th class="px-6 py-3 text-left text-xs font-medium uppercase tracking-wider text-gray-500">
+            <th class="px-6 py-3 text-left text-xs font-medium uppercase tracking-wider text-gray-500 dark:text-gray-400">
               Actions
             </th>
           </tr>
         </thead>
-        <tbody class="divide-y divide-gray-200 bg-white">
+        <tbody class="divide-y divide-gray-200 dark:divide-gray-800 bg-white dark:bg-gray-900">
           <tr v-if="subscriptions.length === 0">
-            <td colspan="5" class="px-6 py-8 text-center text-gray-500">
+            <td colspan="5" class="px-6 py-8 text-center text-gray-500 dark:text-gray-400">
               Aucun abonnement trouvé
             </td>
           </tr>
-          <tr v-for="s in subscriptions" :key="s.id" class="hover:bg-gray-50">
+          <tr v-for="s in subscriptions" :key="s.id" class="hover:bg-gray-50 dark:hover:bg-gray-800">
             <td class="px-6 py-4">
-              <div class="font-medium text-gray-900">
+              <div class="font-medium text-gray-900 dark:text-gray-100">
                 {{ s.practitionerName }}
               </div>
-              <div class="text-sm text-gray-500">{{ s.email || "-" }}</div>
-              <div v-if="s.city" class="text-xs text-gray-500">
+              <div class="text-sm text-gray-500 dark:text-gray-400">{{ s.email || "-" }}</div>
+              <div v-if="s.city" class="text-xs text-gray-500 dark:text-gray-400">
                 {{ s.title ? s.title + " · " : "" }}{{ s.city }}
               </div>
             </td>
@@ -127,17 +127,17 @@
               </span>
               <span
                 v-if="s.cancelAtPeriodEnd"
-                class="ml-1 inline-flex rounded-full bg-orange-100 px-2 py-0.5 text-[10px] font-medium text-orange-700"
+                class="ml-1 inline-flex rounded-full bg-orange-100 dark:bg-orange-900/30 px-2 py-0.5 text-[10px] font-medium text-orange-700 dark:text-orange-300"
               >
                 annulation prévue
               </span>
             </td>
-            <td class="whitespace-nowrap px-6 py-4 text-sm text-gray-600">
+            <td class="whitespace-nowrap px-6 py-4 text-sm text-gray-600 dark:text-gray-400">
               {{ s.currentPeriodEnd ? formatDate(s.currentPeriodEnd) : "-" }}
             </td>
             <td class="whitespace-nowrap px-6 py-4">
               <button
-                class="rounded bg-gray-100 px-3 py-1.5 text-xs font-medium text-gray-700 transition-colors hover:bg-gray-200"
+                class="rounded bg-gray-100 dark:bg-gray-800 px-3 py-1.5 text-xs font-medium text-gray-700 dark:text-gray-300 transition-colors hover:bg-gray-200"
                 @click="openEditModal(s)"
               >
                 Gérer
@@ -153,20 +153,20 @@
       v-if="!loading && pagination.totalPages > 1"
       class="mt-4 flex items-center justify-between"
     >
-      <p class="text-sm text-gray-600">
+      <p class="text-sm text-gray-600 dark:text-gray-400">
         {{ pagination.total }} abonnement(s) - page {{ pagination.page }} /
         {{ pagination.totalPages }}
       </p>
       <div class="flex gap-2">
         <button
-          class="rounded-lg border border-gray-300 px-3 py-1.5 text-sm text-gray-700 hover:bg-gray-50 disabled:opacity-40"
+          class="rounded-lg border border-gray-300 dark:border-gray-700 px-3 py-1.5 text-sm text-gray-700 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-gray-800 disabled:opacity-40"
           :disabled="pagination.page <= 1"
           @click="goToPage(pagination.page - 1)"
         >
           Précédent
         </button>
         <button
-          class="rounded-lg border border-gray-300 px-3 py-1.5 text-sm text-gray-700 hover:bg-gray-50 disabled:opacity-40"
+          class="rounded-lg border border-gray-300 dark:border-gray-700 px-3 py-1.5 text-sm text-gray-700 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-gray-800 disabled:opacity-40"
           :disabled="pagination.page >= pagination.totalPages"
           @click="goToPage(pagination.page + 1)"
         >
@@ -181,20 +181,20 @@
       class="fixed inset-0 z-50 flex items-center justify-center bg-black/50 p-4"
       @click.self="showEditModal = false"
     >
-      <div class="w-full max-w-md rounded-2xl bg-white p-6 shadow-xl">
-        <h2 class="mb-1 text-xl font-bold text-gray-900">Gérer l'abonnement</h2>
-        <p class="mb-4 text-sm text-gray-600">
+      <div class="w-full max-w-md rounded-2xl bg-white dark:bg-gray-900 p-6 shadow-xl">
+        <h2 class="mb-1 text-xl font-bold text-gray-900 dark:text-gray-100">Gérer l'abonnement</h2>
+        <p class="mb-4 text-sm text-gray-600 dark:text-gray-400">
           {{ editTarget.practitionerName }}
         </p>
 
         <div class="space-y-4">
           <div>
-            <label class="mb-1 block text-sm font-medium text-gray-700">
+            <label class="mb-1 block text-sm font-medium text-gray-700 dark:text-gray-300">
               Plan
             </label>
             <select
               v-model="editForm.plan"
-              class="w-full rounded-lg border border-gray-300 px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-orange-500"
+              class="w-full rounded-lg border border-gray-300 dark:border-gray-700 px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-orange-500"
             >
               <option value="FREE">Free (0 XOF / mois)</option>
               <option value="PREMIUM">Premium (12 000 XOF / mois)</option>
@@ -203,12 +203,12 @@
           </div>
 
           <div>
-            <label class="mb-1 block text-sm font-medium text-gray-700">
+            <label class="mb-1 block text-sm font-medium text-gray-700 dark:text-gray-300">
               Statut
             </label>
             <select
               v-model="editForm.status"
-              class="w-full rounded-lg border border-gray-300 px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-orange-500"
+              class="w-full rounded-lg border border-gray-300 dark:border-gray-700 px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-orange-500"
             >
               <option value="ACTIVE">Actif</option>
               <option value="SUSPENDED">Suspendu</option>
@@ -217,11 +217,11 @@
             </select>
           </div>
 
-          <label class="flex items-center gap-2 text-sm text-gray-700">
+          <label class="flex items-center gap-2 text-sm text-gray-700 dark:text-gray-300">
             <input
               v-model="editForm.cancelAtPeriodEnd"
               type="checkbox"
-              class="h-4 w-4 rounded border-gray-300 text-orange-600 focus:ring-orange-500"
+              class="h-4 w-4 rounded border-gray-300 dark:border-gray-700 text-orange-600 dark:text-orange-400 focus:ring-orange-500"
             />
             Annuler à la fin de la période en cours
           </label>
@@ -230,7 +230,7 @@
         <div class="mt-6 flex justify-end gap-3">
           <button
             type="button"
-            class="rounded-lg border border-gray-300 px-4 py-2 text-sm font-medium text-gray-700 hover:bg-gray-50"
+            class="rounded-lg border border-gray-300 dark:border-gray-700 px-4 py-2 text-sm font-medium text-gray-700 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-gray-800"
             @click="showEditModal = false"
           >
             Annuler
@@ -337,21 +337,21 @@ function statusLabel(status: string) {
 
 function statusBadgeClass(status: string) {
   const classes: Record<string, string> = {
-    ACTIVE: "bg-green-100 text-green-800",
-    SUSPENDED: "bg-yellow-100 text-yellow-800",
-    CANCELLED: "bg-red-100 text-red-800",
-    EXPIRED: "bg-gray-100 text-gray-600",
+    ACTIVE: "bg-green-100 dark:bg-green-900/30 text-green-800 dark:text-green-200",
+    SUSPENDED: "bg-yellow-100 dark:bg-yellow-900/30 text-yellow-800 dark:text-yellow-200",
+    CANCELLED: "bg-red-100 dark:bg-red-900/30 text-red-800 dark:text-red-200",
+    EXPIRED: "bg-gray-100 dark:bg-gray-800 text-gray-600 dark:text-gray-400",
   };
-  return classes[status] || "bg-gray-100 text-gray-800";
+  return classes[status] || "bg-gray-100 dark:bg-gray-800 text-gray-800 dark:text-gray-200";
 }
 
 function planBadgeClass(plan: string) {
   const classes: Record<string, string> = {
-    FREE: "bg-gray-100 text-gray-700",
-    PREMIUM: "bg-orange-100 text-orange-800",
-    PRO: "bg-purple-100 text-purple-800",
+    FREE: "bg-gray-100 dark:bg-gray-800 text-gray-700 dark:text-gray-300",
+    PREMIUM: "bg-orange-100 dark:bg-orange-900/30 text-orange-800 dark:text-orange-200",
+    PRO: "bg-purple-100 dark:bg-purple-900/30 text-purple-800 dark:text-purple-200",
   };
-  return classes[plan] || "bg-gray-100 text-gray-800";
+  return classes[plan] || "bg-gray-100 dark:bg-gray-800 text-gray-800 dark:text-gray-200";
 }
 
 function formatDate(dateStr: string) {

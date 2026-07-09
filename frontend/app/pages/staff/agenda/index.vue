@@ -1,21 +1,21 @@
 <template>
   <div class="space-y-6">
     <div>
-      <h1 class="mb-1 text-2xl font-bold text-gray-900">
+      <h1 class="mb-1 text-2xl font-bold text-gray-900 dark:text-gray-100">
         Agendas des praticiens
       </h1>
-      <p class="text-gray-600">
+      <p class="text-gray-600 dark:text-gray-400">
         Sélectionnez un praticien pour gérer son agenda
       </p>
     </div>
 
     <div v-if="loading" class="animate-pulse space-y-3">
-      <div v-for="i in 3" :key="i" class="h-20 rounded-lg bg-gray-100"></div>
+      <div v-for="i in 3" :key="i" class="h-20 rounded-lg bg-gray-100 dark:bg-gray-800"></div>
     </div>
 
     <div v-else-if="!practitioners.length" class="py-12 text-center">
       <Users class="mx-auto mb-3 h-12 w-12 text-gray-300" />
-      <p class="text-gray-500">Aucun praticien assigné</p>
+      <p class="text-gray-500 dark:text-gray-400">Aucun praticien assigné</p>
     </div>
 
     <div v-else class="space-y-3">
@@ -23,26 +23,26 @@
         v-for="prac in practitioners"
         :key="prac.id"
         :to="`/staff/agenda/${prac.id}`"
-        class="flex items-center justify-between rounded-xl border border-gray-200 bg-white p-5 shadow-sm transition-colors hover:bg-green-50"
+        class="flex items-center justify-between rounded-xl border border-gray-200 dark:border-gray-800 bg-white dark:bg-gray-900 p-5 shadow-sm transition-colors hover:bg-green-50"
       >
         <div class="flex items-center gap-4">
           <div
-            class="flex h-12 w-12 items-center justify-center rounded-full bg-green-100"
+            class="flex h-12 w-12 items-center justify-center rounded-full bg-green-100 dark:bg-green-900/30"
           >
-            <span class="text-sm font-bold text-green-600">
+            <span class="text-sm font-bold text-green-600 dark:text-green-400">
               {{ prac.firstName[0] }}{{ prac.lastName[0] }}
             </span>
           </div>
           <div>
-            <p class="font-semibold text-gray-900">
+            <p class="font-semibold text-gray-900 dark:text-gray-100">
               {{ prac.title }} {{ prac.firstName }} {{ prac.lastName }}
             </p>
-            <p class="text-sm text-gray-500">
+            <p class="text-sm text-gray-500 dark:text-gray-400">
               {{ prac.specialties?.join(", ") || "-" }}
             </p>
           </div>
         </div>
-        <div class="flex items-center gap-2 text-sm font-medium text-green-600">
+        <div class="flex items-center gap-2 text-sm font-medium text-green-600 dark:text-green-400">
           <Calendar class="h-4 w-4" />
           Voir l'agenda
         </div>

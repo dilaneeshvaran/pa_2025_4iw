@@ -1,20 +1,21 @@
 <template>
-  <header class="bg-white shadow-sm">
+  <header class="bg-white dark:bg-gray-900 shadow-sm">
     <nav class="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8" aria-label="Navigation principale">
       <div class="flex h-16 items-center justify-between">
         <!-- logo -->
         <div class="flex-shrink-0">
           <NuxtLink :to="brandTarget" class="text-xl font-bold sm:text-2xl">
             <span class="text-orange-500">Medi</span
-            ><span class="text-green-600">côte</span>
+            ><span class="text-green-600 dark:text-green-400">côte</span>
           </NuxtLink>
         </div>
 
         <div class="flex items-center space-x-2 sm:space-x-4">
+          <UiThemeToggle />
           <template v-if="!authStore.isAuthenticated">
             <NuxtLink
               to="/auth/login"
-              class="rounded-md px-3 py-2 text-sm font-medium text-gray-700 transition-colors hover:text-orange-600"
+              class="rounded-md px-3 py-2 text-sm font-medium text-gray-700 dark:text-gray-300 transition-colors hover:text-orange-600"
             >
               Connexion
             </NuxtLink>
@@ -30,18 +31,18 @@
             <div class="flex items-center space-x-2 sm:space-x-4">
               <NuxtLink
                 :to="dashboardPath"
-                class="hidden whitespace-nowrap text-sm font-medium text-gray-700 transition-colors hover:text-orange-600 sm:inline-block"
+                class="hidden whitespace-nowrap text-sm font-medium text-gray-700 dark:text-gray-300 transition-colors hover:text-orange-600 sm:inline-block"
               >
                 Tableau de bord
               </NuxtLink>
               <span
                 v-if="authStore.user"
-                class="hidden max-w-[12rem] truncate whitespace-nowrap text-sm text-gray-700 md:inline-block"
+                class="hidden max-w-[12rem] truncate whitespace-nowrap text-sm text-gray-700 dark:text-gray-300 md:inline-block"
               >
                 Bonjour, {{ displayName }}
               </span>
               <button
-                class="whitespace-nowrap rounded-md px-2 py-2 text-sm font-medium text-gray-700 transition-colors hover:text-red-600 sm:px-3"
+                class="whitespace-nowrap rounded-md px-2 py-2 text-sm font-medium text-gray-700 dark:text-gray-300 transition-colors hover:text-red-600 sm:px-3"
                 @click="handleLogout"
               >
                 Déconnexion

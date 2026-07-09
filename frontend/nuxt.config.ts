@@ -100,6 +100,14 @@ export default defineNuxtConfig({
       link: [
         { rel: "icon", type: "image/x-icon", href: "/favicon.ico" },
       ],
+      // Anti-FOUC: apply the persisted/system theme on <html> before first paint.
+      // Storage key kept in sync with useTheme() (composables/useTheme.ts).
+      script: [
+        {
+          innerHTML: `(function(){try{var p=localStorage.getItem('medicote-theme');var d=p==='dark'||((!p||p==='auto')&&window.matchMedia('(prefers-color-scheme: dark)').matches);var e=document.documentElement;e.classList.remove('dark','light');e.classList.add(d?'dark':'light');}catch(e){}})();`,
+          tagPosition: "head",
+        },
+      ],
     },
   },
 

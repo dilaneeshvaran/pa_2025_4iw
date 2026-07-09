@@ -7,28 +7,28 @@
         aria-modal="true"
         aria-labelledby="consent-title"
         aria-describedby="consent-desc"
-        class="fixed inset-x-0 bottom-0 z-[9999] border-t border-gray-200 bg-white shadow-2xl"
+        class="fixed inset-x-0 bottom-0 z-[9999] border-t border-gray-200 dark:border-gray-800 bg-white dark:bg-gray-900 shadow-2xl"
       >
         <div class="mx-auto max-w-4xl px-4 py-6 sm:px-6">
           <div class="flex flex-col gap-4 sm:flex-row sm:items-start">
             <div class="flex-1">
-              <h3 id="consent-title" class="text-base font-semibold text-gray-900">
+              <h3 id="consent-title" class="text-base font-semibold text-gray-900 dark:text-gray-100">
                 Consentement au traitement des données
               </h3>
-              <p id="consent-desc" class="mt-1 text-sm text-gray-600">
+              <p id="consent-desc" class="mt-1 text-sm text-gray-600 dark:text-gray-400">
                 Conformément au RGPD, nous avons besoin de votre consentement
                 pour traiter vos données personnelles. Vos données sont
                 utilisées uniquement pour vous fournir nos services médicaux et
                 améliorer votre expérience. Consultez notre
                 <NuxtLink
                   to="/legal/privacy"
-                  class="text-orange-600 underline hover:text-orange-600"
+                  class="text-orange-600 dark:text-orange-400 underline hover:text-orange-600"
                   >politique de confidentialité</NuxtLink
                 >
                 et nos
                 <NuxtLink
                   to="/legal/terms"
-                  class="text-orange-600 underline hover:text-orange-600"
+                  class="text-orange-600 dark:text-orange-400 underline hover:text-orange-600"
                   >conditions générales d'utilisation</NuxtLink
                 >.
               </p>
@@ -39,12 +39,12 @@
                     id="analytics-consent-checkbox"
                     v-model="analyticsAccepted"
                     type="checkbox"
-                    class="mt-0.5 h-4 w-4 rounded border-gray-300 text-orange-500 focus:ring-orange-500"
+                    class="mt-0.5 h-4 w-4 rounded border-gray-300 dark:border-gray-700 text-orange-500 focus:ring-orange-500"
                     aria-describedby="analytics-consent-desc"
                   />
-                  <span class="text-sm text-gray-700">
+                  <span class="text-sm text-gray-700 dark:text-gray-300">
                     <span class="font-medium">Analytics anonymes (optionnel)</span>
-                    <span id="analytics-consent-desc" class="ml-1 text-gray-500">
+                    <span id="analytics-consent-desc" class="ml-1 text-gray-500 dark:text-gray-400">
                       - Aide à améliorer MediCôte. Aucune donnée médicale ni personnelle n'est
                       collectée.
                     </span>
@@ -55,7 +55,7 @@
 
             <div class="flex shrink-0 gap-3">
               <button
-                class="rounded-lg border border-gray-300 bg-white px-4 py-2 text-sm font-medium text-gray-700 transition-colors hover:bg-gray-50"
+                class="rounded-lg border border-gray-300 dark:border-gray-700 bg-white dark:bg-gray-900 px-4 py-2 text-sm font-medium text-gray-700 dark:text-gray-300 transition-colors hover:bg-gray-50 dark:hover:bg-gray-800"
                 @click="handleDecline"
               >
                 Refuser

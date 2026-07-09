@@ -1,9 +1,9 @@
 <template>
   <div class="flex min-h-screen items-center justify-center px-4 py-12">
-    <div class="w-full max-w-md space-y-8 rounded-lg bg-white p-8 shadow-lg">
+    <div class="w-full max-w-md space-y-8 rounded-lg bg-white dark:bg-gray-900 p-8 shadow-lg">
       <div>
-        <h1 class="text-center text-3xl font-bold text-gray-900">Connexion</h1>
-        <p class="mt-2 text-center text-sm text-gray-600">
+        <h1 class="text-center text-3xl font-bold text-gray-900 dark:text-gray-100">Connexion</h1>
+        <p class="mt-2 text-center text-sm text-gray-600 dark:text-gray-400">
           Connectez-vous à votre compte patient
         </p>
       </div>
@@ -14,7 +14,7 @@
         <div
           v-if="errorMessage"
           role="alert"
-          class="rounded-md border border-red-300 bg-red-50 px-4 py-3 text-sm text-red-800"
+          class="rounded-md border border-red-300 bg-red-50 dark:bg-red-950/30 px-4 py-3 text-sm text-red-800 dark:text-red-200"
         >
           {{ errorMessage }}
         </div>
@@ -23,14 +23,14 @@
         <div
           v-if="successMessage"
           role="status"
-          class="rounded-md border border-green-300 bg-green-50 px-4 py-3 text-sm text-green-800"
+          class="rounded-md border border-green-300 bg-green-50 dark:bg-green-950/30 px-4 py-3 text-sm text-green-800 dark:text-green-200"
         >
           {{ successMessage }}
         </div>
 
         <div class="space-y-4">
           <div>
-            <label for="email" class="block text-sm font-medium text-gray-700">
+            <label for="email" class="block text-sm font-medium text-gray-700 dark:text-gray-300">
               Email
             </label>
             <input
@@ -39,7 +39,7 @@
               type="email"
               required
               autocomplete="email"
-              class="mt-1 block w-full rounded-md border border-gray-300 px-3 py-2 placeholder-gray-500 shadow-sm focus:border-orange-500 focus:outline-none focus:ring-2 focus:ring-orange-500"
+              class="mt-1 block w-full rounded-md border border-gray-300 dark:border-gray-700 px-3 py-2 placeholder-gray-500 shadow-sm focus:border-orange-500 focus:outline-none focus:ring-2 focus:ring-orange-500"
               placeholder="votre@email.com"
             />
           </div>
@@ -47,7 +47,7 @@
           <div>
             <label
               for="password"
-              class="block text-sm font-medium text-gray-700"
+              class="block text-sm font-medium text-gray-700 dark:text-gray-300"
             >
               Mot de passe
             </label>
@@ -57,7 +57,7 @@
               type="password"
               required
               autocomplete="current-password"
-              class="mt-1 block w-full rounded-md border border-gray-300 px-3 py-2 placeholder-gray-500 shadow-sm focus:border-orange-500 focus:outline-none focus:ring-2 focus:ring-orange-500"
+              class="mt-1 block w-full rounded-md border border-gray-300 dark:border-gray-700 px-3 py-2 placeholder-gray-500 shadow-sm focus:border-orange-500 focus:outline-none focus:ring-2 focus:ring-orange-500"
               placeholder="••••••••"
             />
           </div>
@@ -67,7 +67,7 @@
           <div class="text-sm">
             <NuxtLink
               to="/auth/forgot-password"
-              class="font-medium text-orange-600 hover:text-orange-500"
+              class="font-medium text-orange-600 dark:text-orange-400 hover:text-orange-500"
             >
               Mot de passe oublié ?
             </NuxtLink>
@@ -86,11 +86,11 @@
         </div>
 
         <div class="text-center">
-          <p class="text-sm text-gray-600">
+          <p class="text-sm text-gray-600 dark:text-gray-400">
             Vous n'avez pas de compte ?
             <NuxtLink
               :to="`/auth/register${route.query.redirect ? '?redirect=' + encodeURIComponent(route.query.redirect as string) : ''}`"
-              class="font-medium text-orange-600 hover:text-orange-500"
+              class="font-medium text-orange-600 dark:text-orange-400 hover:text-orange-500"
             >
               Créer un compte
             </NuxtLink>
@@ -104,18 +104,18 @@
         <div
           v-if="errorMessage"
           role="alert"
-          class="rounded-md border border-red-300 bg-red-50 px-4 py-3 text-sm text-red-800"
+          class="rounded-md border border-red-300 bg-red-50 dark:bg-red-950/30 px-4 py-3 text-sm text-red-800 dark:text-red-200"
         >
           {{ errorMessage }}
         </div>
 
         <div class="space-y-4">
-          <p class="text-sm text-gray-600 text-center">
+          <p class="text-sm text-gray-600 dark:text-gray-400 text-center">
             Saisissez le code de 6 chiffres généré par votre application d'authentification ou un code de secours à 10 caractères.
           </p>
 
           <div>
-            <label for="mfa-code" class="block text-sm font-medium text-gray-700">
+            <label for="mfa-code" class="block text-sm font-medium text-gray-700 dark:text-gray-300">
               Code de validation (2FA ou Secours)
             </label>
             <input
@@ -124,7 +124,7 @@
               type="text"
               required
               autocomplete="one-time-code"
-              class="mt-1 block w-full rounded-md border border-gray-300 px-3 py-2 placeholder-gray-500 shadow-sm focus:border-orange-500 focus:outline-none focus:ring-2 focus:ring-orange-500 text-center text-lg font-mono font-bold tracking-widest"
+              class="mt-1 block w-full rounded-md border border-gray-300 dark:border-gray-700 px-3 py-2 placeholder-gray-500 shadow-sm focus:border-orange-500 focus:outline-none focus:ring-2 focus:ring-orange-500 text-center text-lg font-mono font-bold tracking-widest"
               placeholder="000000"
             />
           </div>
@@ -133,7 +133,7 @@
         <div class="flex items-center justify-between">
           <button
             type="button"
-            class="text-sm font-medium text-orange-600 hover:text-orange-500 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-orange-500 rounded"
+            class="text-sm font-medium text-orange-600 dark:text-orange-400 hover:text-orange-500 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-orange-500 rounded"
             @click="show2FAChallenge = false; errorMessage = ''; mfaCode = '';"
           >
             Retour à la connexion

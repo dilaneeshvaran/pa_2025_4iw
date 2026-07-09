@@ -1,8 +1,8 @@
 <template>
   <div class="mx-auto max-w-4xl space-y-6">
     <div>
-      <h1 class="mb-2 text-2xl font-bold text-gray-900">Paramètres</h1>
-      <p class="text-gray-600">
+      <h1 class="mb-2 text-2xl font-bold text-gray-900 dark:text-gray-100">Paramètres</h1>
+      <p class="text-gray-600 dark:text-gray-400">
         Gérez vos informations personnelles et la sécurité de votre compte administrateur.
       </p>
     </div>
@@ -16,20 +16,20 @@
     <div v-else class="space-y-6">
       <!-- profile settings -->
       <UiCard class="p-6">
-        <h3 class="mb-4 flex items-center gap-2 text-lg font-semibold text-gray-900">
-          <User class="h-5 w-5 text-gray-500" /> Informations personnelles
+        <h3 class="mb-4 flex items-center gap-2 text-lg font-semibold text-gray-900 dark:text-gray-100">
+          <User class="h-5 w-5 text-gray-500 dark:text-gray-400" /> Informations personnelles
         </h3>
         <div class="grid gap-4 sm:grid-cols-2">
           <div>
-            <label class="mb-1 block text-sm font-medium text-gray-700">Prénom</label>
+            <label class="mb-1 block text-sm font-medium text-gray-700 dark:text-gray-300">Prénom</label>
             <UiInput v-model="profileForm.firstName" placeholder="Prénom" />
           </div>
           <div>
-            <label class="mb-1 block text-sm font-medium text-gray-700">Nom</label>
+            <label class="mb-1 block text-sm font-medium text-gray-700 dark:text-gray-300">Nom</label>
             <UiInput v-model="profileForm.lastName" placeholder="Nom" />
           </div>
           <div>
-            <label class="mb-1 block text-sm font-medium text-gray-700">Téléphone</label>
+            <label class="mb-1 block text-sm font-medium text-gray-700 dark:text-gray-300">Téléphone</label>
             <UiInput v-model="profileForm.phone" type="tel" placeholder="+225 XX XX XX XX" />
           </div>
         </div>
@@ -42,17 +42,17 @@
 
       <!-- email settings -->
       <UiCard class="p-6">
-        <h3 class="mb-4 flex items-center gap-2 text-lg font-semibold text-gray-900">
-          <Mail class="h-5 w-5 text-gray-500" /> Adresse email
+        <h3 class="mb-4 flex items-center gap-2 text-lg font-semibold text-gray-900 dark:text-gray-100">
+          <Mail class="h-5 w-5 text-gray-500 dark:text-gray-400" /> Adresse email
         </h3>
         <form class="space-y-4" @submit.prevent="saveEmail">
           <div>
-            <label class="mb-1 block text-sm font-medium text-gray-700">Email actuel</label>
-            <p class="text-sm text-gray-600 font-medium">{{ currentEmail }}</p>
+            <label class="mb-1 block text-sm font-medium text-gray-700 dark:text-gray-300">Email actuel</label>
+            <p class="text-sm text-gray-600 dark:text-gray-400 font-medium">{{ currentEmail }}</p>
           </div>
           <div class="grid gap-4 sm:grid-cols-2">
             <div>
-              <label class="mb-1 block text-sm font-medium text-gray-700">Nouvel email</label>
+              <label class="mb-1 block text-sm font-medium text-gray-700 dark:text-gray-300">Nouvel email</label>
               <UiInput
                 v-model="emailForm.newEmail"
                 type="email"
@@ -61,7 +61,7 @@
               />
             </div>
             <div>
-              <label class="mb-1 block text-sm font-medium text-gray-700">Mot de passe (confirmation)</label>
+              <label class="mb-1 block text-sm font-medium text-gray-700 dark:text-gray-300">Mot de passe (confirmation)</label>
               <UiInput
                 v-model="emailForm.password"
                 type="password"
@@ -80,13 +80,13 @@
 
       <!-- password settings -->
       <UiCard class="p-6">
-        <h3 class="mb-4 flex items-center gap-2 text-lg font-semibold text-gray-900">
-          <Lock class="h-5 w-5 text-gray-500" /> Mot de passe
+        <h3 class="mb-4 flex items-center gap-2 text-lg font-semibold text-gray-900 dark:text-gray-100">
+          <Lock class="h-5 w-5 text-gray-500 dark:text-gray-400" /> Mot de passe
         </h3>
         <form class="space-y-4" @submit.prevent="savePassword">
           <div class="grid gap-4 sm:grid-cols-3">
             <div>
-              <label class="mb-1 block text-sm font-medium text-gray-700">Mot de passe actuel</label>
+              <label class="mb-1 block text-sm font-medium text-gray-700 dark:text-gray-300">Mot de passe actuel</label>
               <UiInput
                 v-model="passwordForm.currentPassword"
                 type="password"
@@ -95,7 +95,7 @@
               />
             </div>
             <div>
-              <label class="mb-1 block text-sm font-medium text-gray-700">Nouveau mot de passe</label>
+              <label class="mb-1 block text-sm font-medium text-gray-700 dark:text-gray-300">Nouveau mot de passe</label>
               <UiInput
                 v-model="passwordForm.newPassword"
                 type="password"
@@ -104,7 +104,7 @@
               />
             </div>
             <div>
-              <label class="mb-1 block text-sm font-medium text-gray-700">Confirmer le mot de passe</label>
+              <label class="mb-1 block text-sm font-medium text-gray-700 dark:text-gray-300">Confirmer le mot de passe</label>
               <UiInput
                 v-model="passwordForm.confirmPassword"
                 type="password"
@@ -125,10 +125,10 @@
       <UiCard class="p-6">
         <div class="flex items-center justify-between">
           <div>
-            <h3 class="flex items-center gap-2 text-lg font-semibold text-gray-900">
-              <Shield class="h-5 w-5 text-gray-500" /> Authentification à deux facteurs (2FA)
+            <h3 class="flex items-center gap-2 text-lg font-semibold text-gray-900 dark:text-gray-100">
+              <Shield class="h-5 w-5 text-gray-500 dark:text-gray-400" /> Authentification à deux facteurs (2FA)
             </h3>
-            <p class="mt-1 text-sm text-gray-500">
+            <p class="mt-1 text-sm text-gray-500 dark:text-gray-400">
               Ajoutez une couche de sécurité supplémentaire à votre compte administrateur.
             </p>
           </div>
@@ -143,7 +143,7 @@
           >
             <span
               :class="[
-                'pointer-events-none inline-block h-5 w-5 transform rounded-full bg-white shadow ring-0 transition duration-200 ease-in-out',
+                'pointer-events-none inline-block h-5 w-5 transform rounded-full bg-white dark:bg-gray-900 shadow ring-0 transition duration-200 ease-in-out',
                 twoFactorEnabled ? 'translate-x-5' : 'translate-x-0',
               ]"
             />
@@ -159,38 +159,38 @@
       role="dialog"
       aria-modal="true"
     >
-      <div class="w-full max-w-md rounded-2xl bg-white p-6 shadow-xl border border-gray-100">
+      <div class="w-full max-w-md rounded-2xl bg-white dark:bg-gray-900 p-6 shadow-xl border border-gray-100 dark:border-gray-800">
         <!-- Setup Phase -->
         <div v-if="!showBackupCodes">
           <div class="flex items-center justify-between mb-4">
-            <h3 class="text-xl font-bold text-gray-900 flex items-center gap-2">
-              <Shield class="w-6 h-6 text-orange-600" />
+            <h3 class="text-xl font-bold text-gray-900 dark:text-gray-100 flex items-center gap-2">
+              <Shield class="w-6 h-6 text-orange-600 dark:text-orange-400" />
               Activer le 2FA
             </h3>
             <button
               @click="showSetupModal = false"
-              class="text-gray-500 hover:text-gray-600 transition"
+              class="text-gray-500 dark:text-gray-400 hover:text-gray-600 transition"
               aria-label="Fermer"
             >
               &times;
             </button>
           </div>
 
-          <p class="text-sm text-gray-600 mb-4">
+          <p class="text-sm text-gray-600 dark:text-gray-400 mb-4">
             Scannez le code QR ci-dessous avec votre application d'authentification (Google Authenticator, Duo, etc.) puis saisissez le code de vérification à 6 chiffres.
           </p>
 
-          <div v-if="qrCodeUrl" class="flex justify-center bg-gray-50 border border-gray-100 rounded-xl p-4 mb-4">
+          <div v-if="qrCodeUrl" class="flex justify-center bg-gray-50 dark:bg-gray-900 border border-gray-100 dark:border-gray-800 rounded-xl p-4 mb-4">
             <img :src="qrCodeUrl" alt="QR Code d'activation 2FA" class="max-w-[200px]" />
           </div>
 
           <div class="mb-4">
-            <label class="block text-xs font-semibold text-gray-500 uppercase tracking-wider mb-1">Clé secrète (si le QR code ne fonctionne pas)</label>
-            <div class="flex items-center justify-between bg-gray-50 border border-gray-100 rounded-xl p-3 font-mono text-xs text-gray-800">
+            <label class="block text-xs font-semibold text-gray-500 dark:text-gray-400 uppercase tracking-wider mb-1">Clé secrète (si le QR code ne fonctionne pas)</label>
+            <div class="flex items-center justify-between bg-gray-50 dark:bg-gray-900 border border-gray-100 dark:border-gray-800 rounded-xl p-3 font-mono text-xs text-gray-800 dark:text-gray-200">
               <span class="select-all">{{ secretKey }}</span>
               <button
                 @click="copySecretKey"
-                class="text-orange-600 hover:text-orange-700 font-semibold flex items-center gap-1"
+                class="text-orange-600 dark:text-orange-400 hover:text-orange-700 font-semibold flex items-center gap-1"
                 type="button"
               >
                 Copier
@@ -199,7 +199,7 @@
           </div>
 
           <div class="mb-6">
-            <label class="block text-sm font-medium text-gray-700 mb-1">Code de vérification</label>
+            <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Code de vérification</label>
             <UiInput
               v-model="verificationCode"
               type="text"
@@ -216,7 +216,7 @@
           <div class="flex justify-end gap-3">
             <button
               @click="showSetupModal = false"
-              class="px-4 py-2 text-sm font-semibold text-gray-700 bg-gray-100 hover:bg-gray-200 rounded-xl transition focus:ring-2 focus:ring-gray-400"
+              class="px-4 py-2 text-sm font-semibold text-gray-700 dark:text-gray-300 bg-gray-100 dark:bg-gray-800 hover:bg-gray-200 rounded-xl transition focus:ring-2 focus:ring-gray-400"
             >
               Annuler
             </button>
@@ -234,21 +234,21 @@
         <!-- Backup Codes Phase -->
         <div v-else>
           <div class="flex items-center justify-between mb-4">
-            <h3 class="text-xl font-bold text-gray-900 flex items-center gap-2">
-              <Shield class="w-6 h-6 text-green-600" />
+            <h3 class="text-xl font-bold text-gray-900 dark:text-gray-100 flex items-center gap-2">
+              <Shield class="w-6 h-6 text-green-600 dark:text-green-400" />
               Codes de secours générés
             </h3>
           </div>
-          <p class="text-sm text-gray-600 mb-4">
+          <p class="text-sm text-gray-600 dark:text-gray-400 mb-4">
             Voici vos codes de secours. Conservez-les précieusement dans un endroit sûr (comme un gestionnaire de mots de passe). Ils vous permettront d'accéder à votre compte si vous n'avez plus accès à votre application d'authentification.
           </p>
 
-          <div class="bg-red-50 border border-red-200 rounded-xl p-3 mb-4 text-xs text-red-800">
+          <div class="bg-red-50 dark:bg-red-950/30 border border-red-200 dark:border-red-800/40 rounded-xl p-3 mb-4 text-xs text-red-800 dark:text-red-200">
             <strong>ATTENTION :</strong> Ces codes de secours ne seront affichés qu'une seule fois. Chacun d'eux ne peut être utilisé qu'une seule fois.
           </div>
 
-          <div class="grid grid-cols-2 gap-2 p-3 bg-gray-50 border border-gray-100 rounded-xl font-mono text-center text-sm text-gray-800">
-            <div v-for="code in backupCodes" :key="code" class="p-1 rounded bg-white border border-gray-200 select-all font-bold">
+          <div class="grid grid-cols-2 gap-2 p-3 bg-gray-50 dark:bg-gray-900 border border-gray-100 dark:border-gray-800 rounded-xl font-mono text-center text-sm text-gray-800 dark:text-gray-200">
+            <div v-for="code in backupCodes" :key="code" class="p-1 rounded bg-white dark:bg-gray-900 border border-gray-200 dark:border-gray-800 select-all font-bold">
               {{ code }}
             </div>
           </div>
@@ -256,7 +256,7 @@
           <div class="mt-6 flex flex-col sm:flex-row gap-2">
             <button
               @click="copyBackupCodes"
-              class="flex-1 px-4 py-2 text-sm font-semibold text-gray-700 bg-gray-100 hover:bg-gray-200 rounded-xl transition focus:ring-2 focus:ring-gray-400 flex items-center justify-center gap-1.5"
+              class="flex-1 px-4 py-2 text-sm font-semibold text-gray-700 dark:text-gray-300 bg-gray-100 dark:bg-gray-800 hover:bg-gray-200 rounded-xl transition focus:ring-2 focus:ring-gray-400 flex items-center justify-center gap-1.5"
               type="button"
             >
               Copier les codes
@@ -279,27 +279,27 @@
       role="dialog"
       aria-modal="true"
     >
-      <div class="w-full max-w-md rounded-2xl bg-white p-6 shadow-xl border border-gray-100">
+      <div class="w-full max-w-md rounded-2xl bg-white dark:bg-gray-900 p-6 shadow-xl border border-gray-100 dark:border-gray-800">
         <div class="flex items-center justify-between mb-4">
-          <h3 class="text-xl font-bold text-gray-900 flex items-center gap-2">
-            <Shield class="w-6 h-6 text-red-600" />
+          <h3 class="text-xl font-bold text-gray-900 dark:text-gray-100 flex items-center gap-2">
+            <Shield class="w-6 h-6 text-red-600 dark:text-red-400" />
             Désactiver le 2FA
           </h3>
           <button
             @click="showDisableModal = false"
-            class="text-gray-500 hover:text-gray-600 transition"
+            class="text-gray-500 dark:text-gray-400 hover:text-gray-600 transition"
             aria-label="Fermer"
           >
             &times;
           </button>
         </div>
 
-        <p class="text-sm text-gray-600 mb-4">
+        <p class="text-sm text-gray-600 dark:text-gray-400 mb-4">
           Pour désactiver l'authentification à deux facteurs, veuillez saisir votre mot de passe pour confirmer votre identité.
         </p>
 
         <div class="mb-6">
-          <label class="block text-sm font-medium text-gray-700 mb-1">Mot de passe</label>
+          <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Mot de passe</label>
           <UiInput
             v-model="disablePassword"
             type="password"
@@ -314,7 +314,7 @@
         <div class="flex justify-end gap-3">
           <button
             @click="showDisableModal = false"
-            class="px-4 py-2 text-sm font-semibold text-gray-700 bg-gray-100 hover:bg-gray-200 rounded-xl transition focus:ring-2 focus:ring-gray-400"
+            class="px-4 py-2 text-sm font-semibold text-gray-700 dark:text-gray-300 bg-gray-100 dark:bg-gray-800 hover:bg-gray-200 rounded-xl transition focus:ring-2 focus:ring-gray-400"
           >
             Annuler
           </button>

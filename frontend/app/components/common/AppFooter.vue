@@ -1,5 +1,5 @@
 <template>
-  <footer class="border-t border-gray-200 bg-gray-50 text-gray-600" aria-labelledby="footer-heading">
+  <footer class="border-t border-gray-200 dark:border-gray-800 bg-gray-50 dark:bg-gray-900 text-gray-600 dark:text-gray-400" aria-labelledby="footer-heading">
     <h2 id="footer-heading" class="sr-only">Pied de page</h2>
     <div class="mx-auto max-w-7xl px-4 py-12 sm:px-6 lg:px-8">
       <div class="xl:grid xl:grid-cols-3 xl:gap-8">
@@ -11,24 +11,24 @@
             <div class="flex h-10 w-10 items-center justify-center rounded-lg bg-orange-500">
               <Heart class="h-6 w-6 text-white" aria-hidden="true" />
             </div>
-            <span class="text-xl font-bold text-gray-900">
-              <span class="text-orange-500">Medi</span><span class="text-green-600">côte</span>
+            <span class="text-xl font-bold text-gray-900 dark:text-gray-100">
+              <span class="text-orange-500">Medi</span><span class="text-green-600 dark:text-green-400">côte</span>
             </span>
           </NuxtLink>
-          <p class="max-w-md text-sm text-gray-500 leading-relaxed">
+          <p class="max-w-md text-sm text-gray-500 dark:text-gray-400 leading-relaxed">
             « À côté des patients, nous sommes là à vos côtés »<br />
             Votre plateforme de confiance pour la prise de rendez-vous médicaux et la téléconsultation en Côte d'Ivoire.
           </p>
           <div class="flex space-x-6">
-            <a href="#" class="text-gray-500 hover:text-orange-500" aria-label="Facebook">
+            <a href="#" class="text-gray-500 dark:text-gray-400 hover:text-orange-500" aria-label="Facebook">
               <span class="sr-only">Facebook</span>
               <Facebook class="h-5 w-5" aria-hidden="true" />
             </a>
-            <a href="#" class="text-gray-500 hover:text-orange-500" aria-label="Twitter">
+            <a href="#" class="text-gray-500 dark:text-gray-400 hover:text-orange-500" aria-label="Twitter">
               <span class="sr-only">Twitter</span>
               <Twitter class="h-5 w-5" aria-hidden="true" />
             </a>
-            <a href="#" class="text-gray-500 hover:text-orange-500" aria-label="LinkedIn">
+            <a href="#" class="text-gray-500 dark:text-gray-400 hover:text-orange-500" aria-label="LinkedIn">
               <span class="sr-only">LinkedIn</span>
               <Linkedin class="h-5 w-5" aria-hidden="true" />
             </a>
@@ -38,44 +38,44 @@
         <div class="mt-12 grid grid-cols-2 gap-8 xl:col-span-2 xl:mt-0">
           <div class="md:grid md:grid-cols-2 md:gap-8">
             <div>
-              <h3 class="text-sm font-semibold text-gray-900 uppercase tracking-wider">
+              <h3 class="text-sm font-semibold text-gray-900 dark:text-gray-100 uppercase tracking-wider">
                 Services
               </h3>
               <ul role="list" class="mt-4 space-y-3">
                 <li>
-                  <NuxtLink to="/" class="text-sm text-gray-500 hover:text-orange-500 transition-colors">
+                  <NuxtLink to="/" class="text-sm text-gray-500 dark:text-gray-400 hover:text-orange-500 transition-colors">
                     Accueil
                   </NuxtLink>
                 </li>
                 <li>
-                  <NuxtLink to="/search" class="text-sm text-gray-500 hover:text-orange-500 transition-colors">
+                  <NuxtLink to="/search" class="text-sm text-gray-500 dark:text-gray-400 hover:text-orange-500 transition-colors">
                     Rechercher un médecin
                   </NuxtLink>
                 </li>
                 <li>
-                  <NuxtLink to="/contact/practitioner" class="text-sm text-gray-500 hover:text-orange-500 transition-colors">
+                  <NuxtLink to="/contact/practitioner" class="text-sm text-gray-500 dark:text-gray-400 hover:text-orange-500 transition-colors">
                     Espace Praticien
                   </NuxtLink>
                 </li>
               </ul>
             </div>
             <div class="mt-12 md:mt-0">
-              <h3 class="text-sm font-semibold text-gray-900 uppercase tracking-wider">
+              <h3 class="text-sm font-semibold text-gray-900 dark:text-gray-100 uppercase tracking-wider">
                 Légal
               </h3>
               <ul role="list" class="mt-4 space-y-3">
                 <li>
-                  <NuxtLink to="/legal/mentions" class="text-sm text-gray-500 hover:text-orange-500 transition-colors">
+                  <NuxtLink to="/legal/mentions" class="text-sm text-gray-500 dark:text-gray-400 hover:text-orange-500 transition-colors">
                     Mentions légales
                   </NuxtLink>
                 </li>
                 <li>
-                  <NuxtLink to="/legal/privacy" class="text-sm text-gray-500 hover:text-orange-500 transition-colors">
+                  <NuxtLink to="/legal/privacy" class="text-sm text-gray-500 dark:text-gray-400 hover:text-orange-500 transition-colors">
                     Politique de confidentialité
                   </NuxtLink>
                 </li>
                 <li>
-                  <NuxtLink to="/legal/terms" class="text-sm text-gray-500 hover:text-orange-500 transition-colors">
+                  <NuxtLink to="/legal/terms" class="text-sm text-gray-500 dark:text-gray-400 hover:text-orange-500 transition-colors">
                     Conditions Générales (CGU)
                   </NuxtLink>
                 </li>
@@ -84,10 +84,10 @@
           </div>
 
           <div>
-            <h3 class="text-sm font-semibold text-gray-900 uppercase tracking-wider">
+            <h3 class="text-sm font-semibold text-gray-900 dark:text-gray-100 uppercase tracking-wider">
               Contact & Support
             </h3>
-            <ul role="list" class="mt-4 space-y-3 text-sm text-gray-600">
+            <ul role="list" class="mt-4 space-y-3 text-sm text-gray-600 dark:text-gray-400">
               <li class="flex items-start gap-2.5">
                 <MapPin class="h-5 w-5 shrink-0 text-orange-500" aria-hidden="true" />
                 <span>Cocody, Boulevard Hassan II, Abidjan, Côte d'Ivoire</span>
@@ -109,11 +109,11 @@
         </div>
       </div>
 
-      <div class="mt-12 border-t border-gray-200 pt-8 flex flex-col md:flex-row items-center justify-between gap-4">
-        <p class="text-xs text-gray-600">
+      <div class="mt-12 border-t border-gray-200 dark:border-gray-800 pt-8 flex flex-col md:flex-row items-center justify-between gap-4">
+        <p class="text-xs text-gray-600 dark:text-gray-400">
           &copy; {{ new Date().getFullYear() }} MediCôte. Tous droits réservés. Projet académique ESGI.
         </p>
-        <p class="text-xs text-gray-600 flex items-center gap-1">
+        <p class="text-xs text-gray-600 dark:text-gray-400 flex items-center gap-1">
           Fait avec <span class="text-red-500" aria-hidden="true">💲</span> pour la Côte d'Ivoire
         </p>
       </div>

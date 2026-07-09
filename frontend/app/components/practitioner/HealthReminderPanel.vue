@@ -1,7 +1,7 @@
 <template>
-  <section class="border-b border-gray-200 p-6">
+  <section class="border-b border-gray-200 dark:border-gray-800 p-6">
     <div class="mb-4 flex items-center justify-between gap-3">
-      <h3 class="text-sm font-semibold uppercase tracking-wider text-gray-500">
+      <h3 class="text-sm font-semibold uppercase tracking-wider text-gray-500 dark:text-gray-400">
         Rappels santé
       </h3>
       <UiButton
@@ -21,12 +21,12 @@
       <div
         v-for="i in 2"
         :key="i"
-        class="h-16 animate-pulse rounded-lg bg-gray-100"
+        class="h-16 animate-pulse rounded-lg bg-gray-100 dark:bg-gray-800"
       />
     </div>
 
-    <div v-else-if="reminders.length === 0" class="rounded-lg bg-gray-50 p-4">
-      <div class="flex items-center gap-3 text-sm text-gray-500">
+    <div v-else-if="reminders.length === 0" class="rounded-lg bg-gray-50 dark:bg-gray-900 p-4">
+      <div class="flex items-center gap-3 text-sm text-gray-500 dark:text-gray-400">
         <Bell class="h-5 w-5 text-gray-400" />
         <span>Aucun rappel santé programmé</span>
       </div>
@@ -36,18 +36,18 @@
       <div
         v-for="reminder in reminders"
         :key="reminder.id"
-        class="rounded-lg border border-gray-200 bg-gray-50 p-3"
+        class="rounded-lg border border-gray-200 dark:border-gray-800 bg-gray-50 dark:bg-gray-900 p-3"
       >
         <div class="mb-2 flex items-start justify-between gap-3">
-          <p class="text-sm font-medium text-gray-900">
+          <p class="text-sm font-medium text-gray-900 dark:text-gray-100">
             {{ reminder.message }}
           </p>
           <UiBadge :variant="getHealthReminderStatusVariant(reminder.status)">
             {{ getHealthReminderStatusLabel(reminder.status) }}
           </UiBadge>
         </div>
-        <p class="text-xs text-gray-600">{{ reminder.scheduleLabel }}</p>
-        <p class="mt-1 text-xs text-gray-500">
+        <p class="text-xs text-gray-600 dark:text-gray-400">{{ reminder.scheduleLabel }}</p>
+        <p class="mt-1 text-xs text-gray-500 dark:text-gray-400">
           Du {{ formatDate(reminder.startDate) }} au
           {{ formatDate(reminder.endDate) }}
         </p>
@@ -55,7 +55,7 @@
           v-if="reminder.status === 'ACTIVE'"
           class="mt-3 flex items-center justify-between gap-3"
         >
-          <p class="text-xs text-green-700">
+          <p class="text-xs text-green-700 dark:text-green-300">
             Prochain envoi :
             {{
               reminder.nextOccurrence
@@ -65,7 +65,7 @@
           </p>
           <button
             type="button"
-            class="inline-flex min-h-11 items-center gap-1 rounded-md px-2 py-1 text-xs font-medium text-red-600 hover:bg-red-50 focus:outline-none focus:ring-2 focus:ring-red-500 focus:ring-offset-2"
+            class="inline-flex min-h-11 items-center gap-1 rounded-md px-2 py-1 text-xs font-medium text-red-600 dark:text-red-400 hover:bg-red-50 focus:outline-none focus:ring-2 focus:ring-red-500 focus:ring-offset-2"
             :disabled="cancellingId === reminder.id"
             @click="cancelReminder(reminder.id)"
           >
@@ -78,13 +78,13 @@
 
     <form
       v-if="showForm"
-      class="mt-4 space-y-4 rounded-lg border border-orange-100 bg-orange-50/40 p-4"
+      class="mt-4 space-y-4 rounded-lg border border-orange-100 dark:border-orange-900/40 bg-orange-50/40 p-4"
       @submit.prevent="submitReminder"
     >
       <div>
         <label
           :for="`${fieldPrefix}-message`"
-          class="mb-1 block text-sm font-medium text-gray-700"
+          class="mb-1 block text-sm font-medium text-gray-700 dark:text-gray-300"
         >
           Message personnalisé
         </label>
@@ -94,7 +94,7 @@
           rows="3"
           required
           maxlength="500"
-          class="w-full rounded-lg border border-gray-300 px-3 py-2 text-sm focus:border-orange-500 focus:outline-none focus:ring-1 focus:ring-orange-500"
+          class="w-full rounded-lg border border-gray-300 dark:border-gray-700 px-3 py-2 text-sm focus:border-orange-500 focus:outline-none focus:ring-1 focus:ring-orange-500"
         />
       </div>
 
@@ -102,7 +102,7 @@
         <div>
           <label
             :for="`${fieldPrefix}-start-date`"
-            class="mb-1 block text-sm font-medium text-gray-700"
+            class="mb-1 block text-sm font-medium text-gray-700 dark:text-gray-300"
           >
             Date de début
           </label>
@@ -112,11 +112,11 @@
             type="date"
             :min="today"
             required
-            class="w-full rounded-lg border border-gray-300 px-3 py-2 text-sm focus:border-orange-500 focus:outline-none focus:ring-1 focus:ring-orange-500"
+            class="w-full rounded-lg border border-gray-300 dark:border-gray-700 px-3 py-2 text-sm focus:border-orange-500 focus:outline-none focus:ring-1 focus:ring-orange-500"
           />
         </div>
         <div>
-          <label class="mb-1 block text-sm font-medium text-gray-700">
+          <label class="mb-1 block text-sm font-medium text-gray-700 dark:text-gray-300">
             Durée
           </label>
           <div class="grid grid-cols-[minmax(0,1fr)_minmax(0,1.5fr)] gap-2">
@@ -126,12 +126,12 @@
               min="1"
               max="365"
               required
-              class="w-full rounded-lg border border-gray-300 px-3 py-2 text-sm focus:border-orange-500 focus:outline-none focus:ring-1 focus:ring-orange-500"
+              class="w-full rounded-lg border border-gray-300 dark:border-gray-700 px-3 py-2 text-sm focus:border-orange-500 focus:outline-none focus:ring-1 focus:ring-orange-500"
               aria-label="Valeur de la durée"
             />
             <select
               v-model="form.durationUnit"
-              class="w-full rounded-lg border border-gray-300 px-3 py-2 text-sm focus:border-orange-500 focus:outline-none focus:ring-1 focus:ring-orange-500"
+              class="w-full rounded-lg border border-gray-300 dark:border-gray-700 px-3 py-2 text-sm focus:border-orange-500 focus:outline-none focus:ring-1 focus:ring-orange-500"
               aria-label="Unité de durée"
             >
               <option value="DAY">jour(s)</option>
@@ -144,10 +144,10 @@
 
       <div>
         <div class="mb-2 flex items-center justify-between">
-          <span class="text-sm font-medium text-gray-700">Horaires</span>
+          <span class="text-sm font-medium text-gray-700 dark:text-gray-300">Horaires</span>
           <button
             type="button"
-            class="inline-flex min-h-11 items-center gap-1 rounded-md px-2 py-1 text-xs font-medium text-orange-600 hover:bg-orange-100 focus:outline-none focus:ring-2 focus:ring-orange-500 focus:ring-offset-2"
+            class="inline-flex min-h-11 items-center gap-1 rounded-md px-2 py-1 text-xs font-medium text-orange-600 dark:text-orange-400 hover:bg-orange-100 focus:outline-none focus:ring-2 focus:ring-orange-500 focus:ring-offset-2"
             :disabled="form.times.length >= 6"
             @click="addTime"
           >
@@ -161,13 +161,13 @@
               v-model="form.times[index]"
               type="time"
               required
-              class="min-h-11 w-full rounded-lg border border-gray-300 px-3 py-2 text-sm focus:border-orange-500 focus:outline-none focus:ring-1 focus:ring-orange-500"
+              class="min-h-11 w-full rounded-lg border border-gray-300 dark:border-gray-700 px-3 py-2 text-sm focus:border-orange-500 focus:outline-none focus:ring-1 focus:ring-orange-500"
               :aria-label="`Horaire ${index + 1}`"
             />
             <button
               v-if="form.times.length > 1"
               type="button"
-              class="inline-flex min-h-11 w-11 items-center justify-center rounded-lg text-gray-500 hover:bg-red-50 hover:text-red-600 focus:outline-none focus:ring-2 focus:ring-red-500 focus:ring-offset-2"
+              class="inline-flex min-h-11 w-11 items-center justify-center rounded-lg text-gray-500 dark:text-gray-400 hover:bg-red-50 hover:text-red-600 focus:outline-none focus:ring-2 focus:ring-red-500 focus:ring-offset-2"
               :aria-label="`Supprimer l'horaire ${index + 1}`"
               @click="removeTime(index)"
             >
@@ -180,14 +180,14 @@
       <div>
         <label
           :for="`${fieldPrefix}-recurrence`"
-          class="mb-1 block text-sm font-medium text-gray-700"
+          class="mb-1 block text-sm font-medium text-gray-700 dark:text-gray-300"
         >
           Périodicité
         </label>
         <select
           :id="`${fieldPrefix}-recurrence`"
           v-model="form.recurrenceType"
-          class="w-full rounded-lg border border-gray-300 px-3 py-2 text-sm focus:border-orange-500 focus:outline-none focus:ring-1 focus:ring-orange-500"
+          class="w-full rounded-lg border border-gray-300 dark:border-gray-700 px-3 py-2 text-sm focus:border-orange-500 focus:outline-none focus:ring-1 focus:ring-orange-500"
         >
           <option value="INTERVAL">Tous les X jours / semaines</option>
           <option value="WEEKDAYS">Certains jours de la semaine</option>
@@ -201,7 +201,7 @@
         <div>
           <label
             :for="`${fieldPrefix}-interval-value`"
-            class="mb-1 block text-sm font-medium text-gray-700"
+            class="mb-1 block text-sm font-medium text-gray-700 dark:text-gray-300"
           >
             Toutes les
           </label>
@@ -212,20 +212,20 @@
             min="1"
             max="30"
             required
-            class="w-full rounded-lg border border-gray-300 px-3 py-2 text-sm focus:border-orange-500 focus:outline-none focus:ring-1 focus:ring-orange-500"
+            class="w-full rounded-lg border border-gray-300 dark:border-gray-700 px-3 py-2 text-sm focus:border-orange-500 focus:outline-none focus:ring-1 focus:ring-orange-500"
           />
         </div>
         <div>
           <label
             :for="`${fieldPrefix}-interval-unit`"
-            class="mb-1 block text-sm font-medium text-gray-700"
+            class="mb-1 block text-sm font-medium text-gray-700 dark:text-gray-300"
           >
             Unité
           </label>
           <select
             :id="`${fieldPrefix}-interval-unit`"
             v-model="form.intervalUnit"
-            class="w-full rounded-lg border border-gray-300 px-3 py-2 text-sm focus:border-orange-500 focus:outline-none focus:ring-1 focus:ring-orange-500"
+            class="w-full rounded-lg border border-gray-300 dark:border-gray-700 px-3 py-2 text-sm focus:border-orange-500 focus:outline-none focus:ring-1 focus:ring-orange-500"
           >
             <option value="DAY">jour(s)</option>
             <option value="WEEK">semaine(s)</option>
@@ -234,27 +234,27 @@
       </div>
 
       <fieldset v-else>
-        <legend class="mb-2 text-sm font-medium text-gray-700">
+        <legend class="mb-2 text-sm font-medium text-gray-700 dark:text-gray-300">
           Jours de la semaine
         </legend>
         <div class="grid grid-cols-2 gap-2 sm:grid-cols-3">
           <label
             v-for="day in daysOfWeek"
             :key="day.value"
-            class="flex min-h-11 items-center gap-2 rounded-lg border border-gray-200 bg-white px-3 py-2 text-sm text-gray-700"
+            class="flex min-h-11 items-center gap-2 rounded-lg border border-gray-200 dark:border-gray-800 bg-white dark:bg-gray-900 px-3 py-2 text-sm text-gray-700 dark:text-gray-300"
           >
             <input
               v-model="form.daysOfWeek"
               type="checkbox"
               :value="day.value"
-              class="rounded border-gray-300 text-orange-500 focus:ring-orange-500"
+              class="rounded border-gray-300 dark:border-gray-700 text-orange-500 focus:ring-orange-500"
             />
             {{ day.label }}
           </label>
         </div>
       </fieldset>
 
-      <p v-if="formError" class="text-sm text-red-600">
+      <p v-if="formError" class="text-sm text-red-600 dark:text-red-400">
         {{ formError }}
       </p>
 

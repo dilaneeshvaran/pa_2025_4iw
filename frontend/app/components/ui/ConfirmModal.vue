@@ -34,7 +34,7 @@
           <div
             v-if="modelValue"
             ref="panelRef"
-            class="relative z-10 mx-4 w-full max-w-md rounded-xl bg-white shadow-2xl ring-1 ring-black/5"
+            class="relative z-10 mx-4 w-full max-w-md rounded-xl bg-white dark:bg-gray-900 shadow-2xl ring-1 ring-black/5"
             tabindex="-1"
           >
             <!-- Icon + Header -->
@@ -42,13 +42,13 @@
               <div :class="['mb-4 flex h-12 w-12 items-center justify-center rounded-full', iconBgClass]">
                 <component :is="iconComponent" :class="['h-6 w-6', iconColorClass]" />
               </div>
-              <h2 :id="titleId" class="text-lg font-semibold text-gray-900">
+              <h2 :id="titleId" class="text-lg font-semibold text-gray-900 dark:text-gray-100">
                 {{ title }}
               </h2>
               <p
                 v-if="description"
                 :id="descriptionId"
-                class="mt-1.5 text-sm text-gray-500 leading-relaxed"
+                class="mt-1.5 text-sm text-gray-500 dark:text-gray-400 leading-relaxed"
               >
                 {{ description }}
               </p>
@@ -134,17 +134,17 @@ const iconComponent = computed(() => {
 })
 
 const iconBgClass = computed(() => ({
-  danger: 'bg-red-100',
-  warning: 'bg-yellow-100',
-  success: 'bg-green-100',
-  info: 'bg-blue-100',
+  danger: 'bg-red-100 dark:bg-red-900/30',
+  warning: 'bg-yellow-100 dark:bg-yellow-900/30',
+  success: 'bg-green-100 dark:bg-green-900/30',
+  info: 'bg-blue-100 dark:bg-blue-900/30',
 })[props.variant])
 
 const iconColorClass = computed(() => ({
-  danger: 'text-red-600',
-  warning: 'text-yellow-600',
-  success: 'text-green-600',
-  info: 'text-blue-600',
+  danger: 'text-red-600 dark:text-red-400',
+  warning: 'text-yellow-600 dark:text-yellow-400',
+  success: 'text-green-600 dark:text-green-400',
+  info: 'text-blue-600 dark:text-blue-400',
 })[props.variant])
 
 watch(

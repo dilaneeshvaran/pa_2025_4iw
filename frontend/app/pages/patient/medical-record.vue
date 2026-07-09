@@ -1,13 +1,13 @@
 <template>
   <div class="space-y-6">
     <div>
-      <h1 class="mb-2 text-2xl font-bold text-gray-900">Mon dossier médical</h1>
-      <p class="text-gray-600">
+      <h1 class="mb-2 text-2xl font-bold text-gray-900 dark:text-gray-100">Mon dossier médical</h1>
+      <p class="text-gray-600 dark:text-gray-400">
         Gérez vos informations médicales et téléversez vos documents
       </p>
     </div>
 
-    <div class="border-b border-gray-200">
+    <div class="border-b border-gray-200 dark:border-gray-800">
       <nav class="scrollbar-hide -mb-px flex space-x-6 overflow-x-auto" aria-label="Tabs">
         <button
           v-for="tab in tabs"
@@ -15,8 +15,8 @@
           :class="[
             'shrink-0 whitespace-nowrap border-b-2 px-1 py-3 text-sm font-medium transition-colors',
             activeTab === tab.key
-              ? 'border-orange-600 text-orange-600'
-              : 'border-transparent text-gray-500 hover:border-gray-300 hover:text-gray-700',
+              ? 'border-orange-600 text-orange-600 dark:text-orange-400'
+              : 'border-transparent text-gray-500 dark:text-gray-400 hover:border-gray-300 hover:text-gray-700 dark:hover:text-gray-200',
           ]"
           @click="activeTab = tab.key"
         >
@@ -29,7 +29,7 @@
     <div v-if="activeTab === 'profile'">
       <UiCard>
         <div class="mb-6 flex items-center justify-between">
-          <h2 class="text-lg font-semibold text-gray-900">
+          <h2 class="text-lg font-semibold text-gray-900 dark:text-gray-100">
             Informations personnelles
           </h2>
           <UiButton
@@ -45,7 +45,7 @@
 
         <!-- loading -->
         <div v-if="loadingProfile" class="animate-pulse space-y-4">
-          <div v-for="i in 4" :key="i" class="h-10 rounded bg-gray-100" />
+          <div v-for="i in 4" :key="i" class="h-10 rounded bg-gray-100 dark:bg-gray-800" />
         </div>
         <!-- view mode -->
         <div v-else-if="!editingProfile && profile" class="space-y-6">
@@ -89,25 +89,25 @@
         >
           <div class="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
             <div>
-              <label class="mb-1 block text-sm font-medium text-gray-700"
+              <label class="mb-1 block text-sm font-medium text-gray-700 dark:text-gray-300"
                 >Prénom</label
               >
               <UiInput v-model="profileForm.firstName" />
             </div>
             <div>
-              <label class="mb-1 block text-sm font-medium text-gray-700"
+              <label class="mb-1 block text-sm font-medium text-gray-700 dark:text-gray-300"
                 >Nom</label
               >
               <UiInput v-model="profileForm.lastName" />
             </div>
             <div>
-              <label class="mb-1 block text-sm font-medium text-gray-700"
+              <label class="mb-1 block text-sm font-medium text-gray-700 dark:text-gray-300"
                 >Téléphone</label
               >
               <UiInput v-model="profileForm.phone" />
             </div>
             <div>
-              <label class="mb-1 block text-sm font-medium text-gray-700"
+              <label class="mb-1 block text-sm font-medium text-gray-700 dark:text-gray-300"
                 >Taille (cm)</label
               >
               <UiInput
@@ -117,7 +117,7 @@
               />
             </div>
             <div>
-              <label class="mb-1 block text-sm font-medium text-gray-700"
+              <label class="mb-1 block text-sm font-medium text-gray-700 dark:text-gray-300"
                 >Poids (kg)</label
               >
               <UiInput
@@ -127,12 +127,12 @@
               />
             </div>
             <div>
-              <label class="mb-1 block text-sm font-medium text-gray-700"
+              <label class="mb-1 block text-sm font-medium text-gray-700 dark:text-gray-300"
                 >Groupe sanguin</label
               >
               <select
                 v-model="profileForm.bloodType"
-                class="w-full rounded-lg border border-gray-300 px-4 py-2.5 text-base focus:border-orange-600 focus:outline-none focus:ring-2 focus:ring-orange-600/20"
+                class="w-full rounded-lg border border-gray-300 dark:border-gray-700 px-4 py-2.5 text-base focus:border-orange-600 focus:outline-none focus:ring-2 focus:ring-orange-600/20"
               >
                 <option value="">Non renseigné</option>
                 <option v-for="bt in bloodTypes" :key="bt" :value="bt">
@@ -141,13 +141,13 @@
               </select>
             </div>
             <div>
-              <label class="mb-1 block text-sm font-medium text-gray-700"
+              <label class="mb-1 block text-sm font-medium text-gray-700 dark:text-gray-300"
                 >Ville</label
               >
               <UiInput v-model="profileForm.city" />
             </div>
             <div class="sm:col-span-2">
-              <label class="mb-1 block text-sm font-medium text-gray-700"
+              <label class="mb-1 block text-sm font-medium text-gray-700 dark:text-gray-300"
                 >Adresse</label
               >
               <UiInput v-model="profileForm.address" />
@@ -163,10 +163,10 @@
             </UiButton>
           </div>
 
-          <p v-if="profileError" class="text-sm text-red-600">
+          <p v-if="profileError" class="text-sm text-red-600 dark:text-red-400">
             {{ profileError }}
           </p>
-          <p v-if="profileSuccess" class="text-sm text-green-600">
+          <p v-if="profileSuccess" class="text-sm text-green-600 dark:text-green-400">
             {{ profileSuccess }}
           </p>
         </form>
@@ -177,7 +177,7 @@
       <div class="space-y-6">
         <UiCard>
           <div class="mb-4 flex items-center justify-between">
-            <h3 class="text-lg font-semibold text-gray-900">
+            <h3 class="text-lg font-semibold text-gray-900 dark:text-gray-100">
               <AlertTriangle class="mr-2 inline-block h-5 w-5 text-red-500" />
               Allergies
             </h3>
@@ -191,11 +191,11 @@
             </UiButton>
           </div>
           <div v-if="loadingProfile" class="animate-pulse">
-            <div class="h-8 rounded bg-gray-100" />
+            <div class="h-8 rounded bg-gray-100 dark:bg-gray-800" />
           </div>
           <div
             v-else-if="!profile?.allergies?.length"
-            class="py-4 text-center text-gray-500"
+            class="py-4 text-center text-gray-500 dark:text-gray-400"
           >
             Aucune allergie renseignée
           </div>
@@ -203,7 +203,7 @@
             <span
               v-for="(item, idx) in profile.allergies"
               :key="idx"
-              class="inline-flex items-center gap-1 rounded-full bg-red-50 px-2.5 py-1 text-xs font-medium text-red-700"
+              class="inline-flex items-center gap-1 rounded-full bg-red-50 dark:bg-red-950/30 px-2.5 py-1 text-xs font-medium text-red-700 dark:text-red-300"
             >
               {{ item }}
               <button
@@ -218,7 +218,7 @@
 
         <UiCard>
           <div class="mb-4 flex items-center justify-between">
-            <h3 class="text-lg font-semibold text-gray-900">
+            <h3 class="text-lg font-semibold text-gray-900 dark:text-gray-100">
               <Activity class="mr-2 inline-block h-5 w-5 text-orange-500" />
               Maladies chroniques
             </h3>
@@ -232,11 +232,11 @@
             </UiButton>
           </div>
           <div v-if="loadingProfile" class="animate-pulse">
-            <div class="h-8 rounded bg-gray-100" />
+            <div class="h-8 rounded bg-gray-100 dark:bg-gray-800" />
           </div>
           <div
             v-else-if="!profile?.chronicConditions?.length"
-            class="py-4 text-center text-gray-500"
+            class="py-4 text-center text-gray-500 dark:text-gray-400"
           >
             Aucune maladie chronique renseignée
           </div>
@@ -244,7 +244,7 @@
             <span
               v-for="(item, idx) in profile.chronicConditions"
               :key="idx"
-              class="inline-flex items-center gap-1 rounded-full bg-orange-50 px-2.5 py-1 text-xs font-medium text-orange-700"
+              class="inline-flex items-center gap-1 rounded-full bg-orange-50 dark:bg-orange-950/30 px-2.5 py-1 text-xs font-medium text-orange-700 dark:text-orange-300"
             >
               {{ item }}
               <button
@@ -259,7 +259,7 @@
 
         <UiCard>
           <div class="mb-4 flex items-center justify-between">
-            <h3 class="text-lg font-semibold text-gray-900">
+            <h3 class="text-lg font-semibold text-gray-900 dark:text-gray-100">
               <Scissors class="mr-2 inline-block h-5 w-5 text-purple-500" />
               Opérations chirurgicales
             </h3>
@@ -273,11 +273,11 @@
             </UiButton>
           </div>
           <div v-if="loadingProfile" class="animate-pulse">
-            <div class="h-8 rounded bg-gray-100" />
+            <div class="h-8 rounded bg-gray-100 dark:bg-gray-800" />
           </div>
           <div
             v-else-if="!profile?.surgicalOperations?.length"
-            class="py-4 text-center text-gray-500"
+            class="py-4 text-center text-gray-500 dark:text-gray-400"
           >
             Aucune opération chirurgicale renseignée
           </div>
@@ -285,7 +285,7 @@
             <span
               v-for="(item, idx) in profile.surgicalOperations"
               :key="idx"
-              class="inline-flex items-center gap-1 rounded-full bg-purple-50 px-2.5 py-1 text-xs font-medium text-purple-700"
+              class="inline-flex items-center gap-1 rounded-full bg-purple-50 dark:bg-purple-950/30 px-2.5 py-1 text-xs font-medium text-purple-700 dark:text-purple-300"
             >
               {{ item }}
               <button
@@ -302,45 +302,45 @@
 
     <div v-if="activeTab === 'consultations'">
       <UiCard>
-        <h2 class="mb-4 text-lg font-semibold text-gray-900">
+        <h2 class="mb-4 text-lg font-semibold text-gray-900 dark:text-gray-100">
           Historique des consultations
         </h2>
 
         <div v-if="loadingConsultations" class="animate-pulse space-y-4">
-          <div v-for="i in 3" :key="i" class="h-24 rounded-lg bg-gray-100" />
+          <div v-for="i in 3" :key="i" class="h-24 rounded-lg bg-gray-100 dark:bg-gray-800" />
         </div>
 
         <div v-else-if="consultations.length === 0" class="py-8 text-center">
           <Stethoscope class="mx-auto mb-3 h-12 w-12 text-gray-300" />
-          <p class="text-gray-500">Aucune consultation passée</p>
+          <p class="text-gray-500 dark:text-gray-400">Aucune consultation passée</p>
         </div>
 
         <div v-else class="space-y-4">
           <div
             v-for="consultation in consultations"
             :key="consultation.id"
-            class="rounded-lg border border-gray-200 p-4"
+            class="rounded-lg border border-gray-200 dark:border-gray-800 p-4"
           >
             <div class="flex items-start justify-between">
               <div>
-                <p class="font-medium text-gray-900">
+                <p class="font-medium text-gray-900 dark:text-gray-100">
                   {{ consultation.practitioner.title }}
                   {{ consultation.practitioner.firstName }}
                   {{ consultation.practitioner.lastName }}
                 </p>
-                <p class="text-sm text-gray-500">
+                <p class="text-sm text-gray-500 dark:text-gray-400">
                   {{
                     consultation.practitioner.specialty || "Médecin généraliste"
                   }}
                 </p>
-                <p class="mt-1 text-sm text-gray-600">
+                <p class="mt-1 text-sm text-gray-600 dark:text-gray-400">
                   <Calendar class="mr-1 inline-block h-3.5 w-3.5" />
                   {{ formatDate(consultation.appointmentDate) }}
                   · {{ consultation.startTime }} - {{ consultation.endTime }}
                 </p>
                 <p
                   v-if="consultation.reason"
-                  class="mt-1 text-sm text-gray-500"
+                  class="mt-1 text-sm text-gray-500 dark:text-gray-400"
                 >
                   Motif : {{ consultation.reason }}
                 </p>
@@ -356,7 +356,7 @@
 
             <div v-if="consultation.medicalRecord" class="mt-3 border-t pt-3">
               <button
-                class="flex items-center gap-1 text-sm font-medium text-orange-600 hover:text-orange-700"
+                class="flex items-center gap-1 text-sm font-medium text-orange-600 dark:text-orange-400 hover:text-orange-700"
                 @click="toggleConsultationDetails(consultation.id)"
               >
                 <ChevronDown
@@ -378,15 +378,15 @@
                 class="mt-3 space-y-2 text-sm"
               >
                 <p v-if="consultation.medicalRecord.chiefComplaint">
-                  <span class="font-medium text-gray-700">Motif :</span>
+                  <span class="font-medium text-gray-700 dark:text-gray-300">Motif :</span>
                   {{ consultation.medicalRecord.chiefComplaint }}
                 </p>
                 <p v-if="consultation.medicalRecord.diagnosis">
-                  <span class="font-medium text-gray-700">Diagnostic :</span>
+                  <span class="font-medium text-gray-700 dark:text-gray-300">Diagnostic :</span>
                   {{ consultation.medicalRecord.diagnosis }}
                 </p>
                 <p v-if="consultation.medicalRecord.treatmentPlan">
-                  <span class="font-medium text-gray-700"
+                  <span class="font-medium text-gray-700 dark:text-gray-300"
                     >Plan de traitement :</span
                   >
                   {{ consultation.medicalRecord.treatmentPlan }}
@@ -402,19 +402,19 @@
                 >
                   <span
                     v-if="consultation.medicalRecord.bloodPressure"
-                    class="rounded bg-gray-100 px-2 py-1 text-xs"
+                    class="rounded bg-gray-100 dark:bg-gray-800 px-2 py-1 text-xs"
                   >
                     TA: {{ consultation.medicalRecord.bloodPressure }}
                   </span>
                   <span
                     v-if="consultation.medicalRecord.heartRate"
-                    class="rounded bg-gray-100 px-2 py-1 text-xs"
+                    class="rounded bg-gray-100 dark:bg-gray-800 px-2 py-1 text-xs"
                   >
                     FC: {{ consultation.medicalRecord.heartRate }} bpm
                   </span>
                   <span
                     v-if="consultation.medicalRecord.temperature"
-                    class="rounded bg-gray-100 px-2 py-1 text-xs"
+                    class="rounded bg-gray-100 dark:bg-gray-800 px-2 py-1 text-xs"
                   >
                     T°: {{ consultation.medicalRecord.temperature }}°C
                   </span>
@@ -424,12 +424,12 @@
                   v-if="consultation.medicalRecord.documents?.length"
                   class="mt-2"
                 >
-                  <p class="mb-1 font-medium text-gray-700">Documents :</p>
+                  <p class="mb-1 font-medium text-gray-700 dark:text-gray-300">Documents :</p>
                   <div class="flex flex-wrap gap-2">
                     <button
                       v-for="doc in consultation.medicalRecord.documents"
                       :key="doc.id"
-                      class="inline-flex items-center gap-1.5 rounded-lg bg-orange-50 px-3 py-1.5 text-sm text-orange-700 hover:bg-orange-100"
+                      class="inline-flex items-center gap-1.5 rounded-lg bg-orange-50 dark:bg-orange-950/30 px-3 py-1.5 text-sm text-orange-700 dark:text-orange-300 hover:bg-orange-100"
                       @click="downloadDocument(doc.id, doc.fileName)"
                     >
                       <Download class="h-3.5 w-3.5" />
@@ -453,7 +453,7 @@
             >
               Précédent
             </UiButton>
-            <span class="text-sm text-gray-600">
+            <span class="text-sm text-gray-600 dark:text-gray-400">
               Page {{ consultationsPagination.page }} /
               {{ consultationsPagination.totalPages }}
             </span>
@@ -480,18 +480,18 @@
       >
         <div class="relative flex-1 sm:max-w-md">
           <SearchIcon
-            class="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-gray-500"
+            class="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-gray-500 dark:text-gray-400"
           />
           <input
             v-model="docSearchQuery"
             type="text"
             placeholder="Rechercher un document..."
-            class="w-full rounded-lg border border-gray-300 py-2.5 pl-10 pr-4 text-sm focus:border-orange-600 focus:outline-none focus:ring-2 focus:ring-orange-600/20"
+            class="w-full rounded-lg border border-gray-300 dark:border-gray-700 py-2.5 pl-10 pr-4 text-sm focus:border-orange-600 focus:outline-none focus:ring-2 focus:ring-orange-600/20"
             @input="debouncedDocSearch"
           />
           <button
             v-if="docSearchQuery"
-            class="absolute right-3 top-1/2 -translate-y-1/2 text-gray-500 hover:text-gray-600"
+            class="absolute right-3 top-1/2 -translate-y-1/2 text-gray-500 dark:text-gray-400 hover:text-gray-600"
             @click="clearDocSearch"
           >
             <X class="h-4 w-4" />
@@ -499,14 +499,14 @@
         </div>
         <div class="flex items-center gap-3">
           <div
-            class="flex items-center gap-1 rounded-lg border border-gray-200 p-1"
+            class="flex items-center gap-1 rounded-lg border border-gray-200 dark:border-gray-800 p-1"
           >
             <button
               :class="[
                 'rounded-md px-2.5 py-1.5 text-sm font-medium transition-colors',
                 docViewMode === 'card'
                   ? 'bg-orange-500 text-white'
-                  : 'text-gray-600 hover:bg-gray-100',
+                  : 'text-gray-600 dark:text-gray-400 hover:bg-gray-100 dark:hover:bg-gray-800',
               ]"
               @click="docViewMode = 'card'"
             >
@@ -517,7 +517,7 @@
                 'rounded-md px-2.5 py-1.5 text-sm font-medium transition-colors',
                 docViewMode === 'list'
                   ? 'bg-orange-500 text-white'
-                  : 'text-gray-600 hover:bg-gray-100',
+                  : 'text-gray-600 dark:text-gray-400 hover:bg-gray-100 dark:hover:bg-gray-800',
               ]"
               @click="docViewMode = 'list'"
             >
@@ -540,7 +540,7 @@
             'shrink-0 whitespace-nowrap rounded-full px-3 py-1.5 text-sm font-medium transition-colors',
             docActiveSubTab === st.key
               ? 'bg-orange-500 text-white'
-              : 'bg-gray-100 text-gray-600 hover:bg-gray-200',
+              : 'bg-gray-100 dark:bg-gray-800 text-gray-600 dark:text-gray-400 hover:bg-gray-200',
           ]"
           @click="switchDocSubTab(st.key)"
         >
@@ -550,7 +550,7 @@
               'ml-1 inline-flex items-center rounded-full px-1.5 py-0.5 text-xs',
               docActiveSubTab === st.key
                 ? 'bg-orange-500 text-white'
-                : 'bg-gray-200 text-gray-700',
+                : 'bg-gray-200 text-gray-700 dark:text-gray-300',
             ]"
           >
             {{ getDocSubTabCount(st.key) }}
@@ -559,17 +559,17 @@
       </div>
 
       <UiCard>
-        <h2 class="mb-4 text-lg font-semibold text-gray-900">
+        <h2 class="mb-4 text-lg font-semibold text-gray-900 dark:text-gray-100">
           Mes documents médicaux
         </h2>
 
         <div v-if="loadingDocuments" class="animate-pulse space-y-4">
-          <div v-for="i in 3" :key="i" class="h-16 rounded-lg bg-gray-100" />
+          <div v-for="i in 3" :key="i" class="h-16 rounded-lg bg-gray-100 dark:bg-gray-800" />
         </div>
 
         <div v-else-if="documents.length === 0" class="py-8 text-center">
           <FileSearch class="mx-auto mb-3 h-12 w-12 text-gray-300" />
-          <p class="text-gray-500">
+          <p class="text-gray-500 dark:text-gray-400">
             {{
               docSearchQuery
                 ? "Aucun document ne correspond à votre recherche"
@@ -590,7 +590,7 @@
           <div
             v-for="doc in documents"
             :key="doc.id"
-            class="group rounded-lg border border-gray-200 p-4 transition-shadow hover:shadow-md"
+            class="group rounded-lg border border-gray-200 dark:border-gray-800 p-4 transition-shadow hover:shadow-md"
           >
             <div class="mb-2 flex items-start justify-between">
               <div
@@ -611,7 +611,7 @@
                   {{ getDocTypeLabel(doc.type) }}
                 </span>
                 <button
-                  class="rounded-lg p-1 text-gray-500 hover:bg-red-50 hover:text-red-500"
+                  class="rounded-lg p-1 text-gray-500 dark:text-gray-400 hover:bg-red-50 hover:text-red-500"
                   title="Supprimer"
                   @click="deleteOwnDocument(doc.id)"
                 >
@@ -619,17 +619,17 @@
                 </button>
               </div>
             </div>
-            <h3 class="mb-1 line-clamp-2 font-medium text-gray-900">
+            <h3 class="mb-1 line-clamp-2 font-medium text-gray-900 dark:text-gray-100">
               {{ doc.title }}
             </h3>
-            <p class="mb-3 text-xs text-gray-500">
+            <p class="mb-3 text-xs text-gray-500 dark:text-gray-400">
               {{ formatDate(doc.uploadedAt) }} ·
               {{ formatFileSize(doc.fileSize) }}
             </p>
             <div class="flex gap-2">
               <button
                 v-if="isPdf(doc.mimeType)"
-                class="flex flex-1 items-center justify-center gap-1.5 rounded-lg border border-gray-200 px-3 py-1.5 text-sm font-medium text-gray-700 hover:bg-gray-50"
+                class="flex flex-1 items-center justify-center gap-1.5 rounded-lg border border-gray-200 dark:border-gray-800 px-3 py-1.5 text-sm font-medium text-gray-700 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-gray-800"
                 @click="viewOwnDocument(doc)"
               >
                 <Eye class="h-4 w-4" />
@@ -651,7 +651,7 @@
           <div
             v-for="doc in documents"
             :key="doc.id"
-            class="flex items-center justify-between rounded-lg border border-gray-200 p-4 hover:shadow-sm"
+            class="flex items-center justify-between rounded-lg border border-gray-200 dark:border-gray-800 p-4 hover:shadow-sm"
           >
             <div class="flex items-center gap-3">
               <div
@@ -664,7 +664,7 @@
               </div>
               <div>
                 <div class="flex items-center gap-2">
-                  <p class="font-medium text-gray-900">{{ doc.title }}</p>
+                  <p class="font-medium text-gray-900 dark:text-gray-100">{{ doc.title }}</p>
                   <span
                     :class="[
                       'hidden rounded-full px-2 py-0.5 text-xs font-medium sm:inline-flex',
@@ -674,7 +674,7 @@
                     {{ getDocTypeLabel(doc.type) }}
                   </span>
                 </div>
-                <p class="text-sm text-gray-500">
+                <p class="text-sm text-gray-500 dark:text-gray-400">
                   {{ formatDate(doc.uploadedAt) }} ·
                   {{ formatFileSize(doc.fileSize) }}
                 </p>
@@ -683,21 +683,21 @@
             <div class="ml-4 flex flex-shrink-0 items-center gap-1">
               <button
                 v-if="isPdf(doc.mimeType)"
-                class="rounded-lg p-2 text-gray-500 hover:bg-gray-100 hover:text-orange-600"
+                class="rounded-lg p-2 text-gray-500 dark:text-gray-400 hover:bg-gray-100 dark:hover:bg-gray-800 hover:text-orange-600"
                 title="Lire"
                 @click="viewOwnDocument(doc)"
               >
                 <Eye class="h-5 w-5" />
               </button>
               <button
-                class="rounded-lg p-2 text-gray-500 hover:bg-gray-100 hover:text-orange-600"
+                class="rounded-lg p-2 text-gray-500 dark:text-gray-400 hover:bg-gray-100 dark:hover:bg-gray-800 hover:text-orange-600"
                 title="Télécharger"
                 @click="downloadDocument(doc.id, doc.fileName)"
               >
                 <Download class="h-5 w-5" />
               </button>
               <button
-                class="rounded-lg p-2 text-gray-500 hover:bg-red-50 hover:text-red-500"
+                class="rounded-lg p-2 text-gray-500 dark:text-gray-400 hover:bg-red-50 hover:text-red-500"
                 title="Supprimer"
                 @click="deleteOwnDocument(doc.id)"
               >
@@ -720,7 +720,7 @@
           >
             Précédent
           </UiButton>
-          <span class="text-sm text-gray-600">
+          <span class="text-sm text-gray-600 dark:text-gray-400">
             Page {{ documentsPagination.page }} /
             {{ documentsPagination.totalPages }}
           </span>
@@ -741,7 +741,7 @@
     <div v-if="activeTab === 'vaccinations'">
       <UiCard>
         <div class="mb-4 flex items-center justify-between">
-          <h2 class="text-lg font-semibold text-gray-900">
+          <h2 class="text-lg font-semibold text-gray-900 dark:text-gray-100">
             Carnet de vaccination
           </h2>
           <UiButton size="sm" @click="openVaccinationModal">
@@ -751,27 +751,27 @@
         </div>
 
         <div v-if="loadingVaccinations" class="animate-pulse space-y-4">
-          <div v-for="i in 3" :key="i" class="h-20 rounded-lg bg-gray-100" />
+          <div v-for="i in 3" :key="i" class="h-20 rounded-lg bg-gray-100 dark:bg-gray-800" />
         </div>
 
         <div v-else-if="vaccinations.length === 0" class="py-8 text-center">
           <Syringe class="mx-auto mb-3 h-12 w-12 text-gray-300" />
-          <p class="text-gray-500">Aucune vaccination enregistrée</p>
+          <p class="text-gray-500 dark:text-gray-400">Aucune vaccination enregistrée</p>
         </div>
 
         <div v-else class="space-y-3">
           <div
             v-for="vac in vaccinations"
             :key="vac.id"
-            class="rounded-lg border border-gray-200 p-4"
+            class="rounded-lg border border-gray-200 dark:border-gray-800 p-4"
           >
             <div class="flex items-start justify-between">
               <div>
-                <p class="font-medium text-gray-900">{{ vac.vaccineName }}</p>
-                <p v-if="vac.vaccineType" class="text-sm text-gray-500">
+                <p class="font-medium text-gray-900 dark:text-gray-100">{{ vac.vaccineName }}</p>
+                <p v-if="vac.vaccineType" class="text-sm text-gray-500 dark:text-gray-400">
                   {{ vac.vaccineType }}
                 </p>
-                <div class="mt-1 flex flex-wrap gap-3 text-sm text-gray-600">
+                <div class="mt-1 flex flex-wrap gap-3 text-sm text-gray-600 dark:text-gray-400">
                   <span>
                     <Calendar class="mr-1 inline-block h-3.5 w-3.5" />
                     {{ formatDate(vac.administeredAt) }}
@@ -781,16 +781,16 @@
                     {{ vac.manufacturer }}
                   </span>
                 </div>
-                <p v-if="vac.nextDoseDate" class="mt-1 text-sm text-orange-600">
+                <p v-if="vac.nextDoseDate" class="mt-1 text-sm text-orange-600 dark:text-orange-400">
                   Prochaine dose : {{ formatDate(vac.nextDoseDate) }}
                 </p>
-                <p v-if="vac.administeredBy" class="text-xs text-gray-500">
+                <p v-if="vac.administeredBy" class="text-xs text-gray-500 dark:text-gray-400">
                   Par : {{ vac.administeredBy }}
                   <span v-if="vac.location"> · {{ vac.location }}</span>
                 </p>
               </div>
               <button
-                class="rounded-lg p-2 text-gray-500 hover:bg-red-50 hover:text-red-500"
+                class="rounded-lg p-2 text-gray-500 dark:text-gray-400 hover:bg-red-50 hover:text-red-500"
                 title="Supprimer"
                 @click="deleteVaccination(vac.id)"
               >
@@ -806,8 +806,8 @@
       <div class="space-y-6">
         <div class="flex items-center justify-between">
           <div>
-            <h2 class="text-lg font-semibold text-gray-900">Mes indicateurs de santé</h2>
-            <p class="text-sm text-gray-500">Suivez vos constantes vitales au fil du temps</p>
+            <h2 class="text-lg font-semibold text-gray-900 dark:text-gray-100">Mes indicateurs de santé</h2>
+            <p class="text-sm text-gray-500 dark:text-gray-400">Suivez vos constantes vitales au fil du temps</p>
           </div>
           <UiButton size="sm" @click="openMetricModal()">
             <Plus class="mr-1.5 h-4 w-4" />
@@ -819,10 +819,10 @@
           <div
             v-for="type in ['WEIGHT', 'HEART_RATE', 'TEMPERATURE', 'BLOOD_PRESSURE', 'BLOOD_GLUCOSE']"
             :key="type"
-            class="rounded-xl border border-gray-200 bg-white p-4 shadow-sm hover:shadow-md transition-shadow"
+            class="rounded-xl border border-gray-200 dark:border-gray-800 bg-white dark:bg-gray-900 p-4 shadow-sm hover:shadow-md transition-shadow"
           >
             <div class="flex items-center justify-between mb-3">
-              <span class="text-xs font-semibold text-gray-500 uppercase tracking-wider">
+              <span class="text-xs font-semibold text-gray-500 dark:text-gray-400 uppercase tracking-wider">
                 {{ getMetricLabel(type) }}
               </span>
               <div :class="['p-1.5 rounded-lg', getMetricIconColor(type)]">
@@ -830,14 +830,14 @@
               </div>
             </div>
             <div class="flex items-baseline gap-1">
-              <span class="text-2xl font-bold text-gray-900">
+              <span class="text-2xl font-bold text-gray-900 dark:text-gray-100">
                 {{ latestMetrics.find(m => m.metricType === type)?.value ?? '--' }}
               </span>
-              <span class="text-sm font-medium text-gray-500">
+              <span class="text-sm font-medium text-gray-500 dark:text-gray-400">
                 {{ latestMetrics.find(m => m.metricType === type)?.unit ?? '' }}
               </span>
             </div>
-            <p class="text-xs text-gray-500 mt-2">
+            <p class="text-xs text-gray-500 dark:text-gray-400 mt-2">
               <span v-if="latestMetrics.find(m => m.metricType === type)">
                 Le {{ formatDate(latestMetrics.find(m => m.metricType === type)!.recordedAt) }}
               </span>
@@ -848,15 +848,15 @@
 
         <div class="grid gap-6 lg:grid-cols-3">
           <div class="lg:col-span-1 space-y-2">
-            <h3 class="text-sm font-semibold text-gray-700 mb-3">Sélectionner un indicateur</h3>
+            <h3 class="text-sm font-semibold text-gray-700 dark:text-gray-300 mb-3">Sélectionner un indicateur</h3>
             <button
               v-for="type in ['WEIGHT', 'HEART_RATE', 'TEMPERATURE', 'BLOOD_PRESSURE', 'BLOOD_GLUCOSE']"
               :key="type"
               :class="[
                 'w-full flex items-center justify-between px-4 py-3 rounded-lg border text-sm font-medium transition-all text-left',
                 activeMetricHistoryType === type
-                  ? 'border-orange-500 bg-orange-50/50 text-orange-700 ring-1 ring-orange-500'
-                  : 'border-gray-200 bg-white text-gray-700 hover:bg-gray-50'
+                  ? 'border-orange-500 bg-orange-50/50 text-orange-700 dark:text-orange-300 ring-1 ring-orange-500'
+                  : 'border-gray-200 dark:border-gray-800 bg-white dark:bg-gray-900 text-gray-700 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-gray-800'
               ]"
               @click="activeMetricHistoryType = type"
             >
@@ -867,17 +867,17 @@
 
           <div class="lg:col-span-2">
             <UiCard>
-              <h3 class="text-base font-semibold text-gray-900 mb-4">
+              <h3 class="text-base font-semibold text-gray-900 dark:text-gray-100 mb-4">
                 Historique : {{ getMetricLabel(activeMetricHistoryType) }}
               </h3>
 
               <div v-if="loadingHistory" class="animate-pulse space-y-3">
-                <div v-for="i in 3" :key="i" class="h-12 bg-gray-100 rounded" />
+                <div v-for="i in 3" :key="i" class="h-12 bg-gray-100 dark:bg-gray-800 rounded" />
               </div>
 
               <div v-else-if="metricHistory.length === 0" class="py-12 text-center">
                 <Activity class="mx-auto h-12 w-12 text-gray-300 mb-3" />
-                <p class="text-gray-500 text-sm">Aucun historique pour cet indicateur</p>
+                <p class="text-gray-500 dark:text-gray-400 text-sm">Aucun historique pour cet indicateur</p>
                 <UiButton size="sm" class="mt-4" variant="outline" @click="openMetricModal(activeMetricHistoryType)">
                   Ajouter la première mesure
                 </UiButton>
@@ -886,7 +886,7 @@
               <div v-else class="overflow-x-auto">
                 <table class="w-full text-left border-collapse">
                   <thead>
-                    <tr class="border-b text-xs font-semibold text-gray-500 uppercase">
+                    <tr class="border-b text-xs font-semibold text-gray-500 dark:text-gray-400 uppercase">
                       <th class="py-3 px-4">Date de mesure</th>
                       <th class="py-3 px-4 text-right">Valeur enregistrée</th>
                       <th class="py-3 px-4 text-right">Actions</th>
@@ -898,15 +898,15 @@
                       :key="item.id"
                       class="border-b last:border-0 hover:bg-gray-50/50 transition-colors"
                     >
-                      <td class="py-3 px-4 text-sm text-gray-600">
+                      <td class="py-3 px-4 text-sm text-gray-600 dark:text-gray-400">
                         {{ formatDate(item.recordedAt) }}
                       </td>
-                      <td class="py-3 px-4 text-sm font-semibold text-gray-900 text-right">
+                      <td class="py-3 px-4 text-sm font-semibold text-gray-900 dark:text-gray-100 text-right">
                         {{ item.value }} {{ item.unit }}
                       </td>
                       <td class="py-3 px-4 text-right">
                         <button
-                          class="rounded-lg p-1.5 text-gray-500 hover:bg-red-50 hover:text-red-600 transition-colors"
+                          class="rounded-lg p-1.5 text-gray-500 dark:text-gray-400 hover:bg-red-50 hover:text-red-600 transition-colors"
                           title="Supprimer"
                           @click="deleteMetric(item.id, item.metricType)"
                         >
@@ -930,8 +930,8 @@
         class="fixed inset-0 z-50 flex items-center justify-center bg-black/50"
         @click.self="showAddModal = false"
       >
-        <div class="mx-4 w-full max-w-md rounded-xl bg-white p-6 shadow-2xl">
-          <h3 class="mb-4 text-lg font-semibold text-gray-900">
+        <div class="mx-4 w-full max-w-md rounded-xl bg-white dark:bg-gray-900 p-6 shadow-2xl">
+          <h3 class="mb-4 text-lg font-semibold text-gray-900 dark:text-gray-100">
             {{ addModalTitle }}
           </h3>
           <form @submit.prevent="confirmAddAntecedent">
@@ -959,14 +959,14 @@
         class="fixed inset-0 z-50 flex items-center justify-center bg-black/50"
         @click.self="showVaccinationModal = false"
       >
-        <div class="mx-4 w-full max-w-lg rounded-xl bg-white p-6 shadow-2xl">
-          <h3 class="mb-4 text-lg font-semibold text-gray-900">
+        <div class="mx-4 w-full max-w-lg rounded-xl bg-white dark:bg-gray-900 p-6 shadow-2xl">
+          <h3 class="mb-4 text-lg font-semibold text-gray-900 dark:text-gray-100">
             Ajouter une vaccination
           </h3>
           <form class="space-y-4" @submit.prevent="confirmAddVaccination">
             <div class="grid gap-4 sm:grid-cols-2">
               <div class="sm:col-span-2">
-                <label class="mb-1 block text-sm font-medium text-gray-700">
+                <label class="mb-1 block text-sm font-medium text-gray-700 dark:text-gray-300">
                   Nom du vaccin *
                 </label>
                 <UiInput
@@ -975,7 +975,7 @@
                 />
               </div>
               <div>
-                <label class="mb-1 block text-sm font-medium text-gray-700"
+                <label class="mb-1 block text-sm font-medium text-gray-700 dark:text-gray-300"
                   >Type</label
                 >
                 <UiInput
@@ -984,7 +984,7 @@
                 />
               </div>
               <div>
-                <label class="mb-1 block text-sm font-medium text-gray-700"
+                <label class="mb-1 block text-sm font-medium text-gray-700 dark:text-gray-300"
                   >Fabricant</label
                 >
                 <UiInput
@@ -993,17 +993,17 @@
                 />
               </div>
               <div>
-                <label class="mb-1 block text-sm font-medium text-gray-700">
+                <label class="mb-1 block text-sm font-medium text-gray-700 dark:text-gray-300">
                   Date d'administration *
                 </label>
                 <input
                   v-model="vaccinationForm.administeredAt"
                   type="date"
-                  class="w-full rounded-lg border border-gray-300 px-4 py-2.5 text-base focus:border-orange-600 focus:outline-none focus:ring-2 focus:ring-orange-600/20"
+                  class="w-full rounded-lg border border-gray-300 dark:border-gray-700 px-4 py-2.5 text-base focus:border-orange-600 focus:outline-none focus:ring-2 focus:ring-orange-600/20"
                 />
               </div>
               <div>
-                <label class="mb-1 block text-sm font-medium text-gray-700"
+                <label class="mb-1 block text-sm font-medium text-gray-700 dark:text-gray-300"
                   >N° de dose</label
                 >
                 <UiInput
@@ -1013,7 +1013,7 @@
                 />
               </div>
               <div>
-                <label class="mb-1 block text-sm font-medium text-gray-700"
+                <label class="mb-1 block text-sm font-medium text-gray-700 dark:text-gray-300"
                   >Administré par</label
                 >
                 <UiInput
@@ -1022,7 +1022,7 @@
                 />
               </div>
               <div>
-                <label class="mb-1 block text-sm font-medium text-gray-700"
+                <label class="mb-1 block text-sm font-medium text-gray-700 dark:text-gray-300"
                   >Lieu</label
                 >
                 <UiInput
@@ -1031,35 +1031,35 @@
                 />
               </div>
               <div>
-                <label class="mb-1 block text-sm font-medium text-gray-700">
+                <label class="mb-1 block text-sm font-medium text-gray-700 dark:text-gray-300">
                   Prochaine dose
                 </label>
                 <input
                   v-model="vaccinationForm.nextDoseDate"
                   type="date"
-                  class="w-full rounded-lg border border-gray-300 px-4 py-2.5 text-base focus:border-orange-600 focus:outline-none focus:ring-2 focus:ring-orange-600/20"
+                  class="w-full rounded-lg border border-gray-300 dark:border-gray-700 px-4 py-2.5 text-base focus:border-orange-600 focus:outline-none focus:ring-2 focus:ring-orange-600/20"
                 />
               </div>
               <div>
-                <label class="mb-1 block text-sm font-medium text-gray-700"
+                <label class="mb-1 block text-sm font-medium text-gray-700 dark:text-gray-300"
                   >N° de lot</label
                 >
                 <UiInput v-model="vaccinationForm.batchNumber" />
               </div>
               <div class="sm:col-span-2">
-                <label class="mb-1 block text-sm font-medium text-gray-700">
+                <label class="mb-1 block text-sm font-medium text-gray-700 dark:text-gray-300">
                   Effets secondaires
                 </label>
                 <textarea
                   v-model="vaccinationForm.sideEffects"
                   rows="2"
-                  class="w-full rounded-lg border border-gray-300 px-4 py-2.5 text-sm focus:border-orange-600 focus:outline-none focus:ring-2 focus:ring-orange-600/20"
+                  class="w-full rounded-lg border border-gray-300 dark:border-gray-700 px-4 py-2.5 text-sm focus:border-orange-600 focus:outline-none focus:ring-2 focus:ring-orange-600/20"
                   placeholder="Optionnel"
                 />
               </div>
             </div>
 
-            <p v-if="vaccinationError" class="text-sm text-red-600">
+            <p v-if="vaccinationError" class="text-sm text-red-600 dark:text-red-400">
               {{ vaccinationError }}
             </p>
 
@@ -1089,13 +1089,13 @@
         class="fixed inset-0 z-50 flex items-center justify-center bg-black/50"
         @click.self="showDocUploadModal = false"
       >
-        <div class="mx-4 w-full max-w-lg rounded-xl bg-white p-6 shadow-2xl">
-          <h3 class="mb-4 text-lg font-semibold text-gray-900">
+        <div class="mx-4 w-full max-w-lg rounded-xl bg-white dark:bg-gray-900 p-6 shadow-2xl">
+          <h3 class="mb-4 text-lg font-semibold text-gray-900 dark:text-gray-100">
             Téléverser un document
           </h3>
           <form class="space-y-4" @submit.prevent="confirmDocUpload">
             <div>
-              <label class="mb-1 block text-sm font-medium text-gray-700">
+              <label class="mb-1 block text-sm font-medium text-gray-700 dark:text-gray-300">
                 Titre *
               </label>
               <UiInput
@@ -1104,12 +1104,12 @@
               />
             </div>
             <div>
-              <label class="mb-1 block text-sm font-medium text-gray-700">
+              <label class="mb-1 block text-sm font-medium text-gray-700 dark:text-gray-300">
                 Type de document *
               </label>
               <select
                 v-model="docUploadForm.type"
-                class="w-full rounded-lg border border-gray-300 px-4 py-2.5 text-base focus:border-orange-600 focus:outline-none focus:ring-2 focus:ring-orange-600/20"
+                class="w-full rounded-lg border border-gray-300 dark:border-gray-700 px-4 py-2.5 text-base focus:border-orange-600 focus:outline-none focus:ring-2 focus:ring-orange-600/20"
               >
                 <option value="LAB_RESULT">Résultat d'analyse</option>
                 <option value="RADIOLOGY">Imagerie médicale</option>
@@ -1119,33 +1119,33 @@
               </select>
             </div>
             <div>
-              <label class="mb-1 block text-sm font-medium text-gray-700">
+              <label class="mb-1 block text-sm font-medium text-gray-700 dark:text-gray-300">
                 Description
               </label>
               <textarea
                 v-model="docUploadForm.description"
                 rows="2"
-                class="w-full rounded-lg border border-gray-300 px-4 py-2.5 text-sm focus:border-orange-600 focus:outline-none focus:ring-2 focus:ring-orange-600/20"
+                class="w-full rounded-lg border border-gray-300 dark:border-gray-700 px-4 py-2.5 text-sm focus:border-orange-600 focus:outline-none focus:ring-2 focus:ring-orange-600/20"
                 placeholder="Optionnel"
               />
             </div>
             <div>
-              <label class="mb-1 block text-sm font-medium text-gray-700">
+              <label class="mb-1 block text-sm font-medium text-gray-700 dark:text-gray-300">
                 Fichier *
               </label>
               <input
                 ref="fileInput"
                 type="file"
                 accept=".pdf,.jpg,.jpeg,.png,.doc,.docx"
-                class="w-full rounded-lg border border-gray-300 px-4 py-2 text-sm file:mr-4 file:rounded-lg file:border-0 file:bg-orange-50 file:px-4 file:py-2 file:text-sm file:font-medium file:text-orange-700 hover:file:bg-orange-100"
+                class="w-full rounded-lg border border-gray-300 dark:border-gray-700 px-4 py-2 text-sm file:mr-4 file:rounded-lg file:border-0 file:bg-orange-50 file:px-4 file:py-2 file:text-sm file:font-medium file:text-orange-700 hover:file:bg-orange-100"
                 @change="handleFileSelect"
               />
-              <p class="mt-1 text-xs text-gray-500">
+              <p class="mt-1 text-xs text-gray-500 dark:text-gray-400">
                 PDF, image ou document Word (max 10 Mo)
               </p>
             </div>
 
-            <p v-if="docUploadError" class="text-sm text-red-600">
+            <p v-if="docUploadError" class="text-sm text-red-600 dark:text-red-400">
               {{ docUploadError }}
             </p>
 
@@ -1175,15 +1175,15 @@
         @click.self="showDocViewer = false"
       >
         <div
-          class="relative mx-4 flex h-[90vh] w-full max-w-4xl flex-col rounded-xl bg-white shadow-2xl"
+          class="relative mx-4 flex h-[90vh] w-full max-w-4xl flex-col rounded-xl bg-white dark:bg-gray-900 shadow-2xl"
         >
           <div class="flex items-center justify-between border-b px-6 py-4">
             <div>
-              <h3 class="font-semibold text-gray-900">{{ docViewerTitle }}</h3>
+              <h3 class="font-semibold text-gray-900 dark:text-gray-100">{{ docViewerTitle }}</h3>
             </div>
             <div class="flex items-center gap-2">
               <button
-                class="rounded-lg p-2 text-gray-500 hover:bg-gray-100"
+                class="rounded-lg p-2 text-gray-500 dark:text-gray-400 hover:bg-gray-100 dark:hover:bg-gray-800"
                 @click="showDocViewer = false"
               >
                 <X class="h-5 w-5" />
@@ -1193,7 +1193,7 @@
           <div class="flex-1 overflow-hidden relative">
             <div
               v-if="docViewerLoading"
-              class="absolute inset-0 flex flex-col items-center justify-center bg-gray-50"
+              class="absolute inset-0 flex flex-col items-center justify-center bg-gray-50 dark:bg-gray-900"
             >
               <svg
                 class="mb-3 h-10 w-10 animate-spin text-orange-500"
@@ -1215,7 +1215,7 @@
                   d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4z"
                 />
               </svg>
-              <p class="text-sm text-gray-500">Chargement du document...</p>
+              <p class="text-sm text-gray-500 dark:text-gray-400">Chargement du document...</p>
             </div>
             <iframe
               v-if="docViewerUrl"
@@ -1234,18 +1234,18 @@
         class="fixed inset-0 z-50 flex items-center justify-center bg-black/50"
         @click.self="showMetricModal = false"
       >
-        <div class="mx-4 w-full max-w-md rounded-xl bg-white p-6 shadow-2xl">
-          <h3 class="mb-4 text-lg font-semibold text-gray-900">
+        <div class="mx-4 w-full max-w-md rounded-xl bg-white dark:bg-gray-900 p-6 shadow-2xl">
+          <h3 class="mb-4 text-lg font-semibold text-gray-900 dark:text-gray-100">
             Enregistrer une constante de santé
           </h3>
           <form class="space-y-4" @submit.prevent="confirmAddMetric">
             <div>
-              <label class="mb-1 block text-sm font-medium text-gray-700">
+              <label class="mb-1 block text-sm font-medium text-gray-700 dark:text-gray-300">
                 Type de constante *
               </label>
               <select
                 v-model="metricForm.metricType"
-                class="w-full rounded-lg border border-gray-300 px-4 py-2.5 text-base focus:border-orange-600 focus:outline-none focus:ring-2 focus:ring-orange-600/20"
+                class="w-full rounded-lg border border-gray-300 dark:border-gray-700 px-4 py-2.5 text-base focus:border-orange-600 focus:outline-none focus:ring-2 focus:ring-orange-600/20"
               >
                 <option value="WEIGHT">Poids</option>
                 <option value="HEART_RATE">Fréquence cardiaque</option>
@@ -1255,7 +1255,7 @@
               </select>
             </div>
             <div>
-              <label class="mb-1 block text-sm font-medium text-gray-700">
+              <label class="mb-1 block text-sm font-medium text-gray-700 dark:text-gray-300">
                 Valeur *
               </label>
               <div class="relative">
@@ -1268,25 +1268,25 @@
                   required
                 />
                 <div class="absolute inset-y-0 right-0 flex items-center pr-3 pointer-events-none">
-                  <span class="text-sm font-semibold text-gray-500">
+                  <span class="text-sm font-semibold text-gray-500 dark:text-gray-400">
                     {{ metricForm.unit }}
                   </span>
                 </div>
               </div>
             </div>
             <div>
-              <label class="mb-1 block text-sm font-medium text-gray-700">
+              <label class="mb-1 block text-sm font-medium text-gray-700 dark:text-gray-300">
                 Date et heure *
               </label>
               <input
                 v-model="metricForm.recordedAt"
                 type="date"
-                class="w-full rounded-lg border border-gray-300 px-4 py-2.5 text-base focus:border-orange-600 focus:outline-none focus:ring-2 focus:ring-orange-600/20"
+                class="w-full rounded-lg border border-gray-300 dark:border-gray-700 px-4 py-2.5 text-base focus:border-orange-600 focus:outline-none focus:ring-2 focus:ring-orange-600/20"
                 required
               />
             </div>
 
-            <p v-if="metricError" class="text-sm text-red-600">
+            <p v-if="metricError" class="text-sm text-red-600 dark:text-red-400">
               {{ metricError }}
             </p>
 
@@ -1608,8 +1608,8 @@ const InfoField = defineComponent({
   setup(props) {
     return () =>
       h("div", [
-        h("p", { class: "text-sm font-medium text-gray-500" }, props.label),
-        h("p", { class: "mt-1 text-base text-gray-900" }, props.value),
+        h("p", { class: "text-sm font-medium text-gray-500 dark:text-gray-400" }, props.label),
+        h("p", { class: "mt-1 text-base text-gray-900 dark:text-gray-100" }, props.value),
       ]);
   },
 });
@@ -2287,13 +2287,13 @@ const getMetricLabel = (type: string) => {
 
 const getMetricIconColor = (type: string) => {
   const colors: Record<string, string> = {
-    WEIGHT: "text-blue-500 bg-blue-50",
-    HEART_RATE: "text-red-500 bg-red-50",
-    TEMPERATURE: "text-yellow-500 bg-yellow-50",
-    BLOOD_PRESSURE: "text-purple-500 bg-purple-50",
-    BLOOD_GLUCOSE: "text-green-500 bg-green-50",
+    WEIGHT: "text-blue-500 bg-blue-50 dark:bg-blue-950/30",
+    HEART_RATE: "text-red-500 bg-red-50 dark:bg-red-950/30",
+    TEMPERATURE: "text-yellow-500 bg-yellow-50 dark:bg-yellow-950/30",
+    BLOOD_PRESSURE: "text-purple-500 bg-purple-50 dark:bg-purple-950/30",
+    BLOOD_GLUCOSE: "text-green-500 bg-green-50 dark:bg-green-950/30",
   };
-  return colors[type] || "text-gray-500 bg-gray-50";
+  return colors[type] || "text-gray-500 dark:text-gray-400 bg-gray-50 dark:bg-gray-900";
 };
 
 watch(activeTab, (tab) => {
