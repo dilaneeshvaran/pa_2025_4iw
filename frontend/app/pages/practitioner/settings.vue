@@ -1,8 +1,8 @@
 <template>
   <div class="mx-auto max-w-4xl space-y-6">
     <div>
-      <h1 class="mb-2 text-2xl font-bold text-gray-900">Paramètres</h1>
-      <p class="text-gray-600">Configurez votre compte et vos préférences</p>
+      <h1 class="mb-2 text-2xl font-bold text-gray-900 dark:text-gray-100">Paramètres</h1>
+      <p class="text-gray-600 dark:text-gray-400">Configurez votre compte et vos préférences</p>
     </div>
 
     <div v-if="loading" class="animate-pulse space-y-6">
@@ -12,19 +12,19 @@
     <div v-else class="space-y-6">
       <UiCard class="p-6">
         <h3
-          class="mb-4 flex items-center gap-2 text-lg font-semibold text-gray-900"
+          class="mb-4 flex items-center gap-2 text-lg font-semibold text-gray-900 dark:text-gray-100"
         >
-          <Eye class="h-5 w-5 text-gray-500" /> Visibilité du profil
+          <Eye class="h-5 w-5 text-gray-500 dark:text-gray-400" /> Visibilité du profil
         </h3>
 
         <div class="space-y-4">
-          <div class="rounded-lg border border-gray-200 bg-gray-50 p-4">
+          <div class="rounded-lg border border-gray-200 dark:border-gray-800 bg-gray-50 dark:bg-gray-900 p-4">
             <div class="mb-3 flex items-start justify-between">
               <div class="flex-1">
-                <h4 class="font-medium text-gray-800">
+                <h4 class="font-medium text-gray-800 dark:text-gray-200">
                   Rendre mon profil public
                 </h4>
-                <p class="mt-1 text-sm text-gray-500">
+                <p class="mt-1 text-sm text-gray-500 dark:text-gray-400">
                   Permet aux patients de trouver votre profil et de prendre
                   rendez-vous en ligne.
                 </p>
@@ -45,7 +45,7 @@
 
             <div
               v-if="!profileVisibility.tarifsAreDefined"
-              class="mt-3 flex items-start gap-2 rounded-md bg-yellow-50 p-3 text-sm text-yellow-800"
+              class="mt-3 flex items-start gap-2 rounded-md bg-yellow-50 dark:bg-yellow-950/30 p-3 text-sm text-yellow-800 dark:text-yellow-200"
             >
               <AlertCircle class="mt-0.5 h-4 w-4 flex-shrink-0" />
               <div>
@@ -65,7 +65,7 @@
 
             <div
               v-if="!profileVisibility.paymentMethodsAreDefined"
-              class="mt-3 flex items-start gap-2 rounded-md bg-yellow-50 p-3 text-sm text-yellow-800"
+              class="mt-3 flex items-start gap-2 rounded-md bg-yellow-50 dark:bg-yellow-950/30 p-3 text-sm text-yellow-800 dark:text-yellow-200"
             >
               <AlertCircle class="mt-0.5 h-4 w-4 flex-shrink-0" />
               <div>
@@ -88,7 +88,7 @@
                 profileVisibility.tarifsAreDefined &&
                 profileVisibility.paymentMethodsAreDefined
               "
-              class="mt-3 flex items-start gap-2 rounded-md bg-green-50 p-3 text-sm text-green-800"
+              class="mt-3 flex items-start gap-2 rounded-md bg-green-50 dark:bg-green-950/30 p-3 text-sm text-green-800 dark:text-green-200"
             >
               <CheckCircle class="mt-0.5 h-4 w-4 flex-shrink-0" />
               <p>
@@ -98,13 +98,13 @@
             </div>
           </div>
 
-          <div class="rounded-lg border border-gray-200 bg-gray-50 p-4">
+          <div class="rounded-lg border border-gray-200 dark:border-gray-800 bg-gray-50 dark:bg-gray-900 p-4">
             <div class="mb-3 flex items-start justify-between">
               <div class="flex-1">
-                <h4 class="font-medium text-gray-800">
+                <h4 class="font-medium text-gray-800 dark:text-gray-200">
                   Activer la messagerie
                 </h4>
-                <p class="mt-1 text-sm text-gray-500">
+                <p class="mt-1 text-sm text-gray-500 dark:text-gray-400">
                   Permet aux patients de vous envoyer des messages pour des questions de suivi ou administratives.
                 </p>
               </div>
@@ -122,19 +122,19 @@
             </div>
           </div>
 
-          <div class="rounded-lg border border-gray-100 bg-white p-4">
-            <h5 class="mb-2 text-sm font-semibold text-gray-700">
+          <div class="rounded-lg border border-gray-100 dark:border-gray-800 bg-white dark:bg-gray-900 p-4">
+            <h5 class="mb-2 text-sm font-semibold text-gray-700 dark:text-gray-300">
               Statut des tarifs
             </h5>
             <div class="space-y-2 text-sm">
               <div class="flex items-center justify-between">
-                <span class="text-gray-600">Consultation standard</span>
+                <span class="text-gray-600 dark:text-gray-400">Consultation standard</span>
                 <span
                   :class="[
                     'font-medium',
                     profileVisibility.tarifs.baseConsultationFee
-                      ? 'text-green-600'
-                      : 'text-gray-500',
+                      ? 'text-green-600 dark:text-green-400'
+                      : 'text-gray-500 dark:text-gray-400',
                   ]"
                 >
                   {{
@@ -145,13 +145,13 @@
                 </span>
               </div>
               <div class="flex items-center justify-between">
-                <span class="text-gray-600">Téléconsultation</span>
+                <span class="text-gray-600 dark:text-gray-400">Téléconsultation</span>
                 <span
                   :class="[
                     'font-medium',
                     profileVisibility.tarifs.teleconsultationFee
-                      ? 'text-green-600'
-                      : 'text-gray-500',
+                      ? 'text-green-600 dark:text-green-400'
+                      : 'text-gray-500 dark:text-gray-400',
                   ]"
                 >
                   {{
@@ -162,13 +162,13 @@
                 </span>
               </div>
               <div class="flex items-center justify-between">
-                <span class="text-gray-600">Urgence</span>
+                <span class="text-gray-600 dark:text-gray-400">Urgence</span>
                 <span
                   :class="[
                     'font-medium',
                     profileVisibility.tarifs.emergencyFee
-                      ? 'text-green-600'
-                      : 'text-gray-500',
+                      ? 'text-green-600 dark:text-green-400'
+                      : 'text-gray-500 dark:text-gray-400',
                   ]"
                 >
                   {{
@@ -185,34 +185,34 @@
 
       <UiCard class="p-6">
         <h3
-          class="mb-4 flex items-center gap-2 text-lg font-semibold text-gray-900"
+          class="mb-4 flex items-center gap-2 text-lg font-semibold text-gray-900 dark:text-gray-100"
         >
-          <Shield class="h-5 w-5 text-gray-500" /> Sécurité
+          <Shield class="h-5 w-5 text-gray-500 dark:text-gray-400" /> Sécurité
         </h3>
 
         <div class="space-y-6">
           <!-- email -->
           <div class="border-b pb-6">
-            <h4 class="mb-3 font-medium text-gray-800">Changer l'adresse email</h4>
-            <p class="mb-3 text-sm text-gray-500">
+            <h4 class="mb-3 font-medium text-gray-800 dark:text-gray-200">Changer l'adresse email</h4>
+            <p class="mb-3 text-sm text-gray-500 dark:text-gray-400">
               Email actuel : <strong>{{ currentEmail }}</strong>
             </p>
             <div class="grid grid-cols-1 gap-4 md:grid-cols-2">
               <div>
-                <label class="mb-1 block text-sm font-medium text-gray-700">Nouvel email</label>
+                <label class="mb-1 block text-sm font-medium text-gray-700 dark:text-gray-300">Nouvel email</label>
                 <input
                   v-model="emailForm.newEmail"
                   type="email"
                   placeholder="nouveau@email.com"
-                  class="w-full rounded-lg border border-gray-300 px-3 py-2 text-sm focus:border-orange-500 focus:outline-none focus:ring-1 focus:ring-orange-500"
+                  class="w-full rounded-lg border border-gray-300 dark:border-gray-700 px-3 py-2 text-sm focus:border-orange-500 focus:outline-none focus:ring-1 focus:ring-orange-500"
                 />
               </div>
               <div>
-                <label class="mb-1 block text-sm font-medium text-gray-700">Mot de passe (confirmation)</label>
+                <label class="mb-1 block text-sm font-medium text-gray-700 dark:text-gray-300">Mot de passe (confirmation)</label>
                 <input
                   v-model="emailForm.password"
                   type="password"
-                  class="w-full rounded-lg border border-gray-300 px-3 py-2 text-sm focus:border-orange-500 focus:outline-none focus:ring-1 focus:ring-orange-500"
+                  class="w-full rounded-lg border border-gray-300 dark:border-gray-700 px-3 py-2 text-sm focus:border-orange-500 focus:outline-none focus:ring-1 focus:ring-orange-500"
                 />
               </div>
             </div>
@@ -226,38 +226,38 @@
           </div>
 
           <div class="border-b pb-6">
-            <h4 class="mb-3 font-medium text-gray-800">
+            <h4 class="mb-3 font-medium text-gray-800 dark:text-gray-200">
               Changer le mot de passe
             </h4>
             <div class="grid grid-cols-1 gap-4 md:grid-cols-2">
               <div>
-                <label class="mb-1 block text-sm font-medium text-gray-700"
+                <label class="mb-1 block text-sm font-medium text-gray-700 dark:text-gray-300"
                   >Mot de passe actuel</label
                 >
                 <input
                   v-model="passwords.currentPassword"
                   type="password"
-                  class="w-full rounded-lg border border-gray-300 px-3 py-2 text-sm focus:border-orange-500 focus:outline-none focus:ring-1 focus:ring-orange-500"
+                  class="w-full rounded-lg border border-gray-300 dark:border-gray-700 px-3 py-2 text-sm focus:border-orange-500 focus:outline-none focus:ring-1 focus:ring-orange-500"
                 />
               </div>
               <div>
-                <label class="mb-1 block text-sm font-medium text-gray-700"
+                <label class="mb-1 block text-sm font-medium text-gray-700 dark:text-gray-300"
                   >Nouveau mot de passe</label
                 >
                 <input
                   v-model="passwords.newPassword"
                   type="password"
-                  class="w-full rounded-lg border border-gray-300 px-3 py-2 text-sm focus:border-orange-500 focus:outline-none focus:ring-1 focus:ring-orange-500"
+                  class="w-full rounded-lg border border-gray-300 dark:border-gray-700 px-3 py-2 text-sm focus:border-orange-500 focus:outline-none focus:ring-1 focus:ring-orange-500"
                 />
               </div>
               <div>
-                <label class="mb-1 block text-sm font-medium text-gray-700"
+                <label class="mb-1 block text-sm font-medium text-gray-700 dark:text-gray-300"
                   >Confirmer le nouveau mot de passe</label
                 >
                 <input
                   v-model="passwords.confirmPassword"
                   type="password"
-                  class="w-full rounded-lg border border-gray-300 px-3 py-2 text-sm focus:border-orange-500 focus:outline-none focus:ring-1 focus:ring-orange-500"
+                  class="w-full rounded-lg border border-gray-300 dark:border-gray-700 px-3 py-2 text-sm focus:border-orange-500 focus:outline-none focus:ring-1 focus:ring-orange-500"
                 />
               </div>
             </div>
@@ -273,10 +273,10 @@
           <div>
             <div class="flex items-center justify-between">
               <div>
-                <h4 class="font-medium text-gray-800">
+                <h4 class="font-medium text-gray-800 dark:text-gray-200">
                   Authentification à deux facteurs (2FA)
                 </h4>
-                <p class="text-sm text-gray-500">
+                <p class="text-sm text-gray-500 dark:text-gray-400">
                   Ajoute une couche de sécurité supplémentaire à votre compte.
                 </p>
               </div>
@@ -298,9 +298,9 @@
 
       <UiCard class="p-6">
         <h3
-          class="mb-4 flex items-center gap-2 text-lg font-semibold text-gray-900"
+          class="mb-4 flex items-center gap-2 text-lg font-semibold text-gray-900 dark:text-gray-100"
         >
-          <Bell class="h-5 w-5 text-gray-500" /> Notifications Email
+          <Bell class="h-5 w-5 text-gray-500 dark:text-gray-400" /> Notifications Email
         </h3>
         <div class="space-y-4">
           <div
@@ -309,7 +309,7 @@
             :key="key"
           >
             <div>
-              <h4 class="font-medium text-gray-800">
+              <h4 class="font-medium text-gray-800 dark:text-gray-200">
                 {{ getNotificationLabel(key) }}
               </h4>
             </div>
@@ -330,19 +330,19 @@
 
       <UiCard class="p-6">
         <h3
-          class="mb-4 flex items-center gap-2 text-lg font-semibold text-gray-900"
+          class="mb-4 flex items-center gap-2 text-lg font-semibold text-gray-900 dark:text-gray-100"
         >
-          <CreditCard class="h-5 w-5 text-gray-500" /> Mon abonnement
+          <CreditCard class="h-5 w-5 text-gray-500 dark:text-gray-400" /> Mon abonnement
         </h3>
         <div v-if="subscription">
           <div
-            class="mb-4 flex items-center justify-between rounded-lg border border-orange-100 bg-orange-50 p-4"
+            class="mb-4 flex items-center justify-between rounded-lg border border-orange-100 dark:border-orange-900/40 bg-orange-50 dark:bg-orange-950/30 p-4"
           >
             <div>
-              <h4 class="text-lg font-bold text-orange-700">
+              <h4 class="text-lg font-bold text-orange-700 dark:text-orange-300">
                 Plan {{ subscription.plan }}
               </h4>
-              <p class="mt-1 text-sm text-orange-700">
+              <p class="mt-1 text-sm text-orange-700 dark:text-orange-300">
                 Statut :
                 <span class="font-semibold">{{ subscription.status }}</span>
               </p>
@@ -354,7 +354,7 @@
               </p>
             </div>
             <div class="text-right">
-              <p class="mb-1 text-2xl font-bold text-orange-700">
+              <p class="mb-1 text-2xl font-bold text-orange-700 dark:text-orange-300">
                 {{ getPlanPriceFormatted(subscription.plan) }} <span class="text-sm font-normal">/ mois</span>
               </p>
             </div>
@@ -363,7 +363,7 @@
             <UiButton
               v-if="!subscription.cancelAtPeriodEnd"
               variant="outline"
-              class="border-red-200 text-red-600 hover:bg-red-50"
+              class="border-red-200 dark:border-red-800/40 text-red-600 dark:text-red-400 hover:bg-red-50"
               @click="cancelSubscription"
             >
               Annuler l'abonnement
@@ -374,27 +374,27 @@
 
       <UiCard class="p-6">
         <h3
-          class="mb-4 flex items-center gap-2 text-lg font-semibold text-gray-900"
+          class="mb-4 flex items-center gap-2 text-lg font-semibold text-gray-900 dark:text-gray-100"
         >
-          <FileText class="h-5 w-5 text-gray-500" /> Historique de facturation
+          <FileText class="h-5 w-5 text-gray-500 dark:text-gray-400" /> Historique de facturation
           (Medicote)
         </h3>
-        <p class="mb-4 text-sm text-gray-500">
+        <p class="mb-4 text-sm text-gray-500 dark:text-gray-400">
           Vos factures pour l'utilisation de la plateforme Medicote et
           paiements.
         </p>
 
         <div
           v-if="invoices.length === 0"
-          class="py-6 text-center text-gray-500"
+          class="py-6 text-center text-gray-500 dark:text-gray-400"
         >
           <FileText class="mx-auto mb-2 h-12 w-12 text-gray-300" />
           Aucune facture disponible.
         </div>
 
         <div v-else class="overflow-x-auto">
-          <table class="w-full border-collapse text-left text-sm text-gray-500">
-            <thead class="border-b bg-gray-50 text-xs uppercase text-gray-700">
+          <table class="w-full border-collapse text-left text-sm text-gray-500 dark:text-gray-400">
+            <thead class="border-b bg-gray-50 dark:bg-gray-900 text-xs uppercase text-gray-700 dark:text-gray-300">
               <tr>
                 <th scope="col" class="px-4 py-3">Date</th>
                 <th scope="col" class="px-4 py-3">Numéro</th>
@@ -445,32 +445,32 @@
       aria-modal="true"
       aria-labelledby="setup-modal-title"
     >
-      <div class="bg-white rounded-2xl max-w-md w-full p-6 shadow-2xl border border-gray-100 transition-all transform scale-100 max-h-[90vh] overflow-y-auto">
+      <div class="bg-white dark:bg-gray-900 rounded-2xl max-w-md w-full p-6 shadow-2xl border border-gray-100 dark:border-gray-800 transition-all transform scale-100 max-h-[90vh] overflow-y-auto">
         <!-- Setup Phase -->
         <div v-if="!showBackupCodes">
           <div class="flex items-center justify-between mb-4">
-            <h3 id="setup-modal-title" class="text-xl font-bold text-gray-900 flex items-center gap-2">
+            <h3 id="setup-modal-title" class="text-xl font-bold text-gray-900 dark:text-gray-100 flex items-center gap-2">
               <Shield class="w-6 h-6 text-orange-500" />
               Configurer la 2FA
             </h3>
             <button
               @click="showSetupModal = false"
-              class="text-gray-500 hover:text-gray-600 transition p-1 rounded-lg focus:ring-2 focus:ring-orange-500"
+              class="text-gray-500 dark:text-gray-400 hover:text-gray-600 transition p-1 rounded-lg focus:ring-2 focus:ring-orange-500"
               aria-label="Fermer"
             >
               &times;
             </button>
           </div>
-          <p class="text-sm text-gray-600 mb-4">
+          <p class="text-sm text-gray-600 dark:text-gray-400 mb-4">
             Scannez ce code QR avec votre application d'authentification (Google Authenticator, Authy, etc.) ou saisissez la clé de configuration manuellement.
           </p>
 
-          <div class="flex flex-col items-center justify-center my-4 p-4 bg-gray-50 rounded-xl border border-dashed border-gray-200">
+          <div class="flex flex-col items-center justify-center my-4 p-4 bg-gray-50 dark:bg-gray-900 rounded-xl border border-dashed border-gray-200 dark:border-gray-800">
             <img :src="qrCodeUrl" alt="QR Code 2FA" class="w-48 h-48 shadow-sm rounded-lg" />
             <div class="mt-4 text-center w-full">
-              <span class="text-xs text-gray-500 font-medium uppercase tracking-wider block">Clé de configuration</span>
+              <span class="text-xs text-gray-500 dark:text-gray-400 font-medium uppercase tracking-wider block">Clé de configuration</span>
               <div class="flex items-center justify-center gap-2 mt-1">
-                <code class="text-sm font-mono bg-gray-100 px-2 py-1 rounded text-orange-600 font-bold block select-all break-all">
+                <code class="text-sm font-mono bg-gray-100 dark:bg-gray-800 px-2 py-1 rounded text-orange-600 dark:text-orange-400 font-bold block select-all break-all">
                   {{ secretKey }}
                 </code>
               </div>
@@ -478,7 +478,7 @@
           </div>
 
           <div class="mt-4">
-            <label for="2fa-verification-code-practitioner" class="block text-sm font-medium text-gray-700 mb-1">
+            <label for="2fa-verification-code-practitioner" class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
               Code de vérification (6 chiffres)
             </label>
             <input
@@ -489,10 +489,10 @@
               inputmode="numeric"
               maxlength="6"
               placeholder="000000"
-              class="w-full text-center tracking-widest text-lg font-bold font-mono rounded-xl border border-gray-300 px-3 py-2.5 placeholder-gray-500 shadow-sm focus:border-orange-500 focus:outline-none focus:ring-2 focus:ring-orange-500"
+              class="w-full text-center tracking-widest text-lg font-bold font-mono rounded-xl border border-gray-300 dark:border-gray-700 px-3 py-2.5 placeholder-gray-500 shadow-sm focus:border-orange-500 focus:outline-none focus:ring-2 focus:ring-orange-500"
               @keyup.enter="verify2FA"
             />
-            <p v-if="codeError" class="mt-2 text-sm text-red-600" role="alert">
+            <p v-if="codeError" class="mt-2 text-sm text-red-600 dark:text-red-400" role="alert">
               {{ codeError }}
             </p>
           </div>
@@ -500,7 +500,7 @@
           <div class="mt-6 flex justify-end gap-3">
             <button
               @click="showSetupModal = false"
-              class="px-4 py-2 text-sm font-semibold text-gray-700 bg-gray-100 hover:bg-gray-200 rounded-xl transition focus:ring-2 focus:ring-gray-400"
+              class="px-4 py-2 text-sm font-semibold text-gray-700 dark:text-gray-300 bg-gray-100 dark:bg-gray-800 hover:bg-gray-200 rounded-xl transition focus:ring-2 focus:ring-gray-400"
             >
               Annuler
             </button>
@@ -518,21 +518,21 @@
         <!-- Backup Codes Phase -->
         <div v-else>
           <div class="flex items-center justify-between mb-4">
-            <h3 class="text-xl font-bold text-gray-900 flex items-center gap-2">
-              <Shield class="w-6 h-6 text-green-600" />
+            <h3 class="text-xl font-bold text-gray-900 dark:text-gray-100 flex items-center gap-2">
+              <Shield class="w-6 h-6 text-green-600 dark:text-green-400" />
               Codes de secours générés
             </h3>
           </div>
-          <p class="text-sm text-gray-600 mb-4">
+          <p class="text-sm text-gray-600 dark:text-gray-400 mb-4">
             Voici vos codes de secours. Conservez-les précieusement dans un endroit sûr (comme un gestionnaire de mots de passe). Ils vous permettront d'accéder à votre compte si vous n'avez plus accès à votre application d'authentification.
           </p>
 
-          <div class="bg-red-50 border border-red-200 rounded-xl p-3 mb-4 text-xs text-red-800">
+          <div class="bg-red-50 dark:bg-red-950/30 border border-red-200 dark:border-red-800/40 rounded-xl p-3 mb-4 text-xs text-red-800 dark:text-red-200">
             <strong>ATTENTION :</strong> Ces codes de secours ne seront affichés qu'une seule fois. Chacun d'eux ne peut être utilisé qu'une seule fois.
           </div>
 
-          <div class="grid grid-cols-2 gap-2 p-3 bg-gray-50 border border-gray-100 rounded-xl font-mono text-center text-sm text-gray-800">
-            <div v-for="code in backupCodes" :key="code" class="p-1 rounded bg-white border border-gray-200 select-all font-bold">
+          <div class="grid grid-cols-2 gap-2 p-3 bg-gray-50 dark:bg-gray-900 border border-gray-100 dark:border-gray-800 rounded-xl font-mono text-center text-sm text-gray-800 dark:text-gray-200">
+            <div v-for="code in backupCodes" :key="code" class="p-1 rounded bg-white dark:bg-gray-900 border border-gray-200 dark:border-gray-800 select-all font-bold">
               {{ code }}
             </div>
           </div>
@@ -540,7 +540,7 @@
           <div class="mt-6 flex flex-col sm:flex-row gap-2">
             <button
               @click="copyBackupCodes"
-              class="flex-1 px-4 py-2 text-sm font-semibold text-gray-700 bg-gray-100 hover:bg-gray-200 rounded-xl transition focus:ring-2 focus:ring-gray-400 flex items-center justify-center gap-1.5"
+              class="flex-1 px-4 py-2 text-sm font-semibold text-gray-700 dark:text-gray-300 bg-gray-100 dark:bg-gray-800 hover:bg-gray-200 rounded-xl transition focus:ring-2 focus:ring-gray-400 flex items-center justify-center gap-1.5"
             >
               <svg class="w-4 h-4 inline mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4"></path></svg>
               Copier les codes
@@ -564,26 +564,26 @@
       aria-modal="true"
       aria-labelledby="disable-modal-title"
     >
-      <div class="bg-white rounded-2xl max-w-md w-full p-6 shadow-2xl border border-gray-100 transition-all transform scale-100">
+      <div class="bg-white dark:bg-gray-900 rounded-2xl max-w-md w-full p-6 shadow-2xl border border-gray-100 dark:border-gray-800 transition-all transform scale-100">
         <div class="flex items-center justify-between mb-4">
-          <h3 id="disable-modal-title" class="text-xl font-bold text-gray-900 flex items-center gap-2">
+          <h3 id="disable-modal-title" class="text-xl font-bold text-gray-900 dark:text-gray-100 flex items-center gap-2">
             <svg class="w-6 h-6 text-red-500" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"></path></svg>
             Désactiver la 2FA ?
           </h3>
           <button
             @click="showDisableModal = false"
-            class="text-gray-500 hover:text-gray-600 transition p-1 rounded-lg focus:ring-2 focus:ring-red-500"
+            class="text-gray-500 dark:text-gray-400 hover:text-gray-600 transition p-1 rounded-lg focus:ring-2 focus:ring-red-500"
             aria-label="Fermer"
           >
             &times;
           </button>
         </div>
-        <p class="text-sm text-gray-600 mb-4">
+        <p class="text-sm text-gray-600 dark:text-gray-400 mb-4">
           La désactivation de la double authentification réduit la sécurité de votre compte. Saisissez votre mot de passe pour confirmer cette action.
         </p>
 
         <div>
-          <label for="2fa-disable-password-practitioner" class="block text-sm font-medium text-gray-700 mb-1">
+          <label for="2fa-disable-password-practitioner" class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
             Mot de passe actuel
           </label>
           <input
@@ -591,10 +591,10 @@
             v-model="disablePassword"
             type="password"
             placeholder="••••••••"
-            class="w-full rounded-xl border border-gray-300 px-3 py-2 placeholder-gray-500 shadow-sm focus:border-red-500 focus:outline-none focus:ring-2 focus:ring-red-500"
+            class="w-full rounded-xl border border-gray-300 dark:border-gray-700 px-3 py-2 placeholder-gray-500 shadow-sm focus:border-red-500 focus:outline-none focus:ring-2 focus:ring-red-500"
             @keyup.enter="confirmDisable2FA"
           />
-          <p v-if="disableError" class="mt-2 text-sm text-red-600" role="alert">
+          <p v-if="disableError" class="mt-2 text-sm text-red-600 dark:text-red-400" role="alert">
             {{ disableError }}
           </p>
         </div>
@@ -602,7 +602,7 @@
         <div class="mt-6 flex justify-end gap-3">
           <button
             @click="showDisableModal = false"
-            class="px-4 py-2 text-sm font-semibold text-gray-700 bg-gray-100 hover:bg-gray-200 rounded-xl transition focus:ring-2 focus:ring-gray-400"
+            class="px-4 py-2 text-sm font-semibold text-gray-700 dark:text-gray-300 bg-gray-100 dark:bg-gray-800 hover:bg-gray-200 rounded-xl transition focus:ring-2 focus:ring-gray-400"
           >
             Annuler
           </button>

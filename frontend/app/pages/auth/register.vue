@@ -1,11 +1,11 @@
 <template>
   <div class="flex min-h-screen items-center justify-center px-4 py-12">
-    <div class="w-full max-w-2xl space-y-8 rounded-lg bg-white p-8 shadow-lg">
+    <div class="w-full max-w-2xl space-y-8 rounded-lg bg-white dark:bg-gray-900 p-8 shadow-lg">
       <div>
-        <h1 class="text-center text-3xl font-bold text-gray-900">
+        <h1 class="text-center text-3xl font-bold text-gray-900 dark:text-gray-100">
           Créer un compte patient
         </h1>
-        <p class="mt-2 text-center text-sm text-gray-600">
+        <p class="mt-2 text-center text-sm text-gray-600 dark:text-gray-400">
           Inscrivez-vous pour prendre rendez-vous avec nos praticiens
         </p>
       </div>
@@ -14,7 +14,7 @@
         <!-- error message -->
         <div
           v-if="errorMessage" role="alert"
-          class="rounded-md border border-red-300 bg-red-50 px-4 py-3 text-sm text-red-800"
+          class="rounded-md border border-red-300 bg-red-50 dark:bg-red-950/30 px-4 py-3 text-sm text-red-800 dark:text-red-200"
         >
           {{ errorMessage }}
         </div>
@@ -22,7 +22,7 @@
         <!-- success message -->
         <div
           v-if="successMessage" role="status"
-          class="rounded-md border border-green-300 bg-green-50 px-4 py-3 text-sm text-green-800"
+          class="rounded-md border border-green-300 bg-green-50 dark:bg-green-950/30 px-4 py-3 text-sm text-green-800 dark:text-green-200"
         >
           {{ successMessage }}
         </div>
@@ -31,7 +31,7 @@
           <div>
             <label
               for="firstName"
-              class="block text-sm font-medium text-gray-700"
+              class="block text-sm font-medium text-gray-700 dark:text-gray-300"
             >
               Prénom <span class="text-red-500">*</span>
             </label>
@@ -44,8 +44,8 @@
               :class="[
                 'mt-1 block w-full rounded-md border px-3 py-2 placeholder-gray-500 shadow-sm focus:outline-none focus:ring-2 focus:ring-offset-0',
                 fieldErrors.firstName
-                  ? 'border-red-300 text-red-900 placeholder-red-300 focus:border-red-500 focus:ring-red-500'
-                  : 'border-gray-300 focus:border-orange-500 focus:ring-orange-500'
+                  ? 'border-red-300 text-red-900 dark:text-red-200 placeholder-red-300 focus:border-red-500 focus:ring-red-500'
+                  : 'border-gray-300 dark:border-gray-700 focus:border-orange-500 focus:ring-orange-500'
               ]"
               placeholder="Jean"
               :aria-invalid="!!fieldErrors.firstName"
@@ -54,7 +54,7 @@
             <p
               v-if="fieldErrors.firstName"
               id="firstName-error"
-              class="mt-1 text-xs text-red-600"
+              class="mt-1 text-xs text-red-600 dark:text-red-400"
             >
               {{ fieldErrors.firstName }}
             </p>
@@ -63,7 +63,7 @@
           <div>
             <label
               for="lastName"
-              class="block text-sm font-medium text-gray-700"
+              class="block text-sm font-medium text-gray-700 dark:text-gray-300"
             >
               Nom <span class="text-red-500">*</span>
             </label>
@@ -76,8 +76,8 @@
               :class="[
                 'mt-1 block w-full rounded-md border px-3 py-2 placeholder-gray-500 shadow-sm focus:outline-none focus:ring-2 focus:ring-offset-0',
                 fieldErrors.lastName
-                  ? 'border-red-300 text-red-900 placeholder-red-300 focus:border-red-500 focus:ring-red-500'
-                  : 'border-gray-300 focus:border-orange-500 focus:ring-orange-500'
+                  ? 'border-red-300 text-red-900 dark:text-red-200 placeholder-red-300 focus:border-red-500 focus:ring-red-500'
+                  : 'border-gray-300 dark:border-gray-700 focus:border-orange-500 focus:ring-orange-500'
               ]"
               placeholder="Dupont"
               :aria-invalid="!!fieldErrors.lastName"
@@ -86,14 +86,14 @@
             <p
               v-if="fieldErrors.lastName"
               id="lastName-error"
-              class="mt-1 text-xs text-red-600"
+              class="mt-1 text-xs text-red-600 dark:text-red-400"
             >
               {{ fieldErrors.lastName }}
             </p>
           </div>
 
           <div class="md:col-span-2">
-            <label for="email" class="block text-sm font-medium text-gray-700">
+            <label for="email" class="block text-sm font-medium text-gray-700 dark:text-gray-300">
               Email <span class="text-red-500">*</span>
             </label>
             <input
@@ -105,8 +105,8 @@
               :class="[
                 'mt-1 block w-full rounded-md border px-3 py-2 placeholder-gray-500 shadow-sm focus:outline-none focus:ring-2 focus:ring-offset-0',
                 fieldErrors.email
-                  ? 'border-red-300 text-red-900 placeholder-red-300 focus:border-red-500 focus:ring-red-500'
-                  : 'border-gray-300 focus:border-orange-500 focus:ring-orange-500'
+                  ? 'border-red-300 text-red-900 dark:text-red-200 placeholder-red-300 focus:border-red-500 focus:ring-red-500'
+                  : 'border-gray-300 dark:border-gray-700 focus:border-orange-500 focus:ring-orange-500'
               ]"
               placeholder="votre@email.com"
               :aria-invalid="!!fieldErrors.email"
@@ -115,14 +115,14 @@
             <p
               v-if="fieldErrors.email"
               id="email-error"
-              class="mt-1 text-xs text-red-600"
+              class="mt-1 text-xs text-red-600 dark:text-red-400"
             >
               {{ fieldErrors.email }}
             </p>
           </div>
 
           <div class="md:col-span-2">
-            <label for="phone" class="block text-sm font-medium text-gray-700">
+            <label for="phone" class="block text-sm font-medium text-gray-700 dark:text-gray-300">
               Téléphone <span class="text-red-500">*</span>
             </label>
             <input
@@ -134,8 +134,8 @@
               :class="[
                 'mt-1 block w-full rounded-md border px-3 py-2 placeholder-gray-500 shadow-sm focus:outline-none focus:ring-2 focus:ring-offset-0',
                 fieldErrors.phone
-                  ? 'border-red-300 text-red-900 placeholder-red-300 focus:border-red-500 focus:ring-red-500'
-                  : 'border-gray-300 focus:border-orange-500 focus:ring-orange-500'
+                  ? 'border-red-300 text-red-900 dark:text-red-200 placeholder-red-300 focus:border-red-500 focus:ring-red-500'
+                  : 'border-gray-300 dark:border-gray-700 focus:border-orange-500 focus:ring-orange-500'
               ]"
               placeholder="+225 01 02 03 04 05"
               :aria-invalid="!!fieldErrors.phone"
@@ -144,7 +144,7 @@
             <p
               v-if="fieldErrors.phone"
               id="phone-error"
-              class="mt-1 text-xs text-red-600"
+              class="mt-1 text-xs text-red-600 dark:text-red-400"
             >
               {{ fieldErrors.phone }}
             </p>
@@ -153,7 +153,7 @@
           <div>
             <label
               for="dateOfBirth"
-              class="block text-sm font-medium text-gray-700"
+              class="block text-sm font-medium text-gray-700 dark:text-gray-300"
             >
               Date de naissance <span class="text-red-500">*</span>
             </label>
@@ -167,8 +167,8 @@
               :class="[
                 'mt-1 block w-full rounded-md border px-3 py-2 placeholder-gray-500 shadow-sm focus:outline-none focus:ring-2 focus:ring-offset-0',
                 fieldErrors.dateOfBirth
-                  ? 'border-red-300 text-red-900 placeholder-red-300 focus:border-red-500 focus:ring-red-500'
-                  : 'border-gray-300 focus:border-orange-500 focus:ring-orange-500'
+                  ? 'border-red-300 text-red-900 dark:text-red-200 placeholder-red-300 focus:border-red-500 focus:ring-red-500'
+                  : 'border-gray-300 dark:border-gray-700 focus:border-orange-500 focus:ring-orange-500'
               ]"
               :aria-invalid="!!fieldErrors.dateOfBirth"
               aria-describedby="dateOfBirth-error"
@@ -176,14 +176,14 @@
             <p
               v-if="fieldErrors.dateOfBirth"
               id="dateOfBirth-error"
-              class="mt-1 text-xs text-red-600"
+              class="mt-1 text-xs text-red-600 dark:text-red-400"
             >
               {{ fieldErrors.dateOfBirth }}
             </p>
           </div>
 
           <div>
-            <label for="gender" class="block text-sm font-medium text-gray-700">
+            <label for="gender" class="block text-sm font-medium text-gray-700 dark:text-gray-300">
               Genre <span class="text-red-500">*</span>
             </label>
             <select
@@ -193,8 +193,8 @@
               :class="[
                 'mt-1 block w-full rounded-md border px-3 py-2 shadow-sm focus:outline-none focus:ring-2 focus:ring-offset-0',
                 fieldErrors.gender
-                  ? 'border-red-300 text-red-900 focus:border-red-500 focus:ring-red-500'
-                  : 'border-gray-300 focus:border-orange-500 focus:ring-orange-500'
+                  ? 'border-red-300 text-red-900 dark:text-red-200 focus:border-red-500 focus:ring-red-500'
+                  : 'border-gray-300 dark:border-gray-700 focus:border-orange-500 focus:ring-orange-500'
               ]"
               :aria-invalid="!!fieldErrors.gender"
               aria-describedby="gender-error"
@@ -208,7 +208,7 @@
             <p
               v-if="fieldErrors.gender"
               id="gender-error"
-              class="mt-1 text-xs text-red-600"
+              class="mt-1 text-xs text-red-600 dark:text-red-400"
             >
               {{ fieldErrors.gender }}
             </p>
@@ -217,7 +217,7 @@
           <div class="md:col-span-2">
             <label
               for="password"
-              class="block text-sm font-medium text-gray-700"
+              class="block text-sm font-medium text-gray-700 dark:text-gray-300"
             >
               Mot de passe <span class="text-red-500">*</span>
             </label>
@@ -230,8 +230,8 @@
               :class="[
                 'mt-1 block w-full rounded-md border px-3 py-2 placeholder-gray-500 shadow-sm focus:outline-none focus:ring-2 focus:ring-offset-0',
                 fieldErrors.password
-                  ? 'border-red-300 text-red-900 placeholder-red-300 focus:border-red-500 focus:ring-red-500'
-                  : 'border-gray-300 focus:border-orange-500 focus:ring-orange-500'
+                  ? 'border-red-300 text-red-900 dark:text-red-200 placeholder-red-300 focus:border-red-500 focus:ring-red-500'
+                  : 'border-gray-300 dark:border-gray-700 focus:border-orange-500 focus:ring-orange-500'
               ]"
               placeholder="••••••••"
               :aria-invalid="!!fieldErrors.password"
@@ -240,11 +240,11 @@
             <p
               v-if="fieldErrors.password"
               id="password-error"
-              class="mt-1 text-xs text-red-600 font-medium"
+              class="mt-1 text-xs text-red-600 dark:text-red-400 font-medium"
             >
               {{ fieldErrors.password }}
             </p>
-            <p class="mt-1 text-xs text-gray-500">
+            <p class="mt-1 text-xs text-gray-500 dark:text-gray-400">
               Le mot de passe doit contenir au moins 8 caractères, une
               majuscule, une minuscule, un chiffre et un caractère spécial.
             </p>
@@ -253,7 +253,7 @@
           <div class="md:col-span-2">
             <label
               for="confirmPassword"
-              class="block text-sm font-medium text-gray-700"
+              class="block text-sm font-medium text-gray-700 dark:text-gray-300"
             >
               Confirmer le mot de passe <span class="text-red-500">*</span>
             </label>
@@ -266,8 +266,8 @@
               :class="[
                 'mt-1 block w-full rounded-md border px-3 py-2 placeholder-gray-500 shadow-sm focus:outline-none focus:ring-2 focus:ring-offset-0',
                 fieldErrors.confirmPassword
-                  ? 'border-red-300 text-red-900 placeholder-red-300 focus:border-red-500 focus:ring-red-500'
-                  : 'border-gray-300 focus:border-orange-500 focus:ring-orange-500'
+                  ? 'border-red-300 text-red-900 dark:text-red-200 placeholder-red-300 focus:border-red-500 focus:ring-red-500'
+                  : 'border-gray-300 dark:border-gray-700 focus:border-orange-500 focus:ring-orange-500'
               ]"
               placeholder="••••••••"
               :aria-invalid="!!fieldErrors.confirmPassword"
@@ -276,7 +276,7 @@
             <p
               v-if="fieldErrors.confirmPassword"
               id="confirmPassword-error"
-              class="mt-1 text-xs text-red-600"
+              class="mt-1 text-xs text-red-600 dark:text-red-400"
             >
               {{ fieldErrors.confirmPassword }}
             </p>
@@ -289,16 +289,16 @@
                 v-model="agreeTerms"
                 type="checkbox"
                 required
-                class="h-4 w-4 rounded border-gray-300 text-orange-600 focus:ring-orange-500"
+                class="h-4 w-4 rounded border-gray-300 dark:border-gray-700 text-orange-600 dark:text-orange-400 focus:ring-orange-500"
               />
             </div>
             <div class="ml-3 text-sm">
-              <label for="agreeTerms" class="font-medium text-gray-700">
+              <label for="agreeTerms" class="font-medium text-gray-700 dark:text-gray-300">
                 J'accepte les
                 <NuxtLink
                   to="/legal/terms"
                   target="_blank"
-                  class="font-semibold text-orange-600 hover:text-orange-500 hover:underline"
+                  class="font-semibold text-orange-600 dark:text-orange-400 hover:text-orange-500 hover:underline"
                 >
                   conditions générales d'utilisation
                 </NuxtLink>
@@ -306,7 +306,7 @@
                 <NuxtLink
                   to="/legal/privacy"
                   target="_blank"
-                  class="font-semibold text-orange-600 hover:text-orange-500 hover:underline"
+                  class="font-semibold text-orange-600 dark:text-orange-400 hover:text-orange-500 hover:underline"
                 >
                   politique de confidentialité
                 </NuxtLink>
@@ -328,11 +328,11 @@
         </div>
 
         <div class="text-center">
-          <p class="text-sm text-gray-600">
+          <p class="text-sm text-gray-600 dark:text-gray-400">
             Vous avez déjà un compte ?
             <NuxtLink
               :to="`/auth/login${route.query.redirect ? '?redirect=' + encodeURIComponent(route.query.redirect as string) : ''}`"
-              class="font-medium text-orange-600 hover:text-orange-500"
+              class="font-medium text-orange-600 dark:text-orange-400 hover:text-orange-500"
             >
               Se connecter
             </NuxtLink>

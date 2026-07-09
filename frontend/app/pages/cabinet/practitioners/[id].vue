@@ -5,15 +5,15 @@
       <div class="flex items-center gap-3">
         <button
           @click="navigateTo('/cabinet/practitioners')"
-          class="rounded-lg border border-gray-200 bg-white p-2 text-gray-600 transition-colors hover:bg-gray-50"
+          class="rounded-lg border border-gray-200 dark:border-gray-800 bg-white dark:bg-gray-900 p-2 text-gray-600 dark:text-gray-400 transition-colors hover:bg-gray-50 dark:hover:bg-gray-800"
         >
           <ArrowLeft class="h-5 w-5" />
         </button>
         <div v-if="practitioner">
-          <h1 class="text-2xl font-bold text-gray-900">
+          <h1 class="text-2xl font-bold text-gray-900 dark:text-gray-100">
             {{ practitioner.title }} {{ practitioner.firstName }} {{ practitioner.lastName }}
           </h1>
-          <p class="text-sm text-gray-500">
+          <p class="text-sm text-gray-500 dark:text-gray-400">
             {{ practitioner.email }} · {{ practitioner.phone }} · {{ practitioner.specialties.join(', ') }}
           </p>
         </div>
@@ -28,7 +28,7 @@
     </div>
 
     <!-- Tabs -->
-    <div class="border-b border-gray-200">
+    <div class="border-b border-gray-200 dark:border-gray-800">
       <nav class="-mb-px flex space-x-8" aria-label="Tabs">
         <button
           v-for="tab in tabs"
@@ -36,8 +36,8 @@
           @click="activeTab = tab.id"
           :class="[
             activeTab === tab.id
-              ? 'border-orange-500 text-orange-600'
-              : 'border-transparent text-gray-500 hover:border-gray-300 hover:text-gray-700',
+              ? 'border-orange-500 text-orange-600 dark:text-orange-400'
+              : 'border-transparent text-gray-500 dark:text-gray-400 hover:border-gray-300 hover:text-gray-700 dark:hover:text-gray-200',
             'whitespace-nowrap border-b-2 py-4 px-1 text-sm font-medium transition-colors'
           ]"
         >
@@ -53,8 +53,8 @@
       <div v-if="activeTab === 'planning'" class="space-y-6">
         <div class="grid gap-6 md:grid-cols-2">
           <!-- Availabilities -->
-          <div class="rounded-xl border border-gray-200 bg-white p-6 shadow-sm">
-            <h3 class="mb-4 text-lg font-semibold text-gray-900 flex items-center gap-2">
+          <div class="rounded-xl border border-gray-200 dark:border-gray-800 bg-white dark:bg-gray-900 p-6 shadow-sm">
+            <h3 class="mb-4 text-lg font-semibold text-gray-900 dark:text-gray-100 flex items-center gap-2">
               <Clock class="h-5 w-5 text-orange-500" />
               Horaires de travail dans ce cabinet
             </h3>
@@ -62,18 +62,18 @@
               <div
                 v-for="avail in schedule.availabilities"
                 :key="avail.id"
-                class="flex items-center justify-between rounded-lg bg-gray-50 p-3"
+                class="flex items-center justify-between rounded-lg bg-gray-50 dark:bg-gray-900 p-3"
               >
                 <div>
-                  <span class="font-medium text-gray-900">{{ translateDay(avail.dayOfWeek) }}</span>
-                  <span v-if="avail.isEmergencySlot" class="ml-2 rounded-full bg-red-100 px-2 py-0.5 text-xs font-medium text-red-700">Urgences</span>
+                  <span class="font-medium text-gray-900 dark:text-gray-100">{{ translateDay(avail.dayOfWeek) }}</span>
+                  <span v-if="avail.isEmergencySlot" class="ml-2 rounded-full bg-red-100 dark:bg-red-900/30 px-2 py-0.5 text-xs font-medium text-red-700 dark:text-red-300">Urgences</span>
                 </div>
-                <div class="text-sm text-gray-600 font-mono">
+                <div class="text-sm text-gray-600 dark:text-gray-400 font-mono">
                   {{ avail.startTime }} - {{ avail.endTime }}
                 </div>
               </div>
             </div>
-            <div v-else class="text-center py-6 text-gray-500">
+            <div v-else class="text-center py-6 text-gray-500 dark:text-gray-400">
               Aucune disponibilité configurée pour ce cabinet.
             </div>
           </div>
@@ -81,8 +81,8 @@
           <!-- Absences & Blocked slots -->
           <div class="space-y-6">
             <!-- Absences -->
-            <div class="rounded-xl border border-gray-200 bg-white p-6 shadow-sm">
-              <h3 class="mb-4 text-lg font-semibold text-gray-900 flex items-center gap-2">
+            <div class="rounded-xl border border-gray-200 dark:border-gray-800 bg-white dark:bg-gray-900 p-6 shadow-sm">
+              <h3 class="mb-4 text-lg font-semibold text-gray-900 dark:text-gray-100 flex items-center gap-2">
                 <CalendarX class="h-5 w-5 text-orange-500" />
                 Absences programmées
               </h3>
@@ -90,24 +90,24 @@
                 <div
                   v-for="abs in schedule.absences"
                   :key="abs.id"
-                  class="rounded-lg bg-gray-50 p-3"
+                  class="rounded-lg bg-gray-50 dark:bg-gray-900 p-3"
                 >
-                  <div class="flex justify-between font-medium text-gray-900">
+                  <div class="flex justify-between font-medium text-gray-900 dark:text-gray-100">
                     <span>{{ formatDateRange(abs.startDate, abs.endDate) }}</span>
                   </div>
-                  <p v-if="abs.reason" class="text-sm text-gray-500 mt-1">
+                  <p v-if="abs.reason" class="text-sm text-gray-500 dark:text-gray-400 mt-1">
                     Raison : {{ abs.reason }}
                   </p>
                 </div>
               </div>
-              <div v-else class="text-center py-6 text-gray-500">
+              <div v-else class="text-center py-6 text-gray-500 dark:text-gray-400">
                 Aucune absence programmée.
               </div>
             </div>
 
             <!-- Blocked slots -->
-            <div class="rounded-xl border border-gray-200 bg-white p-6 shadow-sm">
-              <h3 class="mb-4 text-lg font-semibold text-gray-900 flex items-center gap-2">
+            <div class="rounded-xl border border-gray-200 dark:border-gray-800 bg-white dark:bg-gray-900 p-6 shadow-sm">
+              <h3 class="mb-4 text-lg font-semibold text-gray-900 dark:text-gray-100 flex items-center gap-2">
                 <ShieldAlert class="h-5 w-5 text-orange-500" />
                 Créneaux bloqués
               </h3>
@@ -115,18 +115,18 @@
                 <div
                   v-for="slot in schedule.blockedSlots"
                   :key="slot.id"
-                  class="flex justify-between rounded-lg bg-gray-50 p-3"
+                  class="flex justify-between rounded-lg bg-gray-50 dark:bg-gray-900 p-3"
                 >
                   <div>
-                    <span class="font-medium text-gray-900">{{ formatDate(slot.date) }}</span>
-                    <p v-if="slot.reason" class="text-sm text-gray-500 mt-0.5">{{ slot.reason }}</p>
+                    <span class="font-medium text-gray-900 dark:text-gray-100">{{ formatDate(slot.date) }}</span>
+                    <p v-if="slot.reason" class="text-sm text-gray-500 dark:text-gray-400 mt-0.5">{{ slot.reason }}</p>
                   </div>
-                  <span class="text-sm text-gray-600 font-mono self-start">
+                  <span class="text-sm text-gray-600 dark:text-gray-400 font-mono self-start">
                     {{ slot.startTime }} - {{ slot.endTime }}
                   </span>
                 </div>
               </div>
-              <div v-else class="text-center py-6 text-gray-500">
+              <div v-else class="text-center py-6 text-gray-500 dark:text-gray-400">
                 Aucun créneau bloqué.
               </div>
             </div>
@@ -137,45 +137,45 @@
       <!-- Appointments Tab -->
       <div v-if="activeTab === 'appointments'" class="space-y-4">
         <!-- Date filter -->
-        <div class="flex items-center gap-4 rounded-xl border border-gray-200 bg-white p-4 shadow-sm">
-          <label class="text-sm font-medium text-gray-700">Filtrer par date :</label>
+        <div class="flex items-center gap-4 rounded-xl border border-gray-200 dark:border-gray-800 bg-white dark:bg-gray-900 p-4 shadow-sm">
+          <label class="text-sm font-medium text-gray-700 dark:text-gray-300">Filtrer par date :</label>
           <input
             v-model="filterDate"
             type="date"
-            class="rounded-lg border border-gray-300 px-3 py-1.5 text-sm focus:border-orange-500 focus:outline-none"
+            class="rounded-lg border border-gray-300 dark:border-gray-700 px-3 py-1.5 text-sm focus:border-orange-500 focus:outline-none"
           />
           <button
             v-if="filterDate"
             @click="filterDate = ''"
-            class="text-xs text-orange-600 hover:text-orange-700 font-medium"
+            class="text-xs text-orange-600 dark:text-orange-400 hover:text-orange-700 font-medium"
           >
             Effacer le filtre
           </button>
         </div>
 
         <!-- Appointments list -->
-        <div class="rounded-xl border border-gray-200 bg-white shadow-sm overflow-hidden">
+        <div class="rounded-xl border border-gray-200 dark:border-gray-800 bg-white dark:bg-gray-900 shadow-sm overflow-hidden">
           <div v-if="loadingApts" class="animate-pulse space-y-3 p-6">
-            <div v-for="i in 3" :key="i" class="h-16 rounded bg-gray-100"></div>
+            <div v-for="i in 3" :key="i" class="h-16 rounded bg-gray-100 dark:bg-gray-800"></div>
           </div>
-          <div v-else-if="!appointments.length" class="py-12 text-center text-gray-500">
+          <div v-else-if="!appointments.length" class="py-12 text-center text-gray-500 dark:text-gray-400">
             <Calendar class="mx-auto mb-3 h-12 w-12 text-gray-300" />
             Aucun rendez-vous planifié.
           </div>
-          <div v-else class="divide-y divide-gray-100">
+          <div v-else class="divide-y divide-gray-100 dark:divide-gray-800">
             <div
               v-for="apt in appointments"
               :key="apt.id"
-              class="flex items-center justify-between p-4 transition-colors hover:bg-gray-50"
+              class="flex items-center justify-between p-4 transition-colors hover:bg-gray-50 dark:hover:bg-gray-800"
             >
               <div>
-                <p class="font-semibold text-gray-900">
+                <p class="font-semibold text-gray-900 dark:text-gray-100">
                   {{ apt.patient.firstName }} {{ apt.patient.lastName }}
                 </p>
-                <p class="text-sm text-gray-500 font-mono">
+                <p class="text-sm text-gray-500 dark:text-gray-400 font-mono">
                   {{ formatDate(apt.appointmentDate) }} @ {{ apt.startTime }} - {{ apt.endTime }}
                 </p>
-                <p v-if="apt.reason" class="text-xs text-gray-500 mt-1 italic">
+                <p v-if="apt.reason" class="text-xs text-gray-500 dark:text-gray-400 mt-1 italic">
                   Motif: {{ apt.reason }}
                 </p>
               </div>
@@ -183,7 +183,7 @@
                 <span
                   :class="[
                     'rounded-full px-2 py-0.5 text-xs font-medium',
-                    apt.type === 'IN_PERSON' ? 'bg-blue-100 text-blue-700' : 'bg-purple-100 text-purple-700'
+                    apt.type === 'IN_PERSON' ? 'bg-blue-100 dark:bg-blue-900/30 text-blue-700 dark:text-blue-300' : 'bg-purple-100 dark:bg-purple-900/30 text-purple-700 dark:text-purple-300'
                   ]"
                 >
                   {{ apt.type === 'IN_PERSON' ? 'Présentiel' : 'Téléconsultation' }}
@@ -191,7 +191,7 @@
                 <span
                   :class="[
                     'rounded-full px-2 py-0.5 text-xs font-medium',
-                    apt.status === 'CONFIRMED' ? 'bg-green-100 text-green-700' : 'bg-red-100 text-red-700'
+                    apt.status === 'CONFIRMED' ? 'bg-green-100 dark:bg-green-900/30 text-green-700 dark:text-green-300' : 'bg-red-100 dark:bg-red-900/30 text-red-700 dark:text-red-300'
                   ]"
                 >
                   {{ apt.status === 'CONFIRMED' ? 'Confirmé' : 'Annulé' }}
@@ -206,35 +206,35 @@
       <div v-if="activeTab === 'patients'" class="space-y-4">
         <!-- Search bar -->
         <div class="relative">
-          <Search class="absolute left-3 top-2.5 h-4 w-4 text-gray-500" />
+          <Search class="absolute left-3 top-2.5 h-4 w-4 text-gray-500 dark:text-gray-400" />
           <input
             v-model="patientSearch"
             type="text"
             placeholder="Rechercher un patient par nom ou téléphone..."
-            class="w-full rounded-lg border border-gray-300 pl-10 pr-4 py-2 text-sm focus:border-orange-500 focus:outline-none"
+            class="w-full rounded-lg border border-gray-300 dark:border-gray-700 pl-10 pr-4 py-2 text-sm focus:border-orange-500 focus:outline-none"
           />
         </div>
 
         <!-- Patients list -->
-        <div class="rounded-xl border border-gray-200 bg-white shadow-sm overflow-hidden">
+        <div class="rounded-xl border border-gray-200 dark:border-gray-800 bg-white dark:bg-gray-900 shadow-sm overflow-hidden">
           <div v-if="loadingPatients" class="animate-pulse space-y-3 p-6">
-            <div v-for="i in 3" :key="i" class="h-16 rounded bg-gray-100"></div>
+            <div v-for="i in 3" :key="i" class="h-16 rounded bg-gray-100 dark:bg-gray-800"></div>
           </div>
-          <div v-else-if="!patients.length" class="py-12 text-center text-gray-500">
+          <div v-else-if="!patients.length" class="py-12 text-center text-gray-500 dark:text-gray-400">
             <Users class="mx-auto mb-3 h-12 w-12 text-gray-300" />
             Aucun patient trouvé.
           </div>
-          <div v-else class="divide-y divide-gray-100">
+          <div v-else class="divide-y divide-gray-100 dark:divide-gray-800">
             <div
               v-for="pat in patients"
               :key="pat.id"
               class="p-4 flex items-center justify-between"
             >
               <div>
-                <p class="font-semibold text-gray-900">{{ pat.firstName }} {{ pat.lastName }}</p>
-                <p class="text-sm text-gray-500">{{ pat.email || 'Aucun email' }} · {{ pat.phone }}</p>
+                <p class="font-semibold text-gray-900 dark:text-gray-100">{{ pat.firstName }} {{ pat.lastName }}</p>
+                <p class="text-sm text-gray-500 dark:text-gray-400">{{ pat.email || 'Aucun email' }} · {{ pat.phone }}</p>
               </div>
-              <div class="text-right text-xs text-gray-500">
+              <div class="text-right text-xs text-gray-500 dark:text-gray-400">
                 <p>Visites: {{ pat.visitCount }}</p>
                 <p class="mt-0.5">Dernière visite: {{ formatDate(pat.lastVisit) }}</p>
               </div>
@@ -250,12 +250,12 @@
       class="fixed inset-0 z-50 flex items-center justify-center bg-black/50 p-4"
       @click.self="showBookingModal = false"
     >
-      <div class="w-full max-w-lg rounded-xl bg-white p-6 shadow-2xl overflow-y-auto max-h-[90vh]">
+      <div class="w-full max-w-lg rounded-xl bg-white dark:bg-gray-900 p-6 shadow-2xl overflow-y-auto max-h-[90vh]">
         <div class="mb-6 flex items-center justify-between">
-          <h2 class="text-xl font-bold text-gray-900">Prendre rendez-vous</h2>
+          <h2 class="text-xl font-bold text-gray-900 dark:text-gray-100">Prendre rendez-vous</h2>
           <button
             @click="showBookingModal = false"
-            class="rounded-lg p-1 text-gray-500 hover:bg-gray-100"
+            class="rounded-lg p-1 text-gray-500 dark:text-gray-400 hover:bg-gray-100 dark:hover:bg-gray-800"
           >
             <X class="h-5 w-5" />
           </button>
@@ -264,23 +264,23 @@
         <form @submit.prevent="handleBookAppointment" class="space-y-4">
           <!-- Patient Search -->
           <div class="relative">
-            <label class="mb-1 block text-sm font-medium text-gray-700">Patient</label>
+            <label class="mb-1 block text-sm font-medium text-gray-700 dark:text-gray-300">Patient</label>
             <div class="relative">
-              <Search class="absolute left-3 top-2.5 h-4 w-4 text-gray-500" />
+              <Search class="absolute left-3 top-2.5 h-4 w-4 text-gray-500 dark:text-gray-400" />
               <input
                 v-model="bookingSearch"
                 @input="debouncedPatientSearch"
                 type="text"
                 required
                 placeholder="Entrez le nom ou email d'un patient..."
-                class="w-full rounded-lg border border-gray-300 pl-10 pr-4 py-2 text-sm focus:border-orange-500 focus:outline-none"
+                class="w-full rounded-lg border border-gray-300 dark:border-gray-700 pl-10 pr-4 py-2 text-sm focus:border-orange-500 focus:outline-none"
               />
             </div>
 
             <!-- Search Results Dropdown -->
             <div
               v-if="bookingSearchResults.length"
-              class="absolute z-50 w-full mt-1 rounded-lg border border-gray-200 bg-white shadow-lg divide-y divide-gray-100 max-h-60 overflow-y-auto"
+              class="absolute z-50 w-full mt-1 rounded-lg border border-gray-200 dark:border-gray-800 bg-white dark:bg-gray-900 shadow-lg divide-y divide-gray-100 dark:divide-gray-800 max-h-60 overflow-y-auto"
             >
               <button
                 v-for="pat in bookingSearchResults"
@@ -290,10 +290,10 @@
                 class="w-full text-left p-3 hover:bg-orange-50 transition-colors flex justify-between items-center"
               >
                 <div>
-                  <span class="font-medium text-gray-900">{{ pat.firstName }} {{ pat.lastName }}</span>
-                  <p class="text-xs text-gray-500">{{ pat.email }} · {{ pat.phone }}</p>
+                  <span class="font-medium text-gray-900 dark:text-gray-100">{{ pat.firstName }} {{ pat.lastName }}</span>
+                  <p class="text-xs text-gray-500 dark:text-gray-400">{{ pat.email }} · {{ pat.phone }}</p>
                 </div>
-                <span class="rounded bg-gray-100 px-1.5 py-0.5 text-[10px] font-medium text-gray-600">
+                <span class="rounded bg-gray-100 dark:bg-gray-800 px-1.5 py-0.5 text-[10px] font-medium text-gray-600 dark:text-gray-400">
                   {{ pat.source === 'cabinet' ? 'Déjà venu' : 'Compte plateforme' }}
                 </span>
               </button>
@@ -301,31 +301,31 @@
           </div>
 
           <!-- Selected Patient Alert -->
-          <div v-if="selectedPatient" class="rounded-lg bg-orange-50 border border-orange-200 p-3 text-sm text-orange-800 flex justify-between items-center">
+          <div v-if="selectedPatient" class="rounded-lg bg-orange-50 dark:bg-orange-950/30 border border-orange-200 dark:border-orange-800/40 p-3 text-sm text-orange-800 dark:text-orange-200 flex justify-between items-center">
             <div>
               <strong>Patient sélectionné :</strong>
               <p class="mt-0.5">{{ selectedPatient.firstName }} {{ selectedPatient.lastName }} ({{ selectedPatient.phone }})</p>
             </div>
-            <button type="button" @click="selectedPatient = null" class="text-orange-600 hover:text-orange-800 font-semibold">
+            <button type="button" @click="selectedPatient = null" class="text-orange-600 dark:text-orange-400 hover:text-orange-800 font-semibold">
               Modifier
             </button>
           </div>
 
           <div class="grid gap-4 sm:grid-cols-2">
             <div>
-              <label class="mb-1 block text-sm font-medium text-gray-700">Date</label>
+              <label class="mb-1 block text-sm font-medium text-gray-700 dark:text-gray-300">Date</label>
               <input
                 v-model="bookingForm.date"
                 type="date"
                 required
-                class="w-full rounded-lg border border-gray-300 px-3 py-2 text-sm focus:border-orange-500 focus:outline-none"
+                class="w-full rounded-lg border border-gray-300 dark:border-gray-700 px-3 py-2 text-sm focus:border-orange-500 focus:outline-none"
               />
             </div>
             <div>
-              <label class="mb-1 block text-sm font-medium text-gray-700">Type</label>
+              <label class="mb-1 block text-sm font-medium text-gray-700 dark:text-gray-300">Type</label>
               <select
                 v-model="bookingForm.type"
-                class="w-full rounded-lg border border-gray-300 px-3 py-2 text-sm focus:border-orange-500 focus:outline-none bg-white"
+                class="w-full rounded-lg border border-gray-300 dark:border-gray-700 px-3 py-2 text-sm focus:border-orange-500 focus:outline-none bg-white dark:bg-gray-900"
               >
                 <option value="IN_PERSON">Présentiel</option>
                 <option value="TELECONSULTATION">Téléconsultation</option>
@@ -335,40 +335,40 @@
 
           <div class="grid gap-4 sm:grid-cols-2">
             <div>
-              <label class="mb-1 block text-sm font-medium text-gray-700">Heure de début</label>
+              <label class="mb-1 block text-sm font-medium text-gray-700 dark:text-gray-300">Heure de début</label>
               <input
                 v-model="bookingForm.startTime"
                 type="time"
                 required
-                class="w-full rounded-lg border border-gray-300 px-3 py-2 text-sm focus:border-orange-500 focus:outline-none"
+                class="w-full rounded-lg border border-gray-300 dark:border-gray-700 px-3 py-2 text-sm focus:border-orange-500 focus:outline-none"
               />
             </div>
             <div>
-              <label class="mb-1 block text-sm font-medium text-gray-700">Heure de fin</label>
+              <label class="mb-1 block text-sm font-medium text-gray-700 dark:text-gray-300">Heure de fin</label>
               <input
                 v-model="bookingForm.endTime"
                 type="time"
                 required
-                class="w-full rounded-lg border border-gray-300 px-3 py-2 text-sm focus:border-orange-500 focus:outline-none"
+                class="w-full rounded-lg border border-gray-300 dark:border-gray-700 px-3 py-2 text-sm focus:border-orange-500 focus:outline-none"
               />
             </div>
           </div>
 
           <div>
-            <label class="mb-1 block text-sm font-medium text-gray-700">Motif du rendez-vous</label>
+            <label class="mb-1 block text-sm font-medium text-gray-700 dark:text-gray-300">Motif du rendez-vous</label>
             <textarea
               v-model="bookingForm.reason"
               rows="3"
-              class="w-full rounded-lg border border-gray-300 px-3 py-2 text-sm focus:border-orange-500 focus:outline-none"
+              class="w-full rounded-lg border border-gray-300 dark:border-gray-700 px-3 py-2 text-sm focus:border-orange-500 focus:outline-none"
               placeholder="Saisissez le motif..."
             ></textarea>
           </div>
 
-          <div v-if="bookingError" class="rounded-lg bg-red-50 p-3 text-sm text-red-600">
+          <div v-if="bookingError" class="rounded-lg bg-red-50 dark:bg-red-950/30 p-3 text-sm text-red-600 dark:text-red-400">
             {{ bookingError }}
           </div>
 
-          <div v-if="bookingSuccess" class="rounded-lg bg-green-50 p-3 text-sm text-green-600">
+          <div v-if="bookingSuccess" class="rounded-lg bg-green-50 dark:bg-green-950/30 p-3 text-sm text-green-600 dark:text-green-400">
             Rendez-vous réservé avec succès !
           </div>
 
@@ -376,7 +376,7 @@
             <button
               type="button"
               @click="showBookingModal = false"
-              class="rounded-lg border border-gray-300 px-4 py-2 text-sm font-medium text-gray-700 hover:bg-gray-50"
+              class="rounded-lg border border-gray-300 dark:border-gray-700 px-4 py-2 text-sm font-medium text-gray-700 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-gray-800"
             >
               Annuler
             </button>

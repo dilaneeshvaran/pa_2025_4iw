@@ -1,11 +1,11 @@
 <template>
   <div class="flex min-h-screen items-center justify-center px-4 py-12">
-    <div class="w-full max-w-md space-y-8 rounded-lg bg-white p-8 shadow-lg">
+    <div class="w-full max-w-md space-y-8 rounded-lg bg-white dark:bg-gray-900 p-8 shadow-lg">
       <div>
-        <h1 class="text-center text-3xl font-bold text-gray-900">
+        <h1 class="text-center text-3xl font-bold text-gray-900 dark:text-gray-100">
           Réinitialiser le mot de passe
         </h1>
-        <p class="mt-2 text-center text-sm text-gray-600">
+        <p class="mt-2 text-center text-sm text-gray-600 dark:text-gray-400">
           Entrez votre nouveau mot de passe
         </p>
       </div>
@@ -15,7 +15,7 @@
         <div
           v-if="errorMessage"
           role="alert"
-          class="rounded-md border border-red-300 bg-red-50 px-4 py-3 text-sm text-red-800"
+          class="rounded-md border border-red-300 bg-red-50 dark:bg-red-950/30 px-4 py-3 text-sm text-red-800 dark:text-red-200"
         >
           {{ errorMessage }}
         </div>
@@ -24,7 +24,7 @@
         <div
           v-if="successMessage"
           role="status"
-          class="rounded-md border border-green-300 bg-green-50 px-4 py-3 text-sm text-green-800"
+          class="rounded-md border border-green-300 bg-green-50 dark:bg-green-950/30 px-4 py-3 text-sm text-green-800 dark:text-green-200"
         >
           {{ successMessage }}
         </div>
@@ -33,7 +33,7 @@
           <div>
             <label
               for="newPassword"
-              class="block text-sm font-medium text-gray-700"
+              class="block text-sm font-medium text-gray-700 dark:text-gray-300"
             >
               Nouveau mot de passe
             </label>
@@ -43,10 +43,10 @@
               type="password"
               required
               autocomplete="new-password"
-              class="mt-1 block w-full rounded-md border border-gray-300 px-3 py-2 placeholder-gray-500 shadow-sm focus:border-orange-500 focus:outline-none focus:ring-2 focus:ring-orange-500"
+              class="mt-1 block w-full rounded-md border border-gray-300 dark:border-gray-700 px-3 py-2 placeholder-gray-500 shadow-sm focus:border-orange-500 focus:outline-none focus:ring-2 focus:ring-orange-500"
               placeholder="••••••••"
             />
-            <p class="mt-1 text-xs text-gray-500">
+            <p class="mt-1 text-xs text-gray-500 dark:text-gray-400">
               Le mot de passe doit contenir au moins 8 caractères, une
               majuscule, une minuscule, un chiffre et un caractère spécial.
             </p>
@@ -55,7 +55,7 @@
           <div>
             <label
               for="confirmPassword"
-              class="block text-sm font-medium text-gray-700"
+              class="block text-sm font-medium text-gray-700 dark:text-gray-300"
             >
               Confirmer le nouveau mot de passe
             </label>
@@ -65,7 +65,7 @@
               type="password"
               required
               autocomplete="new-password"
-              class="mt-1 block w-full rounded-md border border-gray-300 px-3 py-2 placeholder-gray-500 shadow-sm focus:border-orange-500 focus:outline-none focus:ring-2 focus:ring-orange-500"
+              class="mt-1 block w-full rounded-md border border-gray-300 dark:border-gray-700 px-3 py-2 placeholder-gray-500 shadow-sm focus:border-orange-500 focus:outline-none focus:ring-2 focus:ring-orange-500"
               placeholder="••••••••"
             />
           </div>
@@ -99,16 +99,16 @@
               />
             </svg>
           </div>
-          <p class="text-gray-700">
+          <p class="text-gray-700 dark:text-gray-300">
             Votre mot de passe a été réinitialisé avec succès !
           </p>
-          <p class="text-sm text-gray-500">
+          <p class="text-sm text-gray-500 dark:text-gray-400">
             Vous pouvez maintenant vous connecter avec votre nouveau mot de
             passe.
           </p>
           <NuxtLink
             to="/auth/login"
-            class="inline-block text-sm font-medium text-orange-600 hover:text-orange-500"
+            class="inline-block text-sm font-medium text-orange-600 dark:text-orange-400 hover:text-orange-500"
           >
             Se connecter →
           </NuxtLink>
@@ -117,7 +117,7 @@
         <div class="text-center">
           <NuxtLink
             to="/auth/login"
-            class="text-sm font-medium text-orange-600 hover:text-orange-500"
+            class="text-sm font-medium text-orange-600 dark:text-orange-400 hover:text-orange-500"
           >
             ← Retour à la connexion
           </NuxtLink>

@@ -2,8 +2,8 @@
   <div>
     <div class="mb-6 flex flex-col justify-between gap-4 sm:flex-row sm:items-center">
       <div>
-        <h1 class="text-2xl font-bold text-gray-900">Gestion utilisateurs</h1>
-        <p class="mt-1 text-sm text-gray-500">
+        <h1 class="text-2xl font-bold text-gray-900 dark:text-gray-100">Gestion utilisateurs</h1>
+        <p class="mt-1 text-sm text-gray-500 dark:text-gray-400">
           Consultez, suspendez ou supprimez les comptes de la plateforme.
         </p>
       </div>
@@ -18,21 +18,21 @@
 
     <!-- stat cards -->
     <div class="mb-6 grid grid-cols-2 gap-4 md:grid-cols-4">
-      <div class="rounded-xl border border-gray-200 bg-white p-4">
-        <p class="text-sm text-gray-500">Total</p>
-        <p class="text-2xl font-bold text-gray-900">{{ stats.total }}</p>
+      <div class="rounded-xl border border-gray-200 dark:border-gray-800 bg-white dark:bg-gray-900 p-4">
+        <p class="text-sm text-gray-500 dark:text-gray-400">Total</p>
+        <p class="text-2xl font-bold text-gray-900 dark:text-gray-100">{{ stats.total }}</p>
       </div>
-      <div class="rounded-xl border border-gray-200 bg-white p-4">
-        <p class="text-sm text-gray-500">Actifs</p>
-        <p class="text-2xl font-bold text-green-600">{{ stats.active }}</p>
+      <div class="rounded-xl border border-gray-200 dark:border-gray-800 bg-white dark:bg-gray-900 p-4">
+        <p class="text-sm text-gray-500 dark:text-gray-400">Actifs</p>
+        <p class="text-2xl font-bold text-green-600 dark:text-green-400">{{ stats.active }}</p>
       </div>
-      <div class="rounded-xl border border-gray-200 bg-white p-4">
-        <p class="text-sm text-gray-500">Suspendus</p>
-        <p class="text-2xl font-bold text-red-600">{{ stats.suspended }}</p>
+      <div class="rounded-xl border border-gray-200 dark:border-gray-800 bg-white dark:bg-gray-900 p-4">
+        <p class="text-sm text-gray-500 dark:text-gray-400">Suspendus</p>
+        <p class="text-2xl font-bold text-red-600 dark:text-red-400">{{ stats.suspended }}</p>
       </div>
-      <div class="rounded-xl border border-gray-200 bg-white p-4">
-        <p class="text-sm text-gray-500">En attente</p>
-        <p class="text-2xl font-bold text-yellow-600">{{ stats.pending }}</p>
+      <div class="rounded-xl border border-gray-200 dark:border-gray-800 bg-white dark:bg-gray-900 p-4">
+        <p class="text-sm text-gray-500 dark:text-gray-400">En attente</p>
+        <p class="text-2xl font-bold text-yellow-600 dark:text-yellow-400">{{ stats.pending }}</p>
       </div>
     </div>
 
@@ -42,12 +42,12 @@
         v-model="search"
         type="text"
         placeholder="Rechercher par nom ou email..."
-        class="min-w-64 flex-1 rounded-lg border border-gray-300 px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-orange-500"
+        class="min-w-64 flex-1 rounded-lg border border-gray-300 dark:border-gray-700 px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-orange-500"
         @input="debouncedFetch"
       />
       <select
         v-model="roleFilter"
-        class="rounded-lg border border-gray-300 px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-orange-500"
+        class="rounded-lg border border-gray-300 dark:border-gray-700 px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-orange-500"
         @change="resetAndFetch"
       >
         <option value="">Tous les rôles</option>
@@ -59,7 +59,7 @@
       </select>
       <select
         v-model="statusFilter"
-        class="rounded-lg border border-gray-300 px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-orange-500"
+        class="rounded-lg border border-gray-300 dark:border-gray-700 px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-orange-500"
         @change="resetAndFetch"
       >
         <option value="">Tous les statuts</option>
@@ -69,56 +69,56 @@
         <option value="PENDING_VERIFICATION">En attente</option>
       </select>
       <button
-        class="rounded-lg bg-gray-100 px-4 py-2 text-sm text-gray-700 transition-colors hover:bg-gray-200"
+        class="rounded-lg bg-gray-100 dark:bg-gray-800 px-4 py-2 text-sm text-gray-700 dark:text-gray-300 transition-colors hover:bg-gray-200"
         @click="resetFilters"
       >
         Réinitialiser
       </button>
     </div>
 
-    <div v-if="loading" class="py-12 text-center text-gray-500">
+    <div v-if="loading" class="py-12 text-center text-gray-500 dark:text-gray-400">
       Chargement...
     </div>
 
-    <div v-else-if="fetchError" class="rounded-lg bg-red-50 p-4 text-red-800">
+    <div v-else-if="fetchError" class="rounded-lg bg-red-50 dark:bg-red-950/30 p-4 text-red-800 dark:text-red-200">
       {{ fetchError }}
     </div>
 
-    <div v-else class="overflow-x-auto rounded-lg border border-gray-200">
-      <table class="min-w-full divide-y divide-gray-200">
-        <thead class="bg-gray-50">
+    <div v-else class="overflow-x-auto rounded-lg border border-gray-200 dark:border-gray-800">
+      <table class="min-w-full divide-y divide-gray-200 dark:divide-gray-800">
+        <thead class="bg-gray-50 dark:bg-gray-900">
           <tr>
-            <th class="px-6 py-3 text-left text-xs font-medium uppercase tracking-wider text-gray-500">
+            <th class="px-6 py-3 text-left text-xs font-medium uppercase tracking-wider text-gray-500 dark:text-gray-400">
               Utilisateur
             </th>
-            <th class="px-6 py-3 text-left text-xs font-medium uppercase tracking-wider text-gray-500">
+            <th class="px-6 py-3 text-left text-xs font-medium uppercase tracking-wider text-gray-500 dark:text-gray-400">
               Rôle
             </th>
-            <th class="px-6 py-3 text-left text-xs font-medium uppercase tracking-wider text-gray-500">
+            <th class="px-6 py-3 text-left text-xs font-medium uppercase tracking-wider text-gray-500 dark:text-gray-400">
               Statut
             </th>
-            <th class="px-6 py-3 text-left text-xs font-medium uppercase tracking-wider text-gray-500">
+            <th class="px-6 py-3 text-left text-xs font-medium uppercase tracking-wider text-gray-500 dark:text-gray-400">
               Dernière connexion
             </th>
-            <th class="px-6 py-3 text-left text-xs font-medium uppercase tracking-wider text-gray-500">
+            <th class="px-6 py-3 text-left text-xs font-medium uppercase tracking-wider text-gray-500 dark:text-gray-400">
               Inscrit le
             </th>
-            <th class="px-6 py-3 text-left text-xs font-medium uppercase tracking-wider text-gray-500">
+            <th class="px-6 py-3 text-left text-xs font-medium uppercase tracking-wider text-gray-500 dark:text-gray-400">
               Actions
             </th>
           </tr>
         </thead>
-        <tbody class="divide-y divide-gray-200 bg-white">
+        <tbody class="divide-y divide-gray-200 dark:divide-gray-800 bg-white dark:bg-gray-900">
           <tr v-if="users.length === 0">
-            <td colspan="6" class="px-6 py-8 text-center text-gray-500">
+            <td colspan="6" class="px-6 py-8 text-center text-gray-500 dark:text-gray-400">
               Aucun utilisateur trouvé
             </td>
           </tr>
-          <tr v-for="u in users" :key="u.id" class="hover:bg-gray-50">
+          <tr v-for="u in users" :key="u.id" class="hover:bg-gray-50 dark:hover:bg-gray-800">
             <td class="px-6 py-4">
-              <div class="font-medium text-gray-900">{{ u.fullName }}</div>
-              <div class="text-sm text-gray-500">{{ u.email }}</div>
-              <div v-if="u.phone" class="text-xs text-gray-500">
+              <div class="font-medium text-gray-900 dark:text-gray-100">{{ u.fullName }}</div>
+              <div class="text-sm text-gray-500 dark:text-gray-400">{{ u.email }}</div>
+              <div v-if="u.phone" class="text-xs text-gray-500 dark:text-gray-400">
                 {{ u.phone }}
               </div>
             </td>
@@ -138,10 +138,10 @@
                 {{ statusLabel(u.status) }}
               </span>
             </td>
-            <td class="whitespace-nowrap px-6 py-4 text-sm text-gray-600">
+            <td class="whitespace-nowrap px-6 py-4 text-sm text-gray-600 dark:text-gray-400">
               {{ u.lastLoginAt ? formatDate(u.lastLoginAt) : "-" }}
             </td>
-            <td class="whitespace-nowrap px-6 py-4 text-sm text-gray-600">
+            <td class="whitespace-nowrap px-6 py-4 text-sm text-gray-600 dark:text-gray-400">
               {{ formatDate(u.createdAt) }}
             </td>
             <td class="whitespace-nowrap px-6 py-4">
@@ -151,7 +151,7 @@
               >
                 <button
                   v-if="u.status === 'ACTIVE'"
-                  class="rounded bg-red-50 px-3 py-1.5 text-xs font-medium text-red-700 transition-colors hover:bg-red-100 disabled:opacity-50"
+                  class="rounded bg-red-50 dark:bg-red-950/30 px-3 py-1.5 text-xs font-medium text-red-700 dark:text-red-300 transition-colors hover:bg-red-100 disabled:opacity-50"
                   :disabled="processingId === u.id"
                   @click="changeStatus(u, 'SUSPENDED')"
                 >
@@ -159,20 +159,20 @@
                 </button>
                 <button
                   v-else
-                  class="rounded bg-green-50 px-3 py-1.5 text-xs font-medium text-green-700 transition-colors hover:bg-green-100 disabled:opacity-50"
+                  class="rounded bg-green-50 dark:bg-green-950/30 px-3 py-1.5 text-xs font-medium text-green-700 dark:text-green-300 transition-colors hover:bg-green-100 disabled:opacity-50"
                   :disabled="processingId === u.id"
                   @click="changeStatus(u, 'ACTIVE')"
                 >
                   Réactiver
                 </button>
                 <button
-                  class="rounded bg-gray-100 px-3 py-1.5 text-xs font-medium text-gray-700 transition-colors hover:bg-gray-200"
+                  class="rounded bg-gray-100 dark:bg-gray-800 px-3 py-1.5 text-xs font-medium text-gray-700 dark:text-gray-300 transition-colors hover:bg-gray-200"
                   @click="openDeleteModal(u)"
                 >
                   Supprimer
                 </button>
               </div>
-              <span v-else class="text-xs text-gray-500">-</span>
+              <span v-else class="text-xs text-gray-500 dark:text-gray-400">-</span>
             </td>
           </tr>
         </tbody>
@@ -184,20 +184,20 @@
       v-if="!loading && pagination.totalPages > 1"
       class="mt-4 flex items-center justify-between"
     >
-      <p class="text-sm text-gray-600">
+      <p class="text-sm text-gray-600 dark:text-gray-400">
         {{ pagination.total }} utilisateur(s) - page {{ pagination.page }} /
         {{ pagination.totalPages }}
       </p>
       <div class="flex gap-2">
         <button
-          class="rounded-lg border border-gray-300 px-3 py-1.5 text-sm text-gray-700 hover:bg-gray-50 disabled:opacity-40"
+          class="rounded-lg border border-gray-300 dark:border-gray-700 px-3 py-1.5 text-sm text-gray-700 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-gray-800 disabled:opacity-40"
           :disabled="pagination.page <= 1"
           @click="goToPage(pagination.page - 1)"
         >
           Précédent
         </button>
         <button
-          class="rounded-lg border border-gray-300 px-3 py-1.5 text-sm text-gray-700 hover:bg-gray-50 disabled:opacity-40"
+          class="rounded-lg border border-gray-300 dark:border-gray-700 px-3 py-1.5 text-sm text-gray-700 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-gray-800 disabled:opacity-40"
           :disabled="pagination.page >= pagination.totalPages"
           @click="goToPage(pagination.page + 1)"
         >
@@ -212,11 +212,11 @@
       class="fixed inset-0 z-50 flex items-center justify-center bg-black/50 p-4"
       @click.self="showDeleteModal = false"
     >
-      <div class="w-full max-w-md rounded-2xl bg-white p-6 shadow-xl">
-        <h2 class="mb-4 text-xl font-bold text-gray-900">
+      <div class="w-full max-w-md rounded-2xl bg-white dark:bg-gray-900 p-6 shadow-xl">
+        <h2 class="mb-4 text-xl font-bold text-gray-900 dark:text-gray-100">
           Supprimer l'utilisateur
         </h2>
-        <p class="mb-4 text-sm text-gray-600">
+        <p class="mb-4 text-sm text-gray-600 dark:text-gray-400">
           Êtes-vous sûr de vouloir supprimer le compte de
           <strong>{{ deleteTarget.fullName }}</strong> ({{
             deleteTarget.email
@@ -225,7 +225,7 @@
         <div class="flex justify-end gap-3">
           <button
             type="button"
-            class="rounded-lg border border-gray-300 px-4 py-2 text-sm font-medium text-gray-700 hover:bg-gray-50"
+            class="rounded-lg border border-gray-300 dark:border-gray-700 px-4 py-2 text-sm font-medium text-gray-700 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-gray-800"
             @click="showDeleteModal = false"
           >
             Annuler
@@ -345,13 +345,13 @@ function roleLabel(role: string) {
 
 function roleBadgeClass(role: string) {
   const classes: Record<string, string> = {
-    PATIENT: "bg-blue-100 text-blue-800",
-    PRACTITIONER: "bg-orange-100 text-orange-800",
-    STAFF: "bg-teal-100 text-teal-800",
-    CABINET_ADMIN: "bg-purple-100 text-purple-800",
+    PATIENT: "bg-blue-100 dark:bg-blue-900/30 text-blue-800 dark:text-blue-200",
+    PRACTITIONER: "bg-orange-100 dark:bg-orange-900/30 text-orange-800 dark:text-orange-200",
+    STAFF: "bg-teal-100 dark:bg-teal-900/30 text-teal-800 dark:text-teal-200",
+    CABINET_ADMIN: "bg-purple-100 dark:bg-purple-900/30 text-purple-800 dark:text-purple-200",
     ADMIN: "bg-gray-800 text-white",
   };
-  return classes[role] || "bg-gray-100 text-gray-800";
+  return classes[role] || "bg-gray-100 dark:bg-gray-800 text-gray-800 dark:text-gray-200";
 }
 
 function statusLabel(status: string) {
@@ -366,12 +366,12 @@ function statusLabel(status: string) {
 
 function statusBadgeClass(status: string) {
   const classes: Record<string, string> = {
-    ACTIVE: "bg-green-100 text-green-800",
-    SUSPENDED: "bg-red-100 text-red-800",
-    INACTIVE: "bg-gray-100 text-gray-600",
-    PENDING_VERIFICATION: "bg-yellow-100 text-yellow-800",
+    ACTIVE: "bg-green-100 dark:bg-green-900/30 text-green-800 dark:text-green-200",
+    SUSPENDED: "bg-red-100 dark:bg-red-900/30 text-red-800 dark:text-red-200",
+    INACTIVE: "bg-gray-100 dark:bg-gray-800 text-gray-600 dark:text-gray-400",
+    PENDING_VERIFICATION: "bg-yellow-100 dark:bg-yellow-900/30 text-yellow-800 dark:text-yellow-200",
   };
-  return classes[status] || "bg-gray-100 text-gray-800";
+  return classes[status] || "bg-gray-100 dark:bg-gray-800 text-gray-800 dark:text-gray-200";
 }
 
 function formatDate(dateStr: string) {

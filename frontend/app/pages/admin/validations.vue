@@ -1,27 +1,27 @@
 <template>
   <div>
-    <h1 class="mb-2 text-2xl font-bold text-gray-900">
+    <h1 class="mb-2 text-2xl font-bold text-gray-900 dark:text-gray-100">
       Demandes d'inscription professionnelle
     </h1>
-    <p class="mb-6 text-gray-600">
+    <p class="mb-6 text-gray-600 dark:text-gray-400">
       Gérez les demandes d'inscription des praticiens et cabinets
     </p>
 
-    <div class="mb-6 border-b border-gray-200">
+    <div class="mb-6 border-b border-gray-200 dark:border-gray-800">
       <nav class="-mb-px flex space-x-8">
         <button
           class="whitespace-nowrap border-b-2 px-1 pb-4 text-sm font-medium transition-colors"
           :class="
             activeTab === 'pending'
-              ? 'border-orange-600 text-orange-600'
-              : 'border-transparent text-gray-500 hover:border-gray-300 hover:text-gray-700'
+              ? 'border-orange-600 text-orange-600 dark:text-orange-400'
+              : 'border-transparent text-gray-500 dark:text-gray-400 hover:border-gray-300 hover:text-gray-700 dark:hover:text-gray-200'
           "
           @click="activeTab = 'pending'"
         >
           En attente
           <span
             v-if="pendingCount > 0"
-            class="ml-2 inline-flex items-center rounded-full bg-yellow-100 px-2.5 py-0.5 text-xs font-medium text-yellow-800"
+            class="ml-2 inline-flex items-center rounded-full bg-yellow-100 dark:bg-yellow-900/30 px-2.5 py-0.5 text-xs font-medium text-yellow-800 dark:text-yellow-200"
           >
             {{ pendingCount }}
           </span>
@@ -30,8 +30,8 @@
           class="whitespace-nowrap border-b-2 px-1 pb-4 text-sm font-medium transition-colors"
           :class="
             activeTab === 'approved'
-              ? 'border-orange-600 text-orange-600'
-              : 'border-transparent text-gray-500 hover:border-gray-300 hover:text-gray-700'
+              ? 'border-orange-600 text-orange-600 dark:text-orange-400'
+              : 'border-transparent text-gray-500 dark:text-gray-400 hover:border-gray-300 hover:text-gray-700 dark:hover:text-gray-200'
           "
           @click="activeTab = 'approved'"
         >
@@ -41,8 +41,8 @@
           class="whitespace-nowrap border-b-2 px-1 pb-4 text-sm font-medium transition-colors"
           :class="
             activeTab === 'rejected'
-              ? 'border-orange-600 text-orange-600'
-              : 'border-transparent text-gray-500 hover:border-gray-300 hover:text-gray-700'
+              ? 'border-orange-600 text-orange-600 dark:text-orange-400'
+              : 'border-transparent text-gray-500 dark:text-gray-400 hover:border-gray-300 hover:text-gray-700 dark:hover:text-gray-200'
           "
           @click="activeTab = 'rejected'"
         >
@@ -54,7 +54,7 @@
     <div class="mb-4 flex flex-wrap items-center gap-4">
       <select
         v-model="filterType"
-        class="rounded-lg border border-gray-300 px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-orange-500"
+        class="rounded-lg border border-gray-300 dark:border-gray-700 px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-orange-500"
       >
         <option value="">Tous les types</option>
         <option value="PRACTITIONER">Praticien</option>
@@ -64,10 +64,10 @@
         v-model="filterSpecialty"
         type="text"
         placeholder="Filtrer par spécialité..."
-        class="rounded-lg border border-gray-300 px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-orange-500"
+        class="rounded-lg border border-gray-300 dark:border-gray-700 px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-orange-500"
       />
       <button
-        class="rounded-lg bg-gray-100 px-4 py-2 text-sm text-gray-700 transition-colors hover:bg-gray-200"
+        class="rounded-lg bg-gray-100 dark:bg-gray-800 px-4 py-2 text-sm text-gray-700 dark:text-gray-300 transition-colors hover:bg-gray-200"
         @click="
           filterType = '';
           filterSpecialty = '';
@@ -77,56 +77,56 @@
       </button>
     </div>
 
-    <div v-if="loading" class="py-12 text-center text-gray-500">
+    <div v-if="loading" class="py-12 text-center text-gray-500 dark:text-gray-400">
       Chargement...
     </div>
 
-    <div v-else-if="fetchError" class="rounded-lg bg-red-50 p-4 text-red-800">
+    <div v-else-if="fetchError" class="rounded-lg bg-red-50 dark:bg-red-950/30 p-4 text-red-800 dark:text-red-200">
       {{ fetchError }}
     </div>
 
-    <div v-else class="overflow-x-auto rounded-lg border border-gray-200">
-      <table class="min-w-full divide-y divide-gray-200">
-        <thead class="bg-gray-50">
+    <div v-else class="overflow-x-auto rounded-lg border border-gray-200 dark:border-gray-800">
+      <table class="min-w-full divide-y divide-gray-200 dark:divide-gray-800">
+        <thead class="bg-gray-50 dark:bg-gray-900">
           <tr>
             <th
-              class="px-6 py-3 text-left text-xs font-medium uppercase tracking-wider text-gray-500"
+              class="px-6 py-3 text-left text-xs font-medium uppercase tracking-wider text-gray-500 dark:text-gray-400"
             >
               Nom
             </th>
             <th
-              class="px-6 py-3 text-left text-xs font-medium uppercase tracking-wider text-gray-500"
+              class="px-6 py-3 text-left text-xs font-medium uppercase tracking-wider text-gray-500 dark:text-gray-400"
             >
               Type
             </th>
             <th
-              class="px-6 py-3 text-left text-xs font-medium uppercase tracking-wider text-gray-500"
+              class="px-6 py-3 text-left text-xs font-medium uppercase tracking-wider text-gray-500 dark:text-gray-400"
             >
               Spécialité / Cabinet
             </th>
             <th
-              class="px-6 py-3 text-left text-xs font-medium uppercase tracking-wider text-gray-500"
+              class="px-6 py-3 text-left text-xs font-medium uppercase tracking-wider text-gray-500 dark:text-gray-400"
             >
               Date de soumission
             </th>
             <th
               v-if="activeTab !== 'pending'"
-              class="px-6 py-3 text-left text-xs font-medium uppercase tracking-wider text-gray-500"
+              class="px-6 py-3 text-left text-xs font-medium uppercase tracking-wider text-gray-500 dark:text-gray-400"
             >
               Date de traitement
             </th>
             <th
-              class="px-6 py-3 text-left text-xs font-medium uppercase tracking-wider text-gray-500"
+              class="px-6 py-3 text-left text-xs font-medium uppercase tracking-wider text-gray-500 dark:text-gray-400"
             >
               Actions
             </th>
           </tr>
         </thead>
-        <tbody class="divide-y divide-gray-200 bg-white">
+        <tbody class="divide-y divide-gray-200 dark:divide-gray-800 bg-white dark:bg-gray-900">
           <tr v-if="filteredRequests.length === 0">
             <td
               :colspan="activeTab !== 'pending' ? 6 : 5"
-              class="px-6 py-8 text-center text-gray-500"
+              class="px-6 py-8 text-center text-gray-500 dark:text-gray-400"
             >
               Aucune demande trouvée
             </td>
@@ -134,21 +134,21 @@
           <tr
             v-for="req in filteredRequests"
             :key="req.id"
-            class="hover:bg-gray-50"
+            class="hover:bg-gray-50 dark:hover:bg-gray-800"
           >
             <td class="whitespace-nowrap px-6 py-4">
-              <div class="font-medium text-gray-900">
+              <div class="font-medium text-gray-900 dark:text-gray-100">
                 {{ req.firstName }} {{ req.lastName }}
               </div>
-              <div class="text-sm text-gray-500">{{ req.email }}</div>
+              <div class="text-sm text-gray-500 dark:text-gray-400">{{ req.email }}</div>
             </td>
             <td class="whitespace-nowrap px-6 py-4">
               <span
                 class="inline-flex rounded-full px-2.5 py-0.5 text-xs font-medium"
                 :class="
                   req.requestType === 'PRACTITIONER'
-                    ? 'bg-orange-100 text-orange-800'
-                    : 'bg-purple-100 text-purple-800'
+                    ? 'bg-orange-100 dark:bg-orange-900/30 text-orange-800 dark:text-orange-200'
+                    : 'bg-purple-100 dark:bg-purple-900/30 text-purple-800 dark:text-purple-200'
                 "
               >
                 {{
@@ -156,26 +156,26 @@
                 }}
               </span>
             </td>
-            <td class="whitespace-nowrap px-6 py-4 text-sm text-gray-600">
+            <td class="whitespace-nowrap px-6 py-4 text-sm text-gray-600 dark:text-gray-400">
               {{
                 req.requestType === "PRACTITIONER"
                   ? req.specialty || "-"
                   : req.cabinetName || "-"
               }}
             </td>
-            <td class="whitespace-nowrap px-6 py-4 text-sm text-gray-600">
+            <td class="whitespace-nowrap px-6 py-4 text-sm text-gray-600 dark:text-gray-400">
               {{ formatDate(req.createdAt) }}
             </td>
             <td
               v-if="activeTab !== 'pending'"
-              class="whitespace-nowrap px-6 py-4 text-sm text-gray-600"
+              class="whitespace-nowrap px-6 py-4 text-sm text-gray-600 dark:text-gray-400"
             >
               {{ req.processedAt ? formatDate(req.processedAt) : "-" }}
             </td>
             <td class="whitespace-nowrap px-6 py-4">
               <div class="flex items-center gap-2">
                 <button
-                  class="rounded bg-gray-100 px-3 py-1.5 text-xs font-medium text-gray-700 transition-colors hover:bg-gray-200"
+                  class="rounded bg-gray-100 dark:bg-gray-800 px-3 py-1.5 text-xs font-medium text-gray-700 dark:text-gray-300 transition-colors hover:bg-gray-200"
                   @click="viewDetails(req)"
                 >
                   Détails
@@ -208,12 +208,12 @@
       @click.self="showDetailsModal = false"
     >
       <div
-        class="max-h-[80vh] w-full max-w-2xl overflow-y-auto rounded-2xl bg-white p-6 shadow-xl"
+        class="max-h-[80vh] w-full max-w-2xl overflow-y-auto rounded-2xl bg-white dark:bg-gray-900 p-6 shadow-xl"
       >
         <div class="mb-4 flex items-center justify-between">
-          <h2 class="text-xl font-bold text-gray-900">Détails de la demande</h2>
+          <h2 class="text-xl font-bold text-gray-900 dark:text-gray-100">Détails de la demande</h2>
           <button
-            class="rounded-lg p-2 text-gray-500 hover:bg-gray-100 hover:text-gray-600"
+            class="rounded-lg p-2 text-gray-500 dark:text-gray-400 hover:bg-gray-100 dark:hover:bg-gray-800 hover:text-gray-600"
             @click="showDetailsModal = false"
           >
             <svg
@@ -235,14 +235,14 @@
         <div class="space-y-4">
           <div class="grid gap-4 md:grid-cols-2">
             <div>
-              <span class="text-sm font-medium text-gray-500">Nom</span>
-              <p class="text-gray-900">
+              <span class="text-sm font-medium text-gray-500 dark:text-gray-400">Nom</span>
+              <p class="text-gray-900 dark:text-gray-100">
                 {{ selectedRequest.firstName }} {{ selectedRequest.lastName }}
               </p>
             </div>
             <div>
-              <span class="text-sm font-medium text-gray-500">Type</span>
-              <p class="text-gray-900">
+              <span class="text-sm font-medium text-gray-500 dark:text-gray-400">Type</span>
+              <p class="text-gray-900 dark:text-gray-100">
                 {{
                   selectedRequest.requestType === "PRACTITIONER"
                     ? "Praticien"
@@ -251,58 +251,58 @@
               </p>
             </div>
             <div>
-              <span class="text-sm font-medium text-gray-500">Email</span>
-              <p class="text-gray-900">{{ selectedRequest.email }}</p>
+              <span class="text-sm font-medium text-gray-500 dark:text-gray-400">Email</span>
+              <p class="text-gray-900 dark:text-gray-100">{{ selectedRequest.email }}</p>
             </div>
             <div>
-              <span class="text-sm font-medium text-gray-500">Téléphone</span>
-              <p class="text-gray-900">{{ selectedRequest.phone }}</p>
+              <span class="text-sm font-medium text-gray-500 dark:text-gray-400">Téléphone</span>
+              <p class="text-gray-900 dark:text-gray-100">{{ selectedRequest.phone }}</p>
             </div>
           </div>
 
           <!-- practitioner fields -->
           <template v-if="selectedRequest.requestType === 'PRACTITIONER'">
             <div class="border-t pt-4">
-              <h3 class="mb-3 text-lg font-semibold text-gray-900">
+              <h3 class="mb-3 text-lg font-semibold text-gray-900 dark:text-gray-100">
                 Informations professionnelles
               </h3>
               <div class="grid gap-4 md:grid-cols-2">
                 <div>
-                  <span class="text-sm font-medium text-gray-500"
+                  <span class="text-sm font-medium text-gray-500 dark:text-gray-400"
                     >N° d'Ordre (ONMCI)</span
                   >
-                  <p class="text-gray-900">
+                  <p class="text-gray-900 dark:text-gray-100">
                     {{ selectedRequest.orderNumber || "-" }}
                   </p>
                 </div>
                 <div>
-                  <span class="text-sm font-medium text-gray-500"
+                  <span class="text-sm font-medium text-gray-500 dark:text-gray-400"
                     >Spécialité</span
                   >
-                  <p class="text-gray-900">
+                  <p class="text-gray-900 dark:text-gray-100">
                     {{ selectedRequest.specialty || "-" }}
                   </p>
                 </div>
                 <div class="md:col-span-2">
-                  <span class="text-sm font-medium text-gray-500"
+                  <span class="text-sm font-medium text-gray-500 dark:text-gray-400"
                     >Adresse du cabinet</span
                   >
-                  <p class="text-gray-900">
+                  <p class="text-gray-900 dark:text-gray-100">
                     {{ selectedRequest.clinicAddress || "-" }}
                   </p>
                 </div>
               </div>
             </div>
             <div class="border-t pt-4">
-              <h3 class="mb-3 text-lg font-semibold text-gray-900">
+              <h3 class="mb-3 text-lg font-semibold text-gray-900 dark:text-gray-100">
                 Documents
               </h3>
               <div class="space-y-2">
                 <div
                   v-if="selectedRequest.identityDocumentPath"
-                  class="flex items-center justify-between rounded-lg border border-gray-200 bg-gray-50 px-3 py-2"
+                  class="flex items-center justify-between rounded-lg border border-gray-200 dark:border-gray-800 bg-gray-50 dark:bg-gray-900 px-3 py-2"
                 >
-                  <span class="text-sm text-gray-700"
+                  <span class="text-sm text-gray-700 dark:text-gray-300"
                     >Carte d'identité / Passeport</span
                   >
                   <button
@@ -333,9 +333,9 @@
                 </div>
                 <div
                   v-if="selectedRequest.diplomaPath"
-                  class="flex items-center justify-between rounded-lg border border-gray-200 bg-gray-50 px-3 py-2"
+                  class="flex items-center justify-between rounded-lg border border-gray-200 dark:border-gray-800 bg-gray-50 dark:bg-gray-900 px-3 py-2"
                 >
-                  <span class="text-sm text-gray-700">Diplôme d'État</span>
+                  <span class="text-sm text-gray-700 dark:text-gray-300">Diplôme d'État</span>
                   <button
                     type="button"
                     class="flex items-center gap-1 rounded bg-orange-500 px-3 py-1 text-xs font-medium text-white hover:bg-orange-600 focus:outline-none focus:ring-2 focus:ring-orange-500"
@@ -359,9 +359,9 @@
                 </div>
                 <div
                   v-if="selectedRequest.orderAttestationPath"
-                  class="flex items-center justify-between rounded-lg border border-gray-200 bg-gray-50 px-3 py-2"
+                  class="flex items-center justify-between rounded-lg border border-gray-200 dark:border-gray-800 bg-gray-50 dark:bg-gray-900 px-3 py-2"
                 >
-                  <span class="text-sm text-gray-700"
+                  <span class="text-sm text-gray-700 dark:text-gray-300"
                     >Attestation de l'Ordre</span
                   >
                   <button
@@ -397,66 +397,66 @@
           <!-- cabinet fields -->
           <template v-if="selectedRequest.requestType === 'CABINET'">
             <div class="border-t pt-4">
-              <h3 class="mb-3 text-lg font-semibold text-gray-900">
+              <h3 class="mb-3 text-lg font-semibold text-gray-900 dark:text-gray-100">
                 Informations du cabinet
               </h3>
               <div class="grid gap-4 md:grid-cols-2">
                 <div>
-                  <span class="text-sm font-medium text-gray-500"
+                  <span class="text-sm font-medium text-gray-500 dark:text-gray-400"
                     >Nom du cabinet</span
                   >
-                  <p class="text-gray-900">
+                  <p class="text-gray-900 dark:text-gray-100">
                     {{ selectedRequest.cabinetName || "-" }}
                   </p>
                 </div>
                 <div>
-                  <span class="text-sm font-medium text-gray-500">RCCM</span>
-                  <p class="text-gray-900">
+                  <span class="text-sm font-medium text-gray-500 dark:text-gray-400">RCCM</span>
+                  <p class="text-gray-900 dark:text-gray-100">
                     {{ selectedRequest.cabinetRccm || "-" }}
                   </p>
                 </div>
                 <div class="md:col-span-2">
-                  <span class="text-sm font-medium text-gray-500">Adresse</span>
-                  <p class="text-gray-900">
+                  <span class="text-sm font-medium text-gray-500 dark:text-gray-400">Adresse</span>
+                  <p class="text-gray-900 dark:text-gray-100">
                     {{ selectedRequest.cabinetAddress || "-" }}
                   </p>
                 </div>
               </div>
             </div>
             <div class="border-t pt-4">
-              <h3 class="mb-3 text-lg font-semibold text-gray-900">
+              <h3 class="mb-3 text-lg font-semibold text-gray-900 dark:text-gray-100">
                 Responsable administratif
               </h3>
               <div class="grid gap-4 md:grid-cols-2">
                 <div>
-                  <span class="text-sm font-medium text-gray-500">Nom</span>
-                  <p class="text-gray-900">
+                  <span class="text-sm font-medium text-gray-500 dark:text-gray-400">Nom</span>
+                  <p class="text-gray-900 dark:text-gray-100">
                     {{ selectedRequest.adminContactName || "-" }}
                   </p>
                 </div>
                 <div>
-                  <span class="text-sm font-medium text-gray-500">Email</span>
-                  <p class="text-gray-900">
+                  <span class="text-sm font-medium text-gray-500 dark:text-gray-400">Email</span>
+                  <p class="text-gray-900 dark:text-gray-100">
                     {{ selectedRequest.adminContactEmail || "-" }}
                   </p>
                 </div>
                 <div>
-                  <span class="text-sm font-medium text-gray-500"
+                  <span class="text-sm font-medium text-gray-500 dark:text-gray-400"
                     >Téléphone</span
                   >
-                  <p class="text-gray-900">
+                  <p class="text-gray-900 dark:text-gray-100">
                     {{ selectedRequest.adminContactPhone || "-" }}
                   </p>
                 </div>
               </div>
             </div>
             <div class="border-t pt-4">
-              <h3 class="mb-3 text-lg font-semibold text-gray-900">Document</h3>
+              <h3 class="mb-3 text-lg font-semibold text-gray-900 dark:text-gray-100">Document</h3>
               <div
                 v-if="selectedRequest.cabinetRegDocPath"
-                class="flex items-center justify-between rounded-lg border border-gray-200 bg-gray-50 px-3 py-2"
+                class="flex items-center justify-between rounded-lg border border-gray-200 dark:border-gray-800 bg-gray-50 dark:bg-gray-900 px-3 py-2"
               >
-                <span class="text-sm text-gray-700"
+                <span class="text-sm text-gray-700 dark:text-gray-300"
                   >RCCM / Document d'enregistrement</span
                 >
                 <button
@@ -493,15 +493,15 @@
             "
             class="border-t pt-4"
           >
-            <h3 class="mb-2 text-lg font-semibold text-red-700">
+            <h3 class="mb-2 text-lg font-semibold text-red-700 dark:text-red-300">
               Motif du rejet
             </h3>
-            <p class="rounded-lg bg-red-50 p-3 text-sm text-red-800">
+            <p class="rounded-lg bg-red-50 dark:bg-red-950/30 p-3 text-sm text-red-800 dark:text-red-200">
               {{ selectedRequest.rejectionReason }}
             </p>
           </div>
 
-          <div class="border-t pt-4 text-sm text-gray-500">
+          <div class="border-t pt-4 text-sm text-gray-500 dark:text-gray-400">
             <p>Soumis le {{ formatDate(selectedRequest.createdAt) }}</p>
             <p v-if="selectedRequest.processedAt">
               Traité le {{ formatDate(selectedRequest.processedAt) }}
@@ -517,21 +517,21 @@
       class="fixed inset-0 z-50 flex items-center justify-center bg-black/50 p-4"
       @click.self="showApproveModal = false"
     >
-      <div class="w-full max-w-md rounded-2xl bg-white p-6 shadow-xl">
-        <h2 class="mb-4 text-xl font-bold text-gray-900">Approuver la demande</h2>
-        <p class="mb-4 text-sm text-gray-600">
+      <div class="w-full max-w-md rounded-2xl bg-white dark:bg-gray-900 p-6 shadow-xl">
+        <h2 class="mb-4 text-xl font-bold text-gray-900 dark:text-gray-100">Approuver la demande</h2>
+        <p class="mb-4 text-sm text-gray-600 dark:text-gray-400">
           Êtes-vous sûr de vouloir approuver la demande d'inscription de
           <strong>{{ approveTarget.firstName }} {{ approveTarget.lastName }}</strong> ?
         </p>
         <form @submit.prevent="submitApprove">
           <!-- plan selection only for practitioners -->
           <div v-if="approveTarget.requestType === 'PRACTITIONER'" class="mb-4">
-            <label class="mb-2 block text-sm font-medium text-gray-700">
+            <label class="mb-2 block text-sm font-medium text-gray-700 dark:text-gray-300">
               Choisir un plan d'abonnement *
             </label>
             <select
               v-model="selectedPlan"
-              class="w-full rounded-lg border border-gray-300 px-4 py-2.5 focus:outline-none focus:ring-2 focus:ring-green-600"
+              class="w-full rounded-lg border border-gray-300 dark:border-gray-700 px-4 py-2.5 focus:outline-none focus:ring-2 focus:ring-green-600"
               required
             >
               <option value="premium">Premium</option>
@@ -541,14 +541,14 @@
           </div>
           <div
             v-if="approveError"
-            class="mb-4 rounded-lg bg-red-50 p-3 text-sm text-red-800"
+            class="mb-4 rounded-lg bg-red-50 dark:bg-red-950/30 p-3 text-sm text-red-800 dark:text-red-200"
           >
             {{ approveError }}
           </div>
           <div class="flex justify-end gap-3">
             <button
               type="button"
-              class="rounded-lg border border-gray-300 px-4 py-2 text-sm font-medium text-gray-700 hover:bg-gray-50"
+              class="rounded-lg border border-gray-300 dark:border-gray-700 px-4 py-2 text-sm font-medium text-gray-700 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-gray-800"
               @click="showApproveModal = false"
             >
               Annuler
@@ -575,9 +575,9 @@
       class="fixed inset-0 z-50 flex items-center justify-center bg-black/50 p-4"
       @click.self="showRejectModal = false"
     >
-      <div class="w-full max-w-md rounded-2xl bg-white p-6 shadow-xl">
-        <h2 class="mb-4 text-xl font-bold text-gray-900">Rejeter la demande</h2>
-        <p class="mb-4 text-sm text-gray-600">
+      <div class="w-full max-w-md rounded-2xl bg-white dark:bg-gray-900 p-6 shadow-xl">
+        <h2 class="mb-4 text-xl font-bold text-gray-900 dark:text-gray-100">Rejeter la demande</h2>
+        <p class="mb-4 text-sm text-gray-600 dark:text-gray-400">
           Demande de
           <strong
             >{{ rejectTarget.firstName }} {{ rejectTarget.lastName }}</strong
@@ -585,14 +585,14 @@
         </p>
         <form @submit.prevent="submitReject">
           <div class="mb-4">
-            <label class="mb-2 block text-sm font-medium text-gray-700">
+            <label class="mb-2 block text-sm font-medium text-gray-700 dark:text-gray-300">
               Motif du rejet *
-              <span class="text-gray-500">(min. 10 caractères)</span>
+              <span class="text-gray-500 dark:text-gray-400">(min. 10 caractères)</span>
             </label>
             <textarea
               v-model="rejectionReason"
               rows="4"
-              class="w-full rounded-lg border border-gray-300 px-4 py-2.5 focus:outline-none focus:ring-2 focus:ring-red-600"
+              class="w-full rounded-lg border border-gray-300 dark:border-gray-700 px-4 py-2.5 focus:outline-none focus:ring-2 focus:ring-red-600"
               placeholder="Expliquez la raison du rejet..."
               required
               minlength="10"
@@ -600,14 +600,14 @@
           </div>
           <div
             v-if="rejectError"
-            class="mb-4 rounded-lg bg-red-50 p-3 text-sm text-red-800"
+            class="mb-4 rounded-lg bg-red-50 dark:bg-red-950/30 p-3 text-sm text-red-800 dark:text-red-200"
           >
             {{ rejectError }}
           </div>
           <div class="flex justify-end gap-3">
             <button
               type="button"
-              class="rounded-lg border border-gray-300 px-4 py-2 text-sm font-medium text-gray-700 hover:bg-gray-50"
+              class="rounded-lg border border-gray-300 dark:border-gray-700 px-4 py-2 text-sm font-medium text-gray-700 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-gray-800"
               @click="showRejectModal = false"
             >
               Annuler

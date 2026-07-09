@@ -1,21 +1,21 @@
 <template>
-  <div class="bg-gray-50 py-12 px-4 sm:px-6 lg:px-8">
-    <div class="mx-auto max-w-4xl bg-white p-8 rounded-2xl shadow-sm border border-gray-100">
+  <div class="bg-gray-50 dark:bg-gray-900 py-12 px-4 sm:px-6 lg:px-8">
+    <div class="mx-auto max-w-4xl bg-white dark:bg-gray-900 p-8 rounded-2xl shadow-sm border border-gray-100 dark:border-gray-800">
       <div class="mb-8">
         <BackToHome />
       </div>
 
-      <h1 class="text-4xl font-bold text-gray-900 mb-6">
+      <h1 class="text-4xl font-bold text-gray-900 dark:text-gray-100 mb-6">
         Conditions Générales d'Utilisation (CGU)
       </h1>
 
-      <p class="text-gray-500 text-sm mb-8">
+      <p class="text-gray-500 dark:text-gray-400 text-sm mb-8">
         Dernière mise à jour : 21 juin 2026
       </p>
 
-      <div class="prose max-w-none text-gray-600 space-y-6">
+      <div class="prose max-w-none text-gray-600 dark:text-gray-400 space-y-6">
         <section class="space-y-3">
-          <h2 class="text-2xl font-semibold text-gray-900 border-b pb-2">
+          <h2 class="text-2xl font-semibold text-gray-900 dark:text-gray-100 border-b pb-2">
             1. Objet du Service
           </h2>
           <p class="leading-relaxed">
@@ -27,7 +27,7 @@
         </section>
 
         <section class="space-y-3">
-          <h2 class="text-2xl font-semibold text-gray-900 border-b pb-2">
+          <h2 class="text-2xl font-semibold text-gray-900 dark:text-gray-100 border-b pb-2">
             2. Inscription et Vérification des Comptes
           </h2>
           <p class="leading-relaxed">
@@ -44,7 +44,7 @@
         </section>
 
         <section class="space-y-3">
-          <h2 class="text-2xl font-semibold text-gray-900 border-b pb-2">
+          <h2 class="text-2xl font-semibold text-gray-900 dark:text-gray-100 border-b pb-2">
             3. Règles de Prise de Rendez-vous et de Télémédecine
           </h2>
           <p class="leading-relaxed">
@@ -67,7 +67,7 @@
         </section>
 
         <section class="space-y-3">
-          <h2 class="text-2xl font-semibold text-gray-900 border-b pb-2">
+          <h2 class="text-2xl font-semibold text-gray-900 dark:text-gray-100 border-b pb-2">
             4. Conditions Financières, Tarifs et Facturation
           </h2>
           <p class="leading-relaxed">
@@ -87,7 +87,7 @@
         </section>
 
         <section class="space-y-3">
-          <h2 class="text-2xl font-semibold text-gray-900 border-b pb-2">
+          <h2 class="text-2xl font-semibold text-gray-900 dark:text-gray-100 border-b pb-2">
             5. Responsabilité et Déontologie
           </h2>
           <p class="leading-relaxed">
@@ -99,7 +99,7 @@
         </section>
 
         <section class="space-y-3">
-          <h2 class="text-2xl font-semibold text-gray-900 border-b pb-2">
+          <h2 class="text-2xl font-semibold text-gray-900 dark:text-gray-100 border-b pb-2">
             6. Propriété Intellectuelle
           </h2>
           <p class="leading-relaxed">
@@ -108,7 +108,7 @@
         </section>
 
         <section class="space-y-3">
-          <h2 class="text-2xl font-semibold text-gray-900 border-b pb-2">
+          <h2 class="text-2xl font-semibold text-gray-900 dark:text-gray-100 border-b pb-2">
             7. Modifications des Conditions Générales
           </h2>
           <p class="leading-relaxed">
@@ -117,7 +117,7 @@
         </section>
 
         <section class="space-y-3">
-          <h2 class="text-2xl font-semibold text-gray-900 border-b pb-2">
+          <h2 class="text-2xl font-semibold text-gray-900 dark:text-gray-100 border-b pb-2">
             8. Droit Applicable et Juridiction Compétente
           </h2>
           <p class="leading-relaxed">

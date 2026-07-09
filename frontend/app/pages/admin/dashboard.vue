@@ -1,10 +1,10 @@
 <template>
   <div>
     <div class="mb-8">
-      <h1 class="font-display text-xl font-bold tracking-tight text-gray-900">
+      <h1 class="font-display text-xl font-bold tracking-tight text-gray-900 dark:text-gray-100">
         Tableau de bord administrateur
       </h1>
-      <p class="mt-1 text-sm text-gray-500">Vue d'ensemble de la plateforme MediCôte</p>
+      <p class="mt-1 text-sm text-gray-500 dark:text-gray-400">Vue d'ensemble de la plateforme MediCôte</p>
     </div>
 
     <!-- kpis -->
@@ -13,20 +13,20 @@
         v-for="(kpi, i) in kpiCards"
         :key="i"
         :class="[
-          'rounded-2xl border border-[#E5E3DC] bg-white p-5 shadow-sm hover:shadow-md transition-all duration-300',
+          'rounded-2xl border border-[#E5E3DC] bg-white dark:bg-gray-900 p-5 shadow-sm hover:shadow-md transition-all duration-300',
           kpi.borderColor,
         ]"
       >
         <div class="flex items-start justify-between">
           <div>
-            <p class="text-[10px] font-medium uppercase tracking-widest text-gray-500">
+            <p class="text-[10px] font-medium uppercase tracking-widest text-gray-500 dark:text-gray-400">
               {{ kpi.label }}
             </p>
             <p
               v-if="loading"
               class="mt-1 h-8 w-16 animate-pulse rounded bg-gray-200"
             ></p>
-            <p v-else class="mt-1 font-display text-2xl font-bold tabular-nums text-gray-900">
+            <p v-else class="mt-1 font-display text-2xl font-bold tabular-nums text-gray-900 dark:text-gray-100">
               {{ kpi.value }}
             </p>
           </div>
@@ -36,13 +36,13 @@
     </div>
 
     <!-- section divider -->
-    <div class="my-6 border-b border-gray-100"></div>
+    <div class="my-6 border-b border-gray-100 dark:border-gray-800"></div>
 
     <!-- RDV stats -->
     <UiCard>
       <div class="mb-4 flex items-center gap-2">
-        <Calendar class="h-4 w-4 text-[#D96F00]" :stroke-width="1.75" />
-        <h3 class="font-display text-base font-semibold text-gray-900">
+        <Calendar class="h-4 w-4 text-[#D96F00] dark:text-orange-300" :stroke-width="1.75" />
+        <h3 class="font-display text-base font-semibold text-gray-900 dark:text-gray-100">
           Rendez-vous ce mois
         </h3>
       </div>
@@ -54,28 +54,28 @@
 
       <div v-else class="grid gap-4 sm:grid-cols-4">
         <div class="rounded-lg border border-black/[0.05] bg-gray-50/50 p-4 text-center">
-          <p class="font-display text-2xl font-bold tabular-nums text-gray-900">
+          <p class="font-display text-2xl font-bold tabular-nums text-gray-900 dark:text-gray-100">
             {{ dashboard?.appointmentStats.total ?? 0 }}
           </p>
-          <p class="mt-1 text-xs font-medium text-gray-500">Total</p>
+          <p class="mt-1 text-xs font-medium text-gray-500 dark:text-gray-400">Total</p>
         </div>
         <div class="rounded-lg border border-[#00804A]/10 bg-[#00804A]/5 p-4 text-center">
-          <p class="font-display text-2xl font-bold tabular-nums text-[#00804A]">
+          <p class="font-display text-2xl font-bold tabular-nums text-[#00804A] dark:text-green-300">
             {{ dashboard?.appointmentStats.confirmed ?? 0 }}
           </p>
-          <p class="mt-1 text-xs font-medium text-[#00804A]">Confirmés</p>
+          <p class="mt-1 text-xs font-medium text-[#00804A] dark:text-green-300">Confirmés</p>
         </div>
         <div class="rounded-lg border-red-500/10 bg-red-500/5 p-4 text-center">
-          <p class="font-display text-2xl font-bold tabular-nums text-red-600">
+          <p class="font-display text-2xl font-bold tabular-nums text-red-600 dark:text-red-400">
             {{ dashboard?.appointmentStats.cancelled ?? 0 }}
           </p>
           <p class="mt-1 text-xs font-medium text-red-500">Annulés</p>
         </div>
         <div class="rounded-lg border-[#D96F00]/10 bg-[#D96F00]/5 p-4 text-center">
-          <p class="font-display text-2xl font-bold tabular-nums text-[#D96F00]">
+          <p class="font-display text-2xl font-bold tabular-nums text-[#D96F00] dark:text-orange-300">
             {{ dashboard?.appointmentStats.noShows ?? 0 }}
           </p>
-          <p class="mt-1 text-xs font-medium text-[#D96F00]">No-shows</p>
+          <p class="mt-1 text-xs font-medium text-[#D96F00] dark:text-orange-300">No-shows</p>
         </div>
       </div>
     </UiCard>
@@ -85,8 +85,8 @@
       <!-- new patients -->
       <UiCard>
         <div class="mb-4 flex items-center gap-2">
-          <Users class="h-4 w-4 text-[#D96F00]" :stroke-width="1.75" />
-          <h3 class="font-display text-base font-semibold text-gray-900">
+          <Users class="h-4 w-4 text-[#D96F00] dark:text-orange-300" :stroke-width="1.75" />
+          <h3 class="font-display text-base font-semibold text-gray-900 dark:text-gray-100">
             Nouveaux patients (6 derniers mois)
           </h3>
         </div>
@@ -97,13 +97,13 @@
           <div
             v-for="item in dashboard?.patientsLast6Months"
             :key="item.month"
-            class="flex items-center justify-between rounded-lg border border-transparent px-4 py-2 hover:border-black/[0.05] hover:bg-gray-50"
+            class="flex items-center justify-between rounded-lg border border-transparent px-4 py-2 hover:border-black/[0.05] hover:bg-gray-50 dark:hover:bg-gray-800"
           >
-            <span class="text-sm font-medium capitalize text-gray-700">
+            <span class="text-sm font-medium capitalize text-gray-700 dark:text-gray-300">
               {{ item.month }}
             </span>
             <span
-              class="inline-flex items-center rounded-full bg-gray-100 border border-gray-200 px-2.5 py-0.5 text-xs font-semibold tabular-nums text-gray-600"
+              class="inline-flex items-center rounded-full bg-gray-100 dark:bg-gray-800 border border-gray-200 dark:border-gray-800 px-2.5 py-0.5 text-xs font-semibold tabular-nums text-gray-600 dark:text-gray-400"
             >
               {{ item.count }}
             </span>
@@ -114,8 +114,8 @@
       <!-- new practitioners -->
       <UiCard>
         <div class="mb-4 flex items-center gap-2">
-          <Stethoscope class="h-4 w-4 text-[#00804A]" :stroke-width="1.75" />
-          <h3 class="font-display text-base font-semibold text-gray-900">
+          <Stethoscope class="h-4 w-4 text-[#00804A] dark:text-green-300" :stroke-width="1.75" />
+          <h3 class="font-display text-base font-semibold text-gray-900 dark:text-gray-100">
             Nouveaux praticiens (6 derniers mois)
           </h3>
         </div>
@@ -126,13 +126,13 @@
           <div
             v-for="item in dashboard?.practitionersLast6Months"
             :key="item.month"
-            class="flex items-center justify-between rounded-lg border border-transparent px-4 py-2 hover:border-black/[0.05] hover:bg-gray-50"
+            class="flex items-center justify-between rounded-lg border border-transparent px-4 py-2 hover:border-black/[0.05] hover:bg-gray-50 dark:hover:bg-gray-800"
           >
-            <span class="text-sm font-medium capitalize text-gray-700">
+            <span class="text-sm font-medium capitalize text-gray-700 dark:text-gray-300">
               {{ item.month }}
             </span>
             <span
-              class="inline-flex items-center rounded-full bg-gray-100 border border-gray-200 px-2.5 py-0.5 text-xs font-semibold tabular-nums text-gray-600"
+              class="inline-flex items-center rounded-full bg-gray-100 dark:bg-gray-800 border border-gray-200 dark:border-gray-800 px-2.5 py-0.5 text-xs font-semibold tabular-nums text-gray-600 dark:text-gray-400"
             >
               {{ item.count }}
             </span>
@@ -148,7 +148,7 @@
         <div class="mb-4 flex items-center justify-between">
           <div class="flex items-center gap-2">
             <CreditCard class="h-4 w-4 text-red-500" :stroke-width="1.75" />
-            <h3 class="font-display text-base font-semibold text-gray-900">
+            <h3 class="font-display text-base font-semibold text-gray-900 dark:text-gray-100">
               Abonnements impayés
             </h3>
           </div>
@@ -166,22 +166,22 @@
           class="flex flex-col items-center justify-center py-12 text-center"
         >
           <CreditCard class="mb-3 h-12 w-12 text-gray-300 opacity-60" :stroke-width="1.25" />
-          <h3 class="font-display text-base font-semibold text-gray-800">Tout est à jour</h3>
-          <p class="mt-1 max-w-[280px] text-sm text-gray-500">Aucun abonnement impayé pour le moment.</p>
+          <h3 class="font-display text-base font-semibold text-gray-800 dark:text-gray-200">Tout est à jour</h3>
+          <p class="mt-1 max-w-[280px] text-sm text-gray-500 dark:text-gray-400">Aucun abonnement impayé pour le moment.</p>
         </div>
 
         <div v-else class="space-y-1">
           <div
             v-for="sub in dashboard.unpaidSubscriptions"
             :key="sub.id"
-            class="flex items-center justify-between rounded-lg border border-transparent px-4 py-3 hover:border-black/[0.05] hover:bg-gray-50"
+            class="flex items-center justify-between rounded-lg border border-transparent px-4 py-3 hover:border-black/[0.05] hover:bg-gray-50 dark:hover:bg-gray-800"
           >
             <div class="min-w-0 flex-1">
-              <p class="text-sm font-medium text-gray-900">
+              <p class="text-sm font-medium text-gray-900 dark:text-gray-100">
                 Dr. {{ sub.practitioner.firstName }}
                 {{ sub.practitioner.lastName }}
               </p>
-              <p class="text-xs text-gray-500">{{ sub.practitioner.email }}</p>
+              <p class="text-xs text-gray-500 dark:text-gray-400">{{ sub.practitioner.email }}</p>
             </div>
             <div class="text-right">
               <UiBadge variant="danger">
@@ -189,7 +189,7 @@
               </UiBadge>
               <p
                 v-if="sub.currentPeriodEnd"
-                class="mt-1 text-[11px] tabular-nums text-gray-500"
+                class="mt-1 text-[11px] tabular-nums text-gray-500 dark:text-gray-400"
               >
                 Fin : {{ formatShortDate(sub.currentPeriodEnd) }}
               </p>
@@ -202,8 +202,8 @@
       <UiCard>
         <div class="mb-4 flex items-center justify-between">
           <div class="flex items-center gap-2">
-            <AlertTriangle class="h-4 w-4 text-[#D96F00]" :stroke-width="1.75" />
-            <h3 class="font-display text-base font-semibold text-gray-900">
+            <AlertTriangle class="h-4 w-4 text-[#D96F00] dark:text-orange-300" :stroke-width="1.75" />
+            <h3 class="font-display text-base font-semibold text-gray-900 dark:text-gray-100">
               Patients avec no-shows
             </h3>
           </div>
@@ -221,21 +221,21 @@
           class="flex flex-col items-center justify-center py-12 text-center"
         >
           <AlertTriangle class="mb-3 h-12 w-12 text-gray-300 opacity-60" :stroke-width="1.25" />
-          <h3 class="font-display text-base font-semibold text-gray-800">Aucun no-show</h3>
-          <p class="mt-1 max-w-[280px] text-sm text-gray-500">Aucun no-show enregistré.</p>
+          <h3 class="font-display text-base font-semibold text-gray-800 dark:text-gray-200">Aucun no-show</h3>
+          <p class="mt-1 max-w-[280px] text-sm text-gray-500 dark:text-gray-400">Aucun no-show enregistré.</p>
         </div>
 
         <div v-else class="space-y-1">
           <div
             v-for="patient in dashboard.noShowPatients"
             :key="patient.id"
-            class="flex items-center justify-between rounded-lg border border-transparent px-4 py-3 hover:border-black/[0.05] hover:bg-gray-50"
+            class="flex items-center justify-between rounded-lg border border-transparent px-4 py-3 hover:border-black/[0.05] hover:bg-gray-50 dark:hover:bg-gray-800"
           >
             <div class="min-w-0 flex-1">
-              <p class="text-sm font-medium text-gray-900">
+              <p class="text-sm font-medium text-gray-900 dark:text-gray-100">
                 {{ patient.firstName }} {{ patient.lastName }}
               </p>
-              <p class="text-xs text-gray-500">{{ patient.email }}</p>
+              <p class="text-xs text-gray-500 dark:text-gray-400">{{ patient.email }}</p>
             </div>
             <div class="text-right">
               <UiBadge variant="warning">

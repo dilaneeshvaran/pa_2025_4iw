@@ -8,7 +8,7 @@
       aria-labelledby="redirect-title"
     >
       <div
-        class="w-full max-w-sm transform rounded-2xl bg-white p-8 shadow-2xl transition-all dark:bg-gray-800"
+        class="w-full max-w-sm transform rounded-2xl bg-white dark:bg-gray-900 p-8 shadow-2xl transition-all dark:bg-gray-800"
       >
         <div class="flex flex-col items-center text-center">
           <div class="relative mb-6 h-20 w-20">
@@ -30,7 +30,7 @@
 
           <h3
             id="redirect-title"
-            class="text-xl font-bold text-gray-900 dark:text-white font-display mb-2"
+            class="text-xl font-bold text-gray-900 dark:text-gray-100 dark:text-white font-display mb-2"
           >
             {{ title }}
           </h3>
@@ -38,7 +38,7 @@
             {{ message }}
           </p>
 
-          <div class="mt-6 h-1.5 w-full overflow-hidden rounded-full bg-gray-100 dark:bg-gray-700">
+          <div class="mt-6 h-1.5 w-full overflow-hidden rounded-full bg-gray-100 dark:bg-gray-800 dark:bg-gray-700">
             <div
               class="h-full rounded-full bg-gradient-to-r from-orange-500 via-yellow-500 to-green-600 animate-pulse w-full"
               style="animation-duration: 2s;"

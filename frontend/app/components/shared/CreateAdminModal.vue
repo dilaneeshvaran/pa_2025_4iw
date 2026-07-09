@@ -6,7 +6,7 @@
   >
     <div
       ref="modalRef"
-      class="w-full max-w-md rounded-2xl bg-white p-6 shadow-2xl"
+      class="w-full max-w-md rounded-2xl bg-white dark:bg-gray-900 p-6 shadow-2xl"
       role="dialog"
       aria-modal="true"
       aria-labelledby="create-admin-title"
@@ -14,12 +14,12 @@
       <!-- Header -->
       <div class="mb-5 flex items-center justify-between">
         <div class="flex items-center gap-2">
-          <UserPlus class="h-5 w-5 text-[#D96F00]" :stroke-width="1.75" />
-          <h2 id="create-admin-title" class="text-lg font-bold text-gray-900">Créer un administrateur</h2>
+          <UserPlus class="h-5 w-5 text-[#D96F00] dark:text-orange-300" :stroke-width="1.75" />
+          <h2 id="create-admin-title" class="text-lg font-bold text-gray-900 dark:text-gray-100">Créer un administrateur</h2>
         </div>
         <button
           type="button"
-          class="rounded-lg p-1 text-gray-400 transition-colors hover:bg-gray-100 hover:text-gray-600"
+          class="rounded-lg p-1 text-gray-400 transition-colors hover:bg-gray-100 dark:hover:bg-gray-800 hover:text-gray-600"
           aria-label="Fermer"
           @click="handleClose"
         >
@@ -27,7 +27,7 @@
         </button>
       </div>
 
-      <p class="mb-5 text-sm text-gray-500">
+      <p class="mb-5 text-sm text-gray-500 dark:text-gray-400">
         Créez un compte administrateur plateforme. L'adresse e-mail et le mot
         de passe fournis seront utilisés pour la connexion.
       </p>
@@ -37,7 +37,7 @@
         <div>
           <label
             for="admin-email"
-            class="mb-1 block text-sm font-medium text-gray-700"
+            class="mb-1 block text-sm font-medium text-gray-700 dark:text-gray-300"
           >
             Adresse e-mail <span class="text-red-500">*</span>
           </label>
@@ -49,7 +49,7 @@
             required
             autocomplete="email"
             :disabled="submitting"
-            class="w-full rounded-lg border border-gray-300 px-3 py-2 text-sm transition-colors focus:border-orange-500 focus:outline-none focus:ring-1 focus:ring-orange-500 disabled:cursor-not-allowed disabled:opacity-50"
+            class="w-full rounded-lg border border-gray-300 dark:border-gray-700 px-3 py-2 text-sm transition-colors focus:border-orange-500 focus:outline-none focus:ring-1 focus:ring-orange-500 disabled:cursor-not-allowed disabled:opacity-50"
             placeholder="admin@medicalapp.ci"
           />
         </div>
@@ -58,7 +58,7 @@
         <div>
           <label
             for="admin-password"
-            class="mb-1 block text-sm font-medium text-gray-700"
+            class="mb-1 block text-sm font-medium text-gray-700 dark:text-gray-300"
           >
             Mot de passe <span class="text-red-500">*</span>
           </label>
@@ -70,7 +70,7 @@
               required
               autocomplete="new-password"
               :disabled="submitting"
-              class="w-full rounded-lg border border-gray-300 px-3 py-2 pr-10 text-sm transition-colors focus:border-orange-500 focus:outline-none focus:ring-1 focus:ring-orange-500 disabled:cursor-not-allowed disabled:opacity-50"
+              class="w-full rounded-lg border border-gray-300 dark:border-gray-700 px-3 py-2 pr-10 text-sm transition-colors focus:border-orange-500 focus:outline-none focus:ring-1 focus:ring-orange-500 disabled:cursor-not-allowed disabled:opacity-50"
               placeholder="••••••••"
             />
             <button
@@ -94,7 +94,7 @@
           v-if="error"
           role="alert"
           aria-live="polite"
-          class="rounded-lg bg-red-50 p-3 text-sm text-red-700"
+          class="rounded-lg bg-red-50 dark:bg-red-950/30 p-3 text-sm text-red-700 dark:text-red-300"
         >
           {{ error }}
         </div>
@@ -104,7 +104,7 @@
           <button
             type="button"
             :disabled="submitting"
-            class="rounded-lg border border-gray-300 px-4 py-2 text-sm font-medium text-gray-700 transition-colors hover:bg-gray-50 disabled:opacity-50"
+            class="rounded-lg border border-gray-300 dark:border-gray-700 px-4 py-2 text-sm font-medium text-gray-700 dark:text-gray-300 transition-colors hover:bg-gray-50 dark:hover:bg-gray-800 disabled:opacity-50"
             @click="handleClose"
           >
             Annuler

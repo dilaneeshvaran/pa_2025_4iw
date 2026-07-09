@@ -1,21 +1,21 @@
 <template>
   <div class="space-y-6">
     <div>
-      <h1 class="mb-2 text-2xl font-bold text-gray-900">Facturation</h1>
-      <p class="text-gray-600">Gérez les paiements et factures</p>
+      <h1 class="mb-2 text-2xl font-bold text-gray-900 dark:text-gray-100">Facturation</h1>
+      <p class="text-gray-600 dark:text-gray-400">Gérez les paiements et factures</p>
     </div>
 
-    <div class="mb-6 border-b border-gray-200">
+    <div class="mb-6 border-b border-gray-200 dark:border-gray-800">
       <nav class="scrollbar-hide -mb-px flex space-x-8 overflow-x-auto" aria-label="Tabs">
         <button
-          class="shrink-0 whitespace-nowrap border-b-2 border-orange-500 px-1 pb-4 text-sm font-medium text-orange-600 transition-colors duration-200"
+          class="shrink-0 whitespace-nowrap border-b-2 border-orange-500 px-1 pb-4 text-sm font-medium text-orange-600 dark:text-orange-400 transition-colors duration-200"
         >
           Paiements reçus / Factures
         </button>
       </nav>
     </div>
 
-    <div v-if="loading" class="animate-pulse py-10 text-center text-gray-500">
+    <div v-if="loading" class="animate-pulse py-10 text-center text-gray-500 dark:text-gray-400">
       Chargement...
     </div>
 
@@ -26,14 +26,14 @@
     <div v-else class="space-y-6">
       <div
         v-if="dashboard.assignedTo?.type === 'cabinet'"
-        class="flex items-center gap-4 rounded-lg border border-gray-100 bg-white p-4 shadow-sm"
+        class="flex items-center gap-4 rounded-lg border border-gray-100 dark:border-gray-800 bg-white dark:bg-gray-900 p-4 shadow-sm"
       >
-        <label class="text-sm font-medium text-gray-700"
+        <label class="text-sm font-medium text-gray-700 dark:text-gray-300"
           >Sélectionner un praticien :</label
         >
         <select
           v-model="selectedPractitionerId"
-          class="min-w-[250px] rounded-md border-gray-300 shadow-sm focus:border-orange-500 focus:ring-orange-500 sm:text-sm"
+          class="min-w-[250px] rounded-md border-gray-300 dark:border-gray-700 shadow-sm focus:border-orange-500 focus:ring-orange-500 sm:text-sm"
         >
           <option value="" disabled>-- Choisir --</option>
           <option
@@ -51,13 +51,13 @@
       </div>
       <div
         v-else-if="dashboard.assignedTo?.type === 'cabinet'"
-        class="rounded-lg border border-gray-100 bg-white py-10 text-center text-gray-500 shadow-sm"
+        class="rounded-lg border border-gray-100 dark:border-gray-800 bg-white dark:bg-gray-900 py-10 text-center text-gray-500 dark:text-gray-400 shadow-sm"
       >
         Veuillez sélectionner un praticien pour voir ses factures.
       </div>
       <div
         v-else
-        class="rounded-lg border border-gray-100 bg-white py-10 text-center text-gray-500 shadow-sm"
+        class="rounded-lg border border-gray-100 dark:border-gray-800 bg-white dark:bg-gray-900 py-10 text-center text-gray-500 dark:text-gray-400 shadow-sm"
       >
         Aucun praticien assigné.
       </div>

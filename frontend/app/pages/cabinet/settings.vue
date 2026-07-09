@@ -1,12 +1,12 @@
 <template>
   <div class="space-y-6">
     <div>
-      <h1 class="mb-2 text-2xl font-bold text-gray-900">Paramètres</h1>
-      <p class="text-gray-600">Gérez votre compte et les informations de votre cabinet</p>
+      <h1 class="mb-2 text-2xl font-bold text-gray-900 dark:text-gray-100">Paramètres</h1>
+      <p class="text-gray-600 dark:text-gray-400">Gérez votre compte et les informations de votre cabinet</p>
     </div>
 
     <!-- tabs -->
-    <div class="border-b border-gray-200">
+    <div class="border-b border-gray-200 dark:border-gray-800">
       <nav class="-mb-px flex space-x-8">
         <button
           v-for="tab in tabs"
@@ -14,8 +14,8 @@
           :class="[
             'flex items-center gap-2 border-b-2 px-1 py-3 text-sm font-medium transition-colors',
             activeTab === tab.id
-              ? 'border-orange-500 text-orange-600'
-              : 'border-transparent text-gray-500 hover:border-gray-300 hover:text-gray-700',
+              ? 'border-orange-500 text-orange-600 dark:text-orange-400'
+              : 'border-transparent text-gray-500 dark:text-gray-400 hover:border-gray-300 hover:text-gray-700 dark:hover:text-gray-200',
           ]"
           @click="activeTab = tab.id"
         >
@@ -33,34 +33,34 @@
     <!-- Mon compte tab -->
     <div v-else-if="activeTab === 'account'" class="space-y-6">
       <!-- profile -->
-      <div class="rounded-xl border border-gray-200 bg-white p-6 shadow-sm">
-        <h3 class="mb-4 flex items-center gap-2 text-lg font-semibold text-gray-900">
+      <div class="rounded-xl border border-gray-200 dark:border-gray-800 bg-white dark:bg-gray-900 p-6 shadow-sm">
+        <h3 class="mb-4 flex items-center gap-2 text-lg font-semibold text-gray-900 dark:text-gray-100">
           <UserIcon class="h-5 w-5 text-orange-500" />
           Informations personnelles
         </h3>
         <div class="grid grid-cols-1 gap-4 sm:grid-cols-2">
           <div>
-            <label class="mb-1 block text-sm font-medium text-gray-700">Prénom</label>
+            <label class="mb-1 block text-sm font-medium text-gray-700 dark:text-gray-300">Prénom</label>
             <input
               v-model="accountProfile.firstName"
               type="text"
-              class="w-full rounded-lg border border-gray-300 px-3 py-2 text-sm focus:border-orange-500 focus:outline-none focus:ring-1 focus:ring-orange-500"
+              class="w-full rounded-lg border border-gray-300 dark:border-gray-700 px-3 py-2 text-sm focus:border-orange-500 focus:outline-none focus:ring-1 focus:ring-orange-500"
             />
           </div>
           <div>
-            <label class="mb-1 block text-sm font-medium text-gray-700">Nom</label>
+            <label class="mb-1 block text-sm font-medium text-gray-700 dark:text-gray-300">Nom</label>
             <input
               v-model="accountProfile.lastName"
               type="text"
-              class="w-full rounded-lg border border-gray-300 px-3 py-2 text-sm focus:border-orange-500 focus:outline-none focus:ring-1 focus:ring-orange-500"
+              class="w-full rounded-lg border border-gray-300 dark:border-gray-700 px-3 py-2 text-sm focus:border-orange-500 focus:outline-none focus:ring-1 focus:ring-orange-500"
             />
           </div>
           <div>
-            <label class="mb-1 block text-sm font-medium text-gray-700">Téléphone</label>
+            <label class="mb-1 block text-sm font-medium text-gray-700 dark:text-gray-300">Téléphone</label>
             <input
               v-model="accountProfile.phone"
               type="tel"
-              class="w-full rounded-lg border border-gray-300 px-3 py-2 text-sm focus:border-orange-500 focus:outline-none focus:ring-1 focus:ring-orange-500"
+              class="w-full rounded-lg border border-gray-300 dark:border-gray-700 px-3 py-2 text-sm focus:border-orange-500 focus:outline-none focus:ring-1 focus:ring-orange-500"
             />
           </div>
         </div>
@@ -75,29 +75,29 @@
       </div>
 
       <!-- email -->
-      <div class="rounded-xl border border-gray-200 bg-white p-6 shadow-sm">
-        <h3 class="mb-4 flex items-center gap-2 text-lg font-semibold text-gray-900">
+      <div class="rounded-xl border border-gray-200 dark:border-gray-800 bg-white dark:bg-gray-900 p-6 shadow-sm">
+        <h3 class="mb-4 flex items-center gap-2 text-lg font-semibold text-gray-900 dark:text-gray-100">
           <Mail class="h-5 w-5 text-orange-500" />
           Adresse email
         </h3>
-        <p class="mb-3 text-sm text-gray-500">
+        <p class="mb-3 text-sm text-gray-500 dark:text-gray-400">
           Email actuel : <strong>{{ accountProfile.email }}</strong>
         </p>
         <div class="grid grid-cols-1 gap-4 sm:grid-cols-2">
           <div>
-            <label class="mb-1 block text-sm font-medium text-gray-700">Nouvel email</label>
+            <label class="mb-1 block text-sm font-medium text-gray-700 dark:text-gray-300">Nouvel email</label>
             <input
               v-model="emailForm.newEmail"
               type="email"
-              class="w-full rounded-lg border border-gray-300 px-3 py-2 text-sm focus:border-orange-500 focus:outline-none focus:ring-1 focus:ring-orange-500"
+              class="w-full rounded-lg border border-gray-300 dark:border-gray-700 px-3 py-2 text-sm focus:border-orange-500 focus:outline-none focus:ring-1 focus:ring-orange-500"
             />
           </div>
           <div>
-            <label class="mb-1 block text-sm font-medium text-gray-700">Mot de passe actuel</label>
+            <label class="mb-1 block text-sm font-medium text-gray-700 dark:text-gray-300">Mot de passe actuel</label>
             <input
               v-model="emailForm.password"
               type="password"
-              class="w-full rounded-lg border border-gray-300 px-3 py-2 text-sm focus:border-orange-500 focus:outline-none focus:ring-1 focus:ring-orange-500"
+              class="w-full rounded-lg border border-gray-300 dark:border-gray-700 px-3 py-2 text-sm focus:border-orange-500 focus:outline-none focus:ring-1 focus:ring-orange-500"
             />
           </div>
         </div>
@@ -112,34 +112,34 @@
       </div>
 
       <!-- password -->
-      <div class="rounded-xl border border-gray-200 bg-white p-6 shadow-sm">
-        <h3 class="mb-4 flex items-center gap-2 text-lg font-semibold text-gray-900">
+      <div class="rounded-xl border border-gray-200 dark:border-gray-800 bg-white dark:bg-gray-900 p-6 shadow-sm">
+        <h3 class="mb-4 flex items-center gap-2 text-lg font-semibold text-gray-900 dark:text-gray-100">
           <Lock class="h-5 w-5 text-orange-500" />
           Mot de passe
         </h3>
         <div class="grid grid-cols-1 gap-4 sm:grid-cols-2">
           <div>
-            <label class="mb-1 block text-sm font-medium text-gray-700">Mot de passe actuel</label>
+            <label class="mb-1 block text-sm font-medium text-gray-700 dark:text-gray-300">Mot de passe actuel</label>
             <input
               v-model="passwordForm.currentPassword"
               type="password"
-              class="w-full rounded-lg border border-gray-300 px-3 py-2 text-sm focus:border-orange-500 focus:outline-none focus:ring-1 focus:ring-orange-500"
+              class="w-full rounded-lg border border-gray-300 dark:border-gray-700 px-3 py-2 text-sm focus:border-orange-500 focus:outline-none focus:ring-1 focus:ring-orange-500"
             />
           </div>
           <div>
-            <label class="mb-1 block text-sm font-medium text-gray-700">Nouveau mot de passe</label>
+            <label class="mb-1 block text-sm font-medium text-gray-700 dark:text-gray-300">Nouveau mot de passe</label>
             <input
               v-model="passwordForm.newPassword"
               type="password"
-              class="w-full rounded-lg border border-gray-300 px-3 py-2 text-sm focus:border-orange-500 focus:outline-none focus:ring-1 focus:ring-orange-500"
+              class="w-full rounded-lg border border-gray-300 dark:border-gray-700 px-3 py-2 text-sm focus:border-orange-500 focus:outline-none focus:ring-1 focus:ring-orange-500"
             />
           </div>
           <div class="sm:col-span-2">
-            <label class="mb-1 block text-sm font-medium text-gray-700">Confirmer le nouveau mot de passe</label>
+            <label class="mb-1 block text-sm font-medium text-gray-700 dark:text-gray-300">Confirmer le nouveau mot de passe</label>
             <input
               v-model="passwordForm.confirmPassword"
               type="password"
-              class="w-full rounded-lg border border-gray-300 px-3 py-2 text-sm focus:border-orange-500 focus:outline-none focus:ring-1 focus:ring-orange-500"
+              class="w-full rounded-lg border border-gray-300 dark:border-gray-700 px-3 py-2 text-sm focus:border-orange-500 focus:outline-none focus:ring-1 focus:ring-orange-500"
             />
           </div>
         </div>
@@ -154,11 +154,11 @@
       </div>
 
       <!-- 2FA -->
-      <div class="rounded-xl border border-gray-200 bg-white p-6 shadow-sm">
+      <div class="rounded-xl border border-gray-200 dark:border-gray-800 bg-white dark:bg-gray-900 p-6 shadow-sm">
         <div class="flex items-center justify-between">
           <div>
-            <h3 class="text-lg font-semibold text-gray-900">Authentification à deux facteurs (2FA)</h3>
-            <p class="mt-1 text-sm text-gray-500">Ajoutez une couche de sécurité supplémentaire à votre compte.</p>
+            <h3 class="text-lg font-semibold text-gray-900 dark:text-gray-100">Authentification à deux facteurs (2FA)</h3>
+            <p class="mt-1 text-sm text-gray-500 dark:text-gray-400">Ajoutez une couche de sécurité supplémentaire à votre compte.</p>
           </div>
           <button
             :class="[
@@ -171,7 +171,7 @@
           >
             <span
               :class="[
-                'pointer-events-none inline-block h-5 w-5 transform rounded-full bg-white shadow ring-0 transition duration-200 ease-in-out',
+                'pointer-events-none inline-block h-5 w-5 transform rounded-full bg-white dark:bg-gray-900 shadow ring-0 transition duration-200 ease-in-out',
                 twoFactorEnabled ? 'translate-x-5' : 'translate-x-0',
               ]"
             />
@@ -180,7 +180,7 @@
         <div
           v-if="twoFactorMsg"
           class="mt-3 rounded-lg p-3 text-sm"
-          :class="twoFactorError ? 'bg-red-50 text-red-700' : 'bg-green-50 text-green-700'"
+          :class="twoFactorError ? 'bg-red-50 dark:bg-red-950/30 text-red-700 dark:text-red-300' : 'bg-green-50 dark:bg-green-950/30 text-green-700 dark:text-green-300'"
         >
           {{ twoFactorMsg }}
         </div>
@@ -191,85 +191,85 @@
     <div v-else-if="activeTab === 'cabinet'">
       <form @submit.prevent="handleSave" class="space-y-6">
         <!-- general info -->
-        <div class="rounded-xl border border-gray-200 bg-white p-6 shadow-sm">
-          <h3 class="mb-4 text-lg font-semibold text-gray-900">Informations générales</h3>
+        <div class="rounded-xl border border-gray-200 dark:border-gray-800 bg-white dark:bg-gray-900 p-6 shadow-sm">
+          <h3 class="mb-4 text-lg font-semibold text-gray-900 dark:text-gray-100">Informations générales</h3>
           <div class="grid gap-4 sm:grid-cols-2">
             <div>
-              <label class="mb-1 block text-sm font-medium text-gray-700">Nom du cabinet</label>
+              <label class="mb-1 block text-sm font-medium text-gray-700 dark:text-gray-300">Nom du cabinet</label>
               <input
                 v-model="form.name"
                 type="text"
-                class="w-full rounded-lg border border-gray-300 px-3 py-2 text-sm focus:border-orange-500 focus:outline-none focus:ring-1 focus:ring-orange-500"
+                class="w-full rounded-lg border border-gray-300 dark:border-gray-700 px-3 py-2 text-sm focus:border-orange-500 focus:outline-none focus:ring-1 focus:ring-orange-500"
               />
             </div>
             <div>
-              <label class="mb-1 block text-sm font-medium text-gray-700">Téléphone</label>
+              <label class="mb-1 block text-sm font-medium text-gray-700 dark:text-gray-300">Téléphone</label>
               <input
                 v-model="form.phone"
                 type="tel"
-                class="w-full rounded-lg border border-gray-300 px-3 py-2 text-sm focus:border-orange-500 focus:outline-none focus:ring-1 focus:ring-orange-500"
+                class="w-full rounded-lg border border-gray-300 dark:border-gray-700 px-3 py-2 text-sm focus:border-orange-500 focus:outline-none focus:ring-1 focus:ring-orange-500"
               />
             </div>
             <div class="sm:col-span-2">
-              <label class="mb-1 block text-sm font-medium text-gray-700">Adresse</label>
+              <label class="mb-1 block text-sm font-medium text-gray-700 dark:text-gray-300">Adresse</label>
               <input
                 v-model="form.address"
                 type="text"
-                class="w-full rounded-lg border border-gray-300 px-3 py-2 text-sm focus:border-orange-500 focus:outline-none focus:ring-1 focus:ring-orange-500"
+                class="w-full rounded-lg border border-gray-300 dark:border-gray-700 px-3 py-2 text-sm focus:border-orange-500 focus:outline-none focus:ring-1 focus:ring-orange-500"
               />
             </div>
             <div>
-              <label class="mb-1 block text-sm font-medium text-gray-700">Ville</label>
+              <label class="mb-1 block text-sm font-medium text-gray-700 dark:text-gray-300">Ville</label>
               <input
                 v-model="form.city"
                 type="text"
-                class="w-full rounded-lg border border-gray-300 px-3 py-2 text-sm focus:border-orange-500 focus:outline-none focus:ring-1 focus:ring-orange-500"
+                class="w-full rounded-lg border border-gray-300 dark:border-gray-700 px-3 py-2 text-sm focus:border-orange-500 focus:outline-none focus:ring-1 focus:ring-orange-500"
               />
             </div>
           </div>
         </div>
 
         <!-- open hours -->
-        <div class="rounded-xl border border-gray-200 bg-white p-6 shadow-sm">
-          <h3 class="mb-4 text-lg font-semibold text-gray-900">Horaires d'ouverture</h3>
+        <div class="rounded-xl border border-gray-200 dark:border-gray-800 bg-white dark:bg-gray-900 p-6 shadow-sm">
+          <h3 class="mb-4 text-lg font-semibold text-gray-900 dark:text-gray-100">Horaires d'ouverture</h3>
           <div class="space-y-3">
             <div
               v-for="day in daysOfWeek"
               :key="day.key"
-              class="flex items-center gap-4 rounded-lg bg-gray-50 p-3"
+              class="flex items-center gap-4 rounded-lg bg-gray-50 dark:bg-gray-900 p-3"
             >
               <div class="w-28">
-                <label class="text-sm font-medium text-gray-700">{{ day.label }}</label>
+                <label class="text-sm font-medium text-gray-700 dark:text-gray-300">{{ day.label }}</label>
               </div>
               <label class="flex items-center gap-2">
                 <input
                   type="checkbox"
                   :checked="!openHours[day.key]?.closed"
                   @change="toggleDay(day.key)"
-                  class="rounded border-gray-300 text-orange-600 focus:ring-orange-500"
+                  class="rounded border-gray-300 dark:border-gray-700 text-orange-600 dark:text-orange-400 focus:ring-orange-500"
                 />
-                <span class="text-sm text-gray-600">Ouvert</span>
+                <span class="text-sm text-gray-600 dark:text-gray-400">Ouvert</span>
               </label>
               <template v-if="!openHours[day.key]?.closed">
                 <input
                   v-model="openHours[day.key].open"
                   type="time"
-                  class="rounded-lg border border-gray-300 px-2 py-1 text-sm"
+                  class="rounded-lg border border-gray-300 dark:border-gray-700 px-2 py-1 text-sm"
                 />
-                <span class="text-gray-500">-</span>
+                <span class="text-gray-500 dark:text-gray-400">-</span>
                 <input
                   v-model="openHours[day.key].close"
                   type="time"
-                  class="rounded-lg border border-gray-300 px-2 py-1 text-sm"
+                  class="rounded-lg border border-gray-300 dark:border-gray-700 px-2 py-1 text-sm"
                 />
               </template>
-              <span v-else class="text-sm text-gray-500">Fermé</span>
+              <span v-else class="text-sm text-gray-500 dark:text-gray-400">Fermé</span>
             </div>
           </div>
         </div>
 
-        <div v-if="saveError" class="rounded-lg bg-red-50 p-3 text-sm text-red-600">{{ saveError }}</div>
-        <div v-if="saveSuccess" class="rounded-lg bg-green-50 p-3 text-sm text-green-600">Informations mises à jour avec succès !</div>
+        <div v-if="saveError" class="rounded-lg bg-red-50 dark:bg-red-950/30 p-3 text-sm text-red-600 dark:text-red-400">{{ saveError }}</div>
+        <div v-if="saveSuccess" class="rounded-lg bg-green-50 dark:bg-green-950/30 p-3 text-sm text-green-600 dark:text-green-400">Informations mises à jour avec succès !</div>
 
         <div class="flex justify-end">
           <button
@@ -283,9 +283,9 @@
       </form>
 
       <!-- Danger Zone -->
-      <div class="mt-6 rounded-xl border border-red-200 bg-red-50/50 p-6 shadow-sm space-y-6">
-        <h3 class="text-lg font-semibold text-red-900 flex items-center gap-2">
-          <ShieldAlert class="h-5 w-5 text-red-600" />
+      <div class="mt-6 rounded-xl border border-red-200 dark:border-red-800/40 bg-red-50/50 p-6 shadow-sm space-y-6">
+        <h3 class="text-lg font-semibold text-red-900 dark:text-red-200 flex items-center gap-2">
+          <ShieldAlert class="h-5 w-5 text-red-600 dark:text-red-400" />
           Zone de danger
         </h3>
 
@@ -293,8 +293,8 @@
           <!-- Transfer Ownership -->
           <div class="py-4 first:pt-0 flex flex-col sm:flex-row sm:items-center justify-between gap-4">
             <div class="max-w-md">
-              <p class="font-medium text-gray-900">Transférer la propriété du cabinet</p>
-              <p class="text-sm text-gray-500">Transférez les droits d'administrateur à un autre utilisateur via son adresse email.</p>
+              <p class="font-medium text-gray-900 dark:text-gray-100">Transférer la propriété du cabinet</p>
+              <p class="text-sm text-gray-500 dark:text-gray-400">Transférez les droits d'administrateur à un autre utilisateur via son adresse email.</p>
             </div>
             <div class="flex flex-col sm:flex-row gap-2 self-start sm:self-center">
               <input
@@ -317,22 +317,22 @@
           <!-- Delete Cabinet -->
           <div class="py-4 last:pb-0 flex flex-col sm:flex-row sm:items-center justify-between gap-4">
             <div class="max-w-md">
-              <p class="font-medium text-gray-900">Supprimer le cabinet</p>
-              <p class="text-sm text-gray-500">Cette action est irréversible. Elle annulera tous les rendez-vous à venir et supprimera toutes les données associées du cabinet.</p>
+              <p class="font-medium text-gray-900 dark:text-gray-100">Supprimer le cabinet</p>
+              <p class="text-sm text-gray-500 dark:text-gray-400">Cette action est irréversible. Elle annulera tous les rendez-vous à venir et supprimera toutes les données associées du cabinet.</p>
             </div>
             <button
               type="button"
               @click="handleDeleteCabinet"
               :disabled="deleting"
-              class="rounded-lg border border-red-300 bg-white text-red-600 px-4 py-2 text-sm font-medium hover:bg-red-50 transition-colors disabled:opacity-50 self-start sm:self-center"
+              class="rounded-lg border border-red-300 bg-white dark:bg-gray-900 text-red-600 dark:text-red-400 px-4 py-2 text-sm font-medium hover:bg-red-50 transition-colors disabled:opacity-50 self-start sm:self-center"
             >
               Supprimer le cabinet
             </button>
           </div>
         </div>
 
-        <div v-if="dangerError" class="rounded-lg bg-red-100 p-3 text-sm text-red-800">{{ dangerError }}</div>
-        <div v-if="dangerSuccess" class="rounded-lg bg-green-100 p-3 text-sm text-green-800">{{ dangerSuccess }}</div>
+        <div v-if="dangerError" class="rounded-lg bg-red-100 dark:bg-red-900/30 p-3 text-sm text-red-800 dark:text-red-200">{{ dangerError }}</div>
+        <div v-if="dangerSuccess" class="rounded-lg bg-green-100 dark:bg-green-900/30 p-3 text-sm text-green-800 dark:text-green-200">{{ dangerSuccess }}</div>
       </div>
     </div>
 
@@ -343,31 +343,31 @@
       role="dialog"
       aria-modal="true"
     >
-      <div class="bg-white rounded-2xl max-w-md w-full p-6 shadow-2xl border border-gray-100 max-h-[90vh] overflow-y-auto">
+      <div class="bg-white dark:bg-gray-900 rounded-2xl max-w-md w-full p-6 shadow-2xl border border-gray-100 dark:border-gray-800 max-h-[90vh] overflow-y-auto">
         <div v-if="!showBackupCodes">
           <div class="flex items-center justify-between mb-4">
-            <h3 class="text-xl font-bold text-gray-900 flex items-center gap-2">
+            <h3 class="text-xl font-bold text-gray-900 dark:text-gray-100 flex items-center gap-2">
               <Lock class="w-6 h-6 text-orange-500" />
               Configurer la 2FA
             </h3>
-            <button @click="showSetupModal = false" class="text-gray-500 hover:text-gray-600 transition p-1 rounded-lg" aria-label="Fermer">
+            <button @click="showSetupModal = false" class="text-gray-500 dark:text-gray-400 hover:text-gray-600 transition p-1 rounded-lg" aria-label="Fermer">
               &times;
             </button>
           </div>
-          <p class="text-sm text-gray-600 mb-4">
+          <p class="text-sm text-gray-600 dark:text-gray-400 mb-4">
             Scannez ce code QR avec votre application d'authentification (Google Authenticator, Authy, etc.) ou saisissez la clé de configuration manuellement.
           </p>
 
-          <div class="flex flex-col items-center justify-center my-4 p-4 bg-gray-50 rounded-xl border border-dashed border-gray-200">
+          <div class="flex flex-col items-center justify-center my-4 p-4 bg-gray-50 dark:bg-gray-900 rounded-xl border border-dashed border-gray-200 dark:border-gray-800">
             <img :src="qrCodeUrl" alt="QR Code 2FA" class="w-48 h-48 shadow-sm rounded-lg" />
             <div class="mt-4 text-center w-full">
-              <span class="text-xs text-gray-500 font-medium uppercase tracking-wider block">Clé de configuration</span>
-              <code class="text-sm font-mono bg-gray-100 px-2 py-1 rounded text-orange-600 font-bold block select-all break-all mt-1">{{ secretKey }}</code>
+              <span class="text-xs text-gray-500 dark:text-gray-400 font-medium uppercase tracking-wider block">Clé de configuration</span>
+              <code class="text-sm font-mono bg-gray-100 dark:bg-gray-800 px-2 py-1 rounded text-orange-600 dark:text-orange-400 font-bold block select-all break-all mt-1">{{ secretKey }}</code>
             </div>
           </div>
 
           <div class="mt-4">
-            <label for="2fa-cabinet-code" class="block text-sm font-medium text-gray-700 mb-1">Code de vérification (6 chiffres)</label>
+            <label for="2fa-cabinet-code" class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Code de vérification (6 chiffres)</label>
             <input
               id="2fa-cabinet-code"
               v-model="verificationCode"
@@ -376,14 +376,14 @@
               inputmode="numeric"
               maxlength="6"
               placeholder="000000"
-              class="w-full text-center tracking-widest text-lg font-bold font-mono rounded-xl border border-gray-300 px-3 py-2.5 placeholder-gray-500 shadow-sm focus:border-orange-500 focus:outline-none focus:ring-2 focus:ring-orange-500"
+              class="w-full text-center tracking-widest text-lg font-bold font-mono rounded-xl border border-gray-300 dark:border-gray-700 px-3 py-2.5 placeholder-gray-500 shadow-sm focus:border-orange-500 focus:outline-none focus:ring-2 focus:ring-orange-500"
               @keyup.enter="verify2FA"
             />
-            <p v-if="codeError" class="mt-2 text-sm text-red-600" role="alert">{{ codeError }}</p>
+            <p v-if="codeError" class="mt-2 text-sm text-red-600 dark:text-red-400" role="alert">{{ codeError }}</p>
           </div>
 
           <div class="mt-6 flex justify-end gap-3">
-            <button @click="showSetupModal = false" class="px-4 py-2 text-sm font-semibold text-gray-700 bg-gray-100 hover:bg-gray-200 rounded-xl transition">Annuler</button>
+            <button @click="showSetupModal = false" class="px-4 py-2 text-sm font-semibold text-gray-700 dark:text-gray-300 bg-gray-100 dark:bg-gray-800 hover:bg-gray-200 rounded-xl transition">Annuler</button>
             <button
               @click="verify2FA"
               :disabled="toggling2FA || verificationCode.length < 6"
@@ -397,22 +397,22 @@
 
         <div v-else>
           <div class="flex items-center justify-between mb-4">
-            <h3 class="text-xl font-bold text-gray-900 flex items-center gap-2">
-              <Lock class="w-6 h-6 text-green-600" />
+            <h3 class="text-xl font-bold text-gray-900 dark:text-gray-100 flex items-center gap-2">
+              <Lock class="w-6 h-6 text-green-600 dark:text-green-400" />
               Codes de secours générés
             </h3>
           </div>
-          <p class="text-sm text-gray-600 mb-4">
+          <p class="text-sm text-gray-600 dark:text-gray-400 mb-4">
             Voici vos codes de secours. Conservez-les précieusement dans un endroit sûr. Ils vous permettront d'accéder à votre compte si vous n'avez plus accès à votre application d'authentification.
           </p>
-          <div class="bg-red-50 border border-red-200 rounded-xl p-3 mb-4 text-xs text-red-800">
+          <div class="bg-red-50 dark:bg-red-950/30 border border-red-200 dark:border-red-800/40 rounded-xl p-3 mb-4 text-xs text-red-800 dark:text-red-200">
             <strong>ATTENTION :</strong> Ces codes de secours ne seront affichés qu'une seule fois.
           </div>
-          <div class="grid grid-cols-2 gap-2 p-3 bg-gray-50 border border-gray-100 rounded-xl font-mono text-center text-sm text-gray-800">
-            <div v-for="code in backupCodes" :key="code" class="p-1 rounded bg-white border border-gray-200 select-all font-bold">{{ code }}</div>
+          <div class="grid grid-cols-2 gap-2 p-3 bg-gray-50 dark:bg-gray-900 border border-gray-100 dark:border-gray-800 rounded-xl font-mono text-center text-sm text-gray-800 dark:text-gray-200">
+            <div v-for="code in backupCodes" :key="code" class="p-1 rounded bg-white dark:bg-gray-900 border border-gray-200 dark:border-gray-800 select-all font-bold">{{ code }}</div>
           </div>
           <div class="mt-6 flex flex-col sm:flex-row gap-2">
-            <button @click="copyBackupCodes" class="flex-1 px-4 py-2 text-sm font-semibold text-gray-700 bg-gray-100 hover:bg-gray-200 rounded-xl transition flex items-center justify-center gap-1.5">
+            <button @click="copyBackupCodes" class="flex-1 px-4 py-2 text-sm font-semibold text-gray-700 dark:text-gray-300 bg-gray-100 dark:bg-gray-800 hover:bg-gray-200 rounded-xl transition flex items-center justify-center gap-1.5">
               Copier les codes
             </button>
             <button @click="showSetupModal = false" class="flex-1 px-4 py-2 text-sm font-semibold text-white bg-green-600 hover:bg-green-700 rounded-xl transition">
@@ -430,33 +430,33 @@
       role="dialog"
       aria-modal="true"
     >
-      <div class="bg-white rounded-2xl max-w-md w-full p-6 shadow-2xl border border-gray-100">
+      <div class="bg-white dark:bg-gray-900 rounded-2xl max-w-md w-full p-6 shadow-2xl border border-gray-100 dark:border-gray-800">
         <div class="flex items-center justify-between mb-4">
-          <h3 class="text-xl font-bold text-gray-900 flex items-center gap-2">
+          <h3 class="text-xl font-bold text-gray-900 dark:text-gray-100 flex items-center gap-2">
             <Lock class="w-6 h-6 text-red-500" />
             Désactiver la 2FA ?
           </h3>
-          <button @click="showDisableModal = false" class="text-gray-500 hover:text-gray-600 transition p-1 rounded-lg" aria-label="Fermer">
+          <button @click="showDisableModal = false" class="text-gray-500 dark:text-gray-400 hover:text-gray-600 transition p-1 rounded-lg" aria-label="Fermer">
             &times;
           </button>
         </div>
-        <p class="text-sm text-gray-600 mb-4">
+        <p class="text-sm text-gray-600 dark:text-gray-400 mb-4">
           La désactivation de la double authentification réduit la sécurité de votre compte. Saisissez votre mot de passe pour confirmer.
         </p>
         <div>
-          <label for="2fa-cabinet-disable" class="block text-sm font-medium text-gray-700 mb-1">Mot de passe actuel</label>
+          <label for="2fa-cabinet-disable" class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Mot de passe actuel</label>
           <input
             id="2fa-cabinet-disable"
             v-model="disablePassword"
             type="password"
             placeholder="••••••••"
-            class="w-full rounded-xl border border-gray-300 px-3 py-2 placeholder-gray-500 shadow-sm focus:border-red-500 focus:outline-none focus:ring-2 focus:ring-red-500"
+            class="w-full rounded-xl border border-gray-300 dark:border-gray-700 px-3 py-2 placeholder-gray-500 shadow-sm focus:border-red-500 focus:outline-none focus:ring-2 focus:ring-red-500"
             @keyup.enter="confirmDisable2FA"
           />
-          <p v-if="disableError" class="mt-2 text-sm text-red-600" role="alert">{{ disableError }}</p>
+          <p v-if="disableError" class="mt-2 text-sm text-red-600 dark:text-red-400" role="alert">{{ disableError }}</p>
         </div>
         <div class="mt-6 flex justify-end gap-3">
-          <button @click="showDisableModal = false" class="px-4 py-2 text-sm font-semibold text-gray-700 bg-gray-100 hover:bg-gray-200 rounded-xl transition">Annuler</button>
+          <button @click="showDisableModal = false" class="px-4 py-2 text-sm font-semibold text-gray-700 dark:text-gray-300 bg-gray-100 dark:bg-gray-800 hover:bg-gray-200 rounded-xl transition">Annuler</button>
           <button
             @click="confirmDisable2FA"
             :disabled="toggling2FA || !disablePassword"
@@ -549,7 +549,7 @@ async function updateAccountProfile() {
 
   if (accountProfile.value.phone && !isValidPhone(accountProfile.value.phone)) {
     profileMsg.value = 'Le numéro de téléphone contient des caractères non autorisés ou sa longueur est incorrecte (8-15 chiffres requis).'
-    profileMsgClass.value = 'text-red-600'
+    profileMsgClass.value = 'text-red-600 dark:text-red-400'
     savingProfile.value = false
     return
   }
@@ -560,10 +560,10 @@ async function updateAccountProfile() {
       body: { firstName: accountProfile.value.firstName, lastName: accountProfile.value.lastName, phone: accountProfile.value.phone },
     })
     profileMsg.value = 'Profil mis à jour avec succès'
-    profileMsgClass.value = 'text-green-600'
+    profileMsgClass.value = 'text-green-600 dark:text-green-400'
   } catch (e: any) {
     profileMsg.value = e?.data?.message || 'Erreur lors de la mise à jour'
-    profileMsgClass.value = 'text-red-600'
+    profileMsgClass.value = 'text-red-600 dark:text-red-400'
   } finally {
     savingProfile.value = false
   }
@@ -581,11 +581,11 @@ async function updateEmail() {
       accountProfile.value.email = emailForm.value.newEmail
       emailForm.value = { newEmail: '', password: '' }
       emailMsg.value = res.data?.message || 'Email mis à jour avec succès'
-      emailMsgClass.value = 'text-green-600'
+      emailMsgClass.value = 'text-green-600 dark:text-green-400'
     }
   } catch (e: any) {
     emailMsg.value = e?.data?.message || "Erreur lors de la mise à jour de l'email"
-    emailMsgClass.value = 'text-red-600'
+    emailMsgClass.value = 'text-red-600 dark:text-red-400'
   } finally {
     savingEmail.value = false
   }
@@ -594,7 +594,7 @@ async function updateEmail() {
 async function updatePassword() {
   if (passwordForm.value.newPassword !== passwordForm.value.confirmPassword) {
     passwordMsg.value = 'Les mots de passe ne correspondent pas'
-    passwordMsgClass.value = 'text-red-600'
+    passwordMsgClass.value = 'text-red-600 dark:text-red-400'
     return
   }
   savingPassword.value = true
@@ -606,10 +606,10 @@ async function updatePassword() {
     })
     passwordForm.value = { currentPassword: '', newPassword: '', confirmPassword: '' }
     passwordMsg.value = 'Mot de passe mis à jour avec succès'
-    passwordMsgClass.value = 'text-green-600'
+    passwordMsgClass.value = 'text-green-600 dark:text-green-400'
   } catch (e: any) {
     passwordMsg.value = e?.data?.message || 'Erreur lors de la mise à jour du mot de passe'
-    passwordMsgClass.value = 'text-red-600'
+    passwordMsgClass.value = 'text-red-600 dark:text-red-400'
   } finally {
     savingPassword.value = false
   }

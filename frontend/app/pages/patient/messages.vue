@@ -1,15 +1,15 @@
 <template>
   <div class="flex h-[calc(100vh-3rem)] flex-col">
     <div class="mb-4">
-      <h1 class="text-2xl font-bold text-gray-900">Messagerie</h1>
-      <p class="inline-flex items-center gap-1 text-sm text-gray-500">
+      <h1 class="text-2xl font-bold text-gray-900 dark:text-gray-100">Messagerie</h1>
+      <p class="inline-flex items-center gap-1 text-sm text-gray-500 dark:text-gray-400">
         <Lock class="h-3.5 w-3.5 flex-shrink-0" />
         Messages chiffrés · Uniquement pour la communication de routine
       </p>
     </div>
 
     <div
-      class="flex min-h-0 flex-1 overflow-hidden rounded-xl border bg-white shadow-sm"
+      class="flex min-h-0 flex-1 overflow-hidden rounded-xl border bg-white dark:bg-gray-900 shadow-sm"
     >
       <!-- conversation list (left bar) -->
       <div
@@ -33,13 +33,13 @@
         <div class="border-b px-3 py-2">
           <div class="relative">
             <Search
-              class="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-gray-500"
+              class="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-gray-500 dark:text-gray-400"
             />
             <input
               v-model="searchQuery"
               type="text"
               placeholder="Rechercher une conversation..."
-              class="w-full rounded-lg border border-gray-200 bg-gray-50 py-2 pl-10 pr-3 text-sm focus:border-orange-500 focus:outline-none focus:ring-1 focus:ring-orange-500"
+              class="w-full rounded-lg border border-gray-200 dark:border-gray-800 bg-gray-50 dark:bg-gray-900 py-2 pl-10 pr-3 text-sm focus:border-orange-500 focus:outline-none focus:ring-1 focus:ring-orange-500"
             />
           </div>
         </div>
@@ -51,7 +51,7 @@
             <div
               v-for="i in 4"
               :key="i"
-              class="animate-pulse rounded-lg bg-gray-50 p-3"
+              class="animate-pulse rounded-lg bg-gray-50 dark:bg-gray-900 p-3"
             >
               <div class="flex gap-3">
                 <div class="h-10 w-10 rounded-full bg-gray-200" />
@@ -69,10 +69,10 @@
             class="flex flex-col items-center justify-center px-4 py-12 text-center"
           >
             <MessageSquare class="mb-3 h-12 w-12 text-gray-300" />
-            <p class="mb-1 text-sm font-medium text-gray-900">
+            <p class="mb-1 text-sm font-medium text-gray-900 dark:text-gray-100">
               {{ searchQuery ? "Aucun résultat" : "Aucune conversation" }}
             </p>
-            <p class="text-xs text-gray-500">
+            <p class="text-xs text-gray-500 dark:text-gray-400">
               {{
                 searchQuery
                   ? "Essayez un autre terme de recherche"
@@ -89,14 +89,14 @@
               :class="[
                 'flex w-full items-start gap-3 border-b px-4 py-3 text-left transition-colors',
                 activeConversationId === conv.id
-                  ? 'bg-orange-50'
-                  : 'hover:bg-gray-50',
+                  ? 'bg-orange-50 dark:bg-orange-950/30'
+                  : 'hover:bg-gray-50 dark:hover:bg-gray-800',
               ]"
               @click="openConversation(conv.id)"
             >
               <!-- avatar -->
               <div
-                class="flex h-10 w-10 flex-shrink-0 items-center justify-center rounded-full bg-orange-100 text-sm font-semibold text-orange-600"
+                class="flex h-10 w-10 flex-shrink-0 items-center justify-center rounded-full bg-orange-100 dark:bg-orange-900/30 text-sm font-semibold text-orange-600 dark:text-orange-400"
               >
                 {{ conv.practitionerFirstName[0]
                 }}{{ conv.practitionerLastName[0] }}
@@ -105,17 +105,17 @@
               <!-- content -->
               <div class="min-w-0 flex-1">
                 <div class="flex items-center justify-between">
-                  <p class="truncate text-sm font-semibold text-gray-900">
+                  <p class="truncate text-sm font-semibold text-gray-900 dark:text-gray-100">
                     {{ conv.practitionerTitle }}
                     {{ conv.practitionerFirstName }}
                     {{ conv.practitionerLastName }}
                   </p>
-                  <span class="ml-2 flex-shrink-0 text-xs text-gray-500">
+                  <span class="ml-2 flex-shrink-0 text-xs text-gray-500 dark:text-gray-400">
                     {{ formatRelativeTime(conv.lastMessageAt) }}
                   </span>
                 </div>
                 <div class="flex items-center justify-between">
-                  <p class="truncate text-xs text-gray-500">
+                  <p class="truncate text-xs text-gray-500 dark:text-gray-400">
                     {{
                       conv.practitionerSpecialty
                         ? conv.practitionerSpecialty
@@ -131,7 +131,7 @@
                 </div>
                 <p
                   v-if="conv.lastMessagePreview"
-                  class="mt-0.5 truncate text-xs text-gray-500"
+                  class="mt-0.5 truncate text-xs text-gray-500 dark:text-gray-400"
                 >
                   {{ conv.lastMessagePreview }}
                 </p>
@@ -153,22 +153,22 @@
           v-if="!activeConversationId"
           class="flex flex-1 flex-col items-center justify-center text-center"
         >
-          <div class="mb-4 rounded-full bg-orange-50 p-6">
+          <div class="mb-4 rounded-full bg-orange-50 dark:bg-orange-950/30 p-6">
             <MessageSquare class="h-12 w-12 text-orange-400" />
           </div>
-          <h3 class="mb-2 text-lg font-semibold text-gray-900">Vos messages</h3>
-          <p class="max-w-sm text-sm text-gray-500">
+          <h3 class="mb-2 text-lg font-semibold text-gray-900 dark:text-gray-100">Vos messages</h3>
+          <p class="max-w-sm text-sm text-gray-500 dark:text-gray-400">
             Sélectionnez une conversation ou envoyez un nouveau message à votre
             praticien.
           </p>
-          <div class="mt-6 rounded-lg bg-amber-50 p-4 text-left">
+          <div class="mt-6 rounded-lg bg-amber-50 dark:bg-amber-950/30 p-4 text-left">
             <div class="flex gap-2">
               <AlertTriangle
                 class="mt-0.5 h-4 w-4 flex-shrink-0 text-amber-500"
               />
               <div>
-                <p class="text-xs font-medium text-amber-800">Important</p>
-                <p class="mt-1 text-xs text-amber-700">
+                <p class="text-xs font-medium text-amber-800 dark:text-amber-200">Important</p>
+                <p class="mt-1 text-xs text-amber-700 dark:text-amber-300">
                   La messagerie n'est pas destinée aux urgences, aux
                   consultations formelles ou à l'obtention de rapports médicaux.
                   Elle est principalement utilisée pour la communication de
@@ -183,13 +183,13 @@
         <template v-else>
           <div class="flex items-center gap-3 border-b px-4 py-3">
             <button
-              class="rounded-lg p-1.5 text-gray-500 transition-colors hover:bg-gray-100 lg:hidden"
+              class="rounded-lg p-1.5 text-gray-500 dark:text-gray-400 transition-colors hover:bg-gray-100 dark:hover:bg-gray-800 lg:hidden"
               @click="activeConversationId = null"
             >
               <ArrowLeft class="h-5 w-5" />
             </button>
             <div
-              class="flex h-10 w-10 items-center justify-center rounded-full bg-orange-100 text-sm font-semibold text-orange-600"
+              class="flex h-10 w-10 items-center justify-center rounded-full bg-orange-100 dark:bg-orange-900/30 text-sm font-semibold text-orange-600 dark:text-orange-400"
             >
               {{
                 activeConversation?.practitioner?.firstName?.[0] +
@@ -197,12 +197,12 @@
               }}
             </div>
             <div class="min-w-0 flex-1">
-              <p class="text-sm font-semibold text-gray-900">
+              <p class="text-sm font-semibold text-gray-900 dark:text-gray-100">
                 {{ activeConversation?.practitioner?.title }}
                 {{ activeConversation?.practitioner?.firstName }}
                 {{ activeConversation?.practitioner?.lastName }}
               </p>
-              <p class="text-xs text-gray-500">
+              <p class="text-xs text-gray-500 dark:text-gray-400">
                 {{ activeConversation?.practitioner?.specialty || "" }}
                 <span v-if="isTyping" class="ml-1 italic text-orange-500"
                   >est en train d'écrire...</span
@@ -211,7 +211,7 @@
             </div>
             <div class="flex items-center gap-1">
               <Lock class="h-3.5 w-3.5 text-green-500" />
-              <span class="text-xs text-green-600">Chiffré</span>
+              <span class="text-xs text-green-600 dark:text-green-400">Chiffré</span>
             </div>
           </div>
 
@@ -231,9 +231,9 @@
             <div v-else class="space-y-3">
               <!-- info banner -->
               <div
-                class="mx-auto mb-4 max-w-md rounded-lg bg-gray-50 p-3 text-center"
+                class="mx-auto mb-4 max-w-md rounded-lg bg-gray-50 dark:bg-gray-900 p-3 text-center"
               >
-                <p class="text-xs text-gray-500">
+                <p class="text-xs text-gray-500 dark:text-gray-400">
                   <Lock class="mr-1 inline h-3 w-3" />
                   Les messages sont chiffrés de bout en bout. N'utilisez pas
                   cette messagerie pour les urgences.
@@ -247,7 +247,7 @@
               >
                 <div class="my-4 flex items-center gap-3">
                   <div class="h-px flex-1 bg-gray-200" />
-                  <span class="text-xs font-medium text-gray-500">{{
+                  <span class="text-xs font-medium text-gray-500 dark:text-gray-400">{{
                     dateKey
                   }}</span>
                   <div class="h-px flex-1 bg-gray-200" />
@@ -268,7 +268,7 @@
                       'max-w-[75%] rounded-2xl px-4 py-2.5',
                       msg.senderUserId === currentUserId
                         ? 'rounded-br-md bg-orange-500 text-white'
-                        : 'rounded-bl-md bg-gray-100 text-gray-900',
+                        : 'rounded-bl-md bg-gray-100 dark:bg-gray-800 text-gray-900 dark:text-gray-100',
                     ]"
                   >
                     <div
@@ -295,7 +295,7 @@
                             'flex items-center gap-2 rounded-lg p-2 text-xs',
                             msg.senderUserId === currentUserId
                               ? 'bg-orange-500/30 text-orange-100 hover:bg-orange-500/50'
-                              : 'bg-gray-200 text-gray-700 hover:bg-gray-300',
+                              : 'bg-gray-200 text-gray-700 dark:text-gray-300 hover:bg-gray-300',
                           ]"
                         >
                           <Paperclip class="h-3.5 w-3.5 flex-shrink-0" />
@@ -320,7 +320,7 @@
                         'mt-1 flex items-center justify-end gap-1',
                         msg.senderUserId === currentUserId
                           ? 'text-orange-200'
-                          : 'text-gray-500',
+                          : 'text-gray-500 dark:text-gray-400',
                       ]"
                     >
                       <span class="text-[10px]">
@@ -344,13 +344,13 @@
           <div class="border-t px-4 py-3">
             <div
               v-if="activeConversation?.practitioner && !activeConversation.practitioner.messagingEnabled"
-              class="rounded-xl border border-amber-200 bg-amber-50 p-4 text-amber-800"
+              class="rounded-xl border border-amber-200 dark:border-amber-800/40 bg-amber-50 dark:bg-amber-950/30 p-4 text-amber-800 dark:text-amber-200"
             >
               <div class="flex gap-3">
                 <AlertTriangle class="h-5 w-5 flex-shrink-0 text-amber-500" />
                 <div class="space-y-1">
                   <p class="text-sm font-semibold">Messagerie non activée</p>
-                  <p class="text-xs text-amber-700 leading-relaxed">
+                  <p class="text-xs text-amber-700 dark:text-amber-300 leading-relaxed">
                     Vous ne pouvez pas envoyer de message car ce praticien n'a pas activé la réception de messages, mais vous pouvez uniquement recevoir ses messages.
                   </p>
                 </div>
@@ -359,13 +359,13 @@
 
             <div
               v-else-if="activeConversation && activeConversation.practitioner && (activeConversation.isClosedForPatient || conversations.find(c => c.id === activeConversationId)?.isClosedForPatient)"
-              class="rounded-xl border border-amber-200 bg-amber-50 p-4 text-amber-800"
+              class="rounded-xl border border-amber-200 dark:border-amber-800/40 bg-amber-50 dark:bg-amber-950/30 p-4 text-amber-800 dark:text-amber-200"
             >
               <div class="flex gap-3">
                 <AlertTriangle class="h-5 w-5 flex-shrink-0 text-amber-500" />
                 <div class="space-y-1">
                   <p class="text-sm font-semibold">Conversation fermée</p>
-                  <p class="text-xs text-amber-700 leading-relaxed">
+                  <p class="text-xs text-amber-700 dark:text-amber-300 leading-relaxed">
                     Ce praticien a fermé cette conversation. Vous ne pouvez pas envoyer de nouveaux messages pour le moment.
                   </p>
                 </div>
@@ -375,17 +375,17 @@
             <template v-else>
               <div
                 v-if="pendingAttachment"
-                class="mb-2 flex items-center gap-2 rounded-lg bg-gray-50 px-3 py-2"
+                class="mb-2 flex items-center gap-2 rounded-lg bg-gray-50 dark:bg-gray-900 px-3 py-2"
               >
-                <Paperclip class="h-4 w-4 text-gray-500" />
-                <span class="flex-1 truncate text-sm text-gray-700">
+                <Paperclip class="h-4 w-4 text-gray-500 dark:text-gray-400" />
+                <span class="flex-1 truncate text-sm text-gray-700 dark:text-gray-300">
                   {{ pendingAttachment.name }}
                 </span>
-                <span class="text-xs text-gray-500">
+                <span class="text-xs text-gray-500 dark:text-gray-400">
                   {{ formatFileSize(pendingAttachment.size) }}
                 </span>
                 <button
-                  class="rounded p-0.5 text-gray-500 hover:text-red-500"
+                  class="rounded p-0.5 text-gray-500 dark:text-gray-400 hover:text-red-500"
                   @click="pendingAttachment = null"
                 >
                   <X class="h-4 w-4" />
@@ -399,7 +399,7 @@
                 <div class="relative">
                   <button
                     type="button"
-                    class="flex h-10 w-10 items-center justify-center rounded-xl text-gray-500 transition-colors hover:bg-gray-100"
+                    class="flex h-10 w-10 items-center justify-center rounded-xl text-gray-500 dark:text-gray-400 transition-colors hover:bg-gray-100 dark:hover:bg-gray-800"
                     :title="`Joindre un fichier (${fileConstraintsInfo.allowedFormatsLabel}, max ${fileConstraintsInfo.maxSizeLabel})`"
                     @click="triggerFileUpload"
                   >
@@ -420,7 +420,7 @@
                     v-model="newMessage"
                     placeholder="Votre message..."
                     rows="1"
-                    class="max-h-32 w-full resize-none rounded-xl border border-gray-200 bg-gray-50 px-4 py-2.5 text-sm focus:border-orange-500 focus:outline-none focus:ring-1 focus:ring-orange-500"
+                    class="max-h-32 w-full resize-none rounded-xl border border-gray-200 dark:border-gray-800 bg-gray-50 dark:bg-gray-900 px-4 py-2.5 text-sm focus:border-orange-500 focus:outline-none focus:ring-1 focus:ring-orange-500"
                     @keydown.enter.exact.prevent="handleSendMessage"
                     @input="handleTyping"
                   />
@@ -435,7 +435,7 @@
                   <Send class="h-4 w-4" />
                 </button>
               </form>
-              <p class="mt-1 text-[10px] text-gray-500">
+              <p class="mt-1 text-[10px] text-gray-500 dark:text-gray-400">
                 Formats : {{ fileConstraintsInfo.allowedFormatsLabel }} · Max
                 {{ fileConstraintsInfo.maxSizeLabel }} par fichier
               </p>
@@ -452,11 +452,11 @@
         class="fixed inset-0 z-50 flex items-center justify-center bg-black/50"
         @click.self="showNewConversation = false"
       >
-        <div class="mx-4 w-full max-w-md rounded-xl bg-white p-6 shadow-2xl">
+        <div class="mx-4 w-full max-w-md rounded-xl bg-white dark:bg-gray-900 p-6 shadow-2xl">
           <div class="mb-4 flex items-center justify-between">
-            <h3 class="text-lg font-semibold text-gray-900">Nouveau message</h3>
+            <h3 class="text-lg font-semibold text-gray-900 dark:text-gray-100">Nouveau message</h3>
             <button
-              class="rounded-lg p-1.5 text-gray-500 transition-colors hover:bg-gray-100"
+              class="rounded-lg p-1.5 text-gray-500 dark:text-gray-400 transition-colors hover:bg-gray-100 dark:hover:bg-gray-800"
               @click="showNewConversation = false"
             >
               <X class="h-5 w-5" />
@@ -468,7 +468,7 @@
             <div
               v-for="i in 3"
               :key="i"
-              class="flex animate-pulse items-center gap-3 rounded-lg bg-gray-50 p-3"
+              class="flex animate-pulse items-center gap-3 rounded-lg bg-gray-50 dark:bg-gray-900 p-3"
             >
               <div class="h-10 w-10 rounded-full bg-gray-200" />
               <div class="flex-1 space-y-2">
@@ -484,10 +484,10 @@
             class="py-8 text-center"
           >
             <UserX class="mx-auto mb-3 h-12 w-12 text-gray-300" />
-            <p class="mb-2 text-sm font-medium text-gray-900">
+            <p class="mb-2 text-sm font-medium text-gray-900 dark:text-gray-100">
               Aucun praticien disponible
             </p>
-            <p class="text-xs text-gray-500">
+            <p class="text-xs text-gray-500 dark:text-gray-400">
               Vous pouvez uniquement envoyer des messages aux praticiens qui ont
               activé la messagerie et chez qui vous avez eu un rendez-vous
               confirmé.
@@ -496,7 +496,7 @@
 
           <!-- practitioners list -->
           <div v-else class="max-h-80 space-y-2 overflow-y-auto">
-            <p class="mb-3 text-xs text-gray-500">
+            <p class="mb-3 text-xs text-gray-500 dark:text-gray-400">
               Sélectionnez un praticien pour envoyer un message :
             </p>
             <button
@@ -506,19 +506,19 @@
               @click="startNewConversation(prac)"
             >
               <div
-                class="flex h-10 w-10 flex-shrink-0 items-center justify-center rounded-full bg-orange-100 text-sm font-semibold text-orange-600"
+                class="flex h-10 w-10 flex-shrink-0 items-center justify-center rounded-full bg-orange-100 dark:bg-orange-900/30 text-sm font-semibold text-orange-600 dark:text-orange-400"
               >
                 {{ prac.firstName[0] }}{{ prac.lastName[0] }}
               </div>
               <div>
-                <p class="text-sm font-medium text-gray-900">
+                <p class="text-sm font-medium text-gray-900 dark:text-gray-100">
                   {{ prac.title }} {{ prac.firstName }} {{ prac.lastName }}
                 </p>
-                <p v-if="prac.specialty" class="text-xs text-gray-500">
+                <p v-if="prac.specialty" class="text-xs text-gray-500 dark:text-gray-400">
                   {{ prac.specialty }}
                 </p>
               </div>
-              <MessageSquare class="ml-auto h-4 w-4 text-gray-500" />
+              <MessageSquare class="ml-auto h-4 w-4 text-gray-500 dark:text-gray-400" />
             </button>
           </div>
         </div>
@@ -532,31 +532,31 @@
         class="fixed inset-0 z-50 flex items-center justify-center bg-black/50"
         @click.self="cancelFirstMessage"
       >
-        <div class="mx-4 w-full max-w-md rounded-xl bg-white p-6 shadow-2xl">
+        <div class="mx-4 w-full max-w-md rounded-xl bg-white dark:bg-gray-900 p-6 shadow-2xl">
           <div class="mb-4 flex items-center gap-3">
             <div
-              class="flex h-10 w-10 items-center justify-center rounded-full bg-orange-100 text-sm font-semibold text-orange-600"
+              class="flex h-10 w-10 items-center justify-center rounded-full bg-orange-100 dark:bg-orange-900/30 text-sm font-semibold text-orange-600 dark:text-orange-400"
             >
               {{ selectedPractitioner?.firstName[0]
               }}{{ selectedPractitioner?.lastName[0] }}
             </div>
             <div>
-              <p class="text-sm font-semibold text-gray-900">
+              <p class="text-sm font-semibold text-gray-900 dark:text-gray-100">
                 {{ selectedPractitioner?.title }}
                 {{ selectedPractitioner?.firstName }}
                 {{ selectedPractitioner?.lastName }}
               </p>
               <p
                 v-if="selectedPractitioner?.specialty"
-                class="text-xs text-gray-500"
+                class="text-xs text-gray-500 dark:text-gray-400"
               >
                 {{ selectedPractitioner?.specialty }}
               </p>
             </div>
           </div>
 
-          <div class="mb-3 rounded-lg bg-amber-50 p-3">
-            <p class="text-xs text-amber-700">
+          <div class="mb-3 rounded-lg bg-amber-50 dark:bg-amber-950/30 p-3">
+            <p class="text-xs text-amber-700 dark:text-amber-300">
               <AlertTriangle class="mr-1 inline h-3 w-3" />
               La messagerie est réservée à la communication de routine
               (questions de suivi, questions administratives). Pour les
@@ -568,17 +568,17 @@
             v-model="firstMessage"
             rows="4"
             placeholder="Votre message..."
-            class="mb-4 w-full resize-none rounded-lg border border-gray-200 px-4 py-2.5 text-sm focus:border-orange-500 focus:outline-none focus:ring-1 focus:ring-orange-500"
+            class="mb-4 w-full resize-none rounded-lg border border-gray-200 dark:border-gray-800 px-4 py-2.5 text-sm focus:border-orange-500 focus:outline-none focus:ring-1 focus:ring-orange-500"
           />
 
-          <div v-if="firstMessageError" class="mb-3 rounded-lg bg-red-50 p-3">
-            <p class="text-xs text-red-600">{{ firstMessageError }}</p>
+          <div v-if="firstMessageError" class="mb-3 rounded-lg bg-red-50 dark:bg-red-950/30 p-3">
+            <p class="text-xs text-red-600 dark:text-red-400">{{ firstMessageError }}</p>
           </div>
 
           <div class="flex gap-3">
             <button
               type="button"
-              class="flex-1 rounded-lg border px-4 py-2.5 text-sm font-medium text-gray-700 transition-colors hover:bg-gray-50"
+              class="flex-1 rounded-lg border px-4 py-2.5 text-sm font-medium text-gray-700 dark:text-gray-300 transition-colors hover:bg-gray-50 dark:hover:bg-gray-800"
               @click="cancelFirstMessage"
             >
               Annuler

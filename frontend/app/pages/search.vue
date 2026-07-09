@@ -1,18 +1,18 @@
 <template>
-  <div class="min-h-screen bg-gray-50">
+  <div class="min-h-screen bg-gray-50 dark:bg-gray-900">
     <div class="mx-auto max-w-7xl px-4 py-8 sm:px-6 lg:px-8">
-      <Card class="mb-6 shadow-sm border border-gray-100 rounded-xl bg-white p-2">
+      <Card class="mb-6 shadow-sm border border-gray-100 dark:border-gray-800 rounded-xl bg-white dark:bg-gray-900 p-2">
         <div role="search" class="relative flex items-center">
           <label for="search-main" class="sr-only">Rechercher un praticien</label>
           <div class="pointer-events-none absolute inset-y-0 left-0 flex items-center pl-3">
-            <IconSearch class="h-5 w-5 text-gray-500" aria-hidden="true" />
+            <IconSearch class="h-5 w-5 text-gray-500 dark:text-gray-400" aria-hidden="true" />
           </div>
           <input
             id="search-main"
             v-model="filters.search"
             type="text"
             placeholder="Rechercher un praticien par nom, mot-clé ou spécialité..."
-            class="block w-full rounded-xl border-none py-3.5 pl-11 pr-10 text-base text-gray-900 bg-gray-50/50 focus:bg-white focus:outline-none focus:ring-2 focus:ring-[var(--color-primary)]/40 transition-all placeholder-gray-500"
+            class="block w-full rounded-xl border-none py-3.5 pl-11 pr-10 text-base text-gray-900 dark:text-gray-100 bg-gray-50/50 focus:bg-white focus:outline-none focus:ring-2 focus:ring-[var(--color-primary)]/40 transition-all placeholder-gray-500"
             @input="debouncedSearch"
           />
           <button
@@ -20,7 +20,7 @@
             type="button"
             aria-label="Effacer la recherche"
             @click="filters.search = ''; searchPractitioners()"
-            class="absolute inset-y-0 right-0 flex items-center pr-3.5 text-gray-500 hover:text-gray-700 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--color-primary)] rounded-md"
+            class="absolute inset-y-0 right-0 flex items-center pr-3.5 text-gray-500 dark:text-gray-400 hover:text-gray-700 dark:hover:text-gray-200 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--color-primary)] rounded-md"
           >
             <IconX class="h-5 w-5" aria-hidden="true" />
           </button>
@@ -28,7 +28,7 @@
       </Card>
 
       <!-- Tabs + view toggle -->
-      <div class="mb-6 flex items-center justify-between border-b border-gray-200">
+      <div class="mb-6 flex items-center justify-between border-b border-gray-200 dark:border-gray-800">
         <div class="-mb-px flex gap-6" role="tablist" aria-label="Type de résultats">
           <button
             id="tab-practitioners"
@@ -40,7 +40,7 @@
             :class="[
               activeTab === 'practitioners'
                 ? 'border-[var(--color-primary)] font-bold text-[var(--color-primary)]'
-                : 'border-transparent font-medium text-gray-600 hover:border-gray-300 hover:text-gray-800',
+                : 'border-transparent font-medium text-gray-600 dark:text-gray-400 hover:border-gray-300 hover:text-gray-800',
               'whitespace-nowrap border-b-2 px-1 py-4 text-sm transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--color-primary)] rounded-t',
             ]"
             @click="activeTab = 'practitioners'"
@@ -58,7 +58,7 @@
             :class="[
               activeTab === 'cabinets'
                 ? 'border-[var(--color-primary)] font-bold text-[var(--color-primary)]'
-                : 'border-transparent font-medium text-gray-600 hover:border-gray-300 hover:text-gray-800',
+                : 'border-transparent font-medium text-gray-600 dark:text-gray-400 hover:border-gray-300 hover:text-gray-800',
               'whitespace-nowrap border-b-2 px-1 py-4 text-sm transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--color-primary)] rounded-t',
             ]"
             @click="activeTab = 'cabinets'"
@@ -69,14 +69,14 @@
         </div>
 
         <!-- List / Map toggle -->
-        <div class="mb-px flex overflow-hidden rounded-lg border border-gray-200 bg-white" role="group" aria-label="Mode d'affichage">
+        <div class="mb-px flex overflow-hidden rounded-lg border border-gray-200 dark:border-gray-800 bg-white dark:bg-gray-900" role="group" aria-label="Mode d'affichage">
           <button
             type="button"
             :aria-pressed="viewMode === 'list'"
             :class="[
               viewMode === 'list'
                 ? 'bg-[var(--color-primary)] text-white'
-                : 'text-gray-600 hover:bg-gray-50',
+                : 'text-gray-600 dark:text-gray-400 hover:bg-gray-50 dark:hover:bg-gray-800',
               'flex items-center gap-1.5 px-3 py-1.5 text-sm font-medium transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-inset focus-visible:ring-[var(--color-primary)]',
             ]"
             @click="viewMode = 'list'"
@@ -90,7 +90,7 @@
             :class="[
               viewMode === 'map'
                 ? 'bg-[var(--color-primary)] text-white'
-                : 'text-gray-600 hover:bg-gray-50',
+                : 'text-gray-600 dark:text-gray-400 hover:bg-gray-50 dark:hover:bg-gray-800',
               'flex items-center gap-1.5 px-3 py-1.5 text-sm font-medium transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-inset focus-visible:ring-[var(--color-primary)]',
             ]"
             @click="viewMode = 'map'"
@@ -119,7 +119,7 @@
               aria-controls="filters-panel"
               :aria-expanded="showMobileFilters"
               @click="showMobileFilters = !showMobileFilters"
-              class="w-full flex items-center justify-between px-4 py-2.5 bg-white border border-gray-200 rounded-lg shadow-sm font-semibold text-gray-700 hover:bg-gray-50 active:scale-[0.98] transition-all focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--color-primary)]"
+              class="w-full flex items-center justify-between px-4 py-2.5 bg-white dark:bg-gray-900 border border-gray-200 dark:border-gray-800 rounded-lg shadow-sm font-semibold text-gray-700 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-gray-800 active:scale-[0.98] transition-all focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--color-primary)]"
             >
               <span class="flex items-center gap-2">
                 <IconFilter class="h-4 w-4 text-[var(--color-primary)]" aria-hidden="true" />
@@ -131,7 +131,7 @@
                   {{ activeFiltersCount }} <span class="sr-only">filtres actifs</span>
                 </span>
               </span>
-              <component :is="showMobileFilters ? IconChevronUp : IconChevronDown" class="h-4 w-4 text-gray-500" aria-hidden="true" />
+              <component :is="showMobileFilters ? IconChevronUp : IconChevronDown" class="h-4 w-4 text-gray-500 dark:text-gray-400" aria-hidden="true" />
             </button>
           </div>
 
@@ -142,15 +142,15 @@
             aria-label="Filtres de recherche"
             :class="[
               showMobileFilters ? 'block' : 'hidden lg:block',
-              'transition-all duration-300 shadow-sm border border-gray-100 rounded-xl bg-white p-5'
+              'transition-all duration-300 shadow-sm border border-gray-100 dark:border-gray-800 rounded-xl bg-white dark:bg-gray-900 p-5'
             ]"
           >
             <!-- Title & Reset Button -->
-            <div class="flex items-center justify-between border-b border-gray-100 pb-4 mb-5">
+            <div class="flex items-center justify-between border-b border-gray-100 dark:border-gray-800 pb-4 mb-5">
               <div class="flex items-center gap-2">
                 <IconSliders class="h-5 w-5 text-[var(--color-primary)]" aria-hidden="true" />
-                <h3 class="text-base font-bold text-gray-900">Filtres</h3>
-                <span v-if="activeFiltersCount > 0" class="flex h-5 w-5 items-center justify-center rounded-full bg-orange-100 text-xs font-bold text-orange-600 font-mono">
+                <h3 class="text-base font-bold text-gray-900 dark:text-gray-100">Filtres</h3>
+                <span v-if="activeFiltersCount > 0" class="flex h-5 w-5 items-center justify-center rounded-full bg-orange-100 dark:bg-orange-900/30 text-xs font-bold text-orange-600 dark:text-orange-400 font-mono">
                   {{ activeFiltersCount }}
                   <span class="sr-only">filtres actifs</span>
                 </span>
@@ -159,7 +159,7 @@
                 v-if="activeFiltersCount > 0"
                 type="button"
                 @click="resetFilters"
-                class="flex items-center gap-1 text-xs font-medium text-red-600 hover:text-red-700 transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-red-500 rounded"
+                class="flex items-center gap-1 text-xs font-medium text-red-600 dark:text-red-400 hover:text-red-700 transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-red-500 rounded"
               >
                 <IconRotateCcw class="h-3.5 w-3.5" aria-hidden="true" />
                 Effacer
@@ -169,19 +169,19 @@
             <!-- Group 1: Recherche & Localisation -->
             <div class="space-y-4 mb-6">
               <div>
-                <label for="filter-search" class="mb-1.5 block text-xs font-bold uppercase tracking-wider text-gray-600">
+                <label for="filter-search" class="mb-1.5 block text-xs font-bold uppercase tracking-wider text-gray-600 dark:text-gray-400">
                   Mots-clés
                 </label>
                 <div class="relative">
                   <div class="pointer-events-none absolute inset-y-0 left-0 flex items-center pl-3">
-                    <IconSearch class="h-4 w-4 text-gray-500" aria-hidden="true" />
+                    <IconSearch class="h-4 w-4 text-gray-500 dark:text-gray-400" aria-hidden="true" />
                   </div>
                   <input
                     id="filter-search"
                     v-model="filters.search"
                     type="text"
                     placeholder="Nom, bio..."
-                    class="block w-full rounded-lg border border-gray-300 py-2 pl-9 pr-8 text-sm focus:border-[var(--color-primary)] focus:outline-none focus:ring-2 focus:ring-[var(--color-primary)] focus:ring-opacity-40"
+                    class="block w-full rounded-lg border border-gray-300 dark:border-gray-700 py-2 pl-9 pr-8 text-sm focus:border-[var(--color-primary)] focus:outline-none focus:ring-2 focus:ring-[var(--color-primary)] focus:ring-opacity-40"
                     @input="debouncedSearch"
                   />
                   <button
@@ -189,7 +189,7 @@
                     type="button"
                     aria-label="Effacer les mots-clés"
                     @click="filters.search = ''; searchPractitioners()"
-                    class="absolute inset-y-0 right-0 flex items-center pr-2.5 text-gray-500 hover:text-gray-700 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--color-primary)] rounded"
+                    class="absolute inset-y-0 right-0 flex items-center pr-2.5 text-gray-500 dark:text-gray-400 hover:text-gray-700 dark:hover:text-gray-200 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--color-primary)] rounded"
                   >
                     <IconX class="h-4 w-4" aria-hidden="true" />
                   </button>
@@ -197,19 +197,19 @@
               </div>
 
               <div>
-                <label for="filter-city" class="mb-1.5 block text-xs font-bold uppercase tracking-wider text-gray-600">
+                <label for="filter-city" class="mb-1.5 block text-xs font-bold uppercase tracking-wider text-gray-600 dark:text-gray-400">
                   Localisation
                 </label>
                 <div class="relative">
                   <div class="pointer-events-none absolute inset-y-0 left-0 flex items-center pl-3">
-                    <IconMapPin class="h-4 w-4 text-gray-500" aria-hidden="true" />
+                    <IconMapPin class="h-4 w-4 text-gray-500 dark:text-gray-400" aria-hidden="true" />
                   </div>
                   <input
                     id="filter-city"
                     v-model="filters.city"
                     type="text"
                     placeholder="Ville (ex: Cocody...)"
-                    class="block w-full rounded-lg border border-gray-300 py-2 pl-9 pr-8 text-sm focus:border-[var(--color-primary)] focus:outline-none focus:ring-2 focus:ring-[var(--color-primary)] focus:ring-opacity-40"
+                    class="block w-full rounded-lg border border-gray-300 dark:border-gray-700 py-2 pl-9 pr-8 text-sm focus:border-[var(--color-primary)] focus:outline-none focus:ring-2 focus:ring-[var(--color-primary)] focus:ring-opacity-40"
                     @input="debouncedSearch"
                   />
                   <button
@@ -217,7 +217,7 @@
                     type="button"
                     aria-label="Effacer la localisation"
                     @click="filters.city = ''; searchPractitioners()"
-                    class="absolute inset-y-0 right-0 flex items-center pr-2.5 text-gray-500 hover:text-gray-700 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--color-primary)] rounded"
+                    class="absolute inset-y-0 right-0 flex items-center pr-2.5 text-gray-500 dark:text-gray-400 hover:text-gray-700 dark:hover:text-gray-200 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--color-primary)] rounded"
                   >
                     <IconX class="h-4 w-4" aria-hidden="true" />
                   </button>
@@ -225,19 +225,19 @@
               </div>
             </div>
 
-            <hr class="border-gray-100 my-4" />
+            <hr class="border-gray-100 dark:border-gray-800 my-4" />
 
             <!-- Group 2: Spécialité & Cabinet -->
             <div class="space-y-4 mb-6">
               <div>
-                <label for="filter-specialty" class="mb-1.5 block text-xs font-bold uppercase tracking-wider text-gray-600 flex items-center gap-1">
-                  <IconStethoscope class="h-3.5 w-3.5 text-gray-500" aria-hidden="true" />
+                <label for="filter-specialty" class="mb-1.5 block text-xs font-bold uppercase tracking-wider text-gray-600 dark:text-gray-400 flex items-center gap-1">
+                  <IconStethoscope class="h-3.5 w-3.5 text-gray-500 dark:text-gray-400" aria-hidden="true" />
                   Spécialité
                 </label>
                 <select
                   id="filter-specialty"
                   v-model="filters.specialtyId"
-                  class="w-full rounded-lg border border-gray-300 px-3 py-2 text-sm focus:border-[var(--color-primary)] focus:outline-none focus:ring-2 focus:ring-[var(--color-primary)] bg-white"
+                  class="w-full rounded-lg border border-gray-300 dark:border-gray-700 px-3 py-2 text-sm focus:border-[var(--color-primary)] focus:outline-none focus:ring-2 focus:ring-[var(--color-primary)] bg-white dark:bg-gray-900"
                   @change="searchPractitioners"
                 >
                   <option value="">Toutes les spécialités</option>
@@ -252,14 +252,14 @@
               </div>
 
               <div>
-                <label for="filter-cabinet" class="mb-1.5 block text-xs font-bold uppercase tracking-wider text-gray-600 flex items-center gap-1">
-                  <IconBuilding class="h-3.5 w-3.5 text-gray-500" aria-hidden="true" />
+                <label for="filter-cabinet" class="mb-1.5 block text-xs font-bold uppercase tracking-wider text-gray-600 dark:text-gray-400 flex items-center gap-1">
+                  <IconBuilding class="h-3.5 w-3.5 text-gray-500 dark:text-gray-400" aria-hidden="true" />
                   Cabinet / Clinique
                 </label>
                 <select
                   id="filter-cabinet"
                   v-model="filters.cabinetId"
-                  class="w-full rounded-lg border border-gray-300 px-3 py-2 text-sm focus:border-[var(--color-primary)] focus:outline-none focus:ring-2 focus:ring-[var(--color-primary)] bg-white"
+                  class="w-full rounded-lg border border-gray-300 dark:border-gray-700 px-3 py-2 text-sm focus:border-[var(--color-primary)] focus:outline-none focus:ring-2 focus:ring-[var(--color-primary)] bg-white dark:bg-gray-900"
                   @change="searchPractitioners"
                 >
                   <option value="">Tous les cabinets</option>
@@ -275,64 +275,64 @@
               </div>
             </div>
 
-            <hr class="border-gray-100 my-4" />
+            <hr class="border-gray-100 dark:border-gray-800 my-4" />
 
             <!-- Group 3: Disponibilités & Mode -->
             <fieldset class="space-y-3 mb-6">
-              <legend class="mb-1.5 block text-xs font-bold uppercase tracking-wider text-gray-600">
+              <legend class="mb-1.5 block text-xs font-bold uppercase tracking-wider text-gray-600 dark:text-gray-400">
                 Services & Options
               </legend>
 
               <label class="flex cursor-pointer items-center justify-between py-1.5 group select-none focus-within:ring-2 focus-within:ring-[var(--color-primary)] focus-within:ring-offset-1 rounded">
-                <span class="flex items-center gap-2 text-sm text-gray-700 group-hover:text-gray-900 transition-colors">
-                  <IconVideo class="h-4 w-4 text-emerald-600" aria-hidden="true" />
+                <span class="flex items-center gap-2 text-sm text-gray-700 dark:text-gray-300 group-hover:text-gray-900 dark:hover:text-gray-100 transition-colors">
+                  <IconVideo class="h-4 w-4 text-emerald-600 dark:text-emerald-400" aria-hidden="true" />
                   Téléconsultation
                 </span>
                 <input
                   v-model="filters.teleconsultationEnabled"
                   type="checkbox"
-                  class="h-4.5 w-4.5 rounded border-gray-300 text-[var(--color-primary)] focus:ring-[var(--color-primary)]"
+                  class="h-4.5 w-4.5 rounded border-gray-300 dark:border-gray-700 text-[var(--color-primary)] focus:ring-[var(--color-primary)]"
                   @change="searchPractitioners"
                 />
               </label>
 
               <label class="flex cursor-pointer items-center justify-between py-1.5 group select-none focus-within:ring-2 focus-within:ring-[var(--color-primary)] focus-within:ring-offset-1 rounded">
-                <span class="flex items-center gap-2 text-sm text-gray-700 group-hover:text-gray-900 transition-colors">
+                <span class="flex items-center gap-2 text-sm text-gray-700 dark:text-gray-300 group-hover:text-gray-900 dark:hover:text-gray-100 transition-colors">
                   <IconCalendar class="h-4 w-4 text-orange-500" aria-hidden="true" />
                   Disponible aujourd'hui
                 </span>
                 <input
                   v-model="filters.availableToday"
                   type="checkbox"
-                  class="h-4.5 w-4.5 rounded border-gray-300 text-[var(--color-primary)] focus:ring-[var(--color-primary)]"
+                  class="h-4.5 w-4.5 rounded border-gray-300 dark:border-gray-700 text-[var(--color-primary)] focus:ring-[var(--color-primary)]"
                   @change="searchPractitioners"
                 />
               </label>
 
               <label class="flex cursor-pointer items-center justify-between py-1.5 group select-none focus-within:ring-2 focus-within:ring-[var(--color-primary)] focus-within:ring-offset-1 rounded">
-                <span class="flex items-center gap-2 text-sm text-gray-700 group-hover:text-gray-900 transition-colors">
+                <span class="flex items-center gap-2 text-sm text-gray-700 dark:text-gray-300 group-hover:text-gray-900 dark:hover:text-gray-100 transition-colors">
                   <IconCreditCard class="h-4 w-4 text-blue-500" aria-hidden="true" />
                   Accepte l'assurance
                 </span>
                 <input
                   v-model="filters.acceptsInsurance"
                   type="checkbox"
-                  class="h-4.5 w-4.5 rounded border-gray-300 text-[var(--color-primary)] focus:ring-[var(--color-primary)]"
+                  class="h-4.5 w-4.5 rounded border-gray-300 dark:border-gray-700 text-[var(--color-primary)] focus:ring-[var(--color-primary)]"
                   @change="searchPractitioners"
                 />
               </label>
             </fieldset>
 
-            <hr class="border-gray-100 my-4" />
+            <hr class="border-gray-100 dark:border-gray-800 my-4" />
 
             <!-- Group 4: Budget & Notes -->
             <div class="space-y-4">
               <div>
                 <div class="flex items-center justify-between mb-1.5">
-                  <label for="filter-maxprice" class="block text-xs font-bold uppercase tracking-wider text-gray-600">
+                  <label for="filter-maxprice" class="block text-xs font-bold uppercase tracking-wider text-gray-600 dark:text-gray-400">
                     Tarif consultation max
                   </label>
-                  <span class="text-xs font-semibold text-emerald-700 bg-emerald-50 px-2.5 py-0.5 rounded-full border border-emerald-100 font-mono">
+                  <span class="text-xs font-semibold text-emerald-700 dark:text-emerald-300 bg-emerald-50 dark:bg-emerald-950/30 px-2.5 py-0.5 rounded-full border border-emerald-100 dark:border-emerald-900/40 font-mono">
                     {{ filters.maxPrice.toLocaleString() }} XOF
                   </span>
                 </div>
@@ -348,7 +348,7 @@
                     class="h-1.5 w-full cursor-pointer appearance-none rounded-lg bg-gray-200 accent-[#00804A] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--color-primary)]"
                     @input="debouncedSearch"
                   />
-                  <div class="mt-1 flex justify-between text-[10px] font-semibold text-gray-500">
+                  <div class="mt-1 flex justify-between text-[10px] font-semibold text-gray-500 dark:text-gray-400">
                     <span>0 XOF</span>
                     <span>50 000 XOF</span>
                   </div>
@@ -356,14 +356,14 @@
               </div>
 
               <div>
-                <label for="filter-rating" class="mb-1.5 block text-xs font-bold uppercase tracking-wider text-gray-600 flex items-center gap-1">
+                <label for="filter-rating" class="mb-1.5 block text-xs font-bold uppercase tracking-wider text-gray-600 dark:text-gray-400 flex items-center gap-1">
                   <IconStar class="h-3.5 w-3.5 text-yellow-500" aria-hidden="true" />
                   Note minimale
                 </label>
                 <select
                   id="filter-rating"
                   v-model.number="filters.minRating"
-                  class="w-full rounded-lg border border-gray-300 px-3 py-2 text-sm focus:border-[var(--color-primary)] focus:outline-none focus:ring-2 focus:ring-[var(--color-primary)] bg-white"
+                  class="w-full rounded-lg border border-gray-300 dark:border-gray-700 px-3 py-2 text-sm focus:border-[var(--color-primary)] focus:outline-none focus:ring-2 focus:ring-[var(--color-primary)] bg-white dark:bg-gray-900"
                   @change="searchPractitioners"
                 >
                   <option :value="0">Toutes les notes</option>
@@ -379,12 +379,12 @@
         <!-- Results Area -->
         <div class="lg:col-span-3">
           <!-- MAP VIEW -->
-          <div v-if="viewMode === 'map'" class="rounded-xl border border-gray-200 bg-white p-4 shadow-sm">
-            <p class="mb-3 text-sm text-gray-600" role="status" aria-live="polite">
+          <div v-if="viewMode === 'map'" class="rounded-xl border border-gray-200 dark:border-gray-800 bg-white dark:bg-gray-900 p-4 shadow-sm">
+            <p class="mb-3 text-sm text-gray-600 dark:text-gray-400" role="status" aria-live="polite">
               <template v-if="loading">Chargement...</template>
               <template v-else>
                 {{ pagination.total }} praticien{{ pagination.total > 1 ? "s" : "" }} trouvé{{ pagination.total > 1 ? "s" : "" }}
-                <span v-if="geoFilters.active" class="ml-2 inline-flex items-center gap-1 rounded-full bg-blue-50 px-2 py-0.5 text-xs text-blue-700">
+                <span v-if="geoFilters.active" class="ml-2 inline-flex items-center gap-1 rounded-full bg-blue-50 dark:bg-blue-950/30 px-2 py-0.5 text-xs text-blue-700 dark:text-blue-300">
                   <IconLocate class="h-3 w-3" aria-hidden="true" /> Recherche géolocalisée
                 </span>
               </template>
@@ -397,8 +397,8 @@
                 @locate="onMapLocate"
               />
               <template #fallback>
-                <div class="flex h-[560px] items-center justify-center rounded-lg bg-gray-100">
-                  <p class="text-gray-500">Chargement de la carte...</p>
+                <div class="flex h-[560px] items-center justify-center rounded-lg bg-gray-100 dark:bg-gray-800">
+                  <p class="text-gray-500 dark:text-gray-400">Chargement de la carte...</p>
                 </div>
               </template>
             </ClientOnly>
@@ -407,7 +407,7 @@
           <!-- LIST VIEW -->
           <div v-else>
             <div class="mb-4 flex items-center justify-between">
-              <p class="text-gray-600" role="status" aria-live="polite">
+              <p class="text-gray-600 dark:text-gray-400" role="status" aria-live="polite">
                 <template v-if="loading">Chargement...</template>
                 <template v-else>
                   {{ pagination.total }} praticien{{ pagination.total > 1 ? "s" : "" }}
@@ -433,7 +433,7 @@
             </div>
 
             <div v-else-if="practitioners.length === 0" class="py-12 text-center">
-              <p class="text-lg text-gray-600">
+              <p class="text-lg text-gray-600 dark:text-gray-400">
                 Aucun praticien trouvé avec ces critères.
               </p>
             </div>
@@ -456,7 +456,7 @@
                     />
                     <div
                       v-else
-                      class="flex h-full w-full items-center justify-center text-2xl font-bold text-gray-500"
+                      class="flex h-full w-full items-center justify-center text-2xl font-bold text-gray-500 dark:text-gray-400"
                     >
                       {{ practitioner.firstName.charAt(0)
                       }}{{ practitioner.lastName.charAt(0) }}
@@ -470,7 +470,7 @@
                           {{ practitioner.title }} {{ practitioner.firstName }}
                           {{ practitioner.lastName }}
                         </h3>
-                        <p class="text-gray-600 font-sans">
+                        <p class="text-gray-600 dark:text-gray-400 font-sans">
                           {{ practitioner.specialties[0]?.name || "Généraliste" }}
                         </p>
                       </div>
@@ -490,9 +490,9 @@
                         <IconStar class="h-4 w-4 fill-yellow-400 text-yellow-400" aria-hidden="true" />
                         <span class="font-medium">{{ practitioner.averageRating }}</span>
                         <span class="sr-only">étoiles sur 5,</span>
-                        <span class="text-sm text-gray-600 font-sans">({{ practitioner.totalReviews }}<span class="sr-only">&nbsp;avis</span>)</span>
+                        <span class="text-sm text-gray-600 dark:text-gray-400 font-sans">({{ practitioner.totalReviews }}<span class="sr-only">&nbsp;avis</span>)</span>
                       </div>
-                      <div class="flex items-center gap-1 text-sm text-gray-600">
+                      <div class="flex items-center gap-1 text-sm text-gray-600 dark:text-gray-400">
                         <IconMapPin class="h-4 w-4" aria-hidden="true" />
                         {{ practitioner.city }}
                       </div>
@@ -539,7 +539,7 @@
               >
                 Précédent
               </Button>
-              <span class="flex items-center px-4 text-sm text-gray-600 font-sans" aria-current="page" aria-live="polite">
+              <span class="flex items-center px-4 text-sm text-gray-600 dark:text-gray-400 font-sans" aria-current="page" aria-live="polite">
                 Page {{ pagination.page }} sur {{ pagination.totalPages }}
               </span>
               <Button
@@ -565,8 +565,8 @@
         class="focus:outline-none"
       >
         <!-- MAP VIEW -->
-        <div v-if="viewMode === 'map'" class="rounded-xl border border-gray-200 bg-white p-4 shadow-sm">
-          <p class="mb-3 text-sm text-gray-600" role="status" aria-live="polite">
+        <div v-if="viewMode === 'map'" class="rounded-xl border border-gray-200 dark:border-gray-800 bg-white dark:bg-gray-900 p-4 shadow-sm">
+          <p class="mb-3 text-sm text-gray-600 dark:text-gray-400" role="status" aria-live="polite">
             {{ cabinets.length }} cabinet{{ cabinets.length > 1 ? "s" : "" }}
             trouvé{{ cabinets.length > 1 ? "s" : "" }}
           </p>
@@ -578,8 +578,8 @@
               @locate="onMapLocate"
             />
             <template #fallback>
-              <div class="flex h-[560px] items-center justify-center rounded-lg bg-gray-100">
-                <p class="text-gray-500">Chargement de la carte...</p>
+              <div class="flex h-[560px] items-center justify-center rounded-lg bg-gray-100 dark:bg-gray-800">
+                <p class="text-gray-500 dark:text-gray-400">Chargement de la carte...</p>
               </div>
             </template>
           </ClientOnly>
@@ -588,14 +588,14 @@
         <!-- LIST VIEW -->
         <div v-else class="space-y-4">
           <div class="mb-4 flex items-center justify-between">
-            <p class="text-gray-600" role="status" aria-live="polite">
+            <p class="text-gray-600 dark:text-gray-400" role="status" aria-live="polite">
               {{ cabinets.length }} cabinet{{ cabinets.length > 1 ? "s" : "" }}
               trouvé{{ cabinets.length > 1 ? "s" : "" }}
             </p>
           </div>
 
           <div v-if="cabinets.length === 0" class="py-12 text-center">
-            <p class="text-lg text-gray-600">Aucun cabinet trouvé.</p>
+            <p class="text-lg text-gray-600 dark:text-gray-400">Aucun cabinet trouvé.</p>
           </div>
 
           <div v-else class="grid gap-6 md:grid-cols-2 lg:grid-cols-3">
@@ -606,19 +606,19 @@
             >
               <div>
                 <h3 class="mb-2 text-xl font-semibold">{{ cabinet.name }}</h3>
-                <div class="mb-2 flex items-center gap-1 text-sm text-gray-600">
+                <div class="mb-2 flex items-center gap-1 text-sm text-gray-600 dark:text-gray-400">
                   <IconMapPin class="h-4 w-4" aria-hidden="true" />
                   {{ cabinet.city || "Ville non renseignée" }}
                 </div>
-                <p class="mb-4 text-sm text-gray-500">
+                <p class="mb-4 text-sm text-gray-500 dark:text-gray-400">
                   {{ cabinet.address || "" }}
                 </p>
               </div>
 
               <div
-                class="mt-4 flex items-center justify-between border-t border-gray-100 pt-4"
+                class="mt-4 flex items-center justify-between border-t border-gray-100 dark:border-gray-800 pt-4"
               >
-                <span class="text-sm font-medium text-gray-600">
+                <span class="text-sm font-medium text-gray-600 dark:text-gray-400">
                   {{ cabinet.practitionersCount }} praticien{{
                     cabinet.practitionersCount > 1 ? "s" : ""
                   }}

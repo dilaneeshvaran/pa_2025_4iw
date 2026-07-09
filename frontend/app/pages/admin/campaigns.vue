@@ -1,20 +1,20 @@
 <template>
   <div class="space-y-6">
     <div>
-      <h1 class="mb-2 text-2xl font-bold text-gray-900">Messages groupés</h1>
-      <p class="text-gray-600">
+      <h1 class="mb-2 text-2xl font-bold text-gray-900 dark:text-gray-100">Messages groupés</h1>
+      <p class="text-gray-600 dark:text-gray-400">
         Envoyez des messages à un groupe de destinataires
       </p>
     </div>
 
-    <div class="border-b border-gray-200">
+    <div class="border-b border-gray-200 dark:border-gray-800">
       <nav class="-mb-px flex gap-6">
         <button
           :class="[
             'border-b-2 pb-3 text-sm font-medium transition-colors',
             activeTab === 'compose'
-              ? 'border-red-600 text-red-600'
-              : 'border-transparent text-gray-500 hover:text-gray-700',
+              ? 'border-red-600 text-red-600 dark:text-red-400'
+              : 'border-transparent text-gray-500 dark:text-gray-400 hover:text-gray-700 dark:hover:text-gray-200',
           ]"
           @click="activeTab = 'compose'"
         >
@@ -25,8 +25,8 @@
           :class="[
             'border-b-2 pb-3 text-sm font-medium transition-colors',
             activeTab === 'history'
-              ? 'border-red-600 text-red-600'
-              : 'border-transparent text-gray-500 hover:text-gray-700',
+              ? 'border-red-600 text-red-600 dark:text-red-400'
+              : 'border-transparent text-gray-500 dark:text-gray-400 hover:text-gray-700 dark:hover:text-gray-200',
           ]"
           @click="
             activeTab = 'history';
@@ -41,8 +41,8 @@
 
     <div v-if="activeTab === 'compose'" class="space-y-6">
       <UiCard>
-        <h3 class="mb-4 text-lg font-semibold text-gray-900">
-          <Users class="mr-2 inline h-5 w-5 text-orange-600" />
+        <h3 class="mb-4 text-lg font-semibold text-gray-900 dark:text-gray-100">
+          <Users class="mr-2 inline h-5 w-5 text-orange-600 dark:text-orange-400" />
           Destinataires
         </h3>
 
@@ -53,47 +53,47 @@
             :class="[
               'flex cursor-pointer items-center gap-3 rounded-lg border p-4 transition-colors',
               targetType === option.value
-                ? 'border-red-300 bg-red-50'
-                : 'border-gray-200 hover:bg-gray-50',
+                ? 'border-red-300 bg-red-50 dark:bg-red-950/30'
+                : 'border-gray-200 dark:border-gray-800 hover:bg-gray-50 dark:hover:bg-gray-800',
             ]"
           >
             <input
               v-model="targetType"
               type="radio"
               :value="option.value"
-              class="h-4 w-4 text-red-600 focus:ring-red-500"
+              class="h-4 w-4 text-red-600 dark:text-red-400 focus:ring-red-500"
             />
             <div class="flex-1">
-              <span class="font-medium text-gray-900">{{ option.label }}</span>
+              <span class="font-medium text-gray-900 dark:text-gray-100">{{ option.label }}</span>
               <span
                 v-if="option.count !== null"
-                class="ml-2 text-sm text-gray-500"
+                class="ml-2 text-sm text-gray-500 dark:text-gray-400"
               >
                 ({{ option.count }} destinataire{{
                   (option.count ?? 0) > 1 ? "s" : ""
                 }})
               </span>
             </div>
-            <component :is="option.icon" class="h-5 w-5 text-gray-500" />
+            <component :is="option.icon" class="h-5 w-5 text-gray-500 dark:text-gray-400" />
           </label>
         </div>
 
         <div
           v-if="targetType === 'CUSTOM'"
-          class="mt-4 rounded-lg border border-gray-200 bg-gray-50 p-4"
+          class="mt-4 rounded-lg border border-gray-200 dark:border-gray-800 bg-gray-50 dark:bg-gray-900 p-4"
         >
-          <h4 class="mb-3 text-sm font-semibold text-gray-700">
+          <h4 class="mb-3 text-sm font-semibold text-gray-700 dark:text-gray-300">
             <Filter class="mr-1 inline h-4 w-4" />
             Filtres avancés
           </h4>
           <div class="grid gap-4 sm:grid-cols-3">
             <div>
-              <label class="mb-1 block text-sm font-medium text-gray-700"
+              <label class="mb-1 block text-sm font-medium text-gray-700 dark:text-gray-300"
                 >Type</label
               >
               <select
                 v-model="customUserType"
-                class="w-full rounded-lg border border-gray-300 px-3 py-2 text-sm focus:border-red-500 focus:ring-red-500"
+                class="w-full rounded-lg border border-gray-300 dark:border-gray-700 px-3 py-2 text-sm focus:border-red-500 focus:ring-red-500"
               >
                 <option value="">Tous</option>
                 <option value="PATIENT">Patients</option>
@@ -101,12 +101,12 @@
               </select>
             </div>
             <div>
-              <label class="mb-1 block text-sm font-medium text-gray-700"
+              <label class="mb-1 block text-sm font-medium text-gray-700 dark:text-gray-300"
                 >Localisation</label
               >
               <select
                 v-model="customLocation"
-                class="w-full rounded-lg border border-gray-300 px-3 py-2 text-sm focus:border-red-500 focus:ring-red-500"
+                class="w-full rounded-lg border border-gray-300 dark:border-gray-700 px-3 py-2 text-sm focus:border-red-500 focus:ring-red-500"
               >
                 <option value="">Toutes les villes</option>
                 <option
@@ -119,25 +119,25 @@
               </select>
             </div>
             <div>
-              <label class="mb-1 block text-sm font-medium text-gray-700"
+              <label class="mb-1 block text-sm font-medium text-gray-700 dark:text-gray-300"
                 >Inscrits entre</label
               >
               <div class="flex items-center gap-2">
                 <input
                   v-model="customDateFrom"
                   type="date"
-                  class="w-full rounded-lg border border-gray-300 px-3 py-2 text-sm focus:border-red-500 focus:ring-red-500"
+                  class="w-full rounded-lg border border-gray-300 dark:border-gray-700 px-3 py-2 text-sm focus:border-red-500 focus:ring-red-500"
                 />
-                <span class="text-gray-500">-</span>
+                <span class="text-gray-500 dark:text-gray-400">-</span>
                 <input
                   v-model="customDateTo"
                   type="date"
-                  class="w-full rounded-lg border border-gray-300 px-3 py-2 text-sm focus:border-red-500 focus:ring-red-500"
+                  class="w-full rounded-lg border border-gray-300 dark:border-gray-700 px-3 py-2 text-sm focus:border-red-500 focus:ring-red-500"
                 />
               </div>
             </div>
           </div>
-          <div class="mt-3 flex items-center gap-2 text-sm text-gray-600">
+          <div class="mt-3 flex items-center gap-2 text-sm text-gray-600 dark:text-gray-400">
             <UsersRound class="h-4 w-4" />
             <span v-if="customCountLoading">Calcul en cours…</span>
             <span v-else>
@@ -151,31 +151,31 @@
       </UiCard>
 
       <UiCard>
-        <h3 class="mb-4 text-lg font-semibold text-gray-900">
-          <Mail class="mr-2 inline h-5 w-5 text-orange-600" />
+        <h3 class="mb-4 text-lg font-semibold text-gray-900 dark:text-gray-100">
+          <Mail class="mr-2 inline h-5 w-5 text-orange-600 dark:text-orange-400" />
           Contenu du message
         </h3>
 
         <div class="space-y-4">
           <div>
-            <label class="mb-1 block text-sm font-medium text-gray-700"
+            <label class="mb-1 block text-sm font-medium text-gray-700 dark:text-gray-300"
               >Objet</label
             >
             <input
               v-model="messageTitle"
               type="text"
               placeholder="Objet du message"
-              class="w-full rounded-lg border border-gray-300 px-4 py-2.5 focus:border-red-500 focus:ring-red-500"
+              class="w-full rounded-lg border border-gray-300 dark:border-gray-700 px-4 py-2.5 focus:border-red-500 focus:ring-red-500"
             />
           </div>
 
           <div>
-            <label class="mb-1 block text-sm font-medium text-gray-700"
+            <label class="mb-1 block text-sm font-medium text-gray-700 dark:text-gray-300"
               >Type</label
             >
             <select
               v-model="messageType"
-              class="w-full rounded-lg border border-gray-300 px-4 py-2.5 focus:border-red-500 focus:ring-red-500"
+              class="w-full rounded-lg border border-gray-300 dark:border-gray-700 px-4 py-2.5 focus:border-red-500 focus:ring-red-500"
             >
               <option value="INFO">Information</option>
               <option value="WARNING">Avertissement</option>
@@ -185,38 +185,38 @@
           </div>
 
           <div>
-            <label class="mb-1 block text-sm font-medium text-gray-700"
+            <label class="mb-1 block text-sm font-medium text-gray-700 dark:text-gray-300"
               >Contenu</label
             >
             <textarea
               v-model="messageContent"
               rows="6"
               placeholder="Rédigez votre message ici…"
-              class="w-full rounded-lg border border-gray-300 px-4 py-2.5 focus:border-red-500 focus:ring-red-500"
+              class="w-full rounded-lg border border-gray-300 dark:border-gray-700 px-4 py-2.5 focus:border-red-500 focus:ring-red-500"
             />
           </div>
         </div>
       </UiCard>
 
       <UiCard>
-        <h3 class="mb-4 text-lg font-semibold text-gray-900">
-          <Settings class="mr-2 inline h-5 w-5 text-orange-600" />
+        <h3 class="mb-4 text-lg font-semibold text-gray-900 dark:text-gray-100">
+          <Settings class="mr-2 inline h-5 w-5 text-orange-600 dark:text-orange-400" />
           Options de diffusion
         </h3>
 
         <div class="grid gap-6 sm:grid-cols-2">
           <!-- canaux -->
           <div>
-            <h4 class="mb-3 text-sm font-semibold text-gray-700">Canaux</h4>
+            <h4 class="mb-3 text-sm font-semibold text-gray-700 dark:text-gray-300">Canaux</h4>
             <div class="space-y-2">
               <label class="flex items-center gap-3">
                 <input
                   v-model="channelEmail"
                   type="checkbox"
-                  class="h-4 w-4 rounded text-red-600 focus:ring-red-500"
+                  class="h-4 w-4 rounded text-red-600 dark:text-red-400 focus:ring-red-500"
                 />
-                <Mail class="h-4 w-4 text-gray-500" />
-                <span class="text-sm text-gray-700">Email</span>
+                <Mail class="h-4 w-4 text-gray-500 dark:text-gray-400" />
+                <span class="text-sm text-gray-700 dark:text-gray-300">Email</span>
               </label>
               <label
                 class="flex cursor-not-allowed items-center gap-3 opacity-50"
@@ -224,10 +224,10 @@
                 <input
                   type="checkbox"
                   disabled
-                  class="h-4 w-4 rounded text-gray-500"
+                  class="h-4 w-4 rounded text-gray-500 dark:text-gray-400"
                 />
-                <Smartphone class="h-4 w-4 text-gray-500" />
-                <span class="text-sm text-gray-500"
+                <Smartphone class="h-4 w-4 text-gray-500 dark:text-gray-400" />
+                <span class="text-sm text-gray-500 dark:text-gray-400"
                   >SMS
                   <span class="text-xs">(bientôt disponible)</span>
                 </span>
@@ -237,33 +237,33 @@
 
           <!-- envoi -->
           <div>
-            <h4 class="mb-3 text-sm font-semibold text-gray-700">Envoi</h4>
+            <h4 class="mb-3 text-sm font-semibold text-gray-700 dark:text-gray-300">Envoi</h4>
             <div class="space-y-2">
               <label class="flex items-center gap-3">
                 <input
                   v-model="sendMode"
                   type="radio"
                   value="immediate"
-                  class="h-4 w-4 text-red-600 focus:ring-red-500"
+                  class="h-4 w-4 text-red-600 dark:text-red-400 focus:ring-red-500"
                 />
-                <Zap class="h-4 w-4 text-gray-500" />
-                <span class="text-sm text-gray-700">Envoi immédiat</span>
+                <Zap class="h-4 w-4 text-gray-500 dark:text-gray-400" />
+                <span class="text-sm text-gray-700 dark:text-gray-300">Envoi immédiat</span>
               </label>
               <label class="flex items-center gap-3">
                 <input
                   v-model="sendMode"
                   type="radio"
                   value="scheduled"
-                  class="h-4 w-4 text-red-600 focus:ring-red-500"
+                  class="h-4 w-4 text-red-600 dark:text-red-400 focus:ring-red-500"
                 />
-                <CalendarClock class="h-4 w-4 text-gray-500" />
-                <span class="text-sm text-gray-700">Envoi programmé</span>
+                <CalendarClock class="h-4 w-4 text-gray-500 dark:text-gray-400" />
+                <span class="text-sm text-gray-700 dark:text-gray-300">Envoi programmé</span>
               </label>
               <div v-if="sendMode === 'scheduled'" class="ml-7 mt-2">
                 <input
                   v-model="scheduledAt"
                   type="datetime-local"
-                  class="w-full rounded-lg border border-gray-300 px-3 py-2 text-sm focus:border-red-500 focus:ring-red-500"
+                  class="w-full rounded-lg border border-gray-300 dark:border-gray-700 px-3 py-2 text-sm focus:border-red-500 focus:ring-red-500"
                 />
               </div>
             </div>
@@ -272,29 +272,29 @@
       </UiCard>
 
       <UiCard>
-        <h3 class="mb-4 text-lg font-semibold text-gray-900">
-          <BarChart3 class="mr-2 inline h-5 w-5 text-orange-600" />
+        <h3 class="mb-4 text-lg font-semibold text-gray-900 dark:text-gray-100">
+          <BarChart3 class="mr-2 inline h-5 w-5 text-orange-600 dark:text-orange-400" />
           Résumé
         </h3>
 
         <div class="grid gap-4 sm:grid-cols-3">
-          <div class="rounded-lg bg-orange-50 p-4 text-center">
-            <p class="text-2xl font-bold text-orange-700">
+          <div class="rounded-lg bg-orange-50 dark:bg-orange-950/30 p-4 text-center">
+            <p class="text-2xl font-bold text-orange-700 dark:text-orange-300">
               {{ summaryRecipientCount }}
             </p>
-            <p class="text-sm text-orange-600">Destinataires</p>
+            <p class="text-sm text-orange-600 dark:text-orange-400">Destinataires</p>
           </div>
-          <div class="rounded-lg bg-green-50 p-4 text-center">
-            <p class="text-2xl font-bold text-green-700">
+          <div class="rounded-lg bg-green-50 dark:bg-green-950/30 p-4 text-center">
+            <p class="text-2xl font-bold text-green-700 dark:text-green-300">
               {{ summaryChannels }}
             </p>
-            <p class="text-sm text-green-600">Canal</p>
+            <p class="text-sm text-green-600 dark:text-green-400">Canal</p>
           </div>
-          <div class="rounded-lg bg-purple-50 p-4 text-center">
-            <p class="text-2xl font-bold text-purple-700">
+          <div class="rounded-lg bg-purple-50 dark:bg-purple-950/30 p-4 text-center">
+            <p class="text-2xl font-bold text-purple-700 dark:text-purple-300">
               {{ summarySendMode }}
             </p>
-            <p class="text-sm text-purple-600">Envoi</p>
+            <p class="text-sm text-purple-600 dark:text-purple-400">Envoi</p>
           </div>
         </div>
 
@@ -319,19 +319,19 @@
         <div class="flex flex-wrap items-center gap-4">
           <div class="relative flex-1">
             <Search
-              class="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-gray-500"
+              class="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-gray-500 dark:text-gray-400"
             />
             <input
               v-model="historySearch"
               type="text"
               placeholder="Rechercher par titre…"
-              class="w-full rounded-lg border border-gray-300 py-2 pl-10 pr-4 text-sm focus:border-red-500 focus:ring-red-500"
+              class="w-full rounded-lg border border-gray-300 dark:border-gray-700 py-2 pl-10 pr-4 text-sm focus:border-red-500 focus:ring-red-500"
               @input="debouncedFetchHistory"
             />
           </div>
           <select
             v-model="historyStatusFilter"
-            class="rounded-lg border border-gray-300 px-3 py-2 text-sm focus:border-red-500 focus:ring-red-500"
+            class="rounded-lg border border-gray-300 dark:border-gray-700 px-3 py-2 text-sm focus:border-red-500 focus:ring-red-500"
             @change="fetchHistory()"
           >
             <option value="">Tous les statuts</option>
@@ -342,7 +342,7 @@
           </select>
           <select
             v-model="historyTypeFilter"
-            class="rounded-lg border border-gray-300 px-3 py-2 text-sm focus:border-red-500 focus:ring-red-500"
+            class="rounded-lg border border-gray-300 dark:border-gray-700 px-3 py-2 text-sm focus:border-red-500 focus:ring-red-500"
             @change="fetchHistory()"
           >
             <option value="">Tous les types</option>
@@ -354,21 +354,21 @@
         </div>
       </UiCard>
 
-      <div v-if="historyLoading" class="py-12 text-center text-gray-500">
+      <div v-if="historyLoading" class="py-12 text-center text-gray-500 dark:text-gray-400">
         <Loader2 class="mx-auto mb-2 h-6 w-6 animate-spin" />
         Chargement…
       </div>
 
       <div
         v-else-if="historyCampaigns.length === 0"
-        class="rounded-lg bg-gray-50 py-12 text-center text-gray-500"
+        class="rounded-lg bg-gray-50 dark:bg-gray-900 py-12 text-center text-gray-500 dark:text-gray-400"
       >
         Aucun envoi trouvé
       </div>
 
-      <div v-else class="overflow-x-auto rounded-lg border border-gray-200">
+      <div v-else class="overflow-x-auto rounded-lg border border-gray-200 dark:border-gray-800">
         <table class="w-full text-left text-sm">
-          <thead class="bg-gray-50 text-xs uppercase text-gray-500">
+          <thead class="bg-gray-50 dark:bg-gray-900 text-xs uppercase text-gray-500 dark:text-gray-400">
             <tr>
               <th class="px-4 py-3">Titre</th>
               <th class="px-4 py-3">Type</th>
@@ -380,13 +380,13 @@
               <th class="px-4 py-3">Actions</th>
             </tr>
           </thead>
-          <tbody class="divide-y divide-gray-200">
+          <tbody class="divide-y divide-gray-200 dark:divide-gray-800">
             <tr
               v-for="c in historyCampaigns"
               :key="c.id"
-              class="hover:bg-gray-50"
+              class="hover:bg-gray-50 dark:hover:bg-gray-800"
             >
-              <td class="px-4 py-3 font-medium text-gray-900">
+              <td class="px-4 py-3 font-medium text-gray-900 dark:text-gray-100">
                 {{ c.title }}
               </td>
               <td class="px-4 py-3">
@@ -399,31 +399,31 @@
                   {{ typeLabels[c.messageType] || c.messageType }}
                 </span>
               </td>
-              <td class="px-4 py-3 text-gray-600">
+              <td class="px-4 py-3 text-gray-600 dark:text-gray-400">
                 {{ c.totalRecipients }}
               </td>
-              <td class="px-4 py-3 text-green-600">
+              <td class="px-4 py-3 text-green-600 dark:text-green-400">
                 {{ c.sentCount }}
               </td>
-              <td class="px-4 py-3 text-red-600">
+              <td class="px-4 py-3 text-red-600 dark:text-red-400">
                 {{ c.failedCount }}
               </td>
               <td class="px-4 py-3">
                 <span
                   :class="[
                     'inline-flex items-center rounded-full px-2 py-0.5 text-xs font-medium',
-                    statusVariants[c.status] || 'bg-gray-100 text-gray-800',
+                    statusVariants[c.status] || 'bg-gray-100 dark:bg-gray-800 text-gray-800 dark:text-gray-200',
                   ]"
                 >
                   {{ statusLabels[c.status] || c.status }}
                 </span>
               </td>
-              <td class="px-4 py-3 text-gray-500">
+              <td class="px-4 py-3 text-gray-500 dark:text-gray-400">
                 {{ formatDate(c.sentAt || c.createdAt) }}
               </td>
               <td class="px-4 py-3">
                 <button
-                  class="text-sm text-red-600 hover:underline"
+                  class="text-sm text-red-600 dark:text-red-400 hover:underline"
                   @click="viewCampaignDetail(c.id)"
                 >
                   Détails
@@ -436,16 +436,16 @@
         <!-- pagination -->
         <div
           v-if="historyTotalPages > 1"
-          class="flex items-center justify-between border-t border-gray-200 bg-gray-50 px-4 py-3"
+          class="flex items-center justify-between border-t border-gray-200 dark:border-gray-800 bg-gray-50 dark:bg-gray-900 px-4 py-3"
         >
-          <p class="text-sm text-gray-600">
+          <p class="text-sm text-gray-600 dark:text-gray-400">
             Page {{ historyPage }} / {{ historyTotalPages }} -
             {{ historyTotal }} résultat{{ historyTotal > 1 ? "s" : "" }}
           </p>
           <div class="flex gap-2">
             <button
               :disabled="historyPage <= 1"
-              class="rounded border border-gray-300 px-3 py-1 text-sm disabled:opacity-50"
+              class="rounded border border-gray-300 dark:border-gray-700 px-3 py-1 text-sm disabled:opacity-50"
               @click="
                 historyPage--;
                 fetchHistory();
@@ -455,7 +455,7 @@
             </button>
             <button
               :disabled="historyPage >= historyTotalPages"
-              class="rounded border border-gray-300 px-3 py-1 text-sm disabled:opacity-50"
+              class="rounded border border-gray-300 dark:border-gray-700 px-3 py-1 text-sm disabled:opacity-50"
               @click="
                 historyPage++;
                 fetchHistory();
@@ -475,14 +475,14 @@
       @click.self="showDetailModal = false"
     >
       <div
-        class="max-h-[80vh] w-full max-w-2xl overflow-y-auto rounded-lg bg-white p-6 shadow-xl"
+        class="max-h-[80vh] w-full max-w-2xl overflow-y-auto rounded-lg bg-white dark:bg-gray-900 p-6 shadow-xl"
       >
         <div class="mb-4 flex items-center justify-between">
-          <h3 class="text-lg font-semibold text-gray-900">
+          <h3 class="text-lg font-semibold text-gray-900 dark:text-gray-100">
             {{ selectedCampaign.title }}
           </h3>
           <button
-            class="text-gray-500 hover:text-gray-600"
+            class="text-gray-500 dark:text-gray-400 hover:text-gray-600"
             @click="showDetailModal = false"
           >
             <X class="h-5 w-5" />
@@ -491,28 +491,28 @@
 
         <div class="space-y-4">
           <div class="grid gap-4 sm:grid-cols-3">
-            <div class="rounded-lg bg-orange-50 p-3 text-center">
-              <p class="text-xl font-bold text-orange-700">
+            <div class="rounded-lg bg-orange-50 dark:bg-orange-950/30 p-3 text-center">
+              <p class="text-xl font-bold text-orange-700 dark:text-orange-300">
                 {{ selectedCampaign.totalRecipients }}
               </p>
-              <p class="text-xs text-orange-600">Total destinataires</p>
+              <p class="text-xs text-orange-600 dark:text-orange-400">Total destinataires</p>
             </div>
-            <div class="rounded-lg bg-green-50 p-3 text-center">
-              <p class="text-xl font-bold text-green-700">
+            <div class="rounded-lg bg-green-50 dark:bg-green-950/30 p-3 text-center">
+              <p class="text-xl font-bold text-green-700 dark:text-green-300">
                 {{ selectedCampaign.sentCount }}
               </p>
-              <p class="text-xs text-green-600">Envoyés</p>
+              <p class="text-xs text-green-600 dark:text-green-400">Envoyés</p>
             </div>
-            <div class="rounded-lg bg-red-50 p-3 text-center">
-              <p class="text-xl font-bold text-red-700">
+            <div class="rounded-lg bg-red-50 dark:bg-red-950/30 p-3 text-center">
+              <p class="text-xl font-bold text-red-700 dark:text-red-300">
                 {{ selectedCampaign.failedCount }}
               </p>
-              <p class="text-xs text-red-600">Échecs</p>
+              <p class="text-xs text-red-600 dark:text-red-400">Échecs</p>
             </div>
           </div>
 
           <div>
-            <h4 class="mb-1 text-sm font-medium text-gray-500">Type</h4>
+            <h4 class="mb-1 text-sm font-medium text-gray-500 dark:text-gray-400">Type</h4>
             <span
               :class="[
                 'inline-flex items-center rounded-full px-2 py-0.5 text-xs font-medium',
@@ -527,15 +527,15 @@
           </div>
 
           <div>
-            <h4 class="mb-1 text-sm font-medium text-gray-500">Canaux</h4>
-            <p class="text-sm text-gray-900">
+            <h4 class="mb-1 text-sm font-medium text-gray-500 dark:text-gray-400">Canaux</h4>
+            <p class="text-sm text-gray-900 dark:text-gray-100">
               {{ (selectedCampaign.channels || []).join(", ") || "-" }}
             </p>
           </div>
 
           <div>
-            <h4 class="mb-1 text-sm font-medium text-gray-500">Cible</h4>
-            <p class="text-sm text-gray-900">
+            <h4 class="mb-1 text-sm font-medium text-gray-500 dark:text-gray-400">Cible</h4>
+            <p class="text-sm text-gray-900 dark:text-gray-100">
               {{
                 targetTypeLabels[selectedCampaign.targetType] ||
                 selectedCampaign.targetType
@@ -544,9 +544,9 @@
           </div>
 
           <div>
-            <h4 class="mb-1 text-sm font-medium text-gray-500">Message</h4>
+            <h4 class="mb-1 text-sm font-medium text-gray-500 dark:text-gray-400">Message</h4>
             <div
-              class="whitespace-pre-wrap rounded-lg bg-gray-50 p-3 text-sm text-gray-700"
+              class="whitespace-pre-wrap rounded-lg bg-gray-50 dark:bg-gray-900 p-3 text-sm text-gray-700 dark:text-gray-300"
             >
               {{ selectedCampaign.message }}
             </div>
@@ -558,17 +558,17 @@
               selectedCampaign.recipients.length > 0
             "
           >
-            <h4 class="mb-2 text-sm font-medium text-gray-500">
+            <h4 class="mb-2 text-sm font-medium text-gray-500 dark:text-gray-400">
               Destinataires ({{
                 selectedCampaign._count?.recipients ||
                 selectedCampaign.recipients.length
               }})
             </h4>
             <div
-              class="max-h-48 overflow-y-auto rounded-lg border border-gray-200"
+              class="max-h-48 overflow-y-auto rounded-lg border border-gray-200 dark:border-gray-800"
             >
               <table class="w-full text-left text-xs">
-                <thead class="bg-gray-50 text-gray-500">
+                <thead class="bg-gray-50 dark:bg-gray-900 text-gray-500 dark:text-gray-400">
                   <tr>
                     <th class="px-3 py-2">Email</th>
                     <th class="px-3 py-2">Nom</th>
@@ -576,14 +576,14 @@
                     <th class="px-3 py-2">Erreur</th>
                   </tr>
                 </thead>
-                <tbody class="divide-y divide-gray-100">
+                <tbody class="divide-y divide-gray-100 dark:divide-gray-800">
                   <tr
                     v-for="r in selectedCampaign.recipients"
                     :key="r.id"
-                    class="hover:bg-gray-50"
+                    class="hover:bg-gray-50 dark:hover:bg-gray-800"
                   >
-                    <td class="px-3 py-2 text-gray-700">{{ r.email }}</td>
-                    <td class="px-3 py-2 text-gray-700">
+                    <td class="px-3 py-2 text-gray-700 dark:text-gray-300">{{ r.email }}</td>
+                    <td class="px-3 py-2 text-gray-700 dark:text-gray-300">
                       {{ recipientName(r) }}
                     </td>
                     <td class="px-3 py-2">
@@ -704,10 +704,10 @@ const typeLabels: Record<string, string> = {
 };
 
 const typeVariants: Record<string, string> = {
-  INFO: "bg-orange-100 text-orange-800",
-  WARNING: "bg-yellow-100 text-yellow-800",
-  URGENT: "bg-red-100 text-red-800",
-  MAINTENANCE: "bg-purple-100 text-purple-800",
+  INFO: "bg-orange-100 dark:bg-orange-900/30 text-orange-800 dark:text-orange-200",
+  WARNING: "bg-yellow-100 dark:bg-yellow-900/30 text-yellow-800 dark:text-yellow-200",
+  URGENT: "bg-red-100 dark:bg-red-900/30 text-red-800 dark:text-red-200",
+  MAINTENANCE: "bg-purple-100 dark:bg-purple-900/30 text-purple-800 dark:text-purple-200",
 };
 
 const statusLabels: Record<string, string> = {
@@ -719,11 +719,11 @@ const statusLabels: Record<string, string> = {
 };
 
 const statusVariants: Record<string, string> = {
-  DRAFT: "bg-gray-100 text-gray-800",
-  ACTIVE: "bg-orange-100 text-orange-800",
-  COMPLETED: "bg-green-100 text-green-800",
-  CANCELLED: "bg-red-100 text-red-800",
-  PAUSED: "bg-yellow-100 text-yellow-800",
+  DRAFT: "bg-gray-100 dark:bg-gray-800 text-gray-800 dark:text-gray-200",
+  ACTIVE: "bg-orange-100 dark:bg-orange-900/30 text-orange-800 dark:text-orange-200",
+  COMPLETED: "bg-green-100 dark:bg-green-900/30 text-green-800 dark:text-green-200",
+  CANCELLED: "bg-red-100 dark:bg-red-900/30 text-red-800 dark:text-red-200",
+  PAUSED: "bg-yellow-100 dark:bg-yellow-900/30 text-yellow-800 dark:text-yellow-200",
 };
 
 const targetTypeLabels: Record<string, string> = {
