@@ -7,7 +7,6 @@ import {
   hasZodFastifySchemaValidationErrors,
   isResponseSerializationError,
 } from 'fastify-type-provider-zod'
-import { routes } from '../../routes'
 
 export type TestUserRole = 'PATIENT' | 'PRACTITIONER' | 'ADMIN' | 'STAFF'
 
@@ -56,6 +55,7 @@ export function buildIntegrationApp(options: BuildIntegrationAppOptions = {}) {
   if (options.route) {
     app.register(options.route, { prefix: options.prefix })
   } else if (options.registerRoutes) {
+    const { routes } = require('../../routes') as typeof import('../../routes')
     app.register(routes)
   }
 
