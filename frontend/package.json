@@ -66,5 +66,9 @@
     "typescript": "^5.9.3",
     "vitest": "^4.1.0",
     "vue-tsc": "^3.2.4"
+  },
+  "optionalDependencies": {
+    "@oxc-parser/binding-darwin-arm64": "^0.139.0",
+    "@oxc-transform/binding-darwin-arm64": "^0.139.0"
   }
 }

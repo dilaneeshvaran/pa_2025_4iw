@@ -14,6 +14,8 @@ dist/
 .env
 .env.*
 !.env.example
+!.env.e2e.example
+!e2e/.env.e2e.example
 
 # Logs
 logs/
@@ -45,3 +47,7 @@ uploads/
 # Testing
 coverage/
 .nyc_output/
+playwright-report/
+test-results/
+e2e/test-results/
+e2e/playwright-report/

@@ -38,6 +38,15 @@ export async function sendEmail(
   subject: string,
   html: string,
 ): Promise<void> {
+  if (
+    process.env.BACKEND_NODE_ENV === 'test' ||
+    process.env.BACKEND_EMAIL_DISABLED === 'true' ||
+    !RESEND_API_KEY
+  ) {
+    console.log(`[email noop] to=${to} subject=${subject}`)
+    return
+  }
+
   try {
     const { error } = await getResend().emails.send({
       from: EMAIL_FROM,

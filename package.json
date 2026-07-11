@@ -6,7 +6,8 @@
   "workspaces": [
     "backend",
     "frontend",
-    "shared"
+    "shared",
+    "e2e"
   ],
   "scripts": {
     "dev": "concurrently \"npm run dev:backend\" \"npm run dev:frontend\"",
@@ -24,7 +25,11 @@
     "test:backend": "npm run test --workspace=backend",
     "test:frontend": "npm run test --workspace=frontend",
     "test:watch:backend": "npm run test:watch --workspace=backend",
-    "test:watch:frontend": "npm run test:watch --workspace=frontend"
+    "test:watch:frontend": "npm run test:watch --workspace=frontend",
+    "test:e2e": "npm run test --workspace=e2e",
+    "test:e2e:ui": "npm run test:ui --workspace=e2e",
+    "e2e:setup": "bash scripts/prepare-e2e-env.sh && docker compose -f docker-compose.e2e.yml --env-file .env.e2e up -d --wait",
+    "e2e:teardown": "docker compose -f docker-compose.e2e.yml --env-file .env.e2e down -v"
   },
   "keywords": [
     "medicote",
@@ -35,6 +40,7 @@
   "author": "Dilan EESHVARAN, AKA Kassi Joel Emmanuel, Sylvain ANTIN, Alix Sylvani",
   "license": "ISC",
   "devDependencies": {
-    "concurrently": "^9.2.1"
+    "concurrently": "^9.2.1",
+    "wait-on": "^8.0.3"
   }
 }
