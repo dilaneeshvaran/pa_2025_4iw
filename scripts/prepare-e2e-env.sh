@@ -35,5 +35,5 @@ if grep -q '__CHANGE_ME__' "${ENV_FILE}"; then
   replace_in_file "E2E_JWT_SECRET" "$(random_hex 32)" "${ENV_FILE}"
   replace_in_file "E2E_JWT_REFRESH_SECRET" "$(random_hex 32)" "${ENV_FILE}"
   replace_in_file "E2E_ENCRYPTION_KEY" "$(random_hex 32)" "${ENV_FILE}"
-  replace_in_file "E2E_PASSWORD" "$(random_hex 24)" "${ENV_FILE}"
+  replace_in_file "E2E_PASSWORD" "E2e!$(random_hex 12)Aa1" "${ENV_FILE}"
 fi
