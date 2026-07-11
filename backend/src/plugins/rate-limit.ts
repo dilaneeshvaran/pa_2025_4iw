@@ -8,10 +8,10 @@ interface RateLimitConfig {
 }
 
 const defaultConfigs = {
-  // strict limit for booking creation (5 per hour per user)
+  // strict limit for booking creation (5 per hour per user; relaxed in test/e2e)
   booking: {
     windowMs: 60 * 60 * 1000, // 1 hour
-    maxRequests: 5,
+    maxRequests: process.env.BACKEND_NODE_ENV === 'test' ? 1000 : 5,
     keyPrefix: 'ratelimit:booking',
   },
   // moderate limit for messages (30 per minute per user)

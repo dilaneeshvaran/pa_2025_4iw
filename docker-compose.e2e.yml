@@ -1,0 +1,129 @@
+services:
+  postgres-e2e:
+    image: postgres:16-alpine
+    container_name: postgres-e2e
+    environment:
+      POSTGRES_DB: ${E2E_POSTGRES_DB}
+      POSTGRES_USER: ${E2E_POSTGRES_USER}
+      POSTGRES_PASSWORD: ${E2E_POSTGRES_PASSWORD}
+    ports:
+      - "5433:5432"
+    networks:
+      - e2e-network
+    healthcheck:
+      test:
+        [
+          "CMD-SHELL",
+          "pg_isready -U ${E2E_POSTGRES_USER} -d ${E2E_POSTGRES_DB}",
+        ]
+      interval: 5s
+      timeout: 5s
+      retries: 10
+      start_period: 10s
+    tmpfs:
+      - /var/lib/postgresql/data
+
+  redis-e2e:
+    image: redis:7-alpine
+    container_name: redis-e2e
+    ports:
+      - "6380:6379"
+    networks:
+      - e2e-network
+    healthcheck:
+      test: ["CMD", "redis-cli", "ping"]
+      interval: 5s
+      timeout: 3s
+      retries: 5
+
+  backend-e2e:
+    build:
+      context: .
+      dockerfile: backend/Dockerfile
+      target: development
+    container_name: backend-e2e
+    environment:
+      BACKEND_PORT: "3001"
+      BACKEND_HOST: 0.0.0.0
+      BACKEND_NODE_ENV: test
+      BACKEND_APP_URL: http://localhost:3001
+      BACKEND_DATABASE_URL: postgresql://${E2E_POSTGRES_USER}:${E2E_POSTGRES_PASSWORD}@postgres-e2e:5432/${E2E_POSTGRES_DB}?schema=public
+      BACKEND_REDIS_URL: redis://redis-e2e:6379
+      BACKEND_JWT_SECRET: ${E2E_JWT_SECRET}
+      BACKEND_JWT_REFRESH_SECRET: ${E2E_JWT_REFRESH_SECRET}
+      BACKEND_JWT_EXPIRES_IN: 2h
+      BACKEND_JWT_REFRESH_EXPIRES_IN: 7d
+      BACKEND_ENCRYPTION_KEY: ${E2E_ENCRYPTION_KEY}
+      BACKEND_FRONTEND_URL: http://localhost:3000
+      BACKEND_EMAIL_FROM: MediCôte E2E <noreply@e2e.test>
+      BACKEND_MESSAGE_EMAIL_DELAY_MS: "0"
+      BACKEND_RATE_LIMIT_MAX: "1000"
+      BACKEND_RATE_LIMIT_TIME_WINDOW: "60000"
+      E2E_PASSWORD: ${E2E_PASSWORD}
+      BACKEND_STORAGE_TYPE: local
+      UPLOAD_DIR: /app/backend/uploads
+      BACKEND_MAX_FILE_SIZE: "10485760"
+      CHOKIDAR_USEPOLLING: "true"
+    command: >
+      sh -c "npx prisma generate --schema=/app/backend/prisma/schema.prisma &&
+             npx prisma db push --schema=/app/backend/prisma/schema.prisma &&
+             npx tsx prisma/seed.e2e.ts &&
+             npm run dev"
+    ports:
+      - "3001:3001"
+    volumes:
+      - ./backend/src:/app/backend/src
+      - ./backend/prisma:/app/backend/prisma
+      - ./shared:/app/shared
+      - /app/node_modules
+      - /app/backend/node_modules
+    depends_on:
+      postgres-e2e:
+        condition: service_healthy
+      redis-e2e:
+        condition: service_healthy
+    networks:
+      - e2e-network
+    healthcheck:
+      test: ["CMD", "wget", "-q", "-O", "/dev/null", "http://127.0.0.1:3001/health"]
+      interval: 10s
+      timeout: 5s
+      retries: 15
+      start_period: 60s
+
+  frontend-e2e:
+    build:
+      context: .
+      dockerfile: frontend/Dockerfile
+      target: development
+    container_name: frontend-e2e
+    ports:
+      - "3000:3000"
+    environment:
+      NUXT_PUBLIC_API_BASE: http://localhost:3001/api
+      NUXT_PUBLIC_UMAMI_ENABLED: "false"
+      NUXT_HMR_HOST: localhost
+      NUXT_HMR_CLIENT_PORT: "3000"
+      NUXT_VITE_USE_POLLING: "true"
+      NUXT_VITE_POLLING_INTERVAL: "250"
+    volumes:
+      - ./frontend:/app/frontend
+      - ./shared:/app/shared
+      - /app/node_modules
+      - /app/frontend/node_modules
+      - /app/frontend/.nuxt
+    depends_on:
+      backend-e2e:
+        condition: service_healthy
+    networks:
+      - e2e-network
+    healthcheck:
+      test: ["CMD", "wget", "-q", "-O", "/dev/null", "http://127.0.0.1:3000"]
+      interval: 10s
+      timeout: 5s
+      retries: 15
+      start_period: 90s
+
+networks:
+  e2e-network:
+    driver: bridge

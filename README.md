@@ -34,6 +34,54 @@ npm run seed:dev
 
 ## Available Scripts
 
+### Makefile (recommandé)
+
+Afficher toutes les commandes : `make help`
+
+**Développement**
+
+| Commande | Description |
+|----------|-------------|
+| `make up` | Démarre la stack dev (Docker) |
+| `make down` | Arrête les conteneurs |
+| `make logs` | Suit les logs (`make logs s=backend`) |
+| `make seed` | Seed de dev dans le conteneur backend |
+| `make migrate name=ma_migration` | Crée/applique une migration Prisma |
+| `make backend-sh` | Shell dans le conteneur backend |
+| `make frontend-sh` | Shell dans le conteneur frontend |
+| `make psql` | Ouvre psql sur la base `medicote` |
+| `make clean` | Arrête tout et supprime les volumes |
+
+**Tests E2E (Playwright)**
+
+| Commande | Description |
+|----------|-------------|
+| `make e2e-up` | Démarre la stack E2E isolée (DB `medicote_e2e`) |
+| `make e2e-install` | Installe Playwright dans `e2e/` (une fois) |
+| `make e2e-test` | Lance les tests E2E (stack doit être up) |
+| `make e2e-test-ui` | Lance les tests avec l'UI Playwright (debug) |
+| `make e2e-down` | Arrête la stack E2E et supprime les volumes |
+| `make e2e-logs` | Logs E2E (`make e2e-logs s=backend-e2e`) |
+
+Workflow E2E typique :
+
+```bash
+make e2e-up        # génère .env.e2e si absent (secrets éphémères locaux)
+make e2e-install   # première fois uniquement
+make e2e-test
+```
+
+Les identifiants de la stack E2E (PostgreSQL, JWT) sont dans `.env.e2e` (gitignoré), généré depuis `.env.e2e.example` via `scripts/prepare-e2e-env.sh`. Ne jamais committer `.env.e2e`.
+
+Comptes de test (seed E2E) — mot de passe : valeur de `E2E_PASSWORD` dans `.env.e2e` (généré par `make e2e-up`)
+
+| Rôle | Email |
+|------|-------|
+| Patient | `patient@test.fr` |
+| Praticien | `praticien@test.fr` |
+| Admin | `admin@test.fr` |
+| Staff | `staff@test.fr` |
+
 ### Root Level
 
 - `npm run dev` - Start both backend and frontend
@@ -44,6 +92,11 @@ npm run seed:dev
 - `npm run build:frontend` - Build only frontend
 - `npm run start` - Start both in production mode
 - `npm run seed:dev` - Seed the database with development data
+- `npm run test` - Run backend + frontend unit tests
+- `npm run test:e2e` - Run Playwright E2E tests
+- `npm run test:e2e:ui` - Run E2E tests with Playwright UI
+- `npm run e2e:setup` - Start E2E Docker stack (`docker compose -f docker-compose.e2e.yml up -d --wait`)
+- `npm run e2e:teardown` - Stop E2E Docker stack
 
 ### Backend Scripts
 
