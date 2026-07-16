@@ -1,5 +1,5 @@
 <template>
-  <div class="relative overflow-hidden bg-gray-50/50">
+  <div class="relative overflow-hidden bg-gray-50/50 dark:bg-gray-950">
     <div class="absolute inset-0 z-0 opacity-40">
       <div class="absolute -top-40 -right-40 h-[600px] w-[600px] rounded-full bg-gradient-to-br from-orange-200/20 to-orange-100/10 blur-3xl"></div>
       <div class="absolute top-[600px] -left-40 h-[500px] w-[500px] rounded-full bg-gradient-to-br from-green-100/20 to-emerald-50/10 blur-3xl"></div>
@@ -20,7 +20,7 @@
           Votre réseau de professionnels de santé de confiance en Côte d'Ivoire. Prenez rendez-vous en ligne, consultez en télémédecine et gérez votre dossier médical de manière sécurisée.
         </p>
 
-        <Card class-name="mx-auto mt-12 max-w-3xl p-5 border border-black/[0.06] bg-white dark:bg-gray-900 shadow-[0_8px_30px_rgb(0,0,0,0.04)] backdrop-blur">
+        <Card class-name="mx-auto mt-12 max-w-3xl p-5 border border-black/[0.06] dark:border-gray-800 bg-white dark:bg-gray-900 shadow-[0_8px_30px_rgb(0,0,0,0.04)] backdrop-blur">
           <div class="grid gap-3 md:grid-cols-3">
             <div class="relative">
               <Input
@@ -63,14 +63,14 @@
           <NuxtLink
             v-if="!authStore.isAuthenticated"
             to="/auth/login"
-            class="inline-flex min-h-11 items-center justify-center rounded-xl border border-[#E5E3DC] bg-white dark:bg-gray-900 text-[#1B2321] px-8 py-3 text-base font-semibold transition-all duration-300 hover:bg-orange-50/40 hover:border-orange-300 hover:text-orange-600 focus:outline-none focus:ring-4 focus:ring-orange-500/10 active:scale-[0.98]"
+            class="inline-flex min-h-11 items-center justify-center rounded-xl border border-[#E5E3DC] dark:border-gray-700 bg-white dark:bg-gray-900 text-[#1B2321] dark:text-gray-100 px-8 py-3 text-base font-semibold transition-all duration-300 hover:bg-orange-50/40 dark:hover:bg-orange-500/10 hover:border-orange-300 hover:text-orange-600 dark:hover:text-orange-400 focus:outline-none focus:ring-4 focus:ring-orange-500/10 active:scale-[0.98]"
           >
             Se connecter
           </NuxtLink>
 
           <div
             v-else
-            class="rounded-lg border border-green-200/55 bg-green-50/50 px-5 py-3 text-sm text-green-800 dark:text-green-200 flex items-center gap-3 shadow-[0_1px_2px_rgba(26,21,16,0.05)]"
+            class="rounded-lg border border-green-200/55 dark:border-green-800/40 bg-green-50/50 dark:bg-green-900/20 px-5 py-3 text-sm text-green-800 dark:text-green-200 flex items-center gap-3 shadow-[0_1px_2px_rgba(26,21,16,0.05)]"
           >
             <span class="inline-block h-2 w-2 rounded-full bg-green-500 animate-pulse"></span>
             <span>Vous êtes connecté(e) en tant que <strong class="font-semibold">{{ authStore.user?.email }}</strong></span>
@@ -87,26 +87,26 @@
     </section>
 
     <!-- stats section -->
-    <section class="relative z-10 bg-white dark:bg-gray-900 border-y border-black/[0.05] py-12" aria-labelledby="stats-heading">
+    <section class="relative z-10 bg-white dark:bg-gray-900 border-y border-black/[0.05] dark:border-gray-800 py-12" aria-labelledby="stats-heading">
       <h2 id="stats-heading" class="sr-only">Statistiques de MediCôte</h2>
       <div class="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
         <div class="grid grid-cols-2 gap-4 md:grid-cols-4 text-center">
-          <div class="p-5 bg-gray-50/50 rounded-lg border border-black/[0.04]">
+          <div class="p-5 bg-gray-50/50 dark:bg-gray-800/50 rounded-lg border border-black/[0.04] dark:border-gray-800">
             <div class="font-display text-3xl font-bold text-orange-500 md:text-4xl tabular-nums">100+</div>
             <p class="mt-1 text-xs font-semibold text-gray-800 dark:text-gray-200">Praticiens vérifiés</p>
             <p class="text-[10px] text-gray-600 dark:text-gray-400 mt-0.5">Inscrits à l'Ordre National</p>
           </div>
-          <div class="p-5 bg-gray-50/50 rounded-lg border border-black/[0.04]">
+          <div class="p-5 bg-gray-50/50 dark:bg-gray-800/50 rounded-lg border border-black/[0.04] dark:border-gray-800">
             <div class="font-display text-3xl font-bold text-green-600 dark:text-green-400 md:text-4xl tabular-nums">10k+</div>
             <p class="mt-1 text-xs font-semibold text-gray-800 dark:text-gray-200">Patients inscrits</p>
             <p class="text-[10px] text-gray-600 dark:text-gray-400 mt-0.5">Partout en Côte d'Ivoire</p>
           </div>
-          <div class="p-5 bg-gray-50/50 rounded-lg border border-black/[0.04]">
+          <div class="p-5 bg-gray-50/50 dark:bg-gray-800/50 rounded-lg border border-black/[0.04] dark:border-gray-800">
             <div class="font-display text-3xl font-bold text-orange-500 md:text-4xl tabular-nums">50k+</div>
             <p class="mt-1 text-xs font-semibold text-gray-800 dark:text-gray-200">RDV & Téléconsultations</p>
             <p class="text-[10px] text-gray-600 dark:text-gray-400 mt-0.5">Réalisés avec succès</p>
           </div>
-          <div class="p-5 bg-gray-50/50 rounded-lg border border-black/[0.04]">
+          <div class="p-5 bg-gray-50/50 dark:bg-gray-800/50 rounded-lg border border-black/[0.04] dark:border-gray-800">
             <div class="font-display text-3xl font-bold text-green-600 dark:text-green-400 md:text-4xl tabular-nums">98%</div>
             <p class="mt-1 text-xs font-semibold text-gray-800 dark:text-gray-200">Satisfaction</p>
             <p class="text-[10px] text-gray-600 dark:text-gray-400 mt-0.5">Des patients et soignants</p>
@@ -132,7 +132,7 @@
             type="button"
             :aria-label="`Rechercher un praticien : ${spec.name}`"
             @click="searchSpecialty(spec.name)"
-            class="flex flex-col items-center justify-center p-5 rounded-lg border border-black/[0.06] bg-white dark:bg-gray-900 shadow-[0_1px_2px_rgba(26,21,16,0.04)] transition-all hover:border-orange-500 hover:shadow-md active:scale-[0.98] group"
+            class="flex flex-col items-center justify-center p-5 rounded-lg border border-black/[0.06] dark:border-gray-800 bg-white dark:bg-gray-900 shadow-[0_1px_2px_rgba(26,21,16,0.04)] transition-all hover:border-orange-500 hover:shadow-md active:scale-[0.98] group"
           >
             <span class="text-3xl mb-3 group-hover:scale-110 transition-transform" aria-hidden="true">{{ spec.icon }}</span>
             <span class="font-semibold text-gray-700 dark:text-gray-300 group-hover:text-orange-500 text-xs md:text-sm">{{ spec.name }}</span>
@@ -142,7 +142,7 @@
     </section>
 
     <!-- how it works section -->
-    <section class="relative z-10 bg-white dark:bg-gray-900 border-y border-black/[0.05] py-16" aria-labelledby="workflow-heading">
+    <section class="relative z-10 bg-white dark:bg-gray-900 border-y border-black/[0.05] dark:border-gray-800 py-16" aria-labelledby="workflow-heading">
       <div class="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
         <div class="text-center">
           <h2 id="workflow-heading" class="font-display text-2xl font-bold tracking-tight text-gray-900 dark:text-gray-100 sm:text-3xl">
@@ -155,7 +155,7 @@
 
         <div class="mt-10 grid gap-6 lg:grid-cols-2">
           <!-- Patient workflow -->
-          <div class="bg-gray-50/50 p-6 rounded-lg border border-black/[0.06] space-y-5">
+          <div class="bg-gray-50/50 dark:bg-gray-800/50 p-6 rounded-lg border border-black/[0.06] dark:border-gray-800 space-y-5">
             <div class="flex items-center gap-2.5">
               <span class="text-orange-500">
                 <User class="h-5 w-5" :stroke-width="2" />
@@ -205,7 +205,7 @@
           </div>
 
           <!-- Practitioner workflow -->
-          <div class="bg-gray-50/50 p-6 rounded-lg border border-black/[0.06] space-y-5">
+          <div class="bg-gray-50/50 dark:bg-gray-800/50 p-6 rounded-lg border border-black/[0.06] dark:border-gray-800 space-y-5">
             <div class="flex items-center gap-2.5">
               <span class="text-green-600 dark:text-green-400">
                 <Stethoscope class="h-5 w-5" :stroke-width="2" />
