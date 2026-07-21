@@ -23,6 +23,7 @@ export default defineNuxtRouteMiddleware((to, _from) => {
     "/auth/forgot-password",
     "/auth/reset-password",
     "/auth/verify-email",
+    "/auth/google/callback",
     "/contact",
     "/about",
     "/search",
