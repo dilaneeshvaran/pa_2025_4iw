@@ -125,7 +125,6 @@
           </p>
         </div>
 
-        </div>
       </form>
 
       <!-- 2FA Challenge Form -->
