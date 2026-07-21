@@ -18,6 +18,7 @@
     "@fullcalendar/interaction": "^6.1.20",
     "@fullcalendar/timegrid": "^6.1.20",
     "@fullcalendar/vue3": "^6.1.20",
+    "@medicote/shared": "*",
     "@nuxt/icon": "^2.2.1",
     "@nuxtjs/google-fonts": "^3.2.0",
     "@nuxtjs/tailwindcss": "^6.14.0",
@@ -25,6 +26,7 @@
     "@stripe/stripe-js": "^8.7.0",
     "@tailwindcss/forms": "^0.5.11",
     "@tailwindcss/typography": "^0.5.19",
+    "@ts-rest/core": "^3.45.2",
     "@types/leaflet": "^1.9.21",
     "@vueuse/core": "^14.2.0",
     "@vueuse/nuxt": "^14.2.0",
@@ -47,12 +49,11 @@
     "vue-the-mask": "^0.11.1",
     "vue-toastification": "^2.0.0-rc.5",
     "vue-upload-component": "^2.8.23",
-    "yup": "^1.7.1",
-    "@medicote/shared": "*",
-    "@ts-rest/core": "^3.45.2"
+    "yup": "^1.7.1"
   },
   "devDependencies": {
     "@nuxt/eslint": "^1.4.0",
+    "@pinia/testing": "^2.0.1",
     "@types/node": "^25.2.1",
     "@types/simple-peer": "^9.11.9",
     "@vitejs/plugin-vue": "^6.0.5",

@@ -1,3 +1,5 @@
+import { useRuntimeConfig } from '#app'
+
 export const useGoogleAuth = () => {
   const config = useRuntimeConfig()
 

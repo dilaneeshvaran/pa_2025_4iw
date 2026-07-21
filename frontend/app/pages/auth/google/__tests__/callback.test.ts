@@ -10,11 +10,9 @@ const mockRoute = {
   query: {}
 }
 
-vi.mock('#app', () => ({
-  useRoute: () => mockRoute,
-  useRouter: () => ({ push: mockRouterPush }),
-  definePageMeta: vi.fn(),
-}))
+vi.stubGlobal('useRoute', () => mockRoute)
+vi.stubGlobal('useRouter', () => ({ push: mockRouterPush }))
+vi.stubGlobal('definePageMeta', vi.fn())
 
 const mockHandleCallback = vi.fn()
 vi.mock('~/composables/useGoogleAuth', () => ({
