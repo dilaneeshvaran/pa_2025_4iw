@@ -20,7 +20,7 @@ import { normalizeEmail } from '../../utils/normalize-email'
 import { CreateUserData, AuthResponse, AuthTokens } from './auth.types'
 
 export class AuthService {
-  private async isPractitionerUnpaid(userId: string): Promise<boolean> {
+  async isPractitionerUnpaid(userId: string): Promise<boolean> {
     const practitioner = await prisma.practitioner.findUnique({
       where: { userId },
       select: {
@@ -557,7 +557,43 @@ export class AuthService {
     })
   }
 
-  private async generateTokens(
+  async getUserProfile(userId: string, role: UserRole): Promise<{ firstName: string | null; lastName: string | null }> {
+    let firstName: string | null = null
+    let lastName: string | null = null
+
+    if (role === UserRole.PATIENT) {
+      const patient = await prisma.patient.findUnique({
+        where: { userId },
+        select: { firstName: true, lastName: true },
+      })
+      if (patient) {
+        firstName = patient.firstName
+        lastName = patient.lastName
+      }
+    } else if (role === UserRole.PRACTITIONER) {
+      const practitioner = await prisma.practitioner.findUnique({
+        where: { userId },
+        select: { firstName: true, lastName: true },
+      })
+      if (practitioner) {
+        firstName = practitioner.firstName
+        lastName = practitioner.lastName
+      }
+    } else if (role === UserRole.STAFF) {
+      const staff = await prisma.staff.findUnique({
+        where: { userId },
+        select: { firstName: true, lastName: true },
+      })
+      if (staff) {
+        firstName = staff.firstName
+        lastName = staff.lastName
+      }
+    }
+
+    return { firstName, lastName }
+  }
+
+  async generateTokens(
     userId: string,
     email: string,
     role: UserRole,
