@@ -17,7 +17,8 @@ test.describe('Authentification', () => {
     await fillInput(page, '#confirmPassword', E2E_PASSWORD)
     await page.locator('#agreeTerms').check()
 
-    await page.getByRole('button', { name: "S'inscrire" }).click()
+    await expect(page.getByRole('button', { name: "S'inscrire", exact: true })).toHaveCount(1)
+    await page.getByRole('button', { name: "S'inscrire", exact: true }).click()
 
     await expect(page.getByRole('heading', { name: 'Inscription réussie !' })).toBeVisible({
       timeout: 20_000,
