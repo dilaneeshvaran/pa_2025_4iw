@@ -241,6 +241,16 @@ export const useAuthStore = defineStore("auth", () => {
     isAuthenticated.value = true;
   }
 
+  function loginWithGoogle(redirectUrl?: string) {
+    if (isClient) {
+      const config = useRuntimeConfig()
+      const params = redirectUrl
+        ? `?redirect=${encodeURIComponent(redirectUrl)}`
+        : ''
+      window.location.href = `${config.public.apiBase}/oauth/google${params}`
+    }
+  }
+
   return {
     user,
     accessToken,
@@ -256,6 +266,7 @@ export const useAuthStore = defineStore("auth", () => {
     initAuth,
     initServerAuth,
     refresh,
+    loginWithGoogle,
   };
 });
 
