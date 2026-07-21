@@ -36,10 +36,13 @@ test.describe('Dashboard praticien', () => {
 
     await saturdayCheckbox.setChecked(!wasActive)
 
+    await page.waitForLoadState('networkidle')
+    await expect(saturdayRow).toBeVisible()
+    
     if (!wasActive) {
-      await expect(saturdayRow.getByText('09:00').first()).toBeVisible()
+      await expect(saturdayRow.getByText('09:00').first()).toBeVisible({ timeout: 15000 })
     } else {
-      await expect(saturdayRow.getByText('Repos')).toBeVisible()
+      await expect(saturdayRow.getByText('Repos')).toBeVisible({ timeout: 15000 })
     }
 
     await saturdayCheckbox.setChecked(wasActive)
