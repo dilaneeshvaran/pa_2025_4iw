@@ -80,16 +80,32 @@ services:
       DATABASE_TYPE: postgresql
       APP_SECRET: ${UMAMI_APP_SECRET}
       DISABLE_TELEMETRY: "1"
-      ALLOWED_FRAME_ANCESTORS: ${PUBLIC_FRONTEND_URL:-http://localhost:3000}
       HOSTNAME: "0.0.0.0"
+      NODE_OPTIONS: "--dns-result-order=ipv4first"
+    healthcheck:
+      test: ["CMD", "wget", "-qO-", "http://127.0.0.1:3000/api/heartbeat"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+      start_period: 15s
     ports:
       - "${UMAMI_PORT:-3010}:3000"
     networks:
       - pgnetwork
     deploy:
       replicas: 1
+      update_config:
+        parallelism: 1
+        delay: 5s
+        order: start-first
+      rollback_config:
+        parallelism: 1
+        delay: 5s
+        order: stop-first
       restart_policy:
         condition: on-failure
+        delay: 5s
+        max_attempts: 3
 
   backend:
     image: ${BACKEND_IMAGE}
@@ -223,19 +239,10 @@ services:
     entrypoint:
       - sh
       - -c
-      - 'turnserver --lt-cred-mech --fingerprint --no-multicast-peers --no-cli --realm=medicote.me --user=medicote:medicoteTurn2025 --external-ip=${VPS_PUBLIC_IP:-142.93.73.60} --listening-port=3478 --min-port=49152 --max-port=49171'
-    # Ports MUST be published in host mode. The Swarm routing mesh (ingress)
-    # source-NATs incoming packets, which hides the real client IP from coturn
-    # and prevents it from relaying media. mode: host binds coturn straight to
-    # the node's network interface so TURN relay allocations actually work.
+      - "turnserver --lt-cred-mech --fingerprint --no-multicast-peers --no-cli --realm=medicote.me --user=medicote:medicoteTurn2025 --external-ip=${VPS_PUBLIC_IP:-142.93.73.60} --listening-port=3478 --min-port=49152 --max-port=49171"
     ports:
-      # STUN/TURN control channel
       - { target: 3478, published: 3478, protocol: udp, mode: host }
       - { target: 3478, published: 3478, protocol: tcp, mode: host }
-      # Media relay range — MUST match --min-port/--max-port above and be open
-      # in the VPS/cloud firewall. host mode has no range syntax, so every relay
-      # port is listed explicitly. 20 ports ≈ 10-20 concurrent relayed calls;
-      # to scale, widen both this list and --max-port together.
       - { target: 49152, published: 49152, protocol: udp, mode: host }
       - { target: 49153, published: 49153, protocol: udp, mode: host }
       - { target: 49154, published: 49154, protocol: udp, mode: host }

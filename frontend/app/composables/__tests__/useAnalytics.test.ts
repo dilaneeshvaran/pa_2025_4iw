@@ -86,7 +86,13 @@ describe('useAnalytics', () => {
 
     analytics.trackPageView('/search?q=cardio')
 
-    expect(window.umami?.track).toHaveBeenCalledWith({
+    expect(window.umami?.track).toHaveBeenCalledWith(expect.any(Function))
+    const trackCallback = vi.mocked(window.umami!.track).mock.calls[0]![0] as (
+      props: Record<string, any>,
+    ) => Record<string, any>
+    expect(trackCallback({ website: 'site-1', hostname: 'medicote.test' })).toEqual({
+      website: 'site-1',
+      hostname: 'medicote.test',
       url: '/search',
     })
   })
