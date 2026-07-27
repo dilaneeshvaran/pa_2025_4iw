@@ -9,7 +9,10 @@ import {
 declare global {
   interface Window {
     umami?: {
-      track: (eventName: string, data?: Record<string, string | number | boolean>) => void
+      track: {
+        (payload?: Record<string, any> | ((props: Record<string, any>) => Record<string, any>)): void
+        (eventName: string, data?: Record<string, string | number | boolean>): void
+      }
     }
   }
 }
@@ -52,7 +55,7 @@ export function useAnalytics() {
     if (!analyticsLoaded.value || !window.umami) return
 
     const url = path ? stripQueryParams(path) : stripQueryParams(window.location.href)
-    window.umami.track('pageview', { url })
+    window.umami.track({ url })
   }
 
   const trackEvent = (
