@@ -134,7 +134,9 @@
             @click="searchSpecialty(spec.name)"
             class="flex flex-col items-center justify-center p-5 rounded-lg border border-black/[0.06] dark:border-gray-800 bg-white dark:bg-gray-900 shadow-[0_1px_2px_rgba(26,21,16,0.04)] transition-all hover:border-orange-500 hover:shadow-md active:scale-[0.98] group"
           >
-            <span class="text-3xl mb-3 group-hover:scale-110 transition-transform" aria-hidden="true">{{ spec.icon }}</span>
+            <span :class="['mb-3 flex h-12 w-12 items-center justify-center rounded-xl transition-transform group-hover:scale-110', spec.accent]">
+              <SpecialtyIcon :name="spec.icon" class="h-6 w-6" />
+            </span>
             <span class="font-semibold text-gray-700 dark:text-gray-300 group-hover:text-orange-500 text-xs md:text-sm">{{ spec.name }}</span>
           </button>
         </div>
@@ -291,6 +293,7 @@ import { Search as SearchIcon, MapPin, ArrowRight, User, Stethoscope } from "luc
 import Card from "~/components/ui/Card.vue";
 import Input from "~/components/ui/Input.vue";
 import Button from "~/components/ui/Button.vue";
+import SpecialtyIcon, { type SpecialtyIconName } from "~/components/ui/SpecialtyIcon.vue";
 import { getDashboardPath } from "~/utils/authNavigation";
 
 const authStore = useAuthStore();
@@ -324,13 +327,16 @@ const searchSpecialty = (name: string) => {
   handleSearch();
 };
 
-const popularSpecialties = [
-  { name: "Généraliste", icon: "⚕️" },
-  { name: "Pédiatre", icon: "👶" },
-  { name: "Gynécologue", icon: "🤰" },
-  { name: "Cardiologue", icon: "❤️" },
-  { name: "Dentiste", icon: "🦷" },
-  { name: "Dermatologue", icon: "🧴" },
+const greenAccent = "bg-green-50 text-green-700 dark:bg-green-500/10 dark:text-green-400";
+const orangeAccent = "bg-orange-50 text-orange-600 dark:bg-orange-500/10 dark:text-orange-400";
+
+const popularSpecialties: { name: string; icon: SpecialtyIconName; accent: string }[] = [
+  { name: "Généraliste", icon: "stethoscope", accent: greenAccent },
+  { name: "Pédiatre", icon: "baby", accent: orangeAccent },
+  { name: "Gynécologue", icon: "venus", accent: greenAccent },
+  { name: "Cardiologue", icon: "heart-pulse", accent: orangeAccent },
+  { name: "Dentiste", icon: "tooth", accent: greenAccent },
+  { name: "Dermatologue", icon: "dermatoscope", accent: orangeAccent },
 ];
 
 onMounted(() => {
