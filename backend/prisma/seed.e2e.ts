@@ -161,6 +161,7 @@ async function main() {
       acceptsNewPatients: true,
       isProfilePublic: true,
       messagingEnabled: true,
+      acceptedPaymentMethods: ['CARD', 'MOBILE_MONEY', 'CASH'],
     },
   })
 
