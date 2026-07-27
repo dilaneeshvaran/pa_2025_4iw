@@ -23,6 +23,7 @@
     "@fastify/cors": "^11.2.0",
     "@fastify/multipart": "^9.4.0",
     "@fastify/websocket": "^11.2.0",
+    "@google/genai": "^2.13.0",
     "@medicote/shared": "*",
     "@prisma/adapter-pg": "^7.3.0",
     "@prisma/client": "^7.3.0",

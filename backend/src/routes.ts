@@ -27,6 +27,7 @@ import { campaignsRoutes } from './modules/campaigns/campaigns.routes'
 import { cabinetRoutes } from './modules/cabinet/cabinet.routes'
 import { staffRoutes } from './modules/staff/staff.routes'
 import { reviewsTsRestRoutes } from './modules/reviews/reviews.router'
+import { medibotRoutes } from './modules/medibot/medibot.routes'
 
 export async function routes(fastify: FastifyInstance) {
   fastify.register(authRoutes, { prefix: '/api/auth' })
@@ -89,6 +90,7 @@ export async function routes(fastify: FastifyInstance) {
   fastify.register(reviewsTsRestRoutes, {
     prefix: '/api',
   })
+  fastify.register(medibotRoutes, { prefix: '/api/medibot' })
 
   fastify.get('/health', async () => {
     return { status: 'ok', timestamp: new Date().toISOString() }

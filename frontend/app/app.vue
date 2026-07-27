@@ -5,6 +5,9 @@
       <NuxtPage />
     </NuxtLayout>
     <ConsentBanner />
+    <ClientOnly>
+      <MedibotWidget />
+    </ClientOnly>
   </div>
 </template>
 
