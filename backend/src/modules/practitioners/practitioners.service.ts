@@ -38,6 +38,7 @@ export class PractitionersService {
       },
       acceptsNewPatients: true,
       isProfilePublic: true,
+      acceptedPaymentMethods: { isEmpty: false },
     }
 
     if (search) {
@@ -363,8 +364,10 @@ export class PractitionersService {
       return null
     }
 
-    // only return practitioner if profile is public
-    if (!practitioner.isProfilePublic) {
+    if (
+      !practitioner.isProfilePublic ||
+      practitioner.acceptedPaymentMethods.length === 0
+    ) {
       return null
     }
 
@@ -584,7 +587,11 @@ export class PractitionersService {
             if (cabinetHours !== undefined && cabinetHours !== null) {
               try {
                 const dayHours = cabinetHours[dayOfWeek]
-                if (dayHours && typeof dayHours === 'object' && dayHours.closed === true) {
+                if (
+                  dayHours &&
+                  typeof dayHours === 'object' &&
+                  dayHours.closed === true
+                ) {
                   // this cabinet is closed on this day of week — skip its availabilities
                   continue
                 }
