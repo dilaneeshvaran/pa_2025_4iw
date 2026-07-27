@@ -86,7 +86,7 @@ describe('useAnalytics', () => {
 
     analytics.trackPageView('/search?q=cardio')
 
-    expect(window.umami?.track).toHaveBeenCalledWith('pageview', {
+    expect(window.umami?.track).toHaveBeenCalledWith({
       url: '/search',
     })
   })
