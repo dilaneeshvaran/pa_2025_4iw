@@ -4,49 +4,44 @@ import { practitionersService } from '../practitioners/practitioners.service'
 import { appointmentsService } from '../appointments/appointments.service'
 import { reserveSlot } from '../../config/redis'
 
-/**
- * Medibot tool layer.
- *
- * The model can ONLY affect the world through these tools. Each tool that
- * changes state (or would expose patient data) runs as the authenticated
- * patient of the current session and re-uses the exact same services and
- * validation as the rest of the app. The model never gets raw DB access,
- * never books for another patient, and never handles credentials, 2FA codes
- * or card numbers — those are handled by trusted UI + existing endpoints.
- */
-
 export interface ToolContext {
-  /** Patient.id of the authenticated patient, or null for anonymous visitors. */
   patientId: string | null
   isAuthenticated: boolean
   timezoneOffset?: string
 }
 
-/** Structured UI instruction returned to the frontend to render rich cards. */
 export type MedibotAction =
   | { type: 'practitioners'; practitioners: unknown[] }
-  | { type: 'slots'; practitionerId: string; practitionerName: string; days: unknown[] }
+  | {
+      type: 'slots'
+      practitionerId: string
+      practitionerName: string
+      days: unknown[]
+    }
   | { type: 'booking_confirm'; booking: Record<string, unknown> }
   | { type: 'auth'; mode: 'login' | 'signup' | 'reset' }
   | { type: 'logout' }
   | { type: 'navigate'; path: string; label: string }
+  | { type: 'quick_replies'; options: string[] }
 
 export interface ToolExecutionResult {
-  /** JSON returned to the model as the functionResponse. */
   result: Record<string, unknown>
-  /** Optional UI action surfaced to the frontend for this turn. */
   action?: MedibotAction
 }
 
-// Pages Medibot is allowed to redirect a patient to. Keeps navigation to a
-// known, safe allow-list (no open redirects).
 const NAVIGATION_TARGETS: Record<string, { path: string; label: string }> = {
   search: { path: '/search', label: 'Rechercher un praticien' },
   home: { path: '/', label: "Page d'accueil" },
   appointments: { path: '/patient/appointments', label: 'Mes rendez-vous' },
-  teleconsultations: { path: '/patient/teleconsultations', label: 'Mes téléconsultations' },
+  teleconsultations: {
+    path: '/patient/teleconsultations',
+    label: 'Mes téléconsultations',
+  },
   documents: { path: '/patient/documents', label: 'Mes documents' },
-  medical_record: { path: '/patient/medical-record', label: 'Mon dossier médical' },
+  medical_record: {
+    path: '/patient/medical-record',
+    label: 'Mon dossier médical',
+  },
   billing: { path: '/patient/billing', label: 'Ma facturation' },
   messages: { path: '/patient/messages', label: 'Ma messagerie' },
   settings: { path: '/patient/settings', label: 'Mes paramètres' },
@@ -69,13 +64,21 @@ export const medibotToolDeclarations: FunctionDeclaration[] = [
       properties: {
         specialty: {
           type: Type.STRING,
-          description: "Nom de la spécialité recherchée (ex: 'Cardiologie', 'Dermatologie').",
+          description:
+            "Nom de la spécialité recherchée (ex: 'Cardiologie', 'Dermatologie').",
         },
-        city: { type: Type.STRING, description: 'Ville où chercher (ex: Abidjan).' },
-        query: { type: Type.STRING, description: "Nom du praticien ou du cabinet." },
+        city: {
+          type: Type.STRING,
+          description: 'Ville où chercher (ex: Abidjan).',
+        },
+        query: {
+          type: Type.STRING,
+          description: 'Nom du praticien ou du cabinet.',
+        },
         teleconsultationOnly: {
           type: Type.BOOLEAN,
-          description: 'Ne garder que les praticiens proposant la téléconsultation.',
+          description:
+            'Ne garder que les praticiens proposant la téléconsultation.',
         },
       },
     },
@@ -87,10 +90,14 @@ export const medibotToolDeclarations: FunctionDeclaration[] = [
     parameters: {
       type: Type.OBJECT,
       properties: {
-        practitionerId: { type: Type.STRING, description: 'Identifiant du praticien.' },
+        practitionerId: {
+          type: Type.STRING,
+          description: 'Identifiant du praticien.',
+        },
         days: {
           type: Type.NUMBER,
-          description: "Nombre de jours à regarder en avant (1 à 30, défaut 14).",
+          description:
+            'Nombre de jours à regarder en avant (1 à 30, défaut 14).',
         },
       },
       required: ['practitionerId'],
@@ -99,22 +106,32 @@ export const medibotToolDeclarations: FunctionDeclaration[] = [
   {
     name: 'prepare_booking',
     description:
-      "Prépare (mais NE confirme PAS) une réservation après que le patient a choisi praticien, date, heure et type. Vérifie les règles du praticien côté serveur et affiche une carte de confirmation que le patient valide lui-même. Réservé aux patients connectés.",
+      'Prépare (mais NE confirme PAS) une réservation après que le patient a choisi praticien, date, heure et type. Vérifie les règles du praticien côté serveur et affiche une carte de confirmation que le patient valide lui-même. Réservé aux patients connectés.',
     parameters: {
       type: Type.OBJECT,
       properties: {
-        practitionerId: { type: Type.STRING, description: 'Identifiant du praticien.' },
+        practitionerId: {
+          type: Type.STRING,
+          description: 'Identifiant du praticien.',
+        },
         appointmentDate: {
           type: Type.STRING,
           description: 'Date au format AAAA-MM-JJ.',
         },
-        startTime: { type: Type.STRING, description: "Heure de début au format HH:mm." },
+        startTime: {
+          type: Type.STRING,
+          description: 'Heure de début au format HH:mm.',
+        },
         type: {
           type: Type.STRING,
           enum: ['IN_PERSON', 'TELECONSULTATION'],
-          description: "IN_PERSON pour un rendez-vous au cabinet, TELECONSULTATION pour une téléconsultation.",
+          description:
+            'IN_PERSON pour un rendez-vous au cabinet, TELECONSULTATION pour une téléconsultation.',
         },
-        reason: { type: Type.STRING, description: 'Motif de consultation (optionnel).' },
+        reason: {
+          type: Type.STRING,
+          description: 'Motif de consultation (optionnel).',
+        },
       },
       required: ['practitionerId', 'appointmentDate', 'startTime', 'type'],
     },
@@ -129,7 +146,8 @@ export const medibotToolDeclarations: FunctionDeclaration[] = [
         mode: {
           type: Type.STRING,
           enum: ['login', 'signup', 'reset'],
-          description: "login = se connecter, signup = créer un compte, reset = mot de passe oublié.",
+          description:
+            'login = se connecter, signup = créer un compte, reset = mot de passe oublié.',
         },
       },
       required: ['mode'],
@@ -143,7 +161,7 @@ export const medibotToolDeclarations: FunctionDeclaration[] = [
   {
     name: 'navigate_to_page',
     description:
-      "Redirige le patient vers une page de Medicote. Valeurs possibles: search, home, appointments, teleconsultations, documents, medical_record, billing, messages, settings, dashboard.",
+      'Redirige le patient vers une page de Medicote. Valeurs possibles: search, home, appointments, teleconsultations, documents, medical_record, billing, messages, settings, dashboard.',
     parameters: {
       type: Type.OBJECT,
       properties: {
@@ -168,7 +186,8 @@ function needsAuth(): ToolExecutionResult {
 async function runSearchPractitioners(
   args: Record<string, unknown>,
 ): Promise<ToolExecutionResult> {
-  const specialtyName = typeof args.specialty === 'string' ? args.specialty.trim() : undefined
+  const specialtyName =
+    typeof args.specialty === 'string' ? args.specialty.trim() : undefined
   const city = typeof args.city === 'string' ? args.city.trim() : undefined
   const query = typeof args.query === 'string' ? args.query.trim() : undefined
   const teleOnly = args.teleconsultationOnly === true
@@ -197,7 +216,10 @@ async function runSearchPractitioners(
     firstName: p.firstName,
     lastName: p.lastName,
     title: p.title,
-    specialty: p.specialties.find((s) => s.isPrimary)?.name || p.specialties[0]?.name || null,
+    specialty:
+      p.specialties.find((s) => s.isPrimary)?.name ||
+      p.specialties[0]?.name ||
+      null,
     city: p.city,
     address: p.address,
     clinicName: p.clinicName,
@@ -225,9 +247,12 @@ async function runSearchPractitioners(
       note:
         cards.length === 0
           ? "Aucun praticien trouvé pour ces critères. Propose d'élargir la recherche."
-          : "Les cartes détaillées sont affichées au patient. Résume et invite à choisir.",
+          : 'Les cartes détaillées sont affichées au patient. Résume et invite à choisir.',
     },
-    action: cards.length > 0 ? { type: 'practitioners', practitioners: cards } : undefined,
+    action:
+      cards.length > 0
+        ? { type: 'practitioners', practitioners: cards }
+        : undefined,
   }
 }
 
@@ -264,15 +289,23 @@ async function runGetAvailableSlots(
     result: {
       status: 'ok',
       practitionerName,
-      availableDays: daysWithSlots.map((d) => ({ date: d.date, times: d.slots.slice(0, 12) })),
+      availableDays: daysWithSlots.map((d) => ({
+        date: d.date,
+        times: d.slots.slice(0, 12),
+      })),
       note:
         daysWithSlots.length === 0
           ? 'Aucun créneau disponible sur la période. Propose une autre période ou un autre praticien.'
-          : "Les créneaux sont affichés au patient. Demande-lui quelle date et quelle heure lui conviennent.",
+          : 'Les créneaux sont affichés au patient. Demande-lui quelle date et quelle heure lui conviennent.',
     },
     action:
       daysWithSlots.length > 0
-        ? { type: 'slots', practitionerId, practitionerName, days: daysWithSlots }
+        ? {
+            type: 'slots',
+            practitionerId,
+            practitionerName,
+            days: daysWithSlots,
+          }
         : undefined,
   }
 }
@@ -286,12 +319,19 @@ async function runPrepareBooking(
   const practitionerId = String(args.practitionerId || '')
   const appointmentDate = String(args.appointmentDate || '')
   const startTime = String(args.startTime || '')
-  const type = args.type === 'TELECONSULTATION' ? 'TELECONSULTATION' : 'IN_PERSON'
+  const type =
+    args.type === 'TELECONSULTATION' ? 'TELECONSULTATION' : 'IN_PERSON'
   const reason = typeof args.reason === 'string' ? args.reason : undefined
 
-  if (!/^\d{4}-\d{2}-\d{2}$/.test(appointmentDate) || !/^\d{2}:\d{2}$/.test(startTime)) {
+  if (
+    !/^\d{4}-\d{2}-\d{2}$/.test(appointmentDate) ||
+    !/^\d{2}:\d{2}$/.test(startTime)
+  ) {
     return {
-      result: { status: 'invalid', message: 'Date (AAAA-MM-JJ) ou heure (HH:mm) invalide.' },
+      result: {
+        status: 'invalid',
+        message: 'Date (AAAA-MM-JJ) ou heure (HH:mm) invalide.',
+      },
     }
   }
 
@@ -313,13 +353,12 @@ async function runPrepareBooking(
     return {
       result: {
         status: 'invalid',
-        message: 'Ce praticien ne propose pas la téléconsultation. Propose un rendez-vous au cabinet.',
+        message:
+          'Ce praticien ne propose pas la téléconsultation. Propose un rendez-vous au cabinet.',
       },
     }
   }
 
-  // Re-use the exact same server-side validation the booking modal uses:
-  // lead time, max advance, overlap + buffer, penalties, double-booking, etc.
   try {
     await appointmentsService.validateSlotBooking({
       practitionerId,
@@ -332,18 +371,17 @@ async function runPrepareBooking(
     return {
       result: {
         status: 'invalid',
-        message: err instanceof Error ? err.message : 'Ce créneau ne peut pas être réservé.',
+        message:
+          err instanceof Error
+            ? err.message
+            : 'Ce créneau ne peut pas être réservé.',
       },
     }
   }
 
-  // Hold the slot for 10 minutes so nobody else takes it while the patient
-  // confirms. Best-effort — confirmation re-validates anyway.
   try {
     await reserveSlot(practitionerId, appointmentDate, startTime, ctx.patientId)
-  } catch {
-    /* non-fatal */
-  }
+  } catch {}
 
   const fee =
     type === 'TELECONSULTATION' && practitioner.teleconsultationFee != null
@@ -412,7 +450,9 @@ export async function executeTool(
         orderBy: { name: 'asc' },
         select: { name: true },
       })
-      return { result: { status: 'ok', specialties: specialties.map((s) => s.name) } }
+      return {
+        result: { status: 'ok', specialties: specialties.map((s) => s.name) },
+      }
     }
     case 'search_practitioners':
       return runSearchPractitioners(args)
@@ -422,15 +462,25 @@ export async function executeTool(
       return runPrepareBooking(args, ctx)
     case 'request_authentication': {
       const mode =
-        args.mode === 'signup' || args.mode === 'reset' ? (args.mode as 'signup' | 'reset') : 'login'
+        args.mode === 'signup' || args.mode === 'reset'
+          ? (args.mode as 'signup' | 'reset')
+          : 'login'
       return {
-        result: { status: 'ok', message: `Formulaire ${mode} affiché au patient.` },
+        result: {
+          status: 'ok',
+          message: `Formulaire ${mode} affiché au patient.`,
+        },
         action: { type: 'auth', mode },
       }
     }
     case 'logout': {
       if (!ctx.isAuthenticated) {
-        return { result: { status: 'noop', message: "Le visiteur n'est pas connecté." } }
+        return {
+          result: {
+            status: 'noop',
+            message: "Le visiteur n'est pas connecté.",
+          },
+        }
       }
       return {
         result: { status: 'ok', message: 'Déconnexion demandée.' },

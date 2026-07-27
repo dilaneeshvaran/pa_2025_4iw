@@ -1,18 +1,13 @@
-/**
- * System instruction for Medibot.
- *
- * IMPORTANT (security): this prompt is a behavioural guide, NOT a security
- * boundary. Real enforcement lives in the tool handlers and endpoints
- * (authentication, patient-scoping, slot validation, payment endpoints).
- * Never rely on the prompt alone to prevent an action.
- */
-
 interface PromptContext {
   isAuthenticated: boolean
   patientFirstName?: string | null
   specialties: string[]
   todayIso: string
-  knownPractitioners?: Array<{ id: string; name: string; specialty: string | null }>
+  knownPractitioners?: Array<{
+    id: string
+    name: string
+    specialty: string | null
+  }>
 }
 
 export function buildSystemInstruction(ctx: PromptContext): string {
@@ -24,7 +19,10 @@ export function buildSystemInstruction(ctx: PromptContext): string {
   const knownList =
     ctx.knownPractitioners && ctx.knownPractitioners.length > 0
       ? `\n\n# Praticiens déjà présentés au patient dans cette conversation\nUtilise EXACTEMENT ces identifiants pour get_available_slots et prepare_booking (ne les invente jamais) :\n${ctx.knownPractitioners
-          .map((p) => `- ${p.name}${p.specialty ? ` (${p.specialty})` : ''} — identifiant: ${p.id}`)
+          .map(
+            (p) =>
+              `- ${p.name}${p.specialty ? ` (${p.specialty})` : ''} — identifiant: ${p.id}`,
+          )
           .join('\n')}`
       : ''
 
@@ -70,5 +68,11 @@ ${identity}${knownList}
 # Style de réponse
 - Sois concis. Va droit au but avec chaleur.
 - Après une recherche de praticiens ou une préparation de réservation, l'interface affiche des cartes visuelles : n'énumère pas tous les détails techniques, résume et invite à choisir.
-- Termine souvent par une question douce pour guider le patient vers l'étape suivante.`
+- Termine souvent par une question douce pour guider le patient vers l'étape suivante.
+- Écris en texte simple. Tu peux mettre en **gras** un mot important (une spécialité, un conseil clé) et utiliser des listes à puces avec « - », mais rien d'autre (pas de titres, de tableaux, ni de liens).
+
+# Questions fermées — propose des boutons
+- Quand ta réponse se termine par une question à choix limités (oui/non, cabinet ou téléconsultation, deux dates possibles…), ajoute TOUT À LA FIN, seule sur la dernière ligne, la liste des réponses possibles, exactement au format : [[choix: Oui | Non]]
+- 2 à 4 choix maximum, chacun très court (1 à 3 mots), formulés tels que le patient répondrait ("Oui", "Non", "Au cabinet", "En téléconsultation").
+- N'ajoute JAMAIS ce marqueur si la question est ouverte (« quels sont vos symptômes ? »). Ne le commente jamais, ne l'écris jamais ailleurs que sur la dernière ligne : l'application le transforme en boutons cliquables.`
 }

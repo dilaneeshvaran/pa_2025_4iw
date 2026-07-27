@@ -1,8 +1,13 @@
 import type { Content, Part } from '@google/genai'
 import { Type } from '@google/genai'
 import prisma from '../../config/database'
-import { getGeminiClient, GEMINI_MODEL, isGeminiConfigured } from './gemini.client'
+import {
+  getGeminiClient,
+  GEMINI_MODEL,
+  isGeminiConfigured,
+} from './gemini.client'
 import { buildSystemInstruction } from './medibot.prompt'
+import { extractQuickReplies } from './medibot.quickReplies'
 import {
   medibotToolDeclarations,
   executeTool,
@@ -34,20 +39,17 @@ class MedibotService {
     return isGeminiConfigured()
   }
 
-  /**
-   * Resolve (or create) the conversation for this turn.
-   * - Authenticated patients: keyed by patientId (their latest active thread).
-   * - Anonymous visitors: keyed by their random sessionId.
-   */
   private async resolveConversation(input: SendMessageInput) {
     if (input.conversationId) {
       const existing = await prisma.medibotConversation.findUnique({
         where: { id: input.conversationId },
       })
       if (existing) {
-        // Guard: an authenticated patient may only use their own conversation.
-        if (input.patientId && existing.patientId && existing.patientId !== input.patientId) {
-          // fall through to patient-scoped lookup below
+        if (
+          input.patientId &&
+          existing.patientId &&
+          existing.patientId !== input.patientId
+        ) {
         } else {
           return existing
         }
@@ -67,7 +69,11 @@ class MedibotService {
 
     if (input.sessionId) {
       const existing = await prisma.medibotConversation.findFirst({
-        where: { sessionId: input.sessionId, patientId: null, status: 'ACTIVE' },
+        where: {
+          sessionId: input.sessionId,
+          patientId: null,
+          status: 'ACTIVE',
+        },
         orderBy: { lastActive: 'desc' },
       })
       if (existing) return existing
@@ -79,8 +85,10 @@ class MedibotService {
     return prisma.medibotConversation.create({ data: { status: 'ACTIVE' } })
   }
 
-  /** Attach an anonymous conversation to a patient after they log in, so the thread continues. */
-  async linkSessionToPatient(sessionId: string, patientId: string): Promise<void> {
+  async linkSessionToPatient(
+    sessionId: string,
+    patientId: string,
+  ): Promise<void> {
     if (!sessionId) return
     await prisma.medibotConversation.updateMany({
       where: { sessionId, patientId: null },
@@ -110,7 +118,13 @@ class MedibotService {
     const messages = await prisma.medibotMessage.findMany({
       where: { conversationId, role: { in: ['USER', 'ASSISTANT'] } },
       orderBy: { createdAt: 'asc' },
-      select: { id: true, role: true, content: true, actions: true, createdAt: true },
+      select: {
+        id: true,
+        role: true,
+        content: true,
+        actions: true,
+        createdAt: true,
+      },
     })
     return messages.map((m) => ({
       id: m.id,
@@ -121,12 +135,6 @@ class MedibotService {
     }))
   }
 
-  /**
-   * Practitioners already shown to the patient in this conversation, with their
-   * ids. Injected into the prompt so the model can call get_available_slots /
-   * prepare_booking with the correct id even when the patient replies in plain
-   * language (the raw tool results are not kept in the text history).
-   */
   private async getKnownPractitioners(
     conversationId: string,
   ): Promise<Array<{ id: string; name: string; specialty: string | null }>> {
@@ -138,7 +146,8 @@ class MedibotService {
     })
 
     const seen = new Set<string>()
-    const out: Array<{ id: string; name: string; specialty: string | null }> = []
+    const out: Array<{ id: string; name: string; specialty: string | null }> =
+      []
     for (const row of rows) {
       const actions = (row.actions as MedibotAction[] | null) ?? []
       for (const a of actions) {
@@ -147,18 +156,34 @@ class MedibotService {
             const id = p?.id as string | undefined
             if (id && !seen.has(id)) {
               seen.add(id)
-              out.push({ id, name: String(p.name ?? ''), specialty: (p.specialty as string) ?? null })
+              out.push({
+                id,
+                name: String(p.name ?? ''),
+                specialty: (p.specialty as string) ?? null,
+              })
             }
           }
-        } else if (a.type === 'slots' && a.practitionerId && !seen.has(a.practitionerId)) {
+        } else if (
+          a.type === 'slots' &&
+          a.practitionerId &&
+          !seen.has(a.practitionerId)
+        ) {
           seen.add(a.practitionerId)
-          out.push({ id: a.practitionerId, name: a.practitionerName, specialty: null })
+          out.push({
+            id: a.practitionerId,
+            name: a.practitionerName,
+            specialty: null,
+          })
         } else if (a.type === 'booking_confirm') {
           const b = a.booking as Record<string, unknown>
           const id = b?.practitionerId as string | undefined
           if (id && !seen.has(id)) {
             seen.add(id)
-            out.push({ id, name: String(b.practitionerName ?? ''), specialty: null })
+            out.push({
+              id,
+              name: String(b.practitionerName ?? ''),
+              specialty: null,
+            })
           }
         }
       }
@@ -179,17 +204,22 @@ class MedibotService {
 
     const conversation = await this.resolveConversation(input)
 
-    const [history, specialties, patient, knownPractitioners] = await Promise.all([
-      this.buildHistory(conversation.id),
-      prisma.specialty.findMany({ orderBy: { name: 'asc' }, select: { name: true }, take: 60 }),
-      input.patientId
-        ? prisma.patient.findUnique({
-            where: { id: input.patientId },
-            select: { firstName: true },
-          })
-        : Promise.resolve(null),
-      this.getKnownPractitioners(conversation.id),
-    ])
+    const [history, specialties, patient, knownPractitioners] =
+      await Promise.all([
+        this.buildHistory(conversation.id),
+        prisma.specialty.findMany({
+          orderBy: { name: 'asc' },
+          select: { name: true },
+          take: 60,
+        }),
+        input.patientId
+          ? prisma.patient.findUnique({
+              where: { id: input.patientId },
+              select: { firstName: true },
+            })
+          : Promise.resolve(null),
+        this.getKnownPractitioners(conversation.id),
+      ])
 
     const systemInstruction = buildSystemInstruction({
       isAuthenticated: input.isAuthenticated,
@@ -205,7 +235,10 @@ class MedibotService {
       timezoneOffset: input.timezoneOffset,
     }
 
-    const contents: Content[] = [...history, { role: 'user', parts: [{ text }] }]
+    const contents: Content[] = [
+      ...history,
+      { role: 'user', parts: [{ text }] },
+    ]
     const actions: MedibotAction[] = []
     let finalText = ''
 
@@ -230,15 +263,23 @@ class MedibotService {
 
       contents.push({
         role: 'model',
-        parts: calls.map((c) => ({ functionCall: { name: c.name, args: c.args } })),
+        parts: calls.map((c) => ({
+          functionCall: { name: c.name, args: c.args },
+        })),
       })
 
       const responseParts: Part[] = []
       for (const call of calls) {
         const name = call.name || ''
-        const exec = await executeTool(name, (call.args as Record<string, unknown>) ?? {}, toolCtx)
+        const exec = await executeTool(
+          name,
+          (call.args as Record<string, unknown>) ?? {},
+          toolCtx,
+        )
         if (exec.action) actions.push(exec.action)
-        responseParts.push({ functionResponse: { name, response: exec.result } })
+        responseParts.push({
+          functionResponse: { name, response: exec.result },
+        })
       }
       contents.push({ role: 'user', parts: responseParts })
     }
@@ -247,10 +288,18 @@ class MedibotService {
       finalText =
         actions.length > 0
           ? "Voici ce que j'ai trouvé pour vous. 🌿 Dites-moi comment vous souhaitez continuer."
-          : "Je suis là pour vous aider avec votre santé et vos rendez-vous. Pouvez-vous préciser votre demande ?"
+          : 'Je suis là pour vous aider avec votre santé et vos rendez-vous. Pouvez-vous préciser votre demande ?'
     }
 
-    // Persist the turn (user + assistant). We never store secrets or raw tool internals.
+    const quick = extractQuickReplies(finalText)
+    finalText = quick.text
+    const hasBlockingCard = actions.some(
+      (a) => a.type === 'auth' || a.type === 'booking_confirm',
+    )
+    if (quick.options.length >= 2 && !hasBlockingCard) {
+      actions.push({ type: 'quick_replies', options: quick.options })
+    }
+
     await prisma.$transaction([
       prisma.medibotMessage.create({
         data: { conversationId: conversation.id, role: 'USER', content: text },
@@ -260,7 +309,8 @@ class MedibotService {
           conversationId: conversation.id,
           role: 'ASSISTANT',
           content: finalText,
-          actions: actions.length > 0 ? (actions as unknown as object) : undefined,
+          actions:
+            actions.length > 0 ? (actions as unknown as object) : undefined,
         },
       }),
       prisma.medibotConversation.update({
@@ -272,11 +322,6 @@ class MedibotService {
     return { conversationId: conversation.id, message: finalText, actions }
   }
 
-  /**
-   * Analyze an uploaded medical document with Gemini (multimodal).
-   * Refuses anything that is not a medical document. Patient-only.
-   * We store only the extracted summary text — never the file bytes.
-   */
   async analyzeDocument(input: {
     conversationId?: string | null
     patientId: string
@@ -285,7 +330,12 @@ class MedibotService {
     base64: string
     filename: string
     question?: string
-  }): Promise<{ conversationId: string; message: string; isMedical: boolean; documentType?: string }> {
+  }): Promise<{
+    conversationId: string
+    message: string
+    isMedical: boolean
+    documentType?: string
+  }> {
     if (!isGeminiConfigured()) {
       throw new Error('MEDIBOT_NOT_CONFIGURED')
     }
@@ -337,19 +387,31 @@ ${input.question ? `Question du patient : "${input.question}"` : ''}`
     try {
       parsed = JSON.parse(response.text || '{}')
     } catch {
-      parsed = { isMedical: false, answer: "Je n'ai pas pu analyser ce document." }
+      parsed = {
+        isMedical: false,
+        answer: "Je n'ai pas pu analyser ce document.",
+      }
     }
 
     if (!parsed.isMedical) {
       const refusal =
         "Je ne peux analyser que des documents médicaux (ordonnance, compte-rendu, résultats d'analyse, imagerie…). Ce fichier ne semble pas en être un. 🌿"
       await prisma.medibotMessage.create({
-        data: { conversationId: conversation.id, role: 'ASSISTANT', content: refusal },
+        data: {
+          conversationId: conversation.id,
+          role: 'ASSISTANT',
+          content: refusal,
+        },
       })
-      return { conversationId: conversation.id, message: refusal, isMedical: false }
+      return {
+        conversationId: conversation.id,
+        message: refusal,
+        isMedical: false,
+      }
     }
 
-    const message = parsed.answer?.trim() || 'Document analysé.'
+    const message =
+      extractQuickReplies(parsed.answer || '').text || 'Document analysé.'
 
     await prisma.$transaction([
       prisma.medibotMessage.create({
@@ -357,11 +419,19 @@ ${input.question ? `Question du patient : "${input.question}"` : ''}`
           conversationId: conversation.id,
           role: 'USER',
           content: `[Document téléversé : ${input.filename}]${input.question ? ` — ${input.question}` : ''}`,
-          attachments: { filename: input.filename, mimeType: input.mimeType, documentType: parsed.documentType } as object,
+          attachments: {
+            filename: input.filename,
+            mimeType: input.mimeType,
+            documentType: parsed.documentType,
+          } as object,
         },
       }),
       prisma.medibotMessage.create({
-        data: { conversationId: conversation.id, role: 'ASSISTANT', content: message },
+        data: {
+          conversationId: conversation.id,
+          role: 'ASSISTANT',
+          content: message,
+        },
       }),
       prisma.medibotConversation.update({
         where: { id: conversation.id },
