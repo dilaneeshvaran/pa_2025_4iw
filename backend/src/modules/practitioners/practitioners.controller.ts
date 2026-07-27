@@ -216,6 +216,53 @@ export class PractitionersController {
       })
     }
   }
+
+  async exportStatisticsPdf(
+    request: FastifyRequest<{ Querystring: GetPractitionerStatisticsInput }>,
+    reply: FastifyReply,
+  ) {
+    try {
+      if (!request.user?.id) {
+        return reply.status(401).send({
+          success: false,
+          message: 'Unauthorized',
+        })
+      }
+
+      const practitioner = await prisma.practitioner.findUnique({
+        where: { userId: request.user.id },
+        select: { id: true },
+      })
+
+      if (!practitioner) {
+        return reply.status(404).send({
+          success: false,
+          message: 'Practitioner not found',
+        })
+      }
+
+      const { period, startDate, endDate } = request.query
+
+      const { buffer, fileName } =
+        await practitionersService.generateStatisticsPdf(
+          practitioner.id,
+          period,
+          startDate,
+          endDate,
+        )
+
+      return reply
+        .header('Content-Type', 'application/pdf')
+        .header('Content-Disposition', `attachment; filename="${fileName}"`)
+        .send(buffer)
+    } catch (error) {
+      request.log.error(error)
+      return reply.status(500).send({
+        success: false,
+        message: "Échec de la génération du rapport PDF",
+      })
+    }
+  }
 }
 
 export const practitionersController = new PractitionersController()

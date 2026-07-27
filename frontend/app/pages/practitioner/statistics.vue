@@ -4,27 +4,44 @@
       class="flex flex-col justify-between gap-4 sm:flex-row sm:items-center print:hidden"
     >
       <div>
-        <h1 class="mb-2 text-2xl font-bold text-gray-900 dark:text-gray-100">Statistiques</h1>
-        <p class="text-gray-600 dark:text-gray-400">Analysez votre activité et vos performances</p>
+        <h1 class="mb-2 text-2xl font-bold text-gray-900 dark:text-gray-100">
+          Statistiques
+        </h1>
+        <p class="text-gray-600 dark:text-gray-400">
+          Analysez votre activité et vos performances
+        </p>
       </div>
       <div class="flex gap-2">
         <UiButton variant="outline" @click="exportCSV">
           <Download class="mr-2 h-4 w-4" />
           Exporter CSV
         </UiButton>
-        <UiButton variant="outline" @click="exportPDF">
+        <UiButton
+          variant="outline"
+          :disabled="exportingPDF || loading"
+          @click="exportPDF"
+        >
           <Printer class="mr-2 h-4 w-4" />
-          Exporter PDF
+          {{ exportingPDF ? "Génération..." : "Exporter PDF" }}
         </UiButton>
       </div>
     </div>
 
+    <div
+      v-if="exportPdfError"
+      class="rounded-lg bg-red-50 p-3 text-sm text-red-700 dark:bg-red-950/30 dark:text-red-300 print:hidden"
+    >
+      {{ exportPdfError }}
+    </div>
+
     <UiCard class="print:hidden">
       <div class="flex flex-wrap items-center gap-4">
-        <label class="text-sm font-medium text-gray-700 dark:text-gray-300">Période :</label>
+        <label class="text-sm font-medium text-gray-700 dark:text-gray-300"
+          >Période :</label
+        >
         <select
           v-model="selectedPeriod"
-          class="rounded-lg border-gray-300 dark:border-gray-700 py-2 pl-3 pr-10 text-sm focus:border-orange-500 focus:outline-none focus:ring-1 focus:ring-orange-500"
+          class="rounded-lg border-gray-300 py-2 pl-3 pr-10 text-sm focus:border-orange-500 focus:outline-none focus:ring-1 focus:ring-orange-500 dark:border-gray-700"
         >
           <option value="semaine">Cette semaine</option>
           <option value="mois">Ce mois</option>
@@ -39,13 +56,13 @@
           <input
             type="date"
             v-model="startDate"
-            class="rounded-lg border-gray-300 dark:border-gray-700 px-3 py-2 text-sm focus:border-orange-500 focus:outline-none focus:ring-1 focus:ring-orange-500"
+            class="rounded-lg border-gray-300 px-3 py-2 text-sm focus:border-orange-500 focus:outline-none focus:ring-1 focus:ring-orange-500 dark:border-gray-700"
           />
           <span class="text-gray-500 dark:text-gray-400">à</span>
           <input
             type="date"
             v-model="endDate"
-            class="rounded-lg border-gray-300 dark:border-gray-700 px-3 py-2 text-sm focus:border-orange-500 focus:outline-none focus:ring-1 focus:ring-orange-500"
+            class="rounded-lg border-gray-300 px-3 py-2 text-sm focus:border-orange-500 focus:outline-none focus:ring-1 focus:ring-orange-500 dark:border-gray-700"
           />
           <UiButton size="sm" @click="fetchStats" :disabled="loading"
             >Appliquer</UiButton
@@ -74,8 +91,12 @@
             <component :is="kpi.icon" :class="['h-6 w-6', kpi.iconColor]" />
           </div>
           <div class="min-w-0 flex-1">
-            <p class="text-sm text-gray-500 dark:text-gray-400">{{ kpi.label }}</p>
-            <p class="text-2xl font-bold text-gray-900 dark:text-gray-100">{{ kpi.value }}</p>
+            <p class="text-sm text-gray-500 dark:text-gray-400">
+              {{ kpi.label }}
+            </p>
+            <p class="text-2xl font-bold text-gray-900 dark:text-gray-100">
+              {{ kpi.value }}
+            </p>
           </div>
         </div>
       </UiCard>
@@ -119,8 +140,6 @@ import {
   Star,
 } from "lucide-vue-next";
 import { useAuthenticatedFetch } from "~/composables/useAuthenticatedFetch";
-import jsPDF from "jspdf";
-import autoTable from "jspdf-autotable";
 import { Line } from "vue-chartjs";
 import {
   Chart as ChartJS,
@@ -312,52 +331,43 @@ const exportCSV = () => {
   document.body.removeChild(link);
 };
 
-const exportPDF = () => {
-  if (!stats.value) return;
+const exportingPDF = ref(false);
+const exportPdfError = ref("");
 
-  const doc = new jsPDF();
+const exportPDF = async () => {
+  if (!stats.value || exportingPDF.value) return;
 
-  doc.setFontSize(18);
-  doc.text("Rapport de Statistiques", 14, 22);
+  exportingPDF.value = true;
+  exportPdfError.value = "";
+  try {
+    let url = `/practitioners/statistics/export?period=${selectedPeriod.value}`;
+    if (
+      selectedPeriod.value === "personnalise" &&
+      startDate.value &&
+      endDate.value
+    ) {
+      url += `&startDate=${startDate.value}&endDate=${endDate.value}`;
+    }
 
-  doc.setFontSize(11);
-  doc.setTextColor(100);
-  doc.text(`Période : ${selectedPeriod.value}`, 14, 30);
+    const response = await useAuthenticatedFetch<Blob>(url, {
+      responseType: "blob",
+    });
 
-  autoTable(doc, {
-    startY: 40,
-    head: [["Indicateur", "Valeur"]],
-    body: [
-      ["Total Consultations", stats.value.totalConsultations.toString()],
-      ["Taux de présence", `${stats.value.attendanceRate}%`],
-      ["Revenus", `${stats.value.revenue.toLocaleString("fr-FR")} XOF`],
-      ["Nouveaux patients", stats.value.newPatients.toString()],
-      ["Score de satisfaction", `${stats.value.satisfactionScore} / 5`],
-    ],
-    theme: "striped",
-    headStyles: { fillColor: [59, 130, 246] }, // tailwind blue-500
-  });
-
-  // evolution des consultations
-  let finalY = (doc as any).lastAutoTable.finalY + 15;
-
-  doc.setFontSize(14);
-  doc.setTextColor(0);
-  doc.text("Évolution des consultations", 14, finalY);
-
-  const chartBody =
-    stats.value.chartData && stats.value.chartData.length > 0
-      ? stats.value.chartData.map((d) => [d.date, d.count.toString()])
-      : [["Aucune donnée", ""]];
-
-  autoTable(doc, {
-    startY: finalY + 6,
-    head: [["Date", "Nombre de consultations"]],
-    body: chartBody,
-    theme: "striped",
-    headStyles: { fillColor: [59, 130, 246] },
-  });
-
-  doc.save(`statistiques_${selectedPeriod.value}.pdf`);
+    const blob = new Blob([response], { type: "application/pdf" });
+    const objectUrl = URL.createObjectURL(blob);
+    const link = document.createElement("a");
+    link.href = objectUrl;
+    link.download = `statistiques_${selectedPeriod.value}.pdf`;
+    document.body.appendChild(link);
+    link.click();
+    document.body.removeChild(link);
+    URL.revokeObjectURL(objectUrl);
+  } catch (error) {
+    console.error("Error exporting statistics PDF:", error);
+    exportPdfError.value =
+      "Impossible de générer le PDF. Veuillez réessayer plus tard.";
+  } finally {
+    exportingPDF.value = false;
+  }
 };
 </script>

@@ -1,5 +1,15 @@
 import prisma from '../../config/database'
 import { getClientLocalTime } from '../../utils/timezone'
+import {
+  escapeHtml,
+  formatPdfAmount,
+  formatPdfDate,
+  pdfLineChart,
+  pdfSection,
+  pdfStatGrid,
+  pdfTable,
+  renderThemedPdf,
+} from '../../utils/pdf'
 import { AppointmentStatus, DayOfWeek } from '@prisma/client'
 import type {
   PractitionerSearchFilters,
@@ -897,13 +907,11 @@ export class PractitionersService {
     return practitioner?.id ?? null
   }
 
-  // statistics  practitioner
-  async getStatistics(
-    practitionerId: string,
+  private resolveStatisticsRange(
     period?: string,
     startDateStr?: string,
     endDateStr?: string,
-  ) {
+  ): { startDate: Date; endDate: Date } {
     let startDate = new Date()
     let endDate = new Date()
 
@@ -921,6 +929,22 @@ export class PractitionersService {
 
     startDate.setHours(0, 0, 0, 0)
     endDate.setHours(23, 59, 59, 999)
+
+    return { startDate, endDate }
+  }
+
+  // statistics  practitioner
+  async getStatistics(
+    practitionerId: string,
+    period?: string,
+    startDateStr?: string,
+    endDateStr?: string,
+  ) {
+    const { startDate, endDate } = this.resolveStatisticsRange(
+      period,
+      startDateStr,
+      endDateStr,
+    )
 
     const consultations = await prisma.appointment.findMany({
       where: {
@@ -1015,6 +1039,191 @@ export class PractitionersService {
       newPatients,
       satisfactionScore: Number(satisfactionScore.toFixed(1)),
       chartData,
+    }
+  }
+
+  private formatChartLabel(dateStr: string): string {
+    if (dateStr.length === 7) {
+      const [year, month] = dateStr.split('-')
+      const date = new Date(Number(year), Number(month) - 1, 1)
+      return date.toLocaleDateString('fr-FR', {
+        month: 'short',
+        year: '2-digit',
+      })
+    }
+    const date = new Date(`${dateStr}T00:00:00Z`)
+    if (Number.isNaN(date.getTime())) return dateStr
+    return date.toLocaleDateString('fr-FR', {
+      day: '2-digit',
+      month: 'short',
+      timeZone: 'UTC',
+    })
+  }
+
+  async generateStatisticsPdf(
+    practitionerId: string,
+    period?: string,
+    startDateStr?: string,
+    endDateStr?: string,
+  ): Promise<{ buffer: Buffer; fileName: string }> {
+    const [practitioner, stats] = await Promise.all([
+      prisma.practitioner.findUnique({
+        where: { id: practitionerId },
+        select: {
+          firstName: true,
+          lastName: true,
+          title: true,
+          clinicName: true,
+          city: true,
+          licenseNumber: true,
+          specialties: {
+            select: { specialty: { select: { name: true } } },
+          },
+        },
+      }),
+      this.getStatistics(practitionerId, period, startDateStr, endDateStr),
+    ])
+
+    if (!practitioner) {
+      throw new Error('Praticien non trouvé')
+    }
+
+    const { startDate, endDate } = this.resolveStatisticsRange(
+      period,
+      startDateStr,
+      endDateStr,
+    )
+
+    const periodLabels: Record<string, string> = {
+      semaine: 'Cette semaine',
+      mois: 'Ce mois',
+      annee: 'Cette année',
+      personnalise: 'Période personnalisée',
+    }
+    const periodLabel = periodLabels[period ?? 'mois'] ?? 'Ce mois'
+    const specialties = practitioner.specialties
+      .map((s) => s.specialty.name)
+      .filter(Boolean)
+    const practitionerName = `${practitioner.title} ${practitioner.firstName} ${practitioner.lastName}`
+
+    const chartPoints = stats.chartData.map((d) => ({
+      label: this.formatChartLabel(d.date),
+      value: d.count,
+    }))
+    const totalCharted = stats.chartData.reduce((sum, d) => sum + d.count, 0)
+    const busiest = stats.chartData.reduce<{
+      date: string
+      count: number
+    } | null>((best, d) => (!best || d.count > best.count ? d : best), null)
+
+    const bodyHtml = [
+      pdfSection({
+        title: 'Indicateurs clés',
+        subtitle: periodLabel,
+        tone: 'orange',
+        bodyHtml: pdfStatGrid(
+          [
+            {
+              label: 'Consultations',
+              value: String(stats.totalConsultations),
+              hint: 'Hors annulations',
+              tone: 'orange',
+            },
+            {
+              label: 'Taux de présence',
+              value: `${stats.attendanceRate}%`,
+              hint: 'Honorés / terminés',
+              tone: 'green',
+            },
+            {
+              label: 'Revenus',
+              value: formatPdfAmount(stats.revenue, 'XOF'),
+              hint: 'Paiements encaissés',
+              tone: 'green',
+              smallValue: true,
+            },
+            {
+              label: 'Nouveaux patients',
+              value: String(stats.newPatients),
+              hint: 'Première consultation',
+              tone: 'orange',
+            },
+            {
+              label: 'Satisfaction',
+              value: `${stats.satisfactionScore} / 5`,
+              hint: 'Avis sur la période',
+              tone: 'orange',
+            },
+          ],
+          { columns: 5 },
+        ),
+      }),
+      pdfSection({
+        title: 'Évolution des consultations',
+        subtitle:
+          period === 'annee' ? 'Regroupé par mois' : 'Regroupé par jour',
+        tone: 'green',
+        bodyHtml: pdfLineChart(chartPoints, { tone: 'orange' }),
+      }),
+      pdfSection({
+        title: 'Détail par période',
+        subtitle: `${stats.chartData.length} point${stats.chartData.length > 1 ? 's' : ''} de données`,
+        tone: 'orange',
+        bodyHtml: [
+          pdfTable({
+            columns: [
+              { header: period === 'annee' ? 'Mois' : 'Date', strong: true },
+              { header: 'Consultations', numeric: true },
+              { header: 'Part du total', numeric: true },
+            ],
+            rows: stats.chartData.map((d) => [
+              this.formatChartLabel(d.date),
+              String(d.count),
+              totalCharted > 0
+                ? `${Math.round((d.count / totalCharted) * 100)}%`
+                : '—',
+            ]),
+            emptyText: 'Aucune consultation enregistrée sur cette période',
+          }),
+          busiest
+            ? `<p style="margin-top:10px;font-size:9.5px;color:#6b7280">Pic d'activité : <strong>${escapeHtml(
+                this.formatChartLabel(busiest.date),
+              )}</strong> avec ${busiest.count} consultation${busiest.count > 1 ? 's' : ''}.</p>`
+            : '',
+        ].join(''),
+      }),
+    ].join('')
+
+    const buffer = await renderThemedPdf({
+      title: `Statistiques ${practitionerName}`,
+      documentLabel: 'Rapport de statistiques',
+      headline: 'Statistiques d’activité',
+      subline: `${practitionerName}${specialties.length ? ` — ${specialties.join(', ')}` : ''}`,
+      meta: [
+        { label: 'Période', value: periodLabel },
+        {
+          label: 'Du',
+          value: formatPdfDate(startDate),
+        },
+        {
+          label: 'Au',
+          value: formatPdfDate(endDate),
+        },
+        {
+          label: 'Cabinet',
+          value: practitioner.clinicName || practitioner.city || '—',
+        },
+        { label: 'N° Licence', value: practitioner.licenseNumber },
+      ],
+      bodyHtml,
+      footerNote:
+        'Document généré automatiquement par MediCôte. Les montants sont exprimés en francs CFA (XOF).',
+    })
+
+    const stamp = new Date().toISOString().substring(0, 10)
+    return {
+      buffer,
+      fileName: `statistiques-${period ?? 'mois'}-${stamp}.pdf`,
     }
   }
 }
