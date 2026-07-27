@@ -3,9 +3,28 @@ import { AppointmentStatus, AppointmentType } from '@prisma/client'
 import type { DashboardData } from './practitioners-dashboard.types'
 import { UpdateBillingConfigInput } from './practitioners-dashboard.schema'
 import { decrypt } from '../../utils/crypto'
-import { combineDateAndTime, isAppointmentFuture } from '../../utils/appointment-time'
+import {
+  combineDateAndTime,
+  isAppointmentFuture,
+} from '../../utils/appointment-time'
 import { getClientLocalTime } from '../../utils/timezone'
 import { teleconsultationsService } from '../teleconsultations/teleconsultations.service'
+
+type PublicProfileRequirements = {
+  baseConsultationFee: unknown
+  acceptedPaymentMethods: unknown[] | null
+}
+
+const hasBaseConsultationFee = (p: PublicProfileRequirements) =>
+  p.baseConsultationFee !== null &&
+  p.baseConsultationFee !== undefined &&
+  Number(p.baseConsultationFee) > 0
+
+const hasAcceptedPaymentMethods = (p: PublicProfileRequirements) =>
+  !!p.acceptedPaymentMethods && p.acceptedPaymentMethods.length > 0
+
+const meetsPublicProfileRequirements = (p: PublicProfileRequirements) =>
+  hasBaseConsultationFee(p) && hasAcceptedPaymentMethods(p)
 
 export class PractitionerDashboardService {
   //get all dashboard data in one go for efficiency
@@ -173,7 +192,11 @@ export class PractitionerDashboardService {
 
     const nextAppointment =
       nextCandidates.find((apt) =>
-        isAppointmentFuture(apt.appointmentDate, apt.startTime, clientLocalTime),
+        isAppointmentFuture(
+          apt.appointmentDate,
+          apt.startTime,
+          clientLocalTime,
+        ),
       ) || null
 
     return {
@@ -426,8 +449,20 @@ export class PractitionerDashboardService {
         emergencyFee: true,
         acceptedPaymentMethods: true,
         bankInfo: true,
+        isProfilePublic: true,
       },
     })
+
+    let isProfilePublic = updated.isProfilePublic
+    let profileUnpublished = false
+    if (isProfilePublic && !meetsPublicProfileRequirements(updated)) {
+      await prisma.practitioner.update({
+        where: { id: practitionerId },
+        data: { isProfilePublic: false },
+      })
+      isProfilePublic = false
+      profileUnpublished = true
+    }
 
     return {
       baseConsultationFee: Number(updated.baseConsultationFee),
@@ -437,6 +472,8 @@ export class PractitionerDashboardService {
       emergencyFee: updated.emergencyFee ? Number(updated.emergencyFee) : null,
       acceptedPaymentMethods: updated.acceptedPaymentMethods,
       bankInfo: updated.bankInfo,
+      isProfilePublic,
+      profileUnpublished,
     }
   }
 
@@ -451,11 +488,21 @@ export class PractitionerDashboardService {
     if (p.licenseVerifiedAt) {
       const billingDate = new Date(p.licenseVerifiedAt)
       billingDate.setMonth(billingDate.getMonth() + 1)
-      const hasVerifiedPaymentMethod = await prisma.savedPaymentMethod.findFirst({
-        where: { practitionerId, isVerified: true },
-        select: { id: true },
-      })
+      const hasVerifiedPaymentMethod =
+        await prisma.savedPaymentMethod.findFirst({
+          where: { practitionerId, isVerified: true },
+          select: { id: true },
+        })
       isUnpaid = new Date() > billingDate && !hasVerifiedPaymentMethod
+    }
+
+    let isProfilePublic = p.isProfilePublic
+    if (isProfilePublic && !meetsPublicProfileRequirements(p)) {
+      await prisma.practitioner.update({
+        where: { id: practitionerId },
+        data: { isProfilePublic: false },
+      })
+      isProfilePublic = false
     }
 
     return {
@@ -472,7 +519,7 @@ export class PractitionerDashboardService {
       city: p.city,
       postalCode: p.postalCode,
       country: p.country,
-      isProfilePublic: p.isProfilePublic,
+      isProfilePublic,
       messagingEnabled: p.messagingEnabled,
       baseConsultationFee: p.baseConsultationFee
         ? Number(p.baseConsultationFee)
@@ -503,13 +550,13 @@ export class PractitionerDashboardService {
         },
       })
 
-      if (!practitioner || !practitioner.baseConsultationFee) {
+      if (!practitioner || !hasBaseConsultationFee(practitioner)) {
         throw new Error(
           'Vous devez définir au moins le tarif de consultation de base avant de rendre votre profil public',
         )
       }
 
-      if (!practitioner.acceptedPaymentMethods || practitioner.acceptedPaymentMethods.length === 0) {
+      if (!hasAcceptedPaymentMethods(practitioner)) {
         throw new Error(
           'Vous devez sélectionner au moins un moyen de paiement accepté en cabinet avant de rendre votre profil public',
         )

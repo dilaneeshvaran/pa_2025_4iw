@@ -135,6 +135,12 @@
         >
           {{ successMsg }}
         </div>
+        <div
+          v-if="warningMsg"
+          class="mt-4 rounded-md bg-yellow-50 dark:bg-yellow-950/30 p-4 text-yellow-800 dark:text-yellow-200"
+        >
+          {{ warningMsg }}
+        </div>
         <div v-if="errorMsg" class="mt-4 rounded-md bg-red-50 dark:bg-red-950/30 p-4 text-red-700 dark:text-red-300">
           {{ errorMsg }}
         </div>
@@ -177,6 +183,7 @@ const loading = ref(true);
 const saving = ref(false);
 const successMsg = ref("");
 const errorMsg = ref("");
+const warningMsg = ref("");
 
 interface BillingConfigResponse {
   data: {
@@ -220,8 +227,11 @@ const saveConfig = async () => {
     saving.value = true;
     successMsg.value = "";
     errorMsg.value = "";
+    warningMsg.value = "";
 
-    await useAuthenticatedFetch("/practitioner/dashboard/billing-config", {
+    const res = await useAuthenticatedFetch<{
+      data?: { profileUnpublished?: boolean };
+    }>("/practitioner/dashboard/billing-config", {
       method: "PATCH",
       body: {
         baseConsultationFee: form.value.baseConsultationFee,
@@ -231,6 +241,11 @@ const saveConfig = async () => {
         bankInfo: form.value.bankInfo,
       },
     });
+
+    if (res?.data?.profileUnpublished) {
+      warningMsg.value =
+        "Votre profil n'est plus visible publiquement : au moins un moyen de paiement accepté en cabinet et un tarif de consultation de base sont requis.";
+    }
 
     successMsg.value = "Configuration mise à jour avec succès";
     setTimeout(() => {

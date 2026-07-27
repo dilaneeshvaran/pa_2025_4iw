@@ -31,6 +31,9 @@ jest.mock('../../../config/database', () => ({
     conversation: {
       findMany: jest.fn(),
     },
+    savedPaymentMethod: {
+      findFirst: jest.fn(),
+    },
     $queryRaw: jest.fn(),
   },
 }))
@@ -228,6 +231,107 @@ describe('PractitionerDashboardService - Profile Visibility Validation', () => {
         data: { isProfilePublic: true },
         include: { qualifications: true },
       })
+    })
+  })
+
+  describe('getProfile', () => {
+    const publicProfile = {
+      id: 'pract-123',
+      userId: 'user-123',
+      firstName: 'John',
+      lastName: 'Doe',
+      isProfilePublic: true,
+      messagingEnabled: false,
+      baseConsultationFee: 15000,
+      teleconsultationFee: null,
+      emergencyFee: null,
+      acceptedPaymentMethods: ['CARD'],
+      qualifications: [],
+      licenseVerifiedAt: null,
+    }
+
+    it('unpublishes a profile that is still public without acceptedPaymentMethods', async () => {
+      mockPrisma.practitioner.findUnique.mockResolvedValue({
+        ...publicProfile,
+        acceptedPaymentMethods: [],
+      } as any)
+
+      const result = await practitionerDashboardService.getProfile('pract-123')
+
+      expect(result.isProfilePublic).toBe(false)
+      expect(mockPrisma.practitioner.update).toHaveBeenCalledWith({
+        where: { id: 'pract-123' },
+        data: { isProfilePublic: false },
+      })
+    })
+
+    it('unpublishes a profile that is still public without baseConsultationFee', async () => {
+      mockPrisma.practitioner.findUnique.mockResolvedValue({
+        ...publicProfile,
+        baseConsultationFee: null,
+      } as any)
+
+      const result = await practitionerDashboardService.getProfile('pract-123')
+
+      expect(result.isProfilePublic).toBe(false)
+      expect(mockPrisma.practitioner.update).toHaveBeenCalledWith({
+        where: { id: 'pract-123' },
+        data: { isProfilePublic: false },
+      })
+    })
+
+    it('keeps a public profile that meets the requirements', async () => {
+      mockPrisma.practitioner.findUnique.mockResolvedValue(publicProfile as any)
+
+      const result = await practitionerDashboardService.getProfile('pract-123')
+
+      expect(result.isProfilePublic).toBe(true)
+      expect(mockPrisma.practitioner.update).not.toHaveBeenCalled()
+    })
+  })
+
+  describe('updateBillingConfig', () => {
+    it('unpublishes the profile when the last payment method is removed', async () => {
+      mockPrisma.practitioner.update.mockResolvedValueOnce({
+        baseConsultationFee: 15000,
+        teleconsultationFee: null,
+        emergencyFee: null,
+        acceptedPaymentMethods: [],
+        bankInfo: null,
+        isProfilePublic: true,
+      } as any)
+
+      const result = await practitionerDashboardService.updateBillingConfig(
+        'pract-123',
+        { acceptedPaymentMethods: [] } as any,
+      )
+
+      expect(result.isProfilePublic).toBe(false)
+      expect(result.profileUnpublished).toBe(true)
+      expect(mockPrisma.practitioner.update).toHaveBeenLastCalledWith({
+        where: { id: 'pract-123' },
+        data: { isProfilePublic: false },
+      })
+    })
+
+    it('leaves the profile public when the requirements are still met', async () => {
+      mockPrisma.practitioner.update.mockResolvedValueOnce({
+        baseConsultationFee: 15000,
+        teleconsultationFee: null,
+        emergencyFee: null,
+        acceptedPaymentMethods: ['CASH'],
+        bankInfo: null,
+        isProfilePublic: true,
+      } as any)
+
+      const result = await practitionerDashboardService.updateBillingConfig(
+        'pract-123',
+        { acceptedPaymentMethods: ['CASH'] } as any,
+      )
+
+      expect(result.isProfilePublic).toBe(true)
+      expect(result.profileUnpublished).toBe(false)
+      expect(mockPrisma.practitioner.update).toHaveBeenCalledTimes(1)
     })
   })
 })
