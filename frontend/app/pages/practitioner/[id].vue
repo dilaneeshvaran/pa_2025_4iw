@@ -483,9 +483,16 @@
               </div>
             </div>
             <ClientOnly v-if="practitioner.latitude && practitioner.longitude">
-              <PractitionersMap :practitioners="[practitioner]" />
+              <PractitionersMap
+                :practitioners="[practitioner]"
+                :show-controls="false"
+                height="420px"
+              />
               <template #fallback>
-                <div class="flex h-96 items-center justify-center rounded-lg bg-gray-100 dark:bg-gray-800">
+                <div
+                  class="flex items-center justify-center rounded-lg bg-gray-100 dark:bg-gray-800"
+                  style="height: 420px"
+                >
                   <p class="text-gray-500 dark:text-gray-400">Chargement de la carte...</p>
                 </div>
               </template>

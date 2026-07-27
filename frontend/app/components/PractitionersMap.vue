@@ -5,30 +5,51 @@
       role="region"
       aria-label="Carte interactive des praticiens et cabinets"
       class="w-full rounded-lg"
-      style="height: 560px; z-index: 0"
+      :style="{ height, zIndex: 0 }"
     />
 
     <!-- Controls overlay -->
-    <div class="absolute right-3 top-3 z-[400] flex flex-col gap-2">
+    <div
+      v-if="showControls"
+      class="absolute right-3 top-3 z-[400] flex flex-col gap-2"
+    >
       <button
         type="button"
-        class="flex items-center gap-2 rounded-lg border border-gray-200 dark:border-gray-800 bg-white dark:bg-gray-900 px-3 py-2 text-sm font-medium shadow-md hover:bg-gray-50 dark:hover:bg-gray-800 disabled:opacity-60 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--color-primary)]"
+        class="flex items-center gap-2 rounded-lg border border-gray-200 bg-white px-3 py-2 text-sm font-medium shadow-md hover:bg-gray-50 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--color-primary)] disabled:opacity-60 dark:border-gray-800 dark:bg-gray-900 dark:hover:bg-gray-800"
         :disabled="locating"
         @click="locateUser"
       >
-        <IconLocate class="h-4 w-4" :class="locating ? 'animate-spin' : ''" aria-hidden="true" />
+        <IconLocate
+          class="h-4 w-4"
+          :class="locating ? 'animate-spin' : ''"
+          aria-hidden="true"
+        />
         {{ locating ? "Localisation..." : "Ma position" }}
       </button>
       <p class="sr-only" role="status" aria-live="polite">
-        {{ locating ? "Localisation en cours" : userLocation ? "Position détectée" : "" }}
+        {{
+          locating
+            ? "Localisation en cours"
+            : userLocation
+              ? "Position détectée"
+              : ""
+        }}
       </p>
     </div>
 
     <!-- Radius slider (shown when user is located) -->
-    <div v-if="userLocation" class="absolute bottom-8 left-3 right-3 z-[400]">
-      <div class="rounded-lg border border-gray-200 dark:border-gray-800 bg-white dark:bg-gray-900 p-3 shadow-md">
+    <div
+      v-if="showControls && userLocation"
+      class="absolute bottom-8 left-3 right-3 z-[400]"
+    >
+      <div
+        class="rounded-lg border border-gray-200 bg-white p-3 shadow-md dark:border-gray-800 dark:bg-gray-900"
+      >
         <div class="mb-1 flex items-center justify-between">
-          <label for="map-radius" class="text-xs font-medium text-gray-600 dark:text-gray-400">
+          <label
+            for="map-radius"
+            class="text-xs font-medium text-gray-600 dark:text-gray-400"
+          >
             Rayon de recherche
           </label>
           <span class="text-xs font-semibold text-[var(--color-primary)]">
@@ -46,7 +67,9 @@
           class="w-full accent-[#00804A] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--color-primary)]"
           @input="onRadiusChange"
         />
-        <div class="mt-1 flex justify-between text-xs text-gray-500 dark:text-gray-400">
+        <div
+          class="mt-1 flex justify-between text-xs text-gray-500 dark:text-gray-400"
+        >
           <span>1 km</span>
           <span>50 km</span>
         </div>
@@ -55,14 +78,26 @@
 
     <!-- Empty state overlay -->
     <div
-      v-if="!loading && mapReady && practitionersWithCoords === 0 && cabinetsWithCoords === 0"
-      class="pointer-events-none absolute inset-0 flex items-center justify-center rounded-lg bg-white/70"
+      v-if="
+        !loading &&
+        mapReady &&
+        practitionersWithCoords === 0 &&
+        cabinetsWithCoords === 0
+      "
+      class="pointer-events-none absolute inset-0 flex items-center justify-center rounded-lg bg-white/70 dark:bg-gray-950/70"
       style="z-index: 400"
       role="status"
     >
-      <div class="rounded-xl bg-white dark:bg-gray-900 p-6 text-center shadow-lg">
-        <IconMapPin class="mx-auto mb-3 h-12 w-12 text-gray-300" aria-hidden="true" />
-        <p class="text-gray-700 dark:text-gray-300">Aucun résultat localisé dans cette zone.</p>
+      <div
+        class="rounded-xl bg-white p-6 text-center shadow-lg dark:bg-gray-900"
+      >
+        <IconMapPin
+          class="mx-auto mb-3 h-12 w-12 text-gray-300"
+          aria-hidden="true"
+        />
+        <p class="text-gray-700 dark:text-gray-300">
+          Aucun résultat localisé dans cette zone.
+        </p>
         <p class="mt-1 text-sm text-gray-600 dark:text-gray-400">
           Cliquez sur « Ma position » pour chercher près de vous.
         </p>
@@ -70,14 +105,27 @@
     </div>
 
     <!-- Legend -->
-    <div class="absolute bottom-8 right-3 z-[400]" role="group" aria-label="Légende de la carte">
-      <div class="rounded-lg border border-gray-200 dark:border-gray-800 bg-white dark:bg-gray-900 px-3 py-2 text-xs shadow-md">
+    <div
+      v-if="showControls"
+      class="absolute bottom-8 right-3 z-[400]"
+      role="group"
+      aria-label="Légende de la carte"
+    >
+      <div
+        class="rounded-lg border border-gray-200 bg-white px-3 py-2 text-xs shadow-md dark:border-gray-800 dark:bg-gray-900"
+      >
         <div class="mb-1 flex items-center gap-2">
-          <span class="inline-block h-3 w-3 rounded-full bg-[#0891b2]" aria-hidden="true" />
+          <span
+            class="inline-block h-3 w-3 rounded-full bg-[#0891b2]"
+            aria-hidden="true"
+          />
           <span class="text-gray-700 dark:text-gray-300">Praticien</span>
         </div>
         <div class="flex items-center gap-2">
-          <span class="inline-block h-3 w-3 rounded-full bg-[#7c3aed]" aria-hidden="true" />
+          <span
+            class="inline-block h-3 w-3 rounded-full bg-[#7c3aed]"
+            aria-hidden="true"
+          />
           <span class="text-gray-700 dark:text-gray-300">Cabinet</span>
         </div>
       </div>
@@ -119,11 +167,21 @@ interface UserLocation {
   lng: number;
 }
 
-const props = defineProps<{
-  practitioners: Practitioner[];
-  cabinets?: Cabinet[];
-  loading?: boolean;
-}>();
+const props = withDefaults(
+  defineProps<{
+    practitioners: Practitioner[];
+    cabinets?: Cabinet[];
+    loading?: boolean;
+    showControls?: boolean;
+    height?: string;
+  }>(),
+  {
+    cabinets: undefined,
+    loading: false,
+    showControls: true,
+    height: "560px",
+  },
+);
 
 const emit = defineEmits<{
   (e: "locate", lat: number, lng: number, radius: number): void;
@@ -147,14 +205,22 @@ let cabinetMarkers: any[] = [];
 let userMarker: any = null;
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
 let radiusCircle: any = null;
+let resizeObserver: ResizeObserver | null = null;
+let pendingFit = false;
+
+const SINGLE_MARKER_ZOOM = 15;
+
+const isContainerVisible = () =>
+  !!mapContainer.value &&
+  mapContainer.value.offsetWidth > 0 &&
+  mapContainer.value.offsetHeight > 0;
 
 const practitionersWithCoords = computed(
   () => props.practitioners.filter((p) => p.latitude && p.longitude).length,
 );
 
 const cabinetsWithCoords = computed(
-  () =>
-    (props.cabinets ?? []).filter((c) => c.latitude && c.longitude).length,
+  () => (props.cabinets ?? []).filter((c) => c.latitude && c.longitude).length,
 );
 
 const makePractitionerIcon = () =>
@@ -250,10 +316,27 @@ const updateCabinetMarkers = () => {
 const fitToMarkers = () => {
   if (!L || !map) return;
   const all = [...practitionerMarkers, ...cabinetMarkers];
-  if (all.length > 0 && !userLocation.value) {
-    const group = L.featureGroup(all);
-    map.fitBounds(group.getBounds().pad(0.25));
+  if (all.length === 0 || userLocation.value) return;
+
+  if (!isContainerVisible()) {
+    pendingFit = true;
+    return;
   }
+  pendingFit = false;
+
+  if (all.length === 1) {
+    map.setView(all[0].getLatLng(), SINGLE_MARKER_ZOOM);
+    return;
+  }
+
+  const group = L.featureGroup(all);
+  map.fitBounds(group.getBounds().pad(0.25), { maxZoom: 16 });
+};
+
+const handleContainerResize = () => {
+  if (!map || !isContainerVisible()) return;
+  map.invalidateSize();
+  if (pendingFit) fitToMarkers();
 };
 
 const initMap = async () => {
@@ -262,8 +345,6 @@ const initMap = async () => {
   const leaflet = await import("leaflet");
   L = leaflet.default;
 
-  // Fix Vite/webpack asset resolution for default icons
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   delete (L.Icon.Default.prototype as any)._getIconUrl;
   L.Icon.Default.mergeOptions({
     iconRetinaUrl:
@@ -287,6 +368,11 @@ const initMap = async () => {
   updatePractitionerMarkers();
   updateCabinetMarkers();
   fitToMarkers();
+
+  if (typeof ResizeObserver !== "undefined") {
+    resizeObserver = new ResizeObserver(handleContainerResize);
+    resizeObserver.observe(mapContainer.value);
+  }
 };
 
 const locateUser = () => {
@@ -340,7 +426,12 @@ const locateUser = () => {
 const onRadiusChange = () => {
   if (!L || !map || !userLocation.value) return;
   if (radiusCircle) radiusCircle.setRadius(radiusKm.value * 1000);
-  emit("locate", userLocation.value.lat, userLocation.value.lng, radiusKm.value);
+  emit(
+    "locate",
+    userLocation.value.lat,
+    userLocation.value.lng,
+    radiusKm.value,
+  );
 };
 
 watch(
@@ -366,6 +457,10 @@ onMounted(() => {
 });
 
 onUnmounted(() => {
+  if (resizeObserver) {
+    resizeObserver.disconnect();
+    resizeObserver = null;
+  }
   if (map) {
     map.remove();
     map = null;
