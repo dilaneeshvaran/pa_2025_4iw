@@ -343,7 +343,7 @@
             </h3>
             <p class="mt-1 text-sm text-gray-500 dark:text-gray-400">
               Demandez une copie de toutes vos données personnelles au format
-              JSON. Vous recevrez un email lorsque l'export sera prêt.
+              PDF. Le document vous sera envoyé par email en pièce jointe.
             </p>
             <div
               v-if="exportMsg"

@@ -96,4 +96,18 @@ export async function practitionersRoutes(fastify: FastifyInstance) {
     (request, reply) =>
       practitionersController.getStatistics(request as any, reply),
   )
+
+  fastify.get(
+    '/statistics/export',
+    {
+      preHandler: [authenticate, authorize(['PRACTITIONER'])],
+      schema: {
+        querystring: getPractitionerStatisticsSchema,
+        tags: ['practitioners'],
+        description: 'Download the practitioner statistics report as a PDF',
+      },
+    },
+    (request, reply) =>
+      practitionersController.exportStatisticsPdf(request as any, reply),
+  )
 }

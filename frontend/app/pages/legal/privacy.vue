@@ -114,7 +114,7 @@
             Conformément à la réglementation ivoirienne et au RGPD, vous disposez des droits suivants :
           </p>
           <ul class="list-disc pl-5 space-y-2">
-            <li><strong>Droit d'accès et de portabilité :</strong> Vous pouvez télécharger un export complet de vos données personnelles au format JSON directement depuis l'onglet « Mes données » dans vos paramètres de profil.</li>
+            <li><strong>Droit d'accès et de portabilité :</strong> Vous pouvez demander un export complet de vos données personnelles au format PDF depuis l'onglet « Mes données » dans vos paramètres de profil. Le document vous est envoyé par email en pièce jointe.</li>
             <li><strong>Droit de rectification :</strong> Vous pouvez corriger vos informations d'identification à tout moment depuis votre tableau de bord.</li>
             <li><strong>Droit à l'effacement :</strong> Vous pouvez demander la suppression de votre compte, sous réserve des durées légales impératives de conservation des dossiers de santé.</li>
             <li><strong>Droit d'opposition et de limitation :</strong> Vous pouvez vous opposer au traitement de certaines données secondaires ou révoquer vos consentements (ex: statistiques analytics d'Umami).</li>

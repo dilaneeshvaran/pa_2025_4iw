@@ -524,6 +524,90 @@ export async function sendInvoiceEmail(
   }
 }
 
+export async function sendDataExportEmail(
+  to: string,
+  data: {
+    patientName: string
+    generatedAt: string
+    counts: Record<string, number>
+  },
+  pdfBuffer: Buffer,
+  fileName: string,
+): Promise<void> {
+  const summaryRows: Array<[string, number]> = [
+    ['Rendez-vous', data.counts.appointments ?? 0],
+    ['Dossiers médicaux', data.counts.medicalRecords ?? 0],
+    ['Ordonnances', data.counts.prescriptions ?? 0],
+    ['Documents', data.counts.documents ?? 0],
+    ['Paiements', data.counts.payments ?? 0],
+    ['Consentements', data.counts.consents ?? 0],
+  ]
+
+  const html = buildEmailHtml({
+    title: 'Votre export de données MediCôte',
+    preheader: 'Votre copie de données personnelles est en pièce jointe.',
+    contentHtml: `
+      <h2 style="color: #1e293b; font-family: 'Outfit', sans-serif; font-size: 20px; font-weight: 600; margin-top: 0; margin-bottom: 16px;">Votre export de données est prêt</h2>
+      <p style="margin: 0 0 16px 0;">Bonjour ${escapeEmailHtml(data.patientName)},</p>
+      <p style="margin: 0 0 20px 0;">Comme vous l'avez demandé depuis votre espace MediCôte, vous trouverez ci-joint une copie complète de vos données personnelles au format PDF, générée le ${escapeEmailHtml(data.generatedAt)}.</p>
+
+      <div style="background-color: #f8fafc; border: 1px solid #e2e8f0; border-radius: 8px; padding: 20px; margin: 24px 0;">
+        <table border="0" cellpadding="0" cellspacing="0" width="100%" style="font-size: 14px; font-family: 'Inter', sans-serif; color: #475569; border-collapse: collapse;">
+          ${summaryRows
+            .map(
+              ([entryLabel, count]) => `<tr>
+            <td style="padding: 6px 0; font-weight: 600; color: #1e293b; width: 60%; vertical-align: top;">${entryLabel} :</td>
+            <td style="padding: 6px 0; color: #334155;">${count}</td>
+          </tr>`,
+            )
+            .join('')}
+        </table>
+      </div>
+
+      <p style="margin: 0 0 16px 0; color: #b45309; font-size: 14px; background-color: #fffbeb; border: 1px solid #fde68a; border-radius: 8px; padding: 12px 14px;">
+        <strong>Ce document contient des données de santé.</strong> Conservez-le en lieu sûr et ne le transmettez qu'à des personnes de confiance.
+      </p>
+
+      <p style="margin: 0 0 24px 0; color: #64748b; font-size: 14px;">Si vous n'êtes pas à l'origine de cette demande, contactez-nous sans attendre.</p>
+    `,
+    actionUrl: `${APP_URL}/patient/settings`,
+    actionText: 'Gérer mes données',
+  })
+
+  if (
+    process.env.BACKEND_NODE_ENV === 'test' ||
+    process.env.BACKEND_EMAIL_DISABLED === 'true' ||
+    !RESEND_API_KEY
+  ) {
+    console.log(
+      `[email noop] to=${to} subject=Votre export de données - MediCôte attachment=${fileName}`,
+    )
+    return
+  }
+
+  try {
+    const { error } = await getResend().emails.send({
+      from: EMAIL_FROM,
+      to,
+      subject: 'Votre export de données personnelles - MediCôte',
+      html,
+      attachments: [
+        {
+          filename: fileName,
+          content: pdfBuffer,
+        },
+      ],
+    })
+    if (error) {
+      console.error('Error sending data export email:', error)
+      throw new Error('Failed to send data export email')
+    }
+  } catch (error) {
+    console.error('Error sending data export email:', error)
+    throw new Error('Failed to send data export email')
+  }
+}
+
 interface AppointmentCancellationEmailData {
   patientName: string
   practitionerTitle: string

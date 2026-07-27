@@ -6,8 +6,9 @@ import prisma from '../../config/database'
 import { redis } from '../../config/redis'
 import { hashPassword, comparePassword } from '../../utils/bcrypt'
 import { generateToken, encrypt, decrypt } from '../../utils/crypto'
-import { sendVerificationEmail } from '../../utils/email'
+import { sendVerificationEmail, sendDataExportEmail } from '../../utils/email'
 import { normalizeEmail } from '../../utils/normalize-email'
+import { patientDataExportService } from './patient-data-export.service'
 import {
   UpdateProfileData,
   UpdateEmailData,
@@ -185,7 +186,11 @@ export class PatientSettingsService {
       },
     })
 
-    const otpauthUrl = generateURI({ secret, label: user.email, issuer: 'MediCote' })
+    const otpauthUrl = generateURI({
+      secret,
+      label: user.email,
+      issuer: 'MediCote',
+    })
     const qrCodeUrl = await QRCode.toDataURL(otpauthUrl)
 
     return {
@@ -200,7 +205,9 @@ export class PatientSettingsService {
     })
 
     if (!user || !user.twoFactorSecret) {
-      throw new Error('Secret 2FA non configuré. Lancez d\'abord l\'étape de configuration.')
+      throw new Error(
+        "Secret 2FA non configuré. Lancez d'abord l'étape de configuration.",
+      )
     }
 
     const decryptedSecret = decrypt(user.twoFactorSecret)
@@ -255,11 +262,15 @@ export class PatientSettingsService {
     return {
       twoFactorEnabled: true,
       backupCodes: rawBackupCodes,
-      message: 'L\'authentification à deux facteurs a été activée avec succès.',
+      message: "L'authentification à deux facteurs a été activée avec succès.",
     }
   }
 
-  async disable2FA(userId: string, verificationCode?: string, password?: string) {
+  async disable2FA(
+    userId: string,
+    verificationCode?: string,
+    password?: string,
+  ) {
     const user = await prisma.user.findUnique({
       where: { id: userId },
     })
@@ -269,7 +280,7 @@ export class PatientSettingsService {
     }
 
     if (!user.twoFactorEnabled) {
-      throw new Error('L\'authentification à deux facteurs n\'est pas activée')
+      throw new Error("L'authentification à deux facteurs n'est pas activée")
     }
 
     let verified = false
@@ -280,7 +291,10 @@ export class PatientSettingsService {
         // Verify backup code
         let matchedIndex = -1
         for (let i = 0; i < user.backupCodes.length; i++) {
-          const isMatch = await comparePassword(verificationCode, user.backupCodes[i])
+          const isMatch = await comparePassword(
+            verificationCode,
+            user.backupCodes[i],
+          )
           if (isMatch) {
             matchedIndex = i
             break
@@ -331,7 +345,8 @@ export class PatientSettingsService {
 
     return {
       twoFactorEnabled: false,
-      message: 'L\'authentification à deux facteurs a été désactivée avec succès.',
+      message:
+        "L'authentification à deux facteurs a été désactivée avec succès.",
     }
   }
 
@@ -459,12 +474,73 @@ export class PatientSettingsService {
       },
     })
 
+    void this.processDataExport(request.id, userId)
+
     return {
       id: request.id,
       status: request.status,
       requestedAt: request.requestedAt.toISOString(),
       message:
-        "Votre demande d'export a été enregistrée. Vous recevrez un email quand vos données seront prêtes.",
+        "Votre demande d'export a été enregistrée. Vous recevrez vos données par email au format PDF dans quelques instants.",
+    }
+  }
+
+  private async processDataExport(
+    requestId: string,
+    userId: string,
+  ): Promise<void> {
+    try {
+      await prisma.dataExportRequest.update({
+        where: { id: requestId },
+        data: { status: 'PROCESSING', processedAt: new Date() },
+      })
+
+      const { buffer, fileName, patientName, email, generatedAt, counts } =
+        await patientDataExportService.buildExportPdf(userId)
+
+      await sendDataExportEmail(
+        email,
+        {
+          patientName,
+          generatedAt: generatedAt.toLocaleDateString('fr-FR', {
+            day: 'numeric',
+            month: 'long',
+            year: 'numeric',
+            hour: '2-digit',
+            minute: '2-digit',
+          }),
+          counts,
+        },
+        buffer,
+        fileName,
+      )
+
+      await prisma.dataExportRequest.update({
+        where: { id: requestId },
+        data: {
+          status: 'COMPLETED',
+          completedAt: new Date(),
+          fileSize: buffer.length,
+          errorMessage: null,
+        },
+      })
+    } catch (error) {
+      console.error('Failed to process data export request:', error)
+      await prisma.dataExportRequest
+        .update({
+          where: { id: requestId },
+          data: {
+            status: 'FAILED',
+            errorMessage:
+              error instanceof Error ? error.message : 'Erreur inconnue',
+          },
+        })
+        .catch((updateError) => {
+          console.error(
+            'Failed to mark data export request as failed:',
+            updateError,
+          )
+        })
     }
   }
 

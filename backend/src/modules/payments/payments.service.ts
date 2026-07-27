@@ -9,7 +9,7 @@ import {
   InvoiceDetail,
 } from './payments.types'
 import { sendInvoiceEmail } from '../../utils/email'
-import puppeteer from 'puppeteer'
+import { renderPdf } from '../../utils/pdf'
 
 export class PaymentsService {
   // invoice history
@@ -609,7 +609,10 @@ export class PaymentsService {
     profileId: string,
     role: string = 'PATIENT',
   ): Promise<SavedPaymentMethodResult[]> {
-    const where = role === 'PATIENT' ? { patientId: profileId } : { practitionerId: profileId }
+    const where =
+      role === 'PATIENT'
+        ? { patientId: profileId }
+        : { practitionerId: profileId }
     const methods = await prisma.savedPaymentMethod.findMany({
       where,
       orderBy: [{ isDefault: 'desc' }, { createdAt: 'desc' }],
@@ -636,7 +639,10 @@ export class PaymentsService {
     data: AddPaymentMethodData,
     role: string = 'PATIENT',
   ): Promise<SavedPaymentMethodResult> {
-    const whereReset = role === 'PATIENT' ? { patientId: profileId, isDefault: true } : { practitionerId: profileId, isDefault: true }
+    const whereReset =
+      role === 'PATIENT'
+        ? { patientId: profileId, isDefault: true }
+        : { practitionerId: profileId, isDefault: true }
     // if setting as default, unset other default
     if (data.isDefault) {
       await prisma.savedPaymentMethod.updateMany({
@@ -663,17 +669,20 @@ export class PaymentsService {
 
     // check duplicates
     if (data.type === 'MOBILE_MONEY') {
-      const whereDup = role === 'PATIENT' ? {
-        patientId: profileId,
-        type: 'MOBILE_MONEY' as const,
-        mobileOperator: data.mobileOperator,
-        mobileNumber: data.mobileNumber,
-      } : {
-        practitionerId: profileId,
-        type: 'MOBILE_MONEY' as const,
-        mobileOperator: data.mobileOperator,
-        mobileNumber: data.mobileNumber,
-      }
+      const whereDup =
+        role === 'PATIENT'
+          ? {
+              patientId: profileId,
+              type: 'MOBILE_MONEY' as const,
+              mobileOperator: data.mobileOperator,
+              mobileNumber: data.mobileNumber,
+            }
+          : {
+              practitionerId: profileId,
+              type: 'MOBILE_MONEY' as const,
+              mobileOperator: data.mobileOperator,
+              mobileNumber: data.mobileNumber,
+            }
       const existing = await prisma.savedPaymentMethod.findFirst({
         where: whereDup,
       })
@@ -737,7 +746,10 @@ export class PaymentsService {
       throw new Error('Moyen de paiement non trouvé')
     }
 
-    const isOwner = role === 'PATIENT' ? method.patientId === profileId : method.practitionerId === profileId
+    const isOwner =
+      role === 'PATIENT'
+        ? method.patientId === profileId
+        : method.practitionerId === profileId
     if (!isOwner) {
       throw new Error("Vous n'avez pas accès à ce moyen de paiement")
     }
@@ -787,7 +799,10 @@ export class PaymentsService {
       throw new Error('Moyen de paiement non trouvé')
     }
 
-    const isOwner = role === 'PATIENT' ? method.patientId === profileId : method.practitionerId === profileId
+    const isOwner =
+      role === 'PATIENT'
+        ? method.patientId === profileId
+        : method.practitionerId === profileId
     if (!isOwner) {
       throw new Error("Vous n'avez pas accès à ce moyen de paiement")
     }
@@ -808,12 +823,18 @@ export class PaymentsService {
       throw new Error('Moyen de paiement non trouvé')
     }
 
-    const isOwner = role === 'PATIENT' ? method.patientId === profileId : method.practitionerId === profileId
+    const isOwner =
+      role === 'PATIENT'
+        ? method.patientId === profileId
+        : method.practitionerId === profileId
     if (!isOwner) {
       throw new Error("Vous n'avez pas accès à ce moyen de paiement")
     }
 
-    const whereReset = role === 'PATIENT' ? { patientId: profileId, isDefault: true } : { practitionerId: profileId, isDefault: true }
+    const whereReset =
+      role === 'PATIENT'
+        ? { patientId: profileId, isDefault: true }
+        : { practitionerId: profileId, isDefault: true }
 
     // unset other defaults and set this one
     await prisma.$transaction([
@@ -1003,19 +1024,7 @@ export class PaymentsService {
   </div>
 </body>
 </html>`
-    const browser = await puppeteer.launch({
-      headless: true,
-      args: ['--no-sandbox', '--disable-setuid-sandbox'],
-    })
-    const page = await browser.newPage()
-    await page.setContent(html, { waitUntil: 'domcontentloaded' })
-    const pdfBufferArray = await page.pdf({
-      format: 'A4',
-      printBackground: true,
-    })
-    await browser.close()
-
-    return Buffer.from(pdfBufferArray)
+    return renderPdf(html)
   }
 
   async getPractitionerInvoices(
