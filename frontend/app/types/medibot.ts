@@ -43,7 +43,9 @@ export type MedibotAction =
   | { type: "booking_confirm"; booking: MedibotBooking }
   | { type: "auth"; mode: "login" | "signup" | "reset" }
   | { type: "logout" }
-  | { type: "navigate"; path: string; label: string };
+  | { type: "navigate"; path: string; label: string }
+  /** closed question: one-tap answers, typing stays possible */
+  | { type: "quick_replies"; options: string[] };
 
 export interface MedibotMessage {
   id: string;
@@ -53,6 +55,8 @@ export interface MedibotMessage {
   /** transient states rendered by the UI */
   pending?: boolean;
   error?: boolean;
+  /** reveal the text word by word (fresh replies only, never history) */
+  animate?: boolean;
 }
 
 export interface MedibotSendResponse {
