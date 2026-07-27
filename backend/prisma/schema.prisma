@@ -154,6 +154,7 @@ model Patient {
   teleconsultationSessions TeleconsultationSession[]
   vaccinationRecords       VaccinationRecord[]
   virtualQueueEntries      VirtualQueue[]
+  medibotConversations     MedibotConversation[]
 
   @@index([userId])
   @@index([phone])
@@ -1405,4 +1406,58 @@ model PatientMetricHistory {
   @@index([patientId])
   @@index([patientId, metricType])
   @@map("patient_metric_history")
+}
+
+// ---------------------------------------------------------------------------
+// Medibot — AI health guide assistant
+// ---------------------------------------------------------------------------
+
+model MedibotConversation {
+  id         String            @id @default(cuid())
+  // Anonymous visitors get a random session id; once they log in the
+  // conversation is linked to their patient profile so it can continue.
+  sessionId  String?
+  patientId  String?
+  status     MedibotConvStatus @default(ACTIVE)
+  createdAt  DateTime          @default(now())
+  updatedAt  DateTime          @updatedAt
+  lastActive DateTime          @default(now())
+  patient    Patient?          @relation(fields: [patientId], references: [id], onDelete: SetNull)
+  messages   MedibotMessage[]
+
+  @@index([sessionId])
+  @@index([patientId])
+  @@map("medibot_conversations")
+}
+
+model MedibotMessage {
+  id             String              @id @default(cuid())
+  conversationId String
+  role           MedibotMessageRole
+  // Plain text shown to the user (assistant/user). Never stores secrets.
+  content        String?
+  // Structured UI actions the assistant asks the frontend to render
+  // (practitioner cards, booking summary, payment card, auth form, navigation).
+  actions        Json?
+  // Raw Gemini function calls / responses for reconstructing model context.
+  toolCalls      Json?
+  // Metadata about an uploaded medical document (never the file bytes).
+  attachments    Json?
+  createdAt      DateTime            @default(now())
+  conversation   MedibotConversation @relation(fields: [conversationId], references: [id], onDelete: Cascade)
+
+  @@index([conversationId])
+  @@map("medibot_messages")
+}
+
+enum MedibotConvStatus {
+  ACTIVE
+  CLOSED
+}
+
+enum MedibotMessageRole {
+  USER
+  ASSISTANT
+  TOOL
+  SYSTEM
 }
