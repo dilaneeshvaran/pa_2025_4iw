@@ -70,10 +70,10 @@ export const useMedibotStore = defineStore("medibot", () => {
 
   async function checkStatus() {
     try {
-      const res = await $fetch<{ success: boolean; data: { configured: boolean } }>(
-        "/medibot/status",
-        { baseURL: apiBase() },
-      );
+      const res = await $fetch<{
+        success: boolean;
+        data: { configured: boolean };
+      }>("/medibot/status", { baseURL: apiBase() });
       isConfigured.value = res.data.configured;
     } catch {
       isConfigured.value = false;
@@ -144,6 +144,7 @@ export const useMedibotStore = defineStore("medibot", () => {
           role: "assistant",
           content: res.data.message,
           actions: res.data.actions ?? [],
+          animate: true,
         };
       }
     } catch (err: unknown) {
@@ -191,10 +192,15 @@ export const useMedibotStore = defineStore("medibot", () => {
       role: "assistant",
       content,
       actions,
+      animate: true,
     });
   }
 
-  // Push a locally-authored user note (e.g. the "[Document envoyé]" echo).
+  function markAnimated(id: string) {
+    const message = messages.value.find((m) => m.id === id);
+    if (message) message.animate = false;
+  }
+
   function pushUserNote(content: string) {
     messages.value.push({ id: newId(), role: "user", content, actions: [] });
   }
@@ -222,6 +228,7 @@ export const useMedibotStore = defineStore("medibot", () => {
     onAuthenticated,
     pushSystemNote,
     pushUserNote,
+    markAnimated,
     resetLocal,
   };
 });
