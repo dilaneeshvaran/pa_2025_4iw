@@ -23,7 +23,7 @@
             Veuillez enregistrer une carte bancaire ou un compte Mobile Money pour éviter toute suspension de votre compte le {{ formattedBillingDate }}.
           </p>
           <NuxtLink
-            to="/practitioner/payment-methods"
+            to="/practitioner/billing?tab=methods"
             class="mt-2 inline-flex items-center text-sm font-semibold text-[#D96F00] dark:text-orange-300 hover:text-[#B85E00]"
           >
             Gérer mes moyens de paiement
