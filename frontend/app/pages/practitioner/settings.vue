@@ -359,7 +359,14 @@
               </p>
             </div>
           </div>
-          <div class="flex justify-end">
+          <div class="flex flex-wrap items-center justify-end gap-3">
+            <NuxtLink
+              to="/practitioner/payment-methods"
+              class="inline-flex items-center gap-1.5 rounded-lg border border-gray-200 bg-white px-4 py-2 text-sm font-semibold text-gray-700 hover:bg-gray-50 dark:border-gray-800 dark:bg-gray-900 dark:text-gray-200 dark:hover:bg-gray-800"
+            >
+              <CreditCard class="h-4 w-4" />
+              Gérer mes moyens de paiement
+            </NuxtLink>
             <UiButton
               v-if="!subscription.cancelAtPeriodEnd"
               variant="outline"
