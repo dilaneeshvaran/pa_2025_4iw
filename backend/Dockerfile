@@ -32,7 +32,7 @@ COPY --chown=medicote:appgroup shared/package*.json ./shared/
 COPY --chown=medicote:appgroup shared ./shared
 COPY --chown=medicote:appgroup backend/prisma ./backend/prisma
 
-RUN npm install && npx prisma generate --schema=backend/prisma/schema.prisma
+RUN rm -f package-lock.json && npm install && npx prisma generate --schema=backend/prisma/schema.prisma
 
 
 # stage 2b: production dependencies only
@@ -44,7 +44,7 @@ COPY --chown=medicote:appgroup shared/package*.json ./shared/
 COPY --chown=medicote:appgroup shared ./shared
 COPY --chown=medicote:appgroup backend/prisma ./backend/prisma
 
-RUN npm install --omit=dev && npx prisma generate --schema=backend/prisma/schema.prisma
+RUN rm -f package-lock.json && npm install --omit=dev && npx prisma generate --schema=backend/prisma/schema.prisma
 
 
 # stage 3: development
